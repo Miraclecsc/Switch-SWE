@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sessionswitchbench.org/schemas/leaderboard_submission_v1.schema.json",
+  "title": "SessionSwitchBench v1 Leaderboard Submission",
+  "description": "Patch submission format. JSONL submissions use one object per line with this same row shape; JSON submissions may be either an array of rows or an object with a submissions array.",
+  "oneOf": [
+    {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/submission_row"
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "submissions"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "agent_scaffold": {
+          "type": "string"
+        },
+        "submissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/submission_row"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  ],
+  "$defs": {
+    "submission_row": {
+      "type": "object",
+      "required": [
+        "patch"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "task_id"
+          ]
+        },
+        {
+          "required": [
+            "case_id"
+          ]
+        }
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string",
+          "description": "Session case id. When present, the scorer resolves the focus task from the case file."
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Task id from the strict executable split."
+        },
+        "patch": {
+          "type": "string",
+          "description": "Unified diff candidate patch produced by the agent."
+        },
+        "model": {
+          "type": "string"
+        },
+        "model_version": {
+          "type": "string"
+        },
+        "agent_scaffold": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "context_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tool_budget": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "wall_clock_budget_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "memory_setting": {
+          "type": "string"
+        },
+        "prompt_sha256": {
+          "type": "string"
+        },
+        "log_sha256": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

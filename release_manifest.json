@@ -1,0 +1,38 @@
+{
+  "benchmark": "SessionSwitchBench",
+  "release": "v1-public",
+  "public_task_count": 500,
+  "switched_case_count": 500,
+  "focus_control_case_count": 500,
+  "unique_focus_task_count": 500,
+  "repository_count": 410,
+  "source_lineage": "Derived from internally strict-executable SWE-bench-family repository repair tasks.",
+  "public_data_policy": {
+    "task_ids_anonymized": true,
+    "contains_reference_patches": false,
+    "contains_test_patches": false,
+    "contains_hidden_tests": false,
+    "contains_target_files": false,
+    "contains_upstream_pr_or_commit_urls": false,
+    "contains_private_scorer_metadata": false
+  },
+  "evaluation_protocol": {
+    "controller_answer_agent": true,
+    "workspace_reset_between_cases": true,
+    "workspace_persistent_within_case": true,
+    "strip_git_by_default": true,
+    "one_prompt_turn_at_a_time": true,
+    "exactly_one_scored_final_focus_turn": true,
+    "score_final_focus_patch_only": true
+  },
+  "included_scorer": {
+    "kind": "demo",
+    "path": "examples/demo_scorer/demo_score_patch.py",
+    "checks": "non-empty unified-diff format only",
+    "leaderboard_scorer": false
+  },
+  "verification": {
+    "command": "python3 scripts/verify_release.py --data-dir data --expected-count 500",
+    "expected_status": "pass"
+  }
+}

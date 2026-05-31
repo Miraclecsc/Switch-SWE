@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sessionswitchbench.org/schemas/leaderboard_result_v1.schema.json",
+  "title": "SessionSwitchBench v1 Leaderboard Result",
+  "type": "object",
+  "required": [
+    "meta",
+    "summary",
+    "instances"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": [
+        "submission",
+        "tasks"
+      ],
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "attempted",
+        "completed",
+        "accuracy",
+        "unique_tasks",
+        "unique_task_accuracy"
+      ],
+      "properties": {
+        "attempted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "accuracy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "invalid": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unique_tasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unique_task_accuracy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "by_case_kind": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "attempted",
+              "completed",
+              "accuracy"
+            ],
+            "properties": {
+              "attempted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "completed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "accuracy": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "instances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "status",
+          "completed"
+        ],
+        "properties": {
+          "row_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "case_id": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "base_commit": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "tests_applied": {
+            "type": "boolean"
+          },
+          "candidate_applied": {
+            "type": "boolean"
+          },
+          "setup_ok": {
+            "type": "boolean"
+          },
+          "tests_ok": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string"
+          },
+          "work_dir": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
