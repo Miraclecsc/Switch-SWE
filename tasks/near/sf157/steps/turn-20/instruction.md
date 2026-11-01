@@ -1,0 +1,1 @@
+And here, This check is now missing from `start()` on asyncio (but not Trio):

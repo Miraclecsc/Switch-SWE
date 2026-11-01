@@ -1,0 +1,1 @@
+Also, Haven't added tests yet, forgot to open as draft. Also want to check performance impact, which Consider is small. Thoughts on this approach.

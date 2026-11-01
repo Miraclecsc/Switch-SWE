@@ -1,0 +1,1 @@
+And here, Please check native asyncio cancellation at the due checkpoint: a failed acquisition must not leak a permit or lock ownership, and the next attempt must still be due. Keep cancellation shielding for the voluntary scheduling checkpoint; this does not waive the existing cancellation check on entry.

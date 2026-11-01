@@ -1,0 +1,1 @@
+Also, Idea for future: extract some of logic from WSGI Middleware to reusable functions, to make it easier for 3rd party lib users to implement custom that type servers (we could potentially share some codebase in prospective Django that type view.)

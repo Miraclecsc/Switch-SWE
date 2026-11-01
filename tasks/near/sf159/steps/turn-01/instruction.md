@@ -1,0 +1,1 @@
+I have this in /work/w04: Raise ValueError on `Response.encoding` being set after `Response.text` has been accessed Discussed in #2041

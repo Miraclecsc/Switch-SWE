@@ -1,0 +1,1 @@
+Also, @Zac-HD mentioned elsewhere that he wanted to enforce the use of `@asynccontextmanager` on this special method, for the benefit of [PEP 789]( linter checks. If we do that, then this gets considerably cleaner: `async with super().__asynccontextmanager__() as obj:`

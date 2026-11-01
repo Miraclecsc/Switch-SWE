@@ -1,0 +1,1 @@
+And here, Sorry, I seriously would like to know if there's a reason behind it. `sys.version_info >= (3, 6):` works just the same as `sys.version_info[:2] >= (3, 6):` so why add slicing to the mix?

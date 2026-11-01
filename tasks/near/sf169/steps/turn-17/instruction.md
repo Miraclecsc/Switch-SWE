@@ -1,0 +1,1 @@
+Also, The minimal fix has been updated according to the discussion in #8021 . Changes: - Raise an error for non-strongly connected graphs - Add examples for usage with Markov chains, including one using `nx.attracting_components`. - Fix tests accordingly.

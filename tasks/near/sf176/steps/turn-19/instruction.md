@@ -1,0 +1,1 @@
+Please check this too: The issue is not that you declare it `async`, but that you will return a `AsyncIterable` instead of a `Iterable`. All other filter expected as input an Iterable, not an AsyncIterable. This is where the API breakage is.

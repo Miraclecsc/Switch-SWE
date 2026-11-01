@@ -1,0 +1,1 @@
+Please check this too: With symmetry=True, only quotient by automorphisms that preserve every anchored subgraph node individually; do not discard valid anchored orientations. Support directed/multigraph inputs and unsortable labels under the original matching rules.

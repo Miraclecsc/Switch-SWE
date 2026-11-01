@@ -1,0 +1,1 @@
+And here, look at this: In my opinion, all arguments should go to VectorAdd, which should then validate them and decide what to do.

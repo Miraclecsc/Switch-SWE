@@ -1,0 +1,1 @@
+Please check this too: The domain of trig functions and most functions in sympy in general is the complex numbers. So if `arg` is complex valued but not extended real, this would be wrong.

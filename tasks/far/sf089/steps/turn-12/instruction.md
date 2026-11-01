@@ -1,0 +1,1 @@
+And here, IMO we should define a sync `trio.Path.as_uri()` method; it's not a _pure_ function, but `os.fsencode()` doesn't do IO that I'd want to make async. and then I think the test change is just to find a different that type method for `test_forward_methods_without_rewrap`.

@@ -1,0 +1,66 @@
+{
+  "case_id": "sf112_switched",
+  "task_id": "ssb_v2_task_0210",
+  "repo": "mirumee/ariadne",
+  "base_commit": "448fe0e6ef233679f34f22e3de0ec6bb446ebb3c",
+  "derived_fail_to_pass": [
+    "tests.tracing.test_utils::test_field_with_default_resolver_is_included_in_tracing_when_set",
+    "tests.tracing.test_staged_contract::test_default_resolvers_are_traced_in_both_modes[True]",
+    "tests.tracing.test_staged_contract::test_sequential_requests_keep_independent_results[True]",
+    "tests.tracing.test_staged_contract::test_sequential_requests_keep_independent_results[False]",
+    "tests.tracing.test_staged_contract::test_aliased_introspection_is_excluded[True]",
+    "tests.tracing.test_staged_contract::test_aliased_introspection_is_excluded[False]",
+    "tests.tracing.test_staged_contract::test_ordinary_alias_named_like_introspection_is_traced[True]",
+    "tests.tracing.test_staged_contract::test_ordinary_alias_named_like_introspection_is_traced[False]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.tracing.test_utils::test_field_with_custom_resolver_is_included_in_tracing",
+    "tests.tracing.test_utils::test_field_with_default_resolver_is_excluded_from_tracing_by_default",
+    "tests.tracing.test_utils::test_introspection_check_returns_false_for__field",
+    "tests.tracing.test_utils::test_introspection_check_returns_false_for_non_introspection_field",
+    "tests.tracing.test_utils::test_introspection_check_returns_true_for_child_field_of_introspection_field",
+    "tests.tracing.test_utils::test_introspection_check_returns_true_for_introspection_field",
+    "tests.tracing.test_utils::test_introspection_field_is_excluded_from_tracing",
+    "tests.tracing.test_utils::test_util_formats_info_path_value_into_reversed_list",
+    "tests.tracing.test_staged_contract::test_default_resolvers_are_traced_in_both_modes[False]",
+    "tests.tracing.test_staged_contract::test_default_option_still_excludes_default_resolvers[True]",
+    "tests.tracing.test_staged_contract::test_default_option_still_excludes_default_resolvers[False]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/tracing/test_utils.py",
+    "tests/tracing/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/tracing/test_staged_contract.py",
+    "tests/tracing/test_utils.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "6f7042e5834dbc977d62bc3182836a500798a8989878d3f1bf4dc4cd22a70018",
+    "config/recipes.json": "88575986eb842d12da0ee776c6e3ed6e3e3430455453baa9e7d75129f3b05fcb"
+  }
+}

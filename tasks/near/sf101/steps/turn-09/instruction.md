@@ -1,0 +1,1 @@
+Also, I wavered between this version and the flattened version: The duplicate imports wouldn't be such a big deal. The duplicate anonymous users wouldn't be such a big deal either, since they are supposed to `__hash__` and `__eq__` to the same thing, but I don't know what people might be stashing on these instances directly, so using the same instance seemed slightly beneficial.

@@ -1,0 +1,1 @@
+I have this in /work/w00: Allow `CapacityLimiter` to have zero total_tokens Closes #3243 Hi, I've only changed some existing tests & added one `assert` statement which checks `total_tokens` in case of zero. What kind of other tests should be included, if any needed ?

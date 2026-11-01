@@ -1,0 +1,3 @@
+Also, Hmm, I don't remember the exact reason for the approach that was taken in (I am also wondering now why that code was actually changed, i.e. why the original `.items()` was not sufficient in content of CoW) So if all the tests are passing, this looks like a good approach
+
+Make DataFrame.eval(..., inplace=True) transactional for assignments targeting the DataFrame itself, including multiline expressions. Evaluate against a working copy, make earlier successful assignments visible to later lines, and commit only after every line succeeds. A later undefined name or other evaluation error must leave the original DataFrame and duplicate-column values unchanged.

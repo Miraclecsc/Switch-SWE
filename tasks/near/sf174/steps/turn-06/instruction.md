@@ -1,0 +1,1 @@
+One more thing: Extend the borrowed-stream fix to text-only stdout objects such as StringIO. get_pager_file(color=False) must strip ANSI escapes from writes even when stdout has no binary buffer.

@@ -1,0 +1,1 @@
+Please check this too: REF: DTA/TDA _generate_range no longer stamps freq (GH#24566) DatetimeArray._generate_range and TimedeltaArray._generate_range now return bare arrays; the three callers (date_range, timedelta_range, DatetimeIndexOpsMixin.shift) stamp freq explicitly. Continues moving freq management off DTA/TDA toward the Index level.

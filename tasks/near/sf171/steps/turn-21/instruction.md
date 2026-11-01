@@ -1,0 +1,1 @@
+Also, Should this just be an `if`? If `k` >> `n` this approach doesn't really apply, correct? Might as well fail early on user-provided values too.

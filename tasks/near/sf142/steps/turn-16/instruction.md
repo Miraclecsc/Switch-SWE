@@ -1,0 +1,1 @@
+And here, I noticed that we were ending up calling `cleandoc` twice on our extracted docstrings - to remedy this I inlined this operation in a single `_get_formatted_doc` method, later on this module

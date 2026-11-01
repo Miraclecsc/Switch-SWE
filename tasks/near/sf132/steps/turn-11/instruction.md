@@ -1,0 +1,1 @@
+Please check this too: All sensible suggestions, thanks for taking a look! It'd definitely be nice to have benchmarks for this kind of change (re: what I said in #7527). I could add a simple benchmark right now, but I think there might have to be a reorganisation of how benchmarking is done at some point in the near future if performance is something you want to prioritize.

@@ -1,0 +1,1 @@
+Please check this too: For the cases where it's worth keeping the logic it should probably be broken out into its own test function. Although honestly unless the test is specifically for formatting and thus has hard-coded expectations I say just call `_version_nodot()` directly.

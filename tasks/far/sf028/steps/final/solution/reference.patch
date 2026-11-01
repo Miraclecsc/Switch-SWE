@@ -1,0 +1,77 @@
+diff --git a/.mailmap b/.mailmap
+--- a/.mailmap
++++ b/.mailmap
+@@ -467,6 +467,7 @@
+ Chetan Choudhary <cc393653@gmail.com> ChetanChoudhary007 <cc393653@gmail.com>
+ Chetna Gupta <cheta.gup@gmail.com>
+ Chiu-Hsiang Hsu <wdv4758h@gmail.com>
++Chris Cameron <chrisjamescameron1@gmail.com> ccam80 <63381855+ccam80@users.noreply.github.com>
+ Chris Conley <chrisconley15@gmail.com>
+ Chris Kerr <chris.kerr@mykolab.ch>
+ Chris Smith <smichr@gmail.com>
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -200,6 +200,62 @@
+     def _print_ComplexInfinity(self, expr):
+         return self._print_NaN(expr)
+ 
++    def _print_Assignment(self, expr):
++        # Emit a single outer assignment when rhs is piecewise to avoid
++        # invalid python like "((x = a) if cond else (x = b))"
++        from sympy.functions.elementary.piecewise import Piecewise
++        lhs = expr.lhs
++        rhs = expr.rhs
++        if isinstance(rhs, Piecewise):
++            if self._settings.get('contract', False):
++                from sympy.tensor.indexed import Indexed
++                if lhs.has(Indexed) or rhs.has(Indexed):
++                    return self._print_piecewise_indexed_assignment(lhs, rhs)
++            return f"{self._print(lhs)} = {self._print(rhs)}"
++        return super()._print_Assignment(expr)
++
++    def _print_piecewise_indexed_assignment(self, lhs, rhs):
++        from sympy import Add, Piecewise, Sum
++        from sympy.tensor import get_indices, get_contraction_structure
++        from sympy.tensor.indexed import Idx
++
++        free, _ = get_indices(lhs)
++        indices = sorted(free, key=self._print)
++
++        def bounds(index):
++            if not isinstance(index, Idx) or index.lower is None or index.upper is None:
++                raise ValueError("contract=True requires bounded Idx indices")
++            return index.lower, index.upper
++
++        def lower(expr):
++            if isinstance(expr, Piecewise):
++                return Piecewise(*[(lower(value), condition) for value, condition in expr.args],
++                                 evaluate=False)
++            terms = []
++            for term in Add.make_args(expr):
++                term_free, _ = get_indices(term)
++                if term_free and term_free != free:
++                    raise ValueError("lhs indices must match non-dummy rhs indices")
++                structure = get_contraction_structure(term)
++                for contracted, values in structure.items():
++                    if contracted is None:
++                        terms.extend(values)
++                    elif isinstance(contracted, tuple):
++                        limits = [(index, *bounds(index)) for index in sorted(contracted, key=self._print)]
++                        terms.extend(Sum(value, *limits) for value in values)
++                    else:
++                        raise NotImplementedError("nested contractions in factors")
++            return Add(*terms)
++
++        lowered = lower(rhs)
++        lines = []
++        for depth, index in enumerate(indices):
++            start, end = bounds(index)
++            lines.append(self.tab * depth + "for {} in range({}, {} + 1):".format(
++                self._print(index), self._print(start), self._print(end)))
++        lines.append(self.tab * len(indices) + "{} = {}".format(self._print(lhs), self._print(lowered)))
++        return "\n".join(lines)
++
+     def _print_Mod(self, expr):
+         PREC = precedence(expr)
+         return ('{} % {}'.format(*(self.parenthesize(x, PREC) for x in expr.args)))

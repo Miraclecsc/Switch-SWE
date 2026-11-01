@@ -1,0 +1,1 @@
+And here, @willmcgugan Should I add in the PR also a change in the Changelog file and on the documentation? Or it is something that is generally handled by someone from textual?

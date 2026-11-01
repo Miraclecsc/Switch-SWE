@@ -1,0 +1,154 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -29,6 +29,8 @@
+   Patch by Will Lachance.
+ * #12251: Fix ``merge_domaindata()`` in ``sphinx.ext.duration``.
+   Patch by Matthias Geier.
++* #12224: Properly detect WebP files.
++  Patch by Benjamin Cabé.
+ 
+ Testing
+ -------
+diff --git a/sphinx/ext/imgconverter.py b/sphinx/ext/imgconverter.py
+--- a/sphinx/ext/imgconverter.py
++++ b/sphinx/ext/imgconverter.py
+@@ -2,6 +2,8 @@
+ 
+ from __future__ import annotations
+ 
++import os
++import tempfile
+ import subprocess
+ import sys
+ from subprocess import CalledProcessError
+@@ -26,6 +28,7 @@
+         ('image/gif', 'image/png'),
+         ('application/pdf', 'image/png'),
+         ('application/illustrator', 'image/png'),
++        ('image/webp', 'image/png'),
+     ]
+ 
+     def is_available(self) -> bool:
+@@ -52,16 +55,23 @@
+ 
+     def convert(self, _from: str, _to: str) -> bool:
+         """Converts the image to expected one."""
++        temporary = None
+         try:
+-            # append an index 0 to source filename to pick up the first frame
+-            # (or first page) of image (ex. Animation GIF, PDF)
+-            _from += '[0]'
+-
+-            args = ([
+-                self.config.image_converter, *self.config.image_converter_args, _from, _to,
+-            ])
++            fd, temporary = tempfile.mkstemp(
++                prefix='.sphinx-image-', suffix=os.path.splitext(_to)[1],
++                dir=os.path.dirname(os.path.abspath(_to)),
++            )
++            os.close(fd)
++            args = [
++                self.config.image_converter, *self.config.image_converter_args,
++                _from + '[0]', temporary,
++            ]
+             logger.debug('Invoking %r ...', args)
+             subprocess.run(args, capture_output=True, check=True)
++            if not os.path.isfile(temporary) or not os.path.getsize(temporary):
++                raise ExtensionError('Image converter produced no output')
++            os.replace(temporary, _to)
++            temporary = None
+             return True
+         except OSError:
+             logger.warning(__('convert command %r cannot be run, '
+@@ -69,9 +79,15 @@
+                            self.config.image_converter)
+             return False
+         except CalledProcessError as exc:
+-            raise ExtensionError(__('convert exited with error:\n'
+-                                    '[stderr]\n%r\n[stdout]\n%r') %
++            raise ExtensionError(__('convert exited with error:\\n'
++                                    '[stderr]\\n%r\\n[stdout]\\n%r') %
+                                  (exc.stderr, exc.stdout)) from exc
++        finally:
++            if temporary is not None:
++                try:
++                    os.unlink(temporary)
++                except FileNotFoundError:
++                    pass
+ 
+ 
+ def setup(app: Sphinx) -> ExtensionMetadata:
+diff --git a/sphinx/transforms/post_transforms/images.py b/sphinx/transforms/post_transforms/images.py
+--- a/sphinx/transforms/post_transforms/images.py
++++ b/sphinx/transforms/post_transforms/images.py
+@@ -5,6 +5,7 @@
+ import os
+ import re
+ from hashlib import sha1
++from urllib.parse import unquote, urlsplit
+ from math import ceil
+ from typing import TYPE_CHECKING, Any
+ 
+@@ -150,6 +151,13 @@
+     return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
+ 
+ 
++def _local_image_path(srcdir, uri):
++    parts = urlsplit(uri)
++    if parts.scheme or parts.netloc:
++        return None
++    return os.path.join(srcdir, unquote(parts.path))
++
++
+ class ImageConverter(BaseImageConverter):
+     """A base class for image converters.
+ 
+@@ -192,9 +200,6 @@
+     #:     ]
+     conversion_rules: list[tuple[str, str]] = []
+ 
+-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+-        super().__init__(*args, **kwargs)
+-
+     def match(self, node: nodes.image) -> bool:
+         if not self.app.builder.supported_image_types:
+             return False
+@@ -232,10 +237,14 @@
+         raise NotImplementedError
+ 
+     def guess_mimetypes(self, node: nodes.image) -> list[str]:
++        # The special key ? is set for nonlocal URIs.
+         if '?' in node['candidates']:
+             return []
+         elif '*' in node['candidates']:
+-            guessed = guess_mimetype(node['uri'])
++            path = _local_image_path(self.app.srcdir, node['candidates']['*'])
++            if path is None:
++                return []
++            guessed = guess_mimetype(path)
+             return [guessed] if guessed is not None else []
+         else:
+             return node['candidates'].keys()
+@@ -253,7 +262,9 @@
+         ensuredir(self.imagedir)
+         destpath = os.path.join(self.imagedir, filename)
+ 
+-        abs_srcpath = os.path.join(self.app.srcdir, srcpath)
++        abs_srcpath = _local_image_path(self.app.srcdir, srcpath)
++        if abs_srcpath is None:
++            return
+         if self.convert(abs_srcpath, destpath):
+             if '*' in node['candidates']:
+                 node['candidates']['*'] = destpath
+diff --git a/sphinx/util/images.py b/sphinx/util/images.py
+--- a/sphinx/util/images.py
++++ b/sphinx/util/images.py
+@@ -24,6 +24,7 @@
+     '.svg': 'image/svg+xml',
+     '.svgz': 'image/svg+xml',
+     '.ai': 'application/illustrator',
++    '.webp': 'image/webp',
+ }
+ _suffix_from_mime = {v: k for k, v in reversed(mime_suffixes.items())}
+ 

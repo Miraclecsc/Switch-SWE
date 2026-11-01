@@ -1,0 +1,1 @@
+Please check this too: :+1: We might want to keep a version of these `json` files around in the end after all, though just as the list of symbols. Kinda similar to what `test_exports` is doing but not quite. I'm not sure if dropping private symbols is ever really a problem, but could be good to keep track of it.

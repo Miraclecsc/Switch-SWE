@@ -1,0 +1,1 @@
+I have this in /work/w02: Using a class as a `flag_value` causes the default to be instantiated in click 8.3.0 Consider the following code:

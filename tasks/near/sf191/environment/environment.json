@@ -1,0 +1,155 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+  ],
+  "case_id": "sf191_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229",
+      "python": "3.12.12",
+      "requirements": "requirements/8e87d20fe955230a-3.12.12-1ba64229.txt",
+      "source": "dependency-source/8e87d20fe955230a-3.12.12-1ba64229.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "2ca7aada707167cda9b3c8bbc2fd195e4f1aa422",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "868d29fcb8a855ce8f8ebac1d4e9222a68a462e0ac9af3bd378c80e020959cf1"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_setattr.py",
+          "sha256": "f707de008a3eeef111a13a103cfab9ae8ec7e61fa7cd2175aaa587f9af215d75"
+        },
+        {
+          "mode": "100644",
+          "path": "tox.ini",
+          "sha256": "7606ceba953f9d5ad3df58ea77f9f258ffa2da71658cad513e5bd3f56667f142"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "bfd7bb49b467e7ab586deb475c23974a91df4dab",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "1499c77e79315ef8c5c98c088dc3ef99bdba72b4",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "c693e138ec6d168f649588e4ec7b178ba65cdccb9eb2772a6a0afdcf57b12e22"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_setattr.py",
+          "sha256": "f707de008a3eeef111a13a103cfab9ae8ec7e61fa7cd2175aaa587f9af215d75"
+        },
+        {
+          "mode": "100644",
+          "path": "tox.ini",
+          "sha256": "2fd853ba2927274175cae254d271a75d34dfe59a03ec44b2e93e245341f158b5"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "fe19f4b341dbba5cda14b11d6a184105891c67e5",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "549b644437467219dd1f186cd6c7bda4e3118fdb3a18569dfb050fcdec967f8b"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_setattr.py",
+          "sha256": "f707de008a3eeef111a13a103cfab9ae8ec7e61fa7cd2175aaa587f9af215d75"
+        },
+        {
+          "mode": "100644",
+          "path": "tox.ini",
+          "sha256": "bc60b9eb5740f705b4e959a3ac6adfa8ec06062b7be8c1d3f4d32664a539aa96"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "94ad4f39172929a9696670eb03a9151feda63e03",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w04"
+    }
+  ]
+}

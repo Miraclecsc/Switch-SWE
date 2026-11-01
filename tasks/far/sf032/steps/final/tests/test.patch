@@ -1,0 +1,56 @@
+diff --git a/sympy/core/tests/test_evalf.py b/sympy/core/tests/test_evalf.py
+index 844f7fad3dd6..3b1ab0dd4f85 100644
+--- a/sympy/core/tests/test_evalf.py
++++ b/sympy/core/tests/test_evalf.py
+@@ -735,3 +735,15 @@ def test_issue_20733():
+     assert srepr(expr.evalf(2, subs={x: 1})) == "Float('4.0271e+2561', precision=10)"
+     assert srepr(expr.evalf(10, subs={x: 1})) == "Float('4.02790050126e+2561', precision=37)"
+     assert srepr(expr.evalf(53, subs={x: 1})) == "Float('4.0279005012722099453824067459760158730668154575647110393e+2561', precision=179)"
++
++
++def test_issue_28280():
++    # This test demonstrates why `evalf_log` needs to specially handle
++    # arguments close to 1.If the argument is evaluated directly
++    # as `1 + 10**-10` at default precision,it loses the small
++    # term and becomes exactly 1. This results in `log(1) -> 0`
++    # causing `x > 20` to incorrectly evaluate to False.
++    x = 20 + log(1 + S(10)**-10)
++    assert x > 20
++    y = 20 + log(1 + S(10)**-9)
++    assert y > 20
+diff --git a/sympy/core/tests/test_sf032_log_magnitude.py b/sympy/core/tests/test_sf032_log_magnitude.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/core/tests/test_sf032_log_magnitude.py
+@@ -0,0 +1,31 @@
++import pytest
++from sympy import Add, Rational, S, log, pi
++from sympy.core.evalf import PrecisionExhausted
++
++@pytest.mark.parametrize('exponent',[60,120,400])
++@pytest.mark.parametrize('sign',[-1,1])
++def test_negative_near_unit_real_part_and_phase(exponent,sign):
++    t=sign*Rational(1,10**exponent)
++    expr=log(-(1+t),evaluate=False)
++    real,imag=expr.evalf(35,maxn=1500,strict=True).as_real_imag()
++    oracle=sum((-1)**(k+1)*t**k/Rational(k) for k in range(1,5))
++    assert abs((real-oracle.evalf(45))/t).evalf() < Rational(1,10**30)
++    assert abs(imag-pi.evalf(45)).evalf() < Rational(1,10**33)
++
++@pytest.mark.parametrize('sign',[-1,1])
++def test_unevaluated_negative_near_unit_sum(sign):
++    eps=Rational(sign,10**90)
++    arg=Add(-1,-eps,evaluate=False)
++    real=log(arg,evaluate=False).evalf(30,maxn=600,strict=True).as_real_imag()[0]
++    assert abs(real/eps-1).evalf() < Rational(1,10**25)
++
++@pytest.mark.parametrize('sign',[-1,1])
++def test_insufficient_budget_is_explicit(sign):
++    expr=log(-1+Rational(sign,10**400),evaluate=False)
++    with pytest.raises(PrecisionExhausted):expr.evalf(30,maxn=40,strict=True)
++
++def test_positive_correction_and_exact_unit_regressions():
++    eps=Rational(1,10**80)
++    assert abs(log(1+eps,evaluate=False).evalf(30,maxn=600)/eps-1).evalf() < Rational(1,10**25)
++    assert log(S.One,evaluate=False).evalf(30)==0
++    assert log(-S.One,evaluate=False).evalf(30)==(pi*S.ImaginaryUnit).evalf(30)

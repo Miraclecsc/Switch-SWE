@@ -1,0 +1,3 @@
+Please check this too: Updated the whatsnew to not list each method out. What's the benefit of adding this directly to `ExtensionArray`? The downside to me is that various EAs then have methods that just raise when called, which isn't great from a design standpoint.
+
+Reject keepdims=True on non-one-dimensional arrays with ValueError for this public extension; existing multidimensional behavior without keepdims is unchanged. Validate both string backends and both numeric backends. Preserve every original selector and test.

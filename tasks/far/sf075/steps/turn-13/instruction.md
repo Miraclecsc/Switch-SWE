@@ -1,0 +1,1 @@
+Also, I see that this logic is basically the same logic from `make_attrgetter`. Would it be possible to abstract this out and use it in both places? That way if we need to adjust this in the future, we won't have to remember to do it in both places.

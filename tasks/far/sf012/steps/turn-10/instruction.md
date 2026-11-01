@@ -1,0 +1,1 @@
+One more thing: I'd reuse `E109` instead of raising a different error, and check attributes rather than `isinstance()`, e.g.

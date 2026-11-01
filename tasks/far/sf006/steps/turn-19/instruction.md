@@ -1,0 +1,1 @@
+Please check this too: I'm not sure if release notes are needed. `5.2.8` is the first version that officially supports Python 3.14, so we still have several days to fix bugs like that.

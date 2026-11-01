@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Added new method itervalues() to LRUCache and deprecated itervalue() Added new method itervalues() to LRUCache and deprecated itervalue() (Fixes pallets/jinja#999)

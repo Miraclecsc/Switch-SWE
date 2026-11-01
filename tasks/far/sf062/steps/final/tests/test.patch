@@ -1,0 +1,56 @@
+diff --git a/tests/client/test_headers.py b/tests/client/test_headers.py
+index c51e40c335..b8d2976700 100755
+--- a/tests/client/test_headers.py
++++ b/tests/client/test_headers.py
+@@ -177,6 +177,14 @@ def test_header_does_not_exist():
+         del headers["baz"]
+ 
+ 
++def test_header_with_incorrect_value():
++    with pytest.raises(
++        TypeError,
++        match=f"Header value must be str or bytes, not {type(None)}",
++    ):
++        httpx.Headers({"foo": None})  # type: ignore
++
++
+ def test_host_with_auth_and_port_in_url():
+     """
+     The Host header should only include the hostname, or hostname:port
+diff --git a/tests/test_sf062_header_validation.py b/tests/test_sf062_header_validation.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf062_header_validation.py
+@@ -0,0 +1,32 @@
++
++import pytest
++import httpx
++
++@pytest.mark.parametrize("key,value,exc", [
++    (None, "ok", TypeError), ("X", None, TypeError), ("X", 42, TypeError),
++    ("", "ok", ValueError), ("Bad Name", "ok", ValueError), (b"X:", b"ok", ValueError),
++    ("X", "a\r\nb", ValueError), (b"X", b"a\0b", ValueError), ("X", "a\nb", ValueError),
++])
++@pytest.mark.parametrize("entry", ["construct", "assign", "update"])
++def test_public_header_validation_is_consistent_and_atomic(key, value, exc, entry):
++    headers = httpx.Headers([("X", "first"), ("X", "second"), ("Y", "last")])
++    before = list(headers.raw)
++    with pytest.raises(exc):
++        if entry == "construct":
++            httpx.Headers([(key, value)])
++        elif entry == "assign":
++            headers[key] = value
++        else:
++            headers.update([("Y", "new"), (key, value)])
++    assert headers.raw == before
++
++def test_assignment_accepts_bytes_and_preserves_duplicate_replacement_order():
++    headers = httpx.Headers([("A", "1"), ("X", "old"), ("X", "again"), ("Z", "3")])
++    headers[b"x"] = b"new"
++    assert headers.raw == [(b"A", b"1"), (b"x", b"new"), (b"Z", b"3")]
++    assert headers["x"] == "new"
++
++def test_valid_empty_value_tab_and_explicit_encoding():
++    headers = httpx.Headers({"X": ""}, encoding="latin-1")
++    headers["X"] = "é\tvalue"
++    assert headers.raw == [(b"X", b"\xe9\tvalue")]

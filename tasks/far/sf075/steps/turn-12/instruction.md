@@ -1,0 +1,1 @@
+I have this in /work/w01: Add ability to specify multiple attributes in sort Added ability to specify multiple attributes in sort: e.g. foo|sort(attribute='name,id'). This fixes #670

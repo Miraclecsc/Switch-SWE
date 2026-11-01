@@ -1,0 +1,1 @@
+I have this in /work/w01: Fixed #36857 -- Added QuerySet.totally_ordered property.

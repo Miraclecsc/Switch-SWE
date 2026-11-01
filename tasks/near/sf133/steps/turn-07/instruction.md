@@ -1,0 +1,1 @@
+Please check this too: If we are interested in using a single random generator for the whole process, we could/should(?) use `seed=rng` for the seed kwargs of the generator functions. It works the way it is, but it is actually using 3 different random number generators with 3 different states. Of course they are all set from the same value in `seed`. But it feels strange to me.

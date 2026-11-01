@@ -1,0 +1,1 @@
+One more thing: Complete the template-global isolation mechanism by snapshotting caller-supplied global mappings into storage owned by each newly created template. Reusing one mapping for several templates, mutating that mapping later, or updating one cached template must not change another template or the caller's mapping.

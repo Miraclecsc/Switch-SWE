@@ -1,0 +1,1 @@
+One more thing: If Python < 3.8 is not supported on windows, will an informative error be raised if `to_process.run_sync` is called?

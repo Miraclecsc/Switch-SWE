@@ -1,0 +1,1 @@
+I have this in /work/w03: feat: add a `key` argument to `SpecifierSet.filter()` Close #1066 Signed-off-by: Frost Ming <me@frostming.com>

@@ -1,0 +1,1 @@
+In the checkout at /work/w01, That is, the last call to `current_time()` should be kept since it's done after visiting a yield point, but the others could use a shared timestamp.

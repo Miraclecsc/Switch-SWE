@@ -1,0 +1,47 @@
+diff --git a/starlette/middleware/base.py b/starlette/middleware/base.py
+--- a/starlette/middleware/base.py
++++ b/starlette/middleware/base.py
+@@ -156,7 +156,26 @@
+                 if app_exc is not None:
+                     nonlocal exception_already_raised
+                     exception_already_raised = True
+-                    raise app_exc
++                    # Prevent `anyio.EndOfStream` from polluting app exception context.
++                    # If both cause and context are None then the context is suppressed
++                    # and `anyio.EndOfStream` is not present in the exception traceback.
++                    # If exception cause is not None then it is propagated with
++                    # reraising here.
++                    # If exception has no cause but has context set then the context is
++                    # propagated as a cause with the reraise. This is necessary in order
++                    # to prevent `anyio.EndOfStream` from polluting the exception
++                    # context.
++                    original_context = app_exc.__context__
++                    cause = app_exc.__cause__
++                    if cause is None and not app_exc.__suppress_context__:
++                        cause = original_context
++                    try:
++                        raise app_exc from cause
++                    finally:
++                        # Raising from inside the stream handler replaces context.
++                        # Keep the application's existing exception graph intact.
++                        if original_context is not None:
++                            app_exc.__context__ = original_context
+                 raise RuntimeError("No response returned.")
+ 
+             assert message["type"] == "http.response.start"
+diff --git a/starlette/_utils.py b/starlette/_utils.py
+--- a/starlette/_utils.py
++++ b/starlette/_utils.py
+@@ -82,7 +82,11 @@
+             while isinstance(exc, BaseExceptionGroup) and len(exc.exceptions) == 1:
+                 exc = exc.exceptions[0]
+ 
+-        raise exc
++        context = exc.__context__
++        try:
++            raise exc
++        finally:
++            exc.__context__ = context
+ 
+ 
+ def get_route_path(scope: Scope) -> str:

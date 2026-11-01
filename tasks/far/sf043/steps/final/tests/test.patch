@@ -1,0 +1,117 @@
+diff --git a/networkx/readwrite/tests/test_pajek.py b/networkx/readwrite/tests/test_pajek.py
+index 9cce4d5..75a3942 100644
+--- a/networkx/readwrite/tests/test_pajek.py
++++ b/networkx/readwrite/tests/test_pajek.py
+@@ -126,3 +126,23 @@ class TestPajek:
+         assert nodes_equal(list(G), list(H))
+         assert edges_equal(list(G.edges()), list(H.edges()))
+         assert G.graph == H.graph
++
++    def test_quotes_and_backslashes_roundtrip(self):
++        # Labels/attributes with double quotes or backslashes must survive a
++        # write/read round-trip instead of breaking tokenization or injecting
++        # extra attributes.  See make_qstr.
++        import io
++
++        G = nx.Graph()
++        G.add_node('ev il"x 7')  # embedded quote with whitespace
++        G.add_node(r"back\slash")  # backslash, no whitespace
++        G.add_node("n0", role='a" pwn "admin')  # value crafted to inject
++        G.add_edge('ev il"x 7', "n0", lbl=r"c:\path with space")
++        fh = io.BytesIO()
++        nx.write_pajek(G, fh)
++        fh.seek(0)
++        H = nx.read_pajek(fh)
++        assert nodes_equal(list(G), list(H))
++        assert H.nodes["n0"]["role"] == 'a" pwn "admin'
++        assert "pwn" not in H.nodes["n0"]
++        assert H['ev il"x 7']["n0"][0]["lbl"] == r"c:\path with space"
+diff --git a/networkx/readwrite/tests/test_pajek_switch_contract.py b/networkx/readwrite/tests/test_pajek_switch_contract.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/readwrite/tests/test_pajek_switch_contract.py
+@@ -0,0 +1,84 @@
++"""Private candidate checks; run against the pinned source under validation."""
++import io
++import unittest
++import warnings
++
++import networkx as nx
++from networkx.readwrite.pajek import make_qstr
++import shlex
++
++
++class CandidateTests(unittest.TestCase):
++    def test_token_roundtrips(self):
++        for value in ["", "o'brien", "a\tb", 'a"b', "trailing\\", "雪", 23]:
++            with self.subTest(value=value):
++                self.assertEqual(shlex.split(make_qstr(value)), [str(value)])
++
++    def test_graph_roundtrips(self):
++        for graph_class in [nx.Graph, nx.DiGraph, nx.MultiGraph, nx.MultiDiGraph]:
++            with self.subTest(graph_class=graph_class.__name__):
++                graph = graph_class()
++                graph.add_node("", shape="o'val", **{"k'ey": "a\\b"})
++                graph.add_node("o'brien", role='a" pwn "admin')
++                graph.add_edge("", "o'brien", **{"e'key": "line\tvalue"})
++                stream = io.BytesIO()
++                nx.write_pajek(graph, stream)
++                stream.seek(0)
++                recovered = nx.read_pajek(stream)
++                self.assertEqual(set(recovered), set(graph))
++                self.assertEqual(recovered.nodes[""]["shape"], "o'val")
++                self.assertEqual(recovered.nodes[""]["k'ey"], "a\\b")
++                self.assertEqual(recovered.nodes["o'brien"]["role"], 'a" pwn "admin')
++                self.assertNotIn("pwn", recovered.nodes["o'brien"])
++                self.assertEqual(recovered[""]["o'brien"][0]["e'key"], "line\tvalue")
++                self.assertEqual(graph.nodes[""]["shape"], "o'val")
++
++    def test_record_delimiter_rejected_at_token_boundary(self):
++        for value in ["a\nb", "a\rb", "\n", "\r"]:
++            with self.subTest(value=value):
++                with self.assertRaises(ValueError):
++                    make_qstr(value)
++
++    def test_late_invalid_graph_is_rejected_before_output(self):
++        for delimiter in ["\n", "\r"]:
++            for location in ["node_label", "node_key", "node_value", "shape",
++                             "edge_key", "edge_value"]:
++                with self.subTest(delimiter=repr(delimiter), location=location):
++                    graph = nx.MultiDiGraph()
++                    graph.add_edge("good1", "good2", label="valid")
++                    bad = "bad" + delimiter + "injected"
++                    if location == "node_label":
++                        graph.add_node(bad)
++                    elif location == "node_key":
++                        graph.nodes["good2"][bad] = "value"
++                    elif location == "node_value":
++                        graph.nodes["good2"]["note"] = bad
++                    elif location == "shape":
++                        graph.nodes["good2"]["shape"] = bad
++                    elif location == "edge_key":
++                        graph.add_edge("good2", "good1", **{bad: "value"})
++                    else:
++                        graph.add_edge("good2", "good1", note=bad)
++                    # Generator callers must not receive even the header.
++                    with self.assertRaises(ValueError):
++                        next(nx.generate_pajek(graph))
++                    # Caller-owned streams must not receive a partial record/file.
++                    stream = io.BytesIO(b"prefix")
++                    stream.seek(0, 2)
++                    with self.assertRaises(ValueError):
++                        nx.write_pajek(graph, stream)
++                    self.assertEqual(stream.getvalue(), b"prefix")
++
++    def test_ignored_attributes_keep_legacy_behavior(self):
++        graph = nx.Graph()
++        graph.add_node("n", empty="", blank=" \t ", numeric=5)
++        graph.add_edge("n", "n", empty="", numeric=9)
++        with warnings.catch_warnings(record=True) as caught:
++            warnings.simplefilter("always")
++            lines = list(nx.generate_pajek(graph))
++        self.assertEqual(len(caught), 5)
++        self.assertFalse(any("numeric" in line or "empty" in line for line in lines))
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

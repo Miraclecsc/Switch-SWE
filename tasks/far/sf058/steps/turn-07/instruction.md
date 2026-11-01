@@ -1,0 +1,1 @@
+Please check this too: fix: prevent that type re-entry with clear RuntimeError ## Changes Fixes #1109 that type re-entry raises confusing `AttributeError` instead of a clear error. Added a guard in `__aenter__` that raises `RuntimeError("TaskGroup cannot be entered more than once")` if the group is already active. Also reinitializes `_exceptions` for safety.

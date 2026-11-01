@@ -1,0 +1,3 @@
+One more thing: Why didn't you make the comparison directly? (Which could also go directly in the `if` statement, as `if remaining_space >= word_length`...)
+
+Extend rich.cells.chop_cells and rich._wrap.divide_line with keyword-only position=0, the number of cells already occupied on the first output line. The first line has width-position cells remaining; later lines use full width. Default zero must preserve the original word-wrapping rules and regressions.

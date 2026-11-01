@@ -1,0 +1,92 @@
+diff --git a/tests/test_funcs.py b/tests/test_funcs.py
+index bee36706e..82f0f64d5 100644
+--- a/tests/test_funcs.py
++++ b/tests/test_funcs.py
+@@ -689,3 +689,47 @@ class Cls2:
+         assert Cls1({"foo": 42, "param2": 42}) == attr.evolve(
+             obj1a, param1=obj2b
+         )
++
++    def test_inst_kw(self):
++        """
++        If `inst` is passed per kw argument, a warning is raised.
++        See #1109
++        """
++
++        @attr.s
++        class C:
++            pass
++
++        with pytest.warns(DeprecationWarning) as wi:
++            evolve(inst=C())
++
++        assert __file__ == wi.list[0].filename
++
++    def test_no_inst(self):
++        """
++        Missing inst argument raises a TypeError like Python would.
++        """
++        with pytest.raises(TypeError, match=r"evolve\(\) missing 1"):
++            evolve(x=1)
++
++    def test_too_many_pos_args(self):
++        """
++        More than one positional argument raises a TypeError like Python would.
++        """
++        with pytest.raises(
++            TypeError,
++            match=r"evolve\(\) takes 1 positional argument, but 2 were given",
++        ):
++            evolve(1, 2)
++
++    def test_can_change_inst(self):
++        """
++        If the instance is passed by positional argument, a field named `inst`
++        can be changed.
++        """
++
++        @attr.define
++        class C:
++            inst: int
++
++        assert C(42) == evolve(C(23), inst=42)
+diff --git a/tests/test_sf187_staged.py b/tests/test_sf187_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf187_staged.py
+@@ -0,0 +1,35 @@
++
++import pytest
++import attrs
++
++def test_evolve_accepts_stored_name_and_private_alias():
++    @attrs.define
++    class Example:
++        _value: int = attrs.field(alias='payload', converter=int)
++        inst: int = attrs.field(default=1)
++    original = Example('2')
++    changed = attrs.evolve(original, _value='3', inst=4)
++    assert (changed._value, changed.inst) == (3,4)
++    assert (original._value, original.inst) == (2,1)
++
++def test_duplicate_spellings_fail_before_converter():
++    calls = []
++    @attrs.define
++    class Example:
++        value: int = attrs.field(alias='payload', converter=lambda v: calls.append(v) or v)
++    original = Example(1)
++    calls.clear()
++    with pytest.raises(TypeError, match='value|payload'):
++        attrs.evolve(original, value=2, payload=3)
++    assert calls == [] and original.value == 1
++
++def test_existing_alias_takes_precedence_over_other_field_name():
++    @attrs.define
++    class Example:
++        left: int = attrs.field(alias='right')
++        right: int = attrs.field(alias='other', kw_only=True)
++    original = Example(1, other=2)
++    changed = attrs.evolve(original, right=3)
++    assert (changed.left, changed.right) == (3,2)
++    changed = attrs.evolve(original, left=4, other=5)
++    assert (changed.left, changed.right) == (4,5)

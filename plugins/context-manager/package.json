@@ -18,8 +18,6 @@
     "opencode_plus",
     "test/",
     "README.md",
-    "PROVENANCE.json",
-    "VALIDATION.md",
     "LICENSE"
   ],
   "scripts": {

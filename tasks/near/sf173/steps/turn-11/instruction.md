@@ -1,0 +1,1 @@
+Please check this too: Modifying that is likely the better way to go since it will still handle what to do with the self.file text stream. Also, Evaluate whether to change is_hidden to _is_hidden. It behaves like a property that's private to the object.

@@ -1,0 +1,1 @@
+Also, I consider renaming this property to `wheel_name`. See also

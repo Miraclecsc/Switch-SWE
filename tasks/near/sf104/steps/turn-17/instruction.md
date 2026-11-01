@@ -1,0 +1,1 @@
+Also, Are you aware of the reasoning behind the unique id? It is to allow embedding of SVGs without conflicting styles. If you make the unique id non unique you will not be able to embed more than one SVG.

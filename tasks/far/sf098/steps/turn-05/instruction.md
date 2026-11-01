@@ -1,0 +1,1 @@
+Also, Consider that it is possible to avoid calling these methods. This is called from with `coeff = 1` and `e` an instance of `CoordSys3D` (that appears as the second argument of a `BaseScalar` `B.x`). There could probably be return coeff*e if isinstance(e, Expr) else e

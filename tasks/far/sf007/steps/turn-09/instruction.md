@@ -1,0 +1,1 @@
+Also, Fixed #36810 -- Avoided infinite recursion in SimpleLazyObject.__repr__(). Detect when `SimpleLazyObject._setupfunc` is a bound method of the same instance to use a safe representation and avoid infinite recursion.

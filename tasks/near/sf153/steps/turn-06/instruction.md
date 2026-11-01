@@ -1,0 +1,1 @@
+One more thing: that type seems to do the same. @graingert I take it there's no reason for us not to do this too?

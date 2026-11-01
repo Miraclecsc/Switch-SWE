@@ -1,0 +1,1 @@
+And here, Happy to remove my most recent changes (saw them after @dschult's review). I reverted the change to `k`, updated `epsilon`'s description, and pulled `l` out to `sample_weight`, which seems appropriate since it's scaling the sampling process that yields `k` (i.e., sample node pairs). 🤔

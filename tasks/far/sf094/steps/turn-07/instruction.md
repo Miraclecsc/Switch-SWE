@@ -1,0 +1,3 @@
+Please check this too: is it possible that we split out multiple that type here and suppress one too many?
+
+Add keyword generator_exit_policy="single" to as_safe_channel. The default preserves the existing behavior, including diagnosis of more than one GeneratorExit. An opt-in "all" policy suppresses every that type leaf in a cleanup exception group, including nested groups, instead of introducing an AssertionError for multiple such leaves. Support both as_safe_channel(fn, generator_exit_policy="all") and decorator-factory syntax @as_safe_channel(generator_exit_policy="all"). Reject other policies with ValueError when constructing the decorator.

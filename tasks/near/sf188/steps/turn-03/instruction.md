@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Revert recursive evolve Seems like the current implementation breaks a non-trivial amount of use cases. So this reverts it and adds a regression test – lmk if I got it right (also the description of the test). I welcome suggestions how to do it properly in separate PRs. @ProgVal @staaam @sscherfke Fixes #804

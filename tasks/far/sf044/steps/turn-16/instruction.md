@@ -1,0 +1,1 @@
+And here, `nbunch` is not an iterable. It can be an iterable. But it can also be a node or it can be `None`.

@@ -1,0 +1,1 @@
+Also, > What do you think of that? I think it's better to add a `nocover` annotation to the unreachable line. Perhaps also with a comment that the line is "only reachable if empty text is fed in, which we don't actually ever do".

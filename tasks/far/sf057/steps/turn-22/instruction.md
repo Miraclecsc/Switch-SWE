@@ -1,0 +1,1 @@
+One more thing: Extend the same lifetime repair to asyncio TaskGroup.start() handshakes. After start() returns a value and application code releases it, the startup machinery must no longer keep it alive merely because the service remains running or retains its TaskStatus. Do not clear application traceback frames or change the delivered value.

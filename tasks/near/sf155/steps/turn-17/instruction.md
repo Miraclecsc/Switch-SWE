@@ -1,0 +1,1 @@
+I have this in /work/w02: Is it possible for TaskInfo.coro to be None? Can't you only access it from a running task?

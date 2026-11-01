@@ -1,0 +1,1 @@
+I have this in /work/w04: Add optional namespace arguments for `make_class`

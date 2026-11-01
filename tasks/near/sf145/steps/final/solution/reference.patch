@@ -1,0 +1,130 @@
+diff --git a/docs/guide/reactivity.md b/docs/guide/reactivity.md
+index ff7a1cebd..eb058a130 100644
+--- a/docs/guide/reactivity.md
++++ b/docs/guide/reactivity.md
+@@ -410,7 +410,8 @@ Note the call to `mutate_reactive`. Without it, the display would not update whe
+ 
+ ## Data binding
+ 
+-Reactive attributes from one widget may be *bound* (connected) to another widget, so that changes to a single reactive will automatically update another widget (potentially more than one).
++Reactive attributes may be *bound* (connected) to attributes on child widgets, so that changes to the parent are automatically reflected in the children.
++This can simplify working with compound widgets where the value of an attribute might be used in multiple places.
+ 
+ To bind reactive attributes, call [data_bind][textual.dom.DOMNode.data_bind] on a widget.
+ This method accepts reactives (as class attributes) in positional arguments or keyword arguments.
+diff --git a/src/textual/dom.py b/src/textual/dom.py
+index 55ce52afe..d8c2c35af 100644
+--- a/src/textual/dom.py
++++ b/src/textual/dom.py
+@@ -6,6 +6,8 @@ which includes all Widgets, Screens, and Apps.
+ 
+ from __future__ import annotations
+ 
++from contextlib import contextmanager
++
+ import re
+ import threading
+ from functools import lru_cache, partial
+@@ -41,7 +43,7 @@ from .css.parse import parse_declarations
+ from .css.styles import RenderStyles, Styles
+ from .css.tokenize import IDENTIFIER
+ from .message_pump import MessagePump
+-from .reactive import Reactive, ReactiveError, _watch
++from .reactive import Reactive, ReactiveError, _Mutated, _watch
+ from .timer import Timer
+ from .walk import walk_breadth_first, walk_depth_first
+ from .worker_manager import WorkerManager
+@@ -253,14 +255,46 @@ class DOMNode(MessagePump):
+         this method after your reactive is updated. This will ensure that all the reactive _superpowers_
+         work.
+ 
++        !!! note
++
++            This method will cause watchers to be called, even if the value hasn't changed.
++
+         Args:
+             reactive: A reactive property (use the class scope syntax, i.e. `MyClass.my_reactive`).
+         """
+ 
++        if not isinstance(reactive, Reactive) or not isinstance(self, reactive.owner):
++            raise ReactiveError("Mutation requires a reactive owned by this node")
+         internal_name = f"_reactive_{reactive.name}"
+         value = getattr(self, internal_name)
++        if getattr(self, "_mutation_batch_depth", 0):
++            pending = self._mutation_batch_pending
++            if not any(item is reactive for item in pending):
++                pending.append(reactive)
++            return
+         reactive._set(self, value, always=True)
+ 
++    @contextmanager
++    def batch_mutate(self):
++        """Defer explicit mutable-reactive notifications until outermost exit.
++
++        Mutated objects are not copied or rolled back. Flush on exceptional
++        exit as well, so bound widgets remain consistent with the actual data.
++        """
++        depth = getattr(self, "_mutation_batch_depth", 0)
++        if depth == 0:
++            self._mutation_batch_pending = []
++        self._mutation_batch_depth = depth + 1
++        try:
++            yield self
++        finally:
++            self._mutation_batch_depth -= 1
++            if self._mutation_batch_depth == 0:
++                pending = self._mutation_batch_pending
++                self._mutation_batch_pending = []
++                for reactive in pending:
++                    self.mutate_reactive(reactive)
++
+     def data_bind(
+         self,
+         *reactives: Reactive[Any],
+@@ -279,6 +313,7 @@ class DOMNode(MessagePump):
+                 yield WorldClock("Asia/Tokyo").data_bind(WorldClockApp.time)
+             ```
+ 
++
+         Raises:
+             ReactiveError: If the data wasn't bound.
+ 
+@@ -334,7 +369,8 @@ class DOMNode(MessagePump):
+                     """Set bound data."""
+                     _rich_traceback_omit = True
+                     Reactive._initialize_object(self)
+-                    setattr(self, variable_name, value)
++                    # Wrap the value in `_Mutated` so the setter knows to invoke watchers etc.
++                    setattr(self, variable_name, _Mutated(value))
+ 
+                 return setter
+ 
+diff --git a/src/textual/reactive.py b/src/textual/reactive.py
+index 17b109d77..64b6e007c 100644
+--- a/src/textual/reactive.py
++++ b/src/textual/reactive.py
+@@ -42,6 +42,13 @@ ReactiveType = TypeVar("ReactiveType")
+ ReactableType = TypeVar("ReactableType", bound="DOMNode")
+ 
+ 
++class _Mutated:
++    """A wrapper to indicate a value was mutated."""
++
++    def __init__(self, value: Any) -> None:
++        self.value = value
++
++
+ class ReactiveError(Exception):
+     """Base class for reactive errors."""
+ 
+@@ -273,6 +280,10 @@ class Reactive(Generic[ReactiveType]):
+                 f"Node is missing data; Check you are calling super().__init__(...) in the {obj.__class__.__name__}() constructor, before setting reactives."
+             )
+ 
++        if isinstance(value, _Mutated):
++            value = value.value
++            always = True
++
+         self._initialize_reactive(obj, self.name)
+ 
+         if hasattr(obj, self.compute_name):

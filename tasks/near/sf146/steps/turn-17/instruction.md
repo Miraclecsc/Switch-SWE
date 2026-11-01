@@ -1,0 +1,1 @@
+Also, I agree. I actually think dealing with the mutation via offering APIs like this is likely to be filled with more footguns, "things we need to document", and generally worse than just saying "only use immutable values for reactives, and watchers only fire when you assign".

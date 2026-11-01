@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Consider it's doing "combine the definitions across branches, then remove any that are defined in this scope already", is that right.

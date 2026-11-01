@@ -1,0 +1,1 @@
+One more thing: Right, great point. I think what would be best is that users can turn on logging via an argument to `sys_tags` and this is propagated through. I feel like this would be easiest to integrate into `pip` and would have the least effect on other `packaging.tags` users. I added a commit which does this.

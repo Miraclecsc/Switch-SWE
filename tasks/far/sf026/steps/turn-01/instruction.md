@@ -1,0 +1,1 @@
+I have this in /work/w02: Make packaging.tags.Tag pickle-safe as originally requested. Serialize only its interpreter, ABI and platform, and recompute the hash when restoring, rather than trusting a cached hash from another process. Preserve the original modern tuple and legacy slot-state fixtures and every existing test.

@@ -1,0 +1,1 @@
+Please check this too: I've pushed another commit in. `_CountingAttr` can't have `.default` since it has a method `.default()`, but `Attribute` can. And technically `Attribute` is a public class, right?

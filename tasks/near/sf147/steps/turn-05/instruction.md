@@ -1,0 +1,1 @@
+Also, Sorry also just to note after diving deeper into this: I spotted the 'default' footer uses a raw space after the description, whereas in the 'compact' style instead uses the grid gutter. This could be simplified to always use the grid gutter, but I'm conscious this would cause snapshots tests to fail, especially after the recent spate of other changes in Textual.

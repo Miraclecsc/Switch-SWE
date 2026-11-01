@@ -1,0 +1,1 @@
+Please check this too: Don't try the amend the release notes of an already published release. Add a new section for **UNRELEASED**.

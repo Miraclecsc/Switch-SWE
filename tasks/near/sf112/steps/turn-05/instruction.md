@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Add unions This PR adds support for `union` types in GraphQL. This is achieved by introduction of `ariadne.Union` bindable that takes name of union, and resolver function that takes any object and is expected to return `None` or `str` with GraphQL type name. `Union` also implements new API as discussed in #98:

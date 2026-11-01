@@ -1,0 +1,1 @@
+I have this in /work/w01: The current implementation does work in 2.7, it avoids the Python 3 specific stuff. It would be nice to fix this in 2.11.x if possible. More radical would be reverting the removal of `pkg_resources` and making it part of 3.0 instead.

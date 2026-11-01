@@ -1,0 +1,1 @@
+One more thing: Okay, perhaps I've misunderstood the purpose then, But my reason for questioning this change is because the current behaviour is what helped me understand these flaky tests recently involving the footer. Sorry, no idea why it always seems to fail on Windows.

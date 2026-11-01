@@ -1,0 +1,1 @@
+And here, Hm, not quite. I don't know how to really explain myself, it just feels weird that we special case Cancelled given that that will only happen if something outside of the code that's raising is cancelled, eg: Like in the above case it's not obvious to me that we should only keep the ValueError.

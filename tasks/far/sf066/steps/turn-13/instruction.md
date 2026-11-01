@@ -1,0 +1,17 @@
+I have this in /work/w03: Allow dispatch machinery to fall back to networkx
+
+Allow falling back to NetworkX by converting backend graphs to nx graphs. This is enabled by adding `"networkx"` to `nx.config.backend_priority`.
+
+This PR builds off of #7496, #7499, #7502 (WIP), and #7568. I have done a little bit of refactoring, but I would like to do more refactoring to simplify the code after more PRs are merged. Feel free to review and merge the four other PRs separately, or to review this PR as a whole.
+
+I am working on a notebook that exercises many of the branches and log/error messages, and I bet I/we will continue to refine the messages. Perhaps we could turn this into an example that gets run in CI. Hopefully the log/error messages can help make the dispatch code easier to follow (if one is comfortable reading all that text!).
+
+CC @rlratzel
+
+Allow dispatch machinery to fall back to networkx Allow falling back to NetworkX by converting backend graphs to nx graphs. This is enabled by adding `"networkx"` to `nx.config.backend_priority`. This PR builds off of #7496, #7499, #7502 (WIP), and #7568. I have done a little bit of refactoring, but I would like to do more refactoring to simplify the code after more PRs are merged. Feel free to review and merge the four other PRs separately, or to review this PR as a whole. I am working on a notebook that exercises many of the branches and log/error messages, and I bet I/we will continue to refine the messages. Perhaps we could turn this into an example that gets run in CI. Hopefully the log/error messages can help make the dispatch code easier to follow (if one is comfortable reading all that text!). CC @rlratzel
+
+[Here is a notebook]( ) that shows many examples using networkx dispatching. You should read this notebook when reviewing this PR. The examples are used to cover code branches and log messages top-down. Please let me know if there are more examples you wish to see, and please offer suggestions for improving messages: As I said in the first post, I think we can make this much less complicated if we refactor the code to (mostly) treat networkx as any other backend, which will also set us up for backend-to-backend conversions. This notebook is also intended to be used to help with this refactor.
+
+The refactor to generically allow fallback to backends ("networkx" by default) and, soon, backend-to-backend conversions is complete. This notebook shows the updated log and error messages: [fallback_to_nx2.ipynb]( and can be compared to the first notebook in the gist, which is from an earlier version of this PR. There are some remaining TODOs needed to get this over the finish line, but the big push is finished, and curious reviewers can begin looking at this PR. I think the code in `__call__` is cleaner and clearer. I may want to discuss some things about this PR in the weekly dispatch meeting. In particular, @jim22k helped come up with the design and behavior of the new `nx.config.backend_fallback` config.
+
+The examples were very helpful to understanding the proposed behavior. What is the role of the `backend_fallback` config option? Is this any different than putting `"networkx"` as the last position in the `backend_priority` list?

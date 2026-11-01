@@ -1,0 +1,1 @@
+One more thing: Support images with non-base64 data URIs ## Purpose The previous code that manually parsed data URIs had a bug: an Exception is raised when parsing non-base64 encoded data URIs. Using urllib completely avoids these problems and simplifies Also, Merge branch 'master' into fix-parse_data_uri # Conflicts: # CHANGES.rst

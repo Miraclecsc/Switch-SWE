@@ -1,0 +1,1 @@
+I have this in /work/w02: DOC: more `barycenter` and `centroid` equivalence Closes #8491. Follow-up to #8622. - Make `nx.barycenter` point to the same function object as `nx.centroid`, to prevent drift and to share docstrings, and add a regression test to assert this. - Make `centroid` the default terminology.

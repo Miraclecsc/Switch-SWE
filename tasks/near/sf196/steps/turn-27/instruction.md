@@ -1,0 +1,1 @@
+Please check this too: Where does the KI get lost? If it's in this `closer` after we call `.send(None)`, doesn't it get raised here and will propagate up? I assume propagation here is fine because we already have a `RuntimeError` being raised here. (I'm basing my assumptions off how generators behave, I don't know anything about async generator cleanup...)

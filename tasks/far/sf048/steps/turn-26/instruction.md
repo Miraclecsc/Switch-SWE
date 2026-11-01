@@ -1,0 +1,1 @@
+One more thing: are you sure it shouldn't be case sensitive? `codecs.lookup_error("STRICT")` raises `LookupError`

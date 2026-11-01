@@ -1,0 +1,1 @@
+And here, I think this is different than the other BC function. First and most importantly, this doesn't have the `endpoints` kwarg. Next, it was already set up to handle the number of sample pairs `k`. And finally, there wasn't any dependence on kmax or epsilon before. So there shouldn't be any normalization dependence on k now.

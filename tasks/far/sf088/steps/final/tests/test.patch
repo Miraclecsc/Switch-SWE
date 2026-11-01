@@ -1,0 +1,83 @@
+diff --git a/tests/test_markers.py b/tests/test_markers.py
+index faf0d13b9..5106427db 100644
+--- a/tests/test_markers.py
++++ b/tests/test_markers.py
+@@ -394,3 +394,35 @@ def test_python_full_version_untagged_user_provided(self):
+     def test_python_full_version_untagged(self):
+         with mock.patch("platform.python_version", return_value="3.11.1+"):
+             assert Marker("python_full_version < '3.12'").evaluate()
++
++    @pytest.mark.parametrize("variable", ["extras", "dependency_groups"])
++    @pytest.mark.parametrize(
++        "expression,result",
++        [
++            pytest.param('"foo" in {0}', True, id="value-in-foo"),
++            pytest.param('"bar" in {0}', True, id="value-in-bar"),
++            pytest.param('"baz" in {0}', False, id="value-not-in"),
++            pytest.param('"baz" not in {0}', True, id="value-not-in-negated"),
++            pytest.param('"foo" in {0} and "bar" in {0}', True, id="and-in"),
++            pytest.param('"foo" in {0} or "bar" in {0}', True, id="or-in"),
++            pytest.param(
++                '"baz" in {0} and "foo" in {0}', False, id="short-circuit-and"
++            ),
++            pytest.param('"foo" in {0} or "baz" in {0}', True, id="short-circuit-or"),
++            pytest.param('"Foo" in {0}', True, id="case-sensitive"),
++        ],
++    )
++    def test_extras_and_dependency_groups(self, variable, expression, result):
++        environment = {variable: {"foo", "bar"}}
++        assert Marker(expression.format(variable)).evaluate(environment) == result
++
++    @pytest.mark.parametrize("variable", ["extras", "dependency_groups"])
++    def test_extras_and_dependency_groups_disallowed(self, variable):
++        marker = Marker(f'"foo" in {variable}')
++        assert not marker.evaluate(context="lock_file")
++
++        with pytest.raises(KeyError):
++            marker.evaluate()
++
++        with pytest.raises(KeyError):
++            marker.evaluate(context="requirement")
+diff --git a/tests/test_sf088_extension.py b/tests/test_sf088_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf088_extension.py
+@@ -0,0 +1,38 @@
++import pytest
++from packaging.markers import Marker
++
++@pytest.mark.parametrize("text,env,expected",[
++    ('python_version >= "3.10"',{},None),
++    ('python_version >= "3.10"',{"python_version":"3.11"},True),
++    ('python_version >= "3.10" and os_name == "posix"',{"python_version":"3.9"},False),
++    ('python_version >= "3.10" or os_name == "posix"',{"python_version":"3.11"},True),
++    ('(python_version >= "3.10" or os_name == "posix") and sys_platform == "linux"',{"python_version":"3.11"},None),
++    ('(python_version >= "3.10" or os_name == "posix") and sys_platform == "linux"',{"python_version":"3.11","sys_platform":"win32"},False),
++])
++def test_partial_logic(text,env,expected):
++    marker=Marker(text);before=str(marker)
++    assert marker.evaluate_partial(env,context="requirement") is expected
++    assert str(marker) == before
++
++def test_context_defaults():
++    assert Marker('extra == ""').evaluate_partial() is True
++    assert Marker('extra == ""').evaluate_partial(context="requirement") is None
++    assert Marker('"dev" in extras').evaluate_partial(context="metadata") is None
++    assert Marker('"dev" in extras').evaluate_partial(context="lock_file") is False
++    assert Marker('"dev" not in dependency_groups').evaluate_partial(context="lock_file") is True
++
++def test_normalization_and_no_mutation():
++    values={"extras":{"Dev_Test"},"python_full_version":"3.13.0+"}
++    marker=Marker('"dev-test" in extras and python_full_version >= "3.13"')
++    assert marker.evaluate_partial(values,context="lock_file") is True
++    assert values == {"extras":{"Dev_Test"},"python_full_version":"3.13.0+"}
++    assert Marker('extra == ""').evaluate_partial({"extra":None}) is True
++
++def test_no_host_lookup(monkeypatch):
++    import packaging.markers as markers
++    monkeypatch.setattr(markers,"default_environment",lambda:pytest.fail("host leak"))
++    assert Marker('python_version == "3.12"').evaluate_partial() is None
++    with pytest.raises(ValueError): Marker('extra == "x"').evaluate_partial(context="bogus")
++
++def test_original_context_evaluation():
++    assert Marker('"dev-test" in extras').evaluate({"extras":{"dev_test"}},context="lock_file")

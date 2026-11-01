@@ -1,0 +1,97 @@
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -388,6 +388,43 @@
+         return False
+ 
+ 
++def _filter_cancelled_group(
++    exc: BaseException, memo: dict[int, BaseException | None]
++) -> BaseException | None:
++    """Filter scope cancellation without rebuilding unchanged exception branches."""
++    key = id(exc)
++    if key in memo:
++        return memo[key]
++
++    if isinstance(exc, CancelledError) and is_anyio_cancellation(exc):
++        result: BaseException | None = None
++    elif isinstance(exc, BaseExceptionGroup):
++        children = tuple(
++            child
++            for original in exc.exceptions
++            if (child := _filter_cancelled_group(original, memo)) is not None
++        )
++        if not children:
++            result = None
++        elif len(children) == len(exc.exceptions) and all(
++            new is old for new, old in zip(children, exc.exceptions)
++        ):
++            result = exc
++        else:
++            result = exc.derive(children)
++            result.__traceback__ = exc.__traceback__
++            result.__cause__ = exc.__cause__
++            result.__context__ = exc.__context__
++            result.__suppress_context__ = exc.__suppress_context__
++            if hasattr(exc, "__notes__"):
++                result.__notes__ = list(exc.__notes__)
++    else:
++        result = exc
++
++    memo[key] = result
++    return result
++
++
+ class CancelScope(BaseCancelScope):
+     def __new__(
+         cls, *, deadline: float = math.inf, shield: bool = False
+@@ -503,6 +540,20 @@
+                         else:
+                             cannot_swallow_exc_val = True
+ 
++                if (
++                    self._cancelled_caught
++                    and cannot_swallow_exc_val
++                    and isinstance(exc_val, BaseExceptionGroup)
++                ):
++                    remaining = _filter_cancelled_group(exc_val, {})
++                    assert remaining is not None
++                    context = exc_val.__context__
++                    try:
++                        raise remaining
++                    finally:
++                        remaining.__context__ = context
++                        del remaining
++
+                 return self._cancelled_caught and not cannot_swallow_exc_val
+             else:
+                 if self._pending_uncancellations:
+@@ -766,7 +817,7 @@
+                 if self._exceptions:
+                     raise BaseExceptionGroup(
+                         "unhandled errors in a TaskGroup", self._exceptions
+-                    )
++                    ) from None
+                 elif exc_val:
+                     raise exc_val
+             except BaseException as exc:
+diff --git a/docs/cancellation.rst b/docs/cancellation.rst
+--- a/docs/cancellation.rst
++++ b/docs/cancellation.rst
+@@ -208,3 +208,16 @@
+ 
+         async def __aexit__(self, exc_type, exc_val, exc_tb):
+             return await self._exitstack.__aexit__(exc_type, exc_val, exc_tb)
++
++Exception group diagnostics on asyncio
++-------------------------------------
++
++A cancelled scope filters recognized AnyIO cancellation leaves from a mixed
++exception group while propagating the remaining errors. Native cancellation
++exceptions that do not represent AnyIO scope cancellation are retained.
++Filtering preserves group structure, repeated occurrences and unchanged group
++objects. Changed ancestors use the group's ``derive()`` protocol, preserve
++diagnostic metadata, and receive independent note lists. Shared changed subgroups
++remain shared in the result. The original exception tree is not modified.
++Task-group wrappers suppress redundant context display without erasing user
++causes, contexts or notes.

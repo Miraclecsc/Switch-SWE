@@ -1,0 +1,1 @@
+I have this in /work/w04: Switch from `PurePath#as_uri` to `PurePath#joinpath` for our test that PurePath methods get inherited `as_uri` is deprecated in `PurePath`. This commit also introduces a test to ensure users have a workaround that is not deprecated. Failing test run:

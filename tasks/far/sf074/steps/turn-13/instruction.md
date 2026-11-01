@@ -1,0 +1,1 @@
+Also, Bonus feature: no longer uses `locals()` which should greatly help pypy.

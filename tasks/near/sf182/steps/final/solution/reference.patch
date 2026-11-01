@@ -1,0 +1,62 @@
+diff --git a/CHANGELOG.rst b/CHANGELOG.rst
+index a0bc10b..2b6af82 100644
+--- a/CHANGELOG.rst
++++ b/CHANGELOG.rst
+@@ -4,7 +4,7 @@ Changelog
+ *unreleased*
+ ~~~~~~~~~~~~
+ 
+-No unreleased changes.
++* Canonicalize version before comparing specifiers. (:issue:`282`)
+ 
+ 20.3 - 2020-03-05
+ ~~~~~~~~~~~~~~~~~
+diff --git a/packaging/specifiers.py b/packaging/specifiers.py
+index 9498748..14cb4d0 100644
+--- a/packaging/specifiers.py
++++ b/packaging/specifiers.py
+@@ -10,6 +10,7 @@ import re
+ 
+ from ._compat import string_types, with_metaclass
+ from ._typing import MYPY_CHECK_RUNNING
++from .utils import canonicalize_version
+ from .version import Version, LegacyVersion, parse
+ 
+ if MYPY_CHECK_RUNNING:  # pragma: no cover
+@@ -132,9 +133,17 @@ class _IndividualSpecifier(BaseSpecifier):
+         # type: () -> str
+         return "{0}{1}".format(*self._spec)
+ 
++    @property
++    def _canonical_spec(self):
++        operator, version = self._spec
++        if operator == "~=":
++            # Release precision controls the compatible upper bound.
++            return operator, canonicalize_version(version), len(Version(version).release)
++        return operator, canonicalize_version(version)
++
+     def __hash__(self):
+         # type: () -> int
+-        return hash(self._spec)
++        return hash(self._canonical_spec)
+ 
+     def __eq__(self, other):
+         # type: (object) -> bool
+@@ -146,7 +155,7 @@ class _IndividualSpecifier(BaseSpecifier):
+         elif not isinstance(other, self.__class__):
+             return NotImplemented
+ 
+-        return self._spec == other._spec
++        return self._canonical_spec == other._canonical_spec
+ 
+     def __ne__(self, other):
+         # type: (object) -> bool
+@@ -158,7 +167,7 @@ class _IndividualSpecifier(BaseSpecifier):
+         elif not isinstance(other, self.__class__):
+             return NotImplemented
+ 
+-        return self._spec != other._spec
++        return self._canonical_spec != other._canonical_spec
+ 
+     def _get_operator(self, op):
+         # type: (str) -> CallableOperator

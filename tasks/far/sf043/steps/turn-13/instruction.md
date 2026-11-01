@@ -1,0 +1,3 @@
+Also, Why `2 * 1e-6`? :) very precise for a round-off criteria. :) Also can use `2e-6`
+
+add an optional keyword-only callback=None for iteration monitoring. Call callback(iteration, scores) once after each complete top-and-bottom power update, before deciding convergence, including the final converged update. Iteration numbers start at 1; scores is a node-to-float dictionary covering both bipartite sides. At this stage the callback is observational and its return value is ignored. A passive callback must not change the returned scores or convergence count; omitting it must keep the original API results, defaults, validation and non-convergence exception. Test the actual first few updates on a small weighted graph, not only the number of callbacks.

@@ -1,0 +1,1 @@
+I have this in /work/w02: Thanks for contributing this. Can you also add tests for `asgi.GraphQL` application?

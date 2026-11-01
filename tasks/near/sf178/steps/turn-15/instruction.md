@@ -1,0 +1,1 @@
+Please check this too: When Response.json() raises Requests JSONDecodeError, attach that Response and infer its request through the existing RequestException behavior. Apply this to both the byte-encoding detection path and the normal text-decoding path. The context must survive subsequent pickling.

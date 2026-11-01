@@ -1,0 +1,1 @@
+I have this in /work/w01: Don't reset custom __setattr__ in slotted classes The detection of whether or not we should be resetting `__setattr__` in slotted classes is currently wrong. Fixes #680

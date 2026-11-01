@@ -1,0 +1,1 @@
+One more thing: Validate both roots before producing a mapping: a supplied root must be a node in its tree, otherwise raise NetworkXError.

@@ -1,0 +1,1 @@
+I have this in /work/w01: Add `httpx.SSLContext` configuration. Discussed in TODO: ## Migration examples ### Enabling and disabling verification ### Use a different set of certificates ## Client side certificates ## Using alternate SSL contexts

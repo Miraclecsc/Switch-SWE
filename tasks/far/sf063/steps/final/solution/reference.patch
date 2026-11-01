@@ -1,0 +1,30 @@
+diff --git a/starlette/exceptions.py b/starlette/exceptions.py
+index 87da735..fea0226 100644
+--- a/starlette/exceptions.py
++++ b/starlette/exceptions.py
+@@ -18,6 +18,12 @@ class HTTPException(Exception):
+         self.detail = detail
+         self.headers = headers
+ 
++    def __reduce__(self):
++        return (type(self), (self.status_code, self.detail, self.headers), self.__dict__)
++
++    def __str__(self) -> str:
++        return f"{self.status_code}: {self.detail}"
++
+     def __repr__(self) -> str:
+         class_name = self.__class__.__name__
+         return f"{class_name}(status_code={self.status_code!r}, detail={self.detail!r})"
+@@ -28,6 +34,12 @@ class WebSocketException(Exception):
+         self.code = code
+         self.reason = reason or ""
+ 
++    def __reduce__(self):
++        return (type(self), (self.code, self.reason), self.__dict__)
++
++    def __str__(self) -> str:
++        return f"{self.code}: {self.reason}"
++
+     def __repr__(self) -> str:
+         class_name = self.__class__.__name__
+         return f"{class_name}(code={self.code!r}, reason={self.reason!r})"

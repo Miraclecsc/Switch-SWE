@@ -1,0 +1,1 @@
+Please check this too: @pradyunsg in general I would argue otherwise, but since this implements that method the class the should do a reasonable job of trying to be immutable without trying to work too hard. So once again, @pradyunsg wins. :)

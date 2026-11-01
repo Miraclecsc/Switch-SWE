@@ -1,0 +1,129 @@
+diff --git a/.travis.yml b/.travis.yml
+index d3f21dc..a96af0f 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -18,6 +18,8 @@ matrix:
+       env: TOXENV=py36
+     - python: "pypy"
+       env: TOXENV=pypy
++    - python: "pypy3.5-5.8.0"
++      env: TOXENV=pypy3
+ 
+     # Meta
+     - python: "3.6"
+diff --git a/CHANGELOG.rst b/CHANGELOG.rst
+index 05b3977..60c5c8f 100644
+--- a/CHANGELOG.rst
++++ b/CHANGELOG.rst
+@@ -24,9 +24,12 @@ Deprecations:
+ Changes:
+ ^^^^^^^^
+ 
+-- Fix *str* on Python 2 when ``slots=True``.
++- ``super()`` and ``__class__`` now work on Python 3 when ``slots=True``.
++  `#102 <https://github.com/python-attrs/attrs/issues/102>`_
++  `#226 <https://github.com/python-attrs/attrs/issues/226>`_
++- The combination of ``str=True`` and ``slots=True`` now works on Python 2.
+   `#198 <https://github.com/python-attrs/attrs/issues/198>`_
+-- ``attr.Factory`` is now hashable again.
++- ``attr.Factory`` is hashable again.
+   `#204 <https://github.com/python-attrs/attrs/issues/204>`_
+ 
+ 
+diff --git a/src/attr/_compat.py b/src/attr/_compat.py
+index 8cbcf16..439d212 100644
+--- a/src/attr/_compat.py
++++ b/src/attr/_compat.py
+@@ -1,10 +1,12 @@
+ from __future__ import absolute_import, division, print_function
+ 
++import platform
+ import sys
+ import types
+ 
+ 
+ PY2 = sys.version_info[0] == 2
++PYPY = platform.python_implementation() == "PyPy"
+ 
+ 
+ if PY2:
+@@ -88,3 +90,12 @@ else:
+ 
+     def metadata_proxy(d):
+         return types.MappingProxyType(dict(d))
++
++if PYPY:  # pragma: no cover
++    def set_closure_cell(cell, value):
++        cell.__setstate__((value,))
++else:
++    import ctypes
++    set_closure_cell = ctypes.pythonapi.PyCell_Set
++    set_closure_cell.argtypes = (ctypes.py_object, ctypes.py_object)
++    set_closure_cell.restype = ctypes.c_int
+diff --git a/src/attr/_make.py b/src/attr/_make.py
+index b22a3f8..f7f1fb1 100644
+--- a/src/attr/_make.py
++++ b/src/attr/_make.py
+@@ -6,7 +6,14 @@ import linecache
+ from operator import itemgetter
+ 
+ from . import _config
+-from ._compat import PY2, iteritems, isclass, iterkeys, metadata_proxy
++from ._compat import (
++    PY2,
++    iteritems,
++    isclass,
++    iterkeys,
++    metadata_proxy,
++    set_closure_cell,
++)
+ from .exceptions import (
+     DefaultAlreadySetError,
+     FrozenInstanceError,
+@@ -373,12 +380,35 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
+                 # It might not actually be in there, e.g. if using 'these'.
+                 cls_dict.pop(ca_name, None)
+             cls_dict.pop("__dict__", None)
++            old_cls = cls
+ 
+             qualname = getattr(cls, "__qualname__", None)
+             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
+             if qualname is not None:
+                 cls.__qualname__ = qualname
+ 
++            # The following is a fix for
++            # https://github.com/python-attrs/attrs/issues/102.  On Python 3,
++            # if a method mentions `__class__` or uses the no-arg super(), the
++            # compiler will bake a reference to the class in the method itself
++            # as `method.__closure__`.  Since we replace the class with a
++            # clone, we rewrite these references so it keeps working.
++            for item in cls.__dict__.values():
++                if isinstance(item, (classmethod, staticmethod)):
++                    functions = (item.__func__,)
++                elif isinstance(item, property):
++                    functions = (item.fget, item.fset, item.fdel)
++                else:
++                    functions = (item,)
++                for function in functions:
++                    for cell in getattr(function, "__closure__", None) or ():
++                        try:
++                            matches = cell.cell_contents is old_cls
++                        except ValueError:
++                            continue
++                        if matches:
++                            set_closure_cell(cell, cls)
++
+         return cls
+ 
+     # attrs_or class type depends on the usage of the decorator.  It's a class
+diff --git a/tox.ini b/tox.ini
+index ab2842e..2554660 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -1,5 +1,5 @@
+ [tox]
+-envlist = py27,py34,py35,py36,pypy,flake8,manifest,docs,readme,coverage-report
++envlist = py27,py34,py35,py36,pypy,pypy3,flake8,manifest,docs,readme,coverage-report
+ 
+ 
+ [testenv]

@@ -1,0 +1,3 @@
+Please check this too: This is a PR without description, and there's a single discussion that mentioned this feature request (that is 4 years old) without reactions. Also, this can be easily done by overriding the `stream_response` method. And that's what we've always recommended.
+
+Support noncontiguous views too, in both ordinary Response and synchronous/asynchronous StreamingResponse. Such views must emit their logical byte sequence in view order in a form consumable as an ordinary contiguous byte buffer; copying is permitted for these layouts. Retain zero-copy behavior for contiguous streamed views, preserve lazy iteration and chunk boundaries (including empty chunks), and keep the final more_body=False event.

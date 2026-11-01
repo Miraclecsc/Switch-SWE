@@ -1,0 +1,1 @@
+Please check this too: Parallel edges do not change the period. Support strongly connected MultiDiGraph inputs as well as DiGraph.

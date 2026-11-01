@@ -1,0 +1,1 @@
+And here, I reversed the tags and added tests for lines that weren't in the coverage report. ~However coverage is now saying the critical part of the code that I added is not covered. How can that be when the tests fail if I remove it?~ Edit: fixed this in c7d1851.

@@ -1,0 +1,1 @@
+Please check this too: I'm not sure I understand the question here. If we're running an aarch64 kernel, we are, by definition, on an armv8 chip or newer so we can't be misreporting by saying `linux_armv8l`, we'll never hit this line on an armv7 chip.

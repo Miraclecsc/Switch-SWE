@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Fixed wrong exception raised on sudden TLS stream end on receive() Fixes #379.

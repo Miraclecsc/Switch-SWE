@@ -1,0 +1,1 @@
+And here, This is the only thing it returns, might as well use it as a return type hint?

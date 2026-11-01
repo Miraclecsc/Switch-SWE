@@ -1,0 +1,1 @@
+And here, A hidden argument must remain present in usage and must parse normally; hidden controls the detailed help record only.

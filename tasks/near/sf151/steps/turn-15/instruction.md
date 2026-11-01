@@ -1,0 +1,3 @@
+Please check this too: I'll update the changelog then. There's another problem: since `self._loop.run_until_complete(...)` raises `StopAsyncIteration` on fixture teardown, it won't look at the accumulated exceptions. And even if it did, there's *another* problem: the exception list is not cleared between runs, so the same exceptions would be raised again!
+
+Loop diagnostic contexts without an Exception (including message-only contexts) must be delegated unchanged to the previously installed handler, or to the loop default exception handler when none was installed. Such diagnostics must not become KeyError failures or be silently swallowed.

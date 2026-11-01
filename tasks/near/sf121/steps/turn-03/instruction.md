@@ -1,0 +1,1 @@
+Please check this too: Why are we creating a `Self` type when `from typing_extensions import Self` exists?

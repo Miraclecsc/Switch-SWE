@@ -1,0 +1,57 @@
+diff --git a/newsfragments/2611.bugfix.rst b/newsfragments/2611.bugfix.rst
+index 2af824a7..a39faa2d 100644
+--- a/newsfragments/2611.bugfix.rst
++++ b/newsfragments/2611.bugfix.rst
+@@ -1 +1,5 @@
+-With ``strict_exception_groups=True``, when you ran a function in a nursery which raised an exception before calling ``task_status.started()``, it previously got wrapped twice over in ``ExceptionGroup`` in some cases. It no longer does that, and also won't wrap any ``ExceptionGroup`` raised by the function itself.
++When a starting function raises before calling :func:`trio.TaskStatus.started`,
++:func:`trio.Nursery.start` will no longer wrap the exception in an undocumented
++:exc:`ExceptionGroup`. Previously, :func:`trio.Nursery.start` would incorrectly
++raise an :exc:`ExceptionGroup` containing it when using ``trio.run(...,
++strict_exception_groups=True)``.
+diff --git a/trio/_core/_run.py b/trio/_core/_run.py
+index e07d56d6..27ae2d17 100644
+--- a/trio/_core/_run.py
++++ b/trio/_core/_run.py
+@@ -1103,13 +1103,6 @@ class Nursery(metaclass=NoPublicConstructor):
+ 
+         popped = self._parent_task._child_nurseries.pop()
+         assert popped is self
+-
+-        # don't unnecessarily wrap an exceptiongroup in another exceptiongroup
+-        # see https://github.com/python-trio/trio/issues/2611
+-        if len(self._pending_excs) == 1 and isinstance(
+-            self._pending_excs[0], BaseExceptionGroup
+-        ):
+-            return self._pending_excs[0]
+         if self._pending_excs:
+             try:
+                 return MultiError(
+@@ -1169,6 +1162,14 @@ class Nursery(metaclass=NoPublicConstructor):
+         """
+         GLOBAL_RUN_CONTEXT.runner.spawn_impl(async_fn, args, self, name)
+ 
++    async def start_with_timeout(self, timeout, async_fn, *args, name=None):
++        """Like start, with a deadline covering only the startup handshake."""
++        if timeout is None:
++            return await self.start(async_fn, *args, name=name)
++        import trio
++        with trio.fail_after(timeout):
++            return await self.start(async_fn, *args, name=name)
++
+     async def start(
+         self,
+         async_fn: Callable[..., Awaitable[object]],
+@@ -1218,7 +1219,11 @@ class Nursery(metaclass=NoPublicConstructor):
+             raise RuntimeError("Nursery is closed to new arrivals")
+         try:
+             self._pending_starts += 1
+-            async with open_nursery() as old_nursery:
++            # `strict_exception_groups=False` prevents the implementation-detail
++            # nursery from inheriting `strict_exception_groups=True` from the
++            # `run` option, which would cause it to wrap a pre-started()
++            # exception in an extra ExceptionGroup. See #2611.
++            async with open_nursery(strict_exception_groups=False) as old_nursery:
+                 task_status: _TaskStatus[StatusT] = _TaskStatus(old_nursery, self)
+                 thunk = functools.partial(async_fn, task_status=task_status)
+                 task = GLOBAL_RUN_CONTEXT.runner.spawn_impl(

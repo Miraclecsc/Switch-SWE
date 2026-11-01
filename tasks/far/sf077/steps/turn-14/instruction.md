@@ -1,0 +1,1 @@
+One more thing: That'll fail in the parse state. There's a better reason to keep this, we accept a legacy setuptools key in the parse stage that isn't populated in the default environment.

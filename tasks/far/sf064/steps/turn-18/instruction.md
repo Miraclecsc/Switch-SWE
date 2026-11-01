@@ -1,0 +1,1 @@
+One more thing: I'm wondering if it wouldn't be simpler to generate single `data.json` file that contains data for entire schema and then create two sets of data from it: - `raw_data` which contains dicts - `hydrated_data` which contains objects

@@ -1,0 +1,1 @@
+One more thing: For directed inputs, require every edge to point away from the supplied root. Reject a directed tree rooted at a non-source node with NetworkXError, rather than returning a partial mapping.

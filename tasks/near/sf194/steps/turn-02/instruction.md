@@ -1,0 +1,1 @@
+One more thing: deep_iterable must also accept lists or tuples for iterable_validator, using the same ordered conjunction as member_validator. Run outer validation before inspecting members, preserve the original exception, and treat empty sequences as no-op conjunctions.

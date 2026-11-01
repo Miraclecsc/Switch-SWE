@@ -1,0 +1,1 @@
+Please check this too: We confuse the flow here by having this section of code separated from where `ca_bundle_path` is actually used. It'd be more clear if we pushed this block down to just before `if ca_bundle_path.is_file():`.

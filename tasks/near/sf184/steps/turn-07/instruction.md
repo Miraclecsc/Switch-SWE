@@ -1,0 +1,1 @@
+Please check this too: Apply the same case and punctuation normalization independently to extras during equality and hashing. Duplicate equivalent extra spellings represent one extra. Do not conflate different extra sets, URLs, or markers, and do not mutate the parsed name/extras or their displayed spellings.

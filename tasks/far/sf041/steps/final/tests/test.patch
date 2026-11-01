@@ -1,0 +1,147 @@
+diff --git a/tests/test_pipes/test_pipes.py b/tests/test_pipes/test_pipes.py
+index 720f56a..2ca3f88 100644
+--- a/tests/test_pipes/test_pipes.py
++++ b/tests/test_pipes/test_pipes.py
+@@ -24,9 +24,85 @@ def test_create_pipe():
+     assert resp["Arn"].startswith("arn:aws:pipes:eu-west-1:")
+     assert resp["Name"] == "test-pipe"
+     assert resp["DesiredState"] == "RUNNING"
++    assert resp["CurrentState"] == "CREATING"
++
++
++@mock_aws
++def test_start_pipe_on_running_pipe():
++    # Idempotency: Starting a running pipe is allowed
++    client = boto3.client("pipes", region_name="eu-west-1")
++    create_resp = client.create_pipe(
++        Name="test-pipe",
++        Source="arn:aws:sqs:eu-west-1:123456789012:test-queue",
++        Target="arn:aws:lambda:eu-west-1:123456789012:function:test-function",
++        RoleArn="arn:aws:iam::123456789012:role/test-role",
++    )
++    resp = client.start_pipe(Name="test-pipe")
++    assert resp["Arn"] == create_resp["Arn"]
++    assert resp["Name"] == "test-pipe"
++    assert resp["DesiredState"] == "RUNNING"
+     assert resp["CurrentState"] == "RUNNING"
+ 
+ 
++@mock_aws
++def test_stop_pipe_on_running_pipe():
++    client = boto3.client("pipes", region_name="eu-west-1")
++    create_resp = client.create_pipe(
++        Name="test-pipe",
++        Source="arn:aws:sqs:eu-west-1:123456789012:test-queue",
++        Target="arn:aws:lambda:eu-west-1:123456789012:function:test-function",
++        RoleArn="arn:aws:iam::123456789012:role/test-role",
++    )
++    resp = client.stop_pipe(Name="test-pipe")
++    assert resp["Arn"] == create_resp["Arn"]
++    assert resp["Name"] == "test-pipe"
++    assert resp["DesiredState"] == "STOPPED"
++    assert resp["CurrentState"] == "STOPPING"
++
++    # Describe must show this as stopped
++    descr_resp = client.describe_pipe(Name="test-pipe")
++    assert descr_resp["CurrentState"] == "STOPPED"
++
++
++@mock_aws
++def test_stop_pipe_on_stopped_pipe():
++    # Idempotency
++    client = boto3.client("pipes", region_name="eu-west-1")
++    create_resp = client.create_pipe(
++        Name="test-pipe",
++        Source="arn:aws:sqs:eu-west-1:123456789012:test-queue",
++        Target="arn:aws:lambda:eu-west-1:123456789012:function:test-function",
++        RoleArn="arn:aws:iam::123456789012:role/test-role",
++    )
++    _ = client.stop_pipe(Name="test-pipe")
++    resp = client.stop_pipe(Name="test-pipe")
++    assert resp["Arn"] == create_resp["Arn"]
++    assert resp["Name"] == "test-pipe"
++    assert resp["DesiredState"] == "STOPPED"
++    assert resp["CurrentState"] == "STOPPED"
++
++
++@mock_aws
++def test_start_pipe_on_stopped_pipe():
++    client = boto3.client("pipes", region_name="eu-west-1")
++    create_resp = client.create_pipe(
++        Name="test-pipe",
++        Source="arn:aws:sqs:eu-west-1:123456789012:test-queue",
++        Target="arn:aws:lambda:eu-west-1:123456789012:function:test-function",
++        RoleArn="arn:aws:iam::123456789012:role/test-role",
++    )
++    _ = client.stop_pipe(Name="test-pipe")
++    resp = client.start_pipe(Name="test-pipe")
++    assert resp["Arn"] == create_resp["Arn"]
++    assert resp["Name"] == "test-pipe"
++    assert resp["DesiredState"] == "RUNNING"
++    assert resp["CurrentState"] == "STARTING"
++
++    # Describe must show this as running
++    descr_resp = client.describe_pipe(Name="test-pipe")
++    assert descr_resp["CurrentState"] == "RUNNING"
++
++
+ @mock_aws
+ def test_create_pipe_with_optional_parameters():
+     client = boto3.client("pipes", region_name="us-east-1")
+@@ -45,7 +121,7 @@ def test_create_pipe_with_optional_parameters():
+ 
+     assert resp["Name"] == "test-pipe-optional"
+     assert resp["DesiredState"] == "STOPPED"
+-    assert resp["CurrentState"] == "RUNNING"
++    assert resp["CurrentState"] == "CREATING"
+ 
+ 
+ @mock_aws
+diff --git a/tests/test_pipes/test_sf041_terminal_states.py b/tests/test_pipes/test_sf041_terminal_states.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_pipes/test_sf041_terminal_states.py
+@@ -0,0 +1,43 @@
++import boto3
++import pytest
++from moto import mock_aws
++from moto.moto_api import state_manager
++
++def create(desired='RUNNING'):
++    client=boto3.client('pipes',region_name='eu-west-1')
++    response=client.create_pipe(Name='stable',Source='arn:aws:sqs:eu-west-1:123456789012:queue',Target='arn:aws:lambda:eu-west-1:123456789012:function:handler',RoleArn='arn:aws:iam::123456789012:role/service',DesiredState=desired)
++    assert response['CurrentState']=='CREATING'
++    return client
++
++@mock_aws
++def test_created_stopped_remains_stopped_under_polling():
++    client=create('STOPPED')
++    for _ in range(5):
++        assert client.describe_pipe(Name='stable')['CurrentState']=='STOPPED'
++        assert client.list_pipes()['Pipes'][0]['CurrentState']=='STOPPED'
++
++@mock_aws
++def test_explicit_stop_is_terminal_until_start():
++    client=create();client.stop_pipe(Name='stable')
++    for _ in range(5):assert client.describe_pipe(Name='stable')['CurrentState']=='STOPPED'
++    client.start_pipe(Name='stable')
++    for _ in range(5):assert client.describe_pipe(Name='stable')['CurrentState']=='RUNNING'
++
++@pytest.mark.parametrize('last',['RUNNING','STOPPED'])
++@mock_aws
++def test_latest_request_wins_during_delayed_transitions(last):
++    state_manager.set_transition('pipes::pipe',{'progression':'manual','times':5})
++    try:
++        client=create()
++        client.stop_pipe(Name='stable')
++        client.start_pipe(Name='stable')
++        if last=='STOPPED':client.stop_pipe(Name='stable')
++        states=[client.describe_pipe(Name='stable') for _ in range(16)]
++        assert all(row['DesiredState']==last for row in states)
++        assert all(row['CurrentState']==last for row in states[-5:])
++    finally:state_manager.unset_transition('pipes::pipe')
++
++@mock_aws
++def test_default_creation_regression():
++    client=create()
++    assert client.describe_pipe(Name='stable')['CurrentState']=='RUNNING'

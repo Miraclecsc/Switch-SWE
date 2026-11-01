@@ -1,0 +1,139 @@
+diff --git a/tests/test_taskgroups.py b/tests/test_taskgroups.py
+index da84f656f..11329df4b 100644
+--- a/tests/test_taskgroups.py
++++ b/tests/test_taskgroups.py
+@@ -22,6 +22,7 @@
+     get_current_task,
+     move_on_after,
+     sleep,
++    sleep_forever,
+     wait_all_tasks_blocked,
+ )
+ from anyio.abc import TaskGroup, TaskStatus
+@@ -127,7 +128,6 @@ async def test_no_called_started_twice() -> None:
+     async def taskfunc(*, task_status: TaskStatus) -> None:
+         task_status.started()
+ 
+-    # anyio>4.3.0 should not raise "RuntimeError: called 'started' twice on the same task status"
+     async with create_task_group() as tg:
+         coro = tg.start(taskfunc)
+         tg.cancel_scope.cancel()
+@@ -196,9 +196,6 @@ async def taskfunc(*, task_status: TaskStatus) -> None:
+     assert not finished
+ 
+ 
+-@pytest.mark.xfail(
+-    sys.version_info < (3, 9), reason="Requires a way to detect cancellation source"
+-)
+ @pytest.mark.parametrize("anyio_backend", ["asyncio"])
+ async def test_start_native_host_cancelled() -> None:
+     started = finished = False
+@@ -1360,6 +1357,24 @@ async def wait_cancel() -> None:
+                 await cancelled.wait()
+ 
+ 
++async def test_start_cancels_parent_scope() -> None:
++    """Regression test for #685 / #710."""
++    started: bool = False
++
++    async def in_task_group(task_status: TaskStatus[None]) -> None:
++        nonlocal started
++        started = True
++        await sleep_forever()
++
++    async with create_task_group() as tg:
++        with CancelScope() as inner_scope:
++            inner_scope.cancel()
++            await tg.start(in_task_group)
++
++    assert started
++    assert not tg.cancel_scope.cancel_called
++
++
+ class TestTaskStatusTyping:
+     """
+     These tests do not do anything at run time, but since the test suite is also checked
+diff --git a/tests/test_sf054_start_deadline.py b/tests/test_sf054_start_deadline.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf054_start_deadline.py
+@@ -0,0 +1,79 @@
++
++import math
++import pytest
++import anyio
++
++pytestmark = pytest.mark.anyio
++
++async def test_start_timeout_joins_cleanup_and_group_survives():
++    events = []
++    async def pending(*, task_status):
++        try:
++            await anyio.sleep_forever()
++        finally:
++            with anyio.CancelScope(shield=True):
++                await anyio.sleep(0)
++                events.append("joined")
++    async def ready(value, *, task_status):
++        task_status.started(value)
++    async with anyio.create_task_group() as tg:
++        with pytest.raises(TimeoutError):
++            await tg.start(pending, deadline=anyio.current_time() + 0.03)
++        assert events == ["joined"]
++        assert not tg.cancel_scope.cancel_called
++        assert await tg.start(ready, "next", deadline=anyio.current_time() + 10) == "next"
++
++async def test_ready_child_not_cancelled_when_start_deadline_later_expires():
++    release = anyio.Event()
++    done = []
++    async def service(*, task_status):
++        task_status.started("ready")
++        await release.wait()
++        done.append("completed")
++    async with anyio.create_task_group() as tg:
++        assert await tg.start(service, deadline=anyio.current_time() + 0.02) == "ready"
++        await anyio.sleep(0.04)
++        release.set()
++    assert done == ["completed"]
++
++@pytest.mark.parametrize("deadline,exception", [
++    (-math.inf, TimeoutError), (0, TimeoutError), (math.nan, ValueError),
++    ("later", TypeError), (True, TypeError),
++])
++async def test_invalid_or_expired_deadline_never_invokes_child(deadline, exception):
++    called = []
++    async def ready(*, task_status):
++        called.append(True)
++        task_status.started()
++    async with anyio.create_task_group() as tg:
++        with pytest.raises(exception):
++            await tg.start(ready, deadline=deadline)
++        assert not called
++        await tg.start(ready)
++        assert called == [True]
++
++async def test_outer_cancel_is_not_timeout_and_joins_child():
++    cleanup = []
++    async def pending(*, task_status):
++        try:
++            await anyio.sleep_forever()
++        finally:
++            cleanup.append(True)
++    async with anyio.create_task_group() as tg:
++        with anyio.move_on_after(0.02) as parent:
++            await tg.start(pending, deadline=anyio.current_time() + 10)
++        assert parent.cancelled_caught
++        assert cleanup == [True]
++        assert not tg.cancel_scope.cancel_called
++
++async def test_startup_error_preserves_identity_and_group_reusable():
++    error = ValueError("startup")
++    async def broken(*, task_status):
++        raise error
++    async def good(*, task_status):
++        task_status.started(42)
++    async with anyio.create_task_group() as tg:
++        with pytest.raises(ValueError) as caught:
++            await tg.start(broken, deadline=anyio.current_time() + 10)
++        assert caught.value is error
++        assert await tg.start(good, deadline=math.inf) == 42

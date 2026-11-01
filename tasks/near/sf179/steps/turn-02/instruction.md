@@ -1,0 +1,1 @@
+For the checkout at /work/w02, A `metadata` module with a data class for core metadata Part of #383.

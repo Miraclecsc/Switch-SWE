@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: fix(typing): Using correct typing for `param_hint` The typing of `param_hint` between `BadParameter`, `MissingParameter` and `_join_param_hints` was different. The firsts only allowed for a `str` where the later also accept a sequence of `str`. Fixes

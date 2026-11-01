@@ -1,0 +1,77 @@
+{
+  "case_id": "sf110_switched",
+  "task_id": "ssb_v2_task_0122",
+  "repo": "django/django",
+  "base_commit": "9f790ef1a0f356cf6342b5d57bbaeac35aed0d9f",
+  "derived_fail_to_pass": [
+    "auth_tests.test_remote_user.RemoteUserImproperlyConfigured.test_improperly_configured_message_persistent_remote_user",
+    "auth_tests.test_remote_user.RemoteUserImproperlyConfigured.test_improperly_configured_message_persistent_remote_user_async",
+    "auth_tests.test_staged_contract.RemoteCleanerTests.test_async_backend_hook_precedence",
+    "auth_tests.test_staged_contract.RemoteCleanerTests.test_async_cleaner_attribute_error_propagates",
+    "auth_tests.test_staged_contract.RemoteCleanerTests.test_sync_cleaner_attribute_error_propagates",
+    "auth_tests.test_staged_contract.RemoteCleanerTests.test_sync_cleaner_is_offloaded"
+  ],
+  "derived_pass_to_pass": [
+    "auth_tests.test_remote_user.AllowAllUsersRemoteUserBackendTest.test_inactive_user",
+    "auth_tests.test_remote_user.AllowAllUsersRemoteUserBackendTest.test_inactive_user_async",
+    "auth_tests.test_remote_user.AllowAllUsersRemoteUserBackendTest.test_passing_explicit_none",
+    "auth_tests.test_remote_user.CustomHeaderRemoteUserTest.test_inactive_user",
+    "auth_tests.test_remote_user.CustomHeaderRemoteUserTest.test_inactive_user_async",
+    "auth_tests.test_remote_user.CustomHeaderRemoteUserTest.test_passing_explicit_none",
+    "auth_tests.test_remote_user.PersistentRemoteUserTest.test_inactive_user",
+    "auth_tests.test_remote_user.PersistentRemoteUserTest.test_inactive_user_async",
+    "auth_tests.test_remote_user.PersistentRemoteUserTest.test_passing_explicit_none",
+    "auth_tests.test_remote_user.RemoteUserCustomTest.test_inactive_user",
+    "auth_tests.test_remote_user.RemoteUserCustomTest.test_inactive_user_async",
+    "auth_tests.test_remote_user.RemoteUserCustomTest.test_passing_explicit_none",
+    "auth_tests.test_remote_user.RemoteUserCustomTest.test_unknown_user_async",
+    "auth_tests.test_remote_user.RemoteUserImproperlyConfigured.test_improperly_configured_message_remote_user",
+    "auth_tests.test_remote_user.RemoteUserImproperlyConfigured.test_improperly_configured_message_remote_user_async",
+    "auth_tests.test_remote_user.RemoteUserNoCreateTest.test_inactive_user",
+    "auth_tests.test_remote_user.RemoteUserNoCreateTest.test_inactive_user_async",
+    "auth_tests.test_remote_user.RemoteUserNoCreateTest.test_passing_explicit_none",
+    "auth_tests.test_remote_user.RemoteUserNoCreateTest.test_unknown_user",
+    "auth_tests.test_remote_user.RemoteUserNoCreateTest.test_unknown_user_async",
+    "auth_tests.test_remote_user.RemoteUserTest.test_inactive_user",
+    "auth_tests.test_remote_user.RemoteUserTest.test_inactive_user_async",
+    "auth_tests.test_remote_user.RemoteUserTest.test_passing_explicit_none",
+    "auth_tests.test_staged_contract.RemoteCleanerTests.test_absent_cleaner_is_optional"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/auth_tests/test_remote_user.py",
+    "tests/auth_tests/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/auth_tests/test_remote_user.py",
+    "tests/auth_tests/test_staged_contract.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "46939e1ac289f038a55d74bc3f6068f6789b995890d92f1343197973b88c255c",
+    "config/recipes.json": "b2d5eb731ee2a8b207892701e952bac81eb555c5d71b3fe521a0fac8a88236da"
+  }
+}

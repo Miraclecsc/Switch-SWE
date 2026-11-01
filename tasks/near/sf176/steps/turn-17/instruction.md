@@ -1,0 +1,1 @@
+Also, Curious question on the side here, from someone with very little knowledge of the Jinja package internals, besides fiddling with Puente -- and thus my apologies, if I'm quite a bit off: is this _actually_ breaking backwards compatibility since this is a private method? Are there known packages calling either `_install` or `_install_callables` directly?

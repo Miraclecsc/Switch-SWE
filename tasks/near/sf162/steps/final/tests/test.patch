@@ -1,0 +1,372 @@
+diff --git a/tests/test_templates.py b/tests/test_templates.py
+index 1f1909f4b..102f0bfcc 100644
+--- a/tests/test_templates.py
++++ b/tests/test_templates.py
+@@ -1,10 +1,12 @@
+ import os
+ from pathlib import Path
++from unittest import mock
+ 
+ import jinja2
+ import pytest
+ 
+ from starlette.applications import Starlette
++from starlette.background import BackgroundTask
+ from starlette.middleware import Middleware
+ from starlette.middleware.base import BaseHTTPMiddleware
+ from starlette.routing import Route
+@@ -17,7 +19,7 @@ def test_templates(tmpdir, test_client_factory):
+         file.write("<html>Hello, <a href='{{ url_for('homepage') }}'>world</a></html>")
+ 
+     async def homepage(request):
+-        return templates.TemplateResponse("index.html", {"request": request})
++        return templates.TemplateResponse(request, "index.html")
+ 
+     app = Starlette(
+         debug=True,
+@@ -32,18 +34,12 @@ async def homepage(request):
+     assert set(response.context.keys()) == {"request"}
+ 
+ 
+-def test_template_response_requires_request(tmpdir):
+-    templates = Jinja2Templates(str(tmpdir))
+-    with pytest.raises(ValueError):
+-        templates.TemplateResponse("", {})
+-
+-
+ def test_calls_context_processors(tmp_path, test_client_factory):
+     path = tmp_path / "index.html"
+     path.write_text("<html>Hello {{ username }}</html>")
+ 
+     async def homepage(request):
+-        return templates.TemplateResponse("index.html", {"request": request})
++        return templates.TemplateResponse(request, "index.html")
+ 
+     def hello_world_processor(request):
+         return {"username": "World"}
+@@ -72,7 +68,7 @@ def test_template_with_middleware(tmpdir, test_client_factory):
+         file.write("<html>Hello, <a href='{{ url_for('homepage') }}'>world</a></html>")
+ 
+     async def homepage(request):
+-        return templates.TemplateResponse("index.html", {"request": request})
++        return templates.TemplateResponse(request, "index.html")
+ 
+     class CustomMiddleware(BaseHTTPMiddleware):
+         async def dispatch(self, request, call_next):
+@@ -99,7 +95,7 @@ def test_templates_with_directories(tmp_path: Path, test_client_factory):
+     template_a.write_text("<html><a href='{{ url_for('page_a') }}'></a> a</html>")
+ 
+     async def page_a(request):
+-        return templates.TemplateResponse("template_a.html", {"request": request})
++        return templates.TemplateResponse(request, "template_a.html")
+ 
+     dir_b = tmp_path.resolve() / "b"
+     dir_b.mkdir()
+@@ -107,7 +103,7 @@ async def page_a(request):
+     template_b.write_text("<html><a href='{{ url_for('page_b') }}'></a> b</html>")
+ 
+     async def page_b(request):
+-        return templates.TemplateResponse("template_b.html", {"request": request})
++        return templates.TemplateResponse(request, "template_b.html")
+ 
+     app = Starlette(
+         debug=True,
+@@ -158,3 +154,142 @@ def test_templates_with_environment(tmpdir):
+ def test_templates_with_environment_options_emit_warning(tmpdir):
+     with pytest.warns(DeprecationWarning):
+         Jinja2Templates(str(tmpdir), autoescape=True)
++
++
++def test_templates_with_kwargs_only(tmpdir, test_client_factory):
++    # MAINTAINERS: remove after 1.0
++    path = os.path.join(tmpdir, "index.html")
++    with open(path, "w") as file:
++        file.write("value: {{ a }}")
++    templates = Jinja2Templates(directory=str(tmpdir))
++
++    spy = mock.MagicMock()
++
++    def page(request):
++        return templates.TemplateResponse(
++            request=request,
++            name="index.html",
++            context={"a": "b"},
++            status_code=201,
++            headers={"x-key": "value"},
++            media_type="text/plain",
++            background=BackgroundTask(func=spy),
++        )
++
++    app = Starlette(routes=[Route("/", page)])
++    client = test_client_factory(app)
++    response = client.get("/")
++
++    assert response.text == "value: b"  # context was rendered
++    assert response.status_code == 201
++    assert response.headers["x-key"] == "value"
++    assert response.headers["content-type"] == "text/plain; charset=utf-8"
++    spy.assert_called()
++
++
++def test_templates_with_kwargs_only_requires_request_in_context(tmpdir):
++    # MAINTAINERS: remove after 1.0
++
++    templates = Jinja2Templates(directory=str(tmpdir))
++    with pytest.warns(
++        DeprecationWarning,
++        match="requires the `request` argument",
++    ):
++        with pytest.raises(ValueError):
++            templates.TemplateResponse(name="index.html", context={"a": "b"})
++
++
++def test_templates_with_kwargs_only_warns_when_no_request_keyword(
++    tmpdir, test_client_factory
++):
++    # MAINTAINERS: remove after 1.0
++
++    path = os.path.join(tmpdir, "index.html")
++    with open(path, "w") as file:
++        file.write("Hello")
++
++    templates = Jinja2Templates(directory=str(tmpdir))
++
++    def page(request):
++        return templates.TemplateResponse(
++            name="index.html", context={"request": request}
++        )
++
++    app = Starlette(routes=[Route("/", page)])
++    client = test_client_factory(app)
++
++    with pytest.warns(
++        DeprecationWarning,
++        match="requires the `request` argument",
++    ):
++        client.get("/")
++
++
++def test_templates_with_requires_request_in_context(tmpdir):
++    # MAINTAINERS: remove after 1.0
++    templates = Jinja2Templates(directory=str(tmpdir))
++    with pytest.warns(DeprecationWarning):
++        with pytest.raises(ValueError):
++            templates.TemplateResponse("index.html", context={})
++
++
++def test_templates_warns_when_first_argument_isnot_request(tmpdir, test_client_factory):
++    # MAINTAINERS: remove after 1.0
++    path = os.path.join(tmpdir, "index.html")
++    with open(path, "w") as file:
++        file.write("value: {{ a }}")
++    templates = Jinja2Templates(directory=str(tmpdir))
++
++    spy = mock.MagicMock()
++
++    def page(request):
++        return templates.TemplateResponse(
++            "index.html",
++            {"a": "b", "request": request},
++            status_code=201,
++            headers={"x-key": "value"},
++            media_type="text/plain",
++            background=BackgroundTask(func=spy),
++        )
++
++    app = Starlette(routes=[Route("/", page)])
++    client = test_client_factory(app)
++    with pytest.warns(DeprecationWarning):
++        response = client.get("/")
++
++    assert response.text == "value: b"  # context was rendered
++    assert response.status_code == 201
++    assert response.headers["x-key"] == "value"
++    assert response.headers["content-type"] == "text/plain; charset=utf-8"
++    spy.assert_called()
++
++
++def test_templates_when_first_argument_is_request(tmpdir, test_client_factory):
++    # MAINTAINERS: remove after 1.0
++    path = os.path.join(tmpdir, "index.html")
++    with open(path, "w") as file:
++        file.write("value: {{ a }}")
++    templates = Jinja2Templates(directory=str(tmpdir))
++
++    spy = mock.MagicMock()
++
++    def page(request):
++        return templates.TemplateResponse(
++            request,
++            "index.html",
++            {"a": "b"},
++            status_code=201,
++            headers={"x-key": "value"},
++            media_type="text/plain",
++            background=BackgroundTask(func=spy),
++        )
++
++    app = Starlette(routes=[Route("/", page)])
++    client = test_client_factory(app)
++    response = client.get("/")
++
++    assert response.text == "value: b"  # context was rendered
++    assert response.status_code == 201
++    assert response.headers["x-key"] == "value"
++    assert response.headers["content-type"] == "text/plain; charset=utf-8"
++    spy.assert_called()
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,151 @@
++import asyncio
++import warnings
++
++import pytest
++
++from starlette.background import BackgroundTask
++from starlette.requests import Request
++from starlette.templating import Jinja2Templates
++
++
++def setup_templates(tmp_path, processors=()):
++    (tmp_path / "index.html").write_text("{{ request.url.path }}:{{ value }}")
++    return Jinja2Templates(str(tmp_path), context_processors=list(processors))
++
++
++def request(path="/one"):
++    return Request({"type": "http", "path": path, "root_path": "",
++                    "scheme": "http", "server": ("test", 80), "headers": []})
++
++
++def test_legacy_positional_response_options(tmp_path):
++    templates = setup_templates(tmp_path)
++    calls = []
++    background = BackgroundTask(calls.append, "done")
++    with pytest.warns(DeprecationWarning):
++        response = templates.TemplateResponse(
++            "index.html", {"request": request(), "value": "old"}, 202,
++            {"x-template": "legacy"}, "text/plain", background)
++    assert response.body == b"/one:old"
++    assert response.status_code == 202
++    assert response.headers["x-template"] == "legacy"
++    assert response.headers["content-type"].startswith("text/plain")
++    assert response.background is background
++    asyncio.run(response.background())
++    assert calls == ["done"]
++
++
++def test_modern_mixed_options_remain_supported(tmp_path):
++    templates = setup_templates(tmp_path)
++    response = templates.TemplateResponse(
++        request(), name="index.html", context={"value": "new"}, status_code=201,
++        headers={"x-template": "modern"}, media_type="text/plain")
++    assert response.body == b"/one:new"
++    assert response.status_code == 201
++    assert response.headers["x-template"] == "modern"
++
++
++def test_none_context_with_explicit_request(tmp_path):
++    templates = setup_templates(tmp_path)
++    first = templates.TemplateResponse(request(), "index.html", None)
++    second = templates.TemplateResponse(request=request("/two"), name="index.html", context=None)
++    assert first.body == b"/one:"
++    assert second.body == b"/two:"
++    assert first.context is not second.context
++
++
++def test_shared_context_is_not_mutated_between_requests(tmp_path):
++    seen = []
++    def processor(req):
++        seen.append(req)
++        return {"value": req.url.path}
++    templates = setup_templates(tmp_path, [processor])
++    context = {"value": "original"}
++    one, two = request(), request("/two")
++    first = templates.TemplateResponse(one, "index.html", context)
++    second = templates.TemplateResponse(two, "index.html", context)
++    assert context == {"value": "original"}
++    assert first.body == b"/one:/one"
++    assert second.body == b"/two:/two"
++    assert first.context["request"] is one
++    assert second.context["request"] is two
++    assert seen == [one, two]
++
++
++def test_explicit_request_overrides_stale_context_and_processor_request(tmp_path):
++    stale, current = request("/stale"), request("/current")
++    received = []
++    def processor(req):
++        received.append(req)
++        return {"request": stale, "value": "processed"}
++    templates = setup_templates(tmp_path, [processor])
++    context = {"request": stale, "value": "caller"}
++    response = templates.TemplateResponse(current, "index.html", context)
++    assert response.body == b"/current:processed"
++    assert response.context["request"] is current
++    assert context == {"request": stale, "value": "caller"}
++    assert received == [current]
++
++
++def test_legacy_context_is_not_mutated_by_processors(tmp_path):
++    templates = setup_templates(tmp_path, [lambda req: {"value": "processed"}])
++    req = request()
++    context = {"request": req, "value": "caller"}
++    with pytest.warns(DeprecationWarning):
++        response = templates.TemplateResponse("index.html", context)
++    assert response.body == b"/one:processed"
++    assert context == {"request": req, "value": "caller"}
++
++
++def test_duplicate_arguments_are_rejected_before_processing(tmp_path):
++    calls = []
++    templates = setup_templates(tmp_path, [lambda req: calls.append(req) or {}])
++    req = request()
++    invalid = [
++        ((req, "index.html"), {"name": "index.html"}),
++        ((req, "index.html", {}), {"context": {}}),
++        ((req, "index.html", {}, 201), {"status_code": 202}),
++        ((req, "index.html"), {"request": req}),
++        (("index.html", {"request": req}), {"name": "index.html"}),
++    ]
++    for args, kwargs in invalid:
++        with warnings.catch_warnings():
++            warnings.simplefilter("ignore", DeprecationWarning)
++            with pytest.raises(TypeError):
++                templates.TemplateResponse(*args, **kwargs)
++    assert calls == []
++
++
++def test_unknown_and_excess_arguments_are_rejected_before_processing(tmp_path):
++    calls = []
++    templates = setup_templates(tmp_path, [lambda req: calls.append(req) or {}])
++    req = request()
++    invalid = [
++        ((req, "index.html"), {"statuz_code": 201}),
++        ((req, "index.html", {}, 200, None, None, None, "extra"), {}),
++        (("index.html", {"request": req}, 200, None, None, None, "extra"), {}),
++        ((), {"request": req, "name": "index.html", "extra": True}),
++        (("index.html", {"request": req}), {"request": req}),
++    ]
++    for args, kwargs in invalid:
++        with warnings.catch_warnings():
++            warnings.simplefilter("ignore", DeprecationWarning)
++            with pytest.raises(TypeError):
++                templates.TemplateResponse(*args, **kwargs)
++    assert calls == []
++
++
++def test_missing_template_name_is_a_binding_error(tmp_path):
++    templates = setup_templates(tmp_path)
++    with pytest.raises(TypeError):
++        templates.TemplateResponse(request())
++    with pytest.raises(TypeError):
++        templates.TemplateResponse(request=request())
++
++
++def test_all_keyword_legacy_warning_and_rendering_remain_supported(tmp_path):
++    templates = setup_templates(tmp_path)
++    with pytest.warns(DeprecationWarning, match="requires the `request` argument"):
++        response = templates.TemplateResponse(
++            name="index.html", context={"request": request(), "value": "old"})
++    assert response.body == b"/one:old"

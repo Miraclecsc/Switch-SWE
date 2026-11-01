@@ -1,0 +1,1 @@
+And here, I've usually gone with a `utils.py` in the test suite. So long as it's structured as a package (which it is in anyio's case), it works fine.

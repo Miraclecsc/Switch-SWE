@@ -1,0 +1,1 @@
+For the checkout at /work/w04, The motivation is to allow users to create events and capacity limiters on the module level, as import side effects, and in the REPL too. You can already do this with `asyncio.Event()` and `trio.Event()`.

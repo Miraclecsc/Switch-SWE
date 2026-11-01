@@ -1,0 +1,1 @@
+Also, i think in main we would get a ArrowInvalid/ArrowCapacityError with a similar message

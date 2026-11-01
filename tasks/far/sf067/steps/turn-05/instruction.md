@@ -1,0 +1,1 @@
+Also, The companion is_connected_dominating_set predicate must consume nbunch once, tolerate duplicates, return False for unknown vertices or non-connected/non-dominating selections, and work with generators. On an empty graph the empty selection is valid; on a nonempty graph an empty selection is invalid.

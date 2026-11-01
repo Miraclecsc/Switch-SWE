@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Could we have an explicit `style.color is None` here.

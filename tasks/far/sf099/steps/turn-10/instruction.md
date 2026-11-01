@@ -1,0 +1,3 @@
+One more thing: This may be too defensive, but right now `0**-1` -> `zoo`, while `ZeroMatrix**-1` -> `NonInvertibleMatrixError: Matrix det == 0; not invertible`. The extra clause in `coeff_can_be_extracted` is to keep the latter behavior for `MatMul(0, A)**-1`.
+
+Preserve the original conservative behavior of ordinary matrix powers. Add an opt-in doit(extract_symbolic_scalars=True) hint on MatPow that also extracts a provably positive commutative scalar coefficient for a provably real symbolic exponent. Keep the matrix product inside one MatPow in its original order. When the coefficient is one, do not recurse or introduce redundant scalar factors. Calls without the hint retain the original rule that symbolic exponents remain unevaluated.

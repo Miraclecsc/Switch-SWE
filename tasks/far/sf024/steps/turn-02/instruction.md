@@ -1,0 +1,1 @@
+For the checkout at /work/w04, This is not necessary, once the location gets figured out you should be able to just do `nx.k_lift(...)`.

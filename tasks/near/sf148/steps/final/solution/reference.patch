@@ -1,0 +1,1031 @@
+diff --git a/docs/tasks.rst b/docs/tasks.rst
+index b3e23e0..a3ae6eb 100644
+--- a/docs/tasks.rst
++++ b/docs/tasks.rst
+@@ -44,44 +44,84 @@ Here's a demonstration::
+ Working with task handles
+ -------------------------
+ 
+-As an alternative way to spawn tasks, you can use the :meth:`~.TaskGroup.create_task`
+-method which will return a :class:`~.TaskHandle`. This handle can be used to:
++Both :meth:`~.abc.TaskGroup.start_soon` and :meth:`~.TaskGroup.create_task` return a
++:class:`~.TaskHandle`. This handle can be used to:
+ 
+ #. Wait for the task to finish before exiting the task group
+ #. Retrieve the task's return value or exception
+ #. Cancel the task
+ #. Check the task's status
+ 
+-::
++.. tabs::
+ 
+-    from anyio import TaskHandle, create_task_group, run, sleep
++   .. tab:: create_task()
+ 
++      ::
+ 
+-    async def sometask(num: int) -> str:
+-        await sleep(1)
+-        return str(num)
++          from anyio import TaskHandle, create_task_group, run, sleep
+ 
+ 
+-    async def main() -> None:
+-        async with create_task_group() as tg:
+-            handles = [
+-                tg.create_task(sometask(num)) for num in range(5)
+-            ]
+-            handles[1].cancel()
+-            print(await handles[2])
+-
+-        print(
+-            'Tasks finished:',
+-            ', '.join(
+-                handle.return_value for handle in handles
+-                if handle.status is TaskHandle.Status.FINISHED
+-            )
+-        )
+-        # Should print:
+-        #   2
+-        #   Tasks finished: 0, 2, 3, 4
++          async def sometask(num: int) -> str:
++              await sleep(1)
++              return str(num)
+ 
+-    run(main)
++
++          async def main() -> None:
++              async with create_task_group() as tg:
++                  handles = [
++                      tg.create_task(sometask(num)) for num in range(5)
++                  ]
++                  handles[1].cancel()
++                  print(await handles[2])
++
++              print(
++                  'Tasks finished:',
++                  ', '.join(
++                      handle.return_value for handle in handles
++                      if handle.status is TaskHandle.Status.FINISHED
++                  )
++              )
++              # Should print:
++              #   2
++              #   Tasks finished: 0, 2, 3, 4
++
++          run(main)
++
++   .. tab:: start_soon()
++
++      ::
++
++          from anyio import TaskHandle, create_task_group, run, sleep
++
++
++          async def sometask(num: int) -> str:
++              await sleep(1)
++              return str(num)
++
++
++          async def main() -> None:
++              async with create_task_group() as tg:
++                  handles = [
++                      tg.start_soon(sometask, num) for num in range(5)
++                  ]
++                  handles[1].cancel()
++                  print(await handles[2])
++
++              print(
++                  'Tasks finished:',
++                  ', '.join(
++                      handle.return_value for handle in handles
++                      if handle.status is TaskHandle.Status.FINISHED
++                  )
++              )
++              # Should print:
++              #   2
++              #   Tasks finished: 0, 2, 3, 4
++
++          run(main)
++
++.. versionchanged:: 4.14.0
++    :meth:`~.abc.TaskGroup.start_soon` now returns a :class:`~.TaskHandle`.
+ 
+ .. _start_initialize:
+ 
+@@ -138,6 +178,40 @@ until then. If the spawned task never calls it, then the
+ .. note:: Unlike :meth:`~.abc.TaskGroup.start_soon`, :meth:`~.abc.TaskGroup.start` needs
+    an ``await``.
+ 
++Getting a task handle from ``start()``
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++By default, :meth:`TaskGroup.start() <.abc.TaskGroup.start>` returns the value passed to
++``task_status.started()``. If you also need a :class:`~.TaskHandle` for the started task
++(e.g. to cancel it or await its return value), pass ``return_handle=True``. In this
++mode, the method returns a :class:`~.TaskHandle` whose :attr:`~.TaskHandle.start_value`
++property contains the value passed to ``task_status.started()``::
++
++    from anyio import create_task_group, run, sleep
++    from anyio.abc import TaskStatus
++
++
++    async def start_some_service(
++        port: int, *, task_status: TaskStatus[int] = TASK_STATUS_IGNORED
++    ) -> int:
++        task_status.started(port)
++        await sleep(10)
++        return 42
++
++
++    async def main() -> None:
++        async with create_task_group() as tg:
++            handle = await tg.start(start_some_service, 5000, return_handle=True)
++            print(f"Service started on port {handle.start_value}")
++            handle.cancel()
++            await handle.wait()
++
++    run(main)
++
++.. versionadded:: 4.14.0
++    The ``return_handle`` parameter was added to
++    :meth:`TaskGroup.start() <.abc.TaskGroup.start>`.
++
+ Handling multiple errors in a task group
+ ----------------------------------------
+ 
+@@ -217,10 +291,19 @@ the context of the task group's host task that will be copied, but the context o
+ task that calls :meth:`TaskGroup.start() <.abc.TaskGroup.start>` or
+ :meth:`TaskGroup.start_soon() <.abc.TaskGroup.start_soon>`.
+ 
++If you need a task to run in a specific context, you can pass a
++:class:`~contextvars.Context` object to
++:meth:`TaskGroup.create_task() <.abc.TaskGroup.create_task>` via its ``context`` keyword
++argument. When provided, the task will run in the given context instead of inheriting a
++copy of the caller's context.
++
+ .. _context: https://docs.python.org/3/library/contextvars.html
+ 
++Asyncio-specific notes
++----------------------
++
+ Differences with asyncio.TaskGroup
+-----------------------------------
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ The :class:`asyncio.TaskGroup` class, added in Python 3.11, is very similar in design to
+ the AnyIO :class:`~.abc.TaskGroup` class. The asyncio counterpart has some important
+@@ -229,8 +312,8 @@ differences in its semantics, however:
+ * The task group itself is instantiated directly, rather than using a factory function
+ * Tasks are spawned solely through :meth:`~asyncio.TaskGroup.create_task`; there is no
+   ``start()`` or ``start_soon()`` method
+-* The :meth:`~asyncio.TaskGroup.create_task` method returns a task object which can be
+-  awaited on (or cancelled)
++* The :meth:`~asyncio.TaskGroup.create_task` method returns an :class:`asyncio.Task`,
++  while AnyIO's :meth:`~.TaskGroup.create_task` returns a :class:`~.TaskHandle`
+ * When a task spawned via :meth:`~asyncio.TaskGroup.create_task` is cancelled before its
+   coroutine has started running, it will not get a chance to handle the cancellation
+   exception
+@@ -239,8 +322,8 @@ differences in its semantics, however:
+ * Tasks spawned from :class:`asyncio.TaskGroup` use different cancellation semantics
+   (see the notes on :ref:`asyncio cancellation semantics <asyncio cancellation>`)
+ 
+-Asyncio call graph introspection support
+-----------------------------------------
++Call graph introspection support
++^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ .. versionadded:: 4.12.0
+ 
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 8c7ea7a..f353255 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -13,8 +13,12 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+   (`#1067 <https://github.com/agronholm/anyio/issues/1067>`_; PR by @nullwiz)
+ - Added support for custom capacity limiters in async path and file I/O
+   functions and classes
+-- Added the ``create_task()`` task group method for easier asyncio migration
+-  and to allow retrieving task return values more easily
++- Added the ``create_task()`` task group method for easier asyncio migration (returns a
++  ``TaskHandle``)
++  (`#1098 <https://github.com/agronholm/anyio/pull/1098>`_)
++- Changed ``TaskGroup.start_soon()`` to return a ``TaskHandle``
++- Added an option for ``TaskGroup.start()`` to return a ``TaskHandle`` (which then
++  contains the start value in the ``start_value`` property)
+ - Added the ``cancel()`` convenience method to ``TaskGroup`` as a shortcut for
+   cancelling the task group's cancel scope
+ - Improved the error message when a known backend is not installed to suggest the
+@@ -27,6 +31,15 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+   any ``ReadableBuffer``, thus allowing it to accept ``bytearray`` and ``memoryview`` to
+   match ``pathlib.Path.write_bytes()``
+   (`#1135 <https://github.com/agronholm/anyio/issues/1135>`_; PR by @SAY-5)
++- Changed several type annotations to only accept callables returning coroutine-like
++  objects instead of arbitrary awaitables:
++
++  - ``TaskGroup.start_soon()``
++  - ``TaskGroup.start()``
++  - ``anyio.from_thread.run()``
++
++  This reverts an earlier change from v3.7.0 which was made in error.
++  (`#1153 <https://github.com/agronholm/anyio/pull/1153>`_)
+ - Changed several classes (and their subclasses) to have ``__slots__`` (with
+   ``__weakref__``):
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index f50737a..ee16480 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -32,7 +32,7 @@ from collections.abc import (
+     Sequence,
+ )
+ from concurrent.futures import Future
+-from contextlib import AbstractContextManager, suppress
++from contextlib import AbstractContextManager
+ from contextvars import Context, copy_context
+ from dataclasses import dataclass, field
+ from functools import partial, wraps
+@@ -40,7 +40,6 @@ from inspect import (
+     CORO_RUNNING,
+     CORO_SUSPENDED,
+     getcoroutinestate,
+-    iscoroutine,
+ )
+ from io import IOBase
+ from os import PathLike
+@@ -53,6 +52,7 @@ from typing import (
+     IO,
+     TYPE_CHECKING,
+     Any,
++    Literal,
+     ParamSpec,
+     TypeVar,
+     cast,
+@@ -92,6 +92,7 @@ from .._core._synchronization import (
+ )
+ from .._core._synchronization import Semaphore as BaseSemaphore
+ from .._core._tasks import CancelScope as BaseCancelScope
++from .._core._tasks import TaskHandle
+ from ..abc import (
+     AsyncBackend,
+     IPSockAddrType,
+@@ -100,6 +101,7 @@ from ..abc import (
+     UNIXDatagramPacketType,
+ )
+ from ..abc._eventloop import StrOrBytesPath
++from ..abc._tasks import call_for_coroutine, get_callable_name
+ from ..lowlevel import RunVar
+ from ..streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
+ 
+@@ -298,6 +300,7 @@ else:
+ 
+ 
+ T_Retval = TypeVar("T_Retval")
++T_co = TypeVar("T_co", covariant=True)
+ T_contra = TypeVar("T_contra", contravariant=True)
+ PosArgsT = TypeVarTuple("PosArgsT")
+ P = ParamSpec("P")
+@@ -336,12 +339,6 @@ def find_root_task() -> asyncio.Task:
+     return task
+ 
+ 
+-def get_callable_name(func: Callable) -> str:
+-    module = getattr(func, "__module__", None)
+-    qualname = getattr(func, "__qualname__", None)
+-    return ".".join([x for x in (module, qualname) if x])
+-
+-
+ #
+ # Event loop
+ #
+@@ -355,11 +352,7 @@ def _task_started(task: asyncio.Task) -> bool:
+     # task list
+     coro = task.get_coro()
+     assert coro is not None
+-    try:
+-        return getcoroutinestate(coro) in (CORO_RUNNING, CORO_SUSPENDED)
+-    except AttributeError:
+-        # task coro is async_genenerator_asend https://bugs.python.org/issue37771
+-        raise Exception(f"Cannot determine if task {task} has started or not") from None
++    return getcoroutinestate(coro) in (CORO_RUNNING, CORO_SUSPENDED)
+ 
+ 
+ #
+@@ -832,11 +825,10 @@ class TaskGroup(abc.TaskGroup):
+ 
+     def _spawn(
+         self,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[Any]],
+-        args: tuple[Unpack[PosArgsT]],
++        coro: Coroutine[Any, Any, T_co],
+         name: object,
+         task_status_future: asyncio.Future | None = None,
+-    ) -> asyncio.Task:
++    ) -> TaskHandle[T_co]:
+         def task_done(_task: asyncio.Task) -> None:
+             if sys.version_info >= (3, 14) and self.cancel_scope._host_task is not None:
+                 asyncio.future_discard_from_awaited_by(
+@@ -884,39 +876,23 @@ class TaskGroup(abc.TaskGroup):
+                     RuntimeError("Child exited without calling task_status.started()")
+                 )
+ 
+-        if not self._entered or not self.cancel_scope._active:
+-            raise RuntimeError(
+-                "This task group is not active; no new tasks can be started."
+-            )
+-
+-        kwargs = {}
+         if task_status_future:
+             parent_id = id(current_task())
+-            kwargs["task_status"] = _AsyncioTaskStatus(
+-                task_status_future, id(self.cancel_scope._host_task)
+-            )
+         else:
+             parent_id = id(self.cancel_scope._host_task)
+ 
+-        coro = func(*args, **kwargs)
+-        if not iscoroutine(coro):
+-            prefix = f"{func.__module__}." if hasattr(func, "__module__") else ""
+-            raise TypeError(
+-                f"Expected {prefix}{func.__qualname__}() to return a coroutine, but "
+-                f"the return value ({coro!r}) is not a coroutine object"
+-            )
+-
+-        name = get_callable_name(func) if name is None else str(name)
++        handle = TaskHandle(coro, name)
+         loop = asyncio.get_running_loop()
++        wrapper_coro = handle._run_coro()
+         if (
+             (factory := loop.get_task_factory())
+             and getattr(factory, "__code__", None) is _eager_task_factory_code
+             and (closure := getattr(factory, "__closure__", None))
+         ):
+             custom_task_constructor = closure[0].cell_contents
+-            task = custom_task_constructor(coro, loop=loop, name=name)
++            task = custom_task_constructor(wrapper_coro, loop=loop, name=handle.name)
+         else:
+-            task = create_task(coro, name=name)
++            task = loop.create_task(wrapper_coro, name=handle.name)
+ 
+         # Make the spawned task inherit the task group's cancel scope
+         _task_states[task] = TaskState(
+@@ -928,36 +904,68 @@ class TaskGroup(abc.TaskGroup):
+             asyncio.future_add_to_awaited_by(task, self.cancel_scope._host_task)
+ 
+         task.add_done_callback(task_done)
+-        return task
++        return handle
+ 
+-    def start_soon(
++    def create_task(
+         self,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[Any]],
+-        *args: Unpack[PosArgsT],
++        coro: Coroutine[Any, Any, T_co],
++        *,
+         name: object = None,
+-    ) -> None:
+-        self._spawn(func, args, name)
++        context: Context | None = None,
++    ) -> TaskHandle[T_co]:
++        if not isinstance(coro, Coroutine):
++            raise TypeError(f"expected a coroutine, got {coro.__class__.__qualname__}")
++
++        if not self._entered or not self.cancel_scope._active:
++            coro.close()
++            raise RuntimeError(
++                "This task group is not active; no new tasks can be started."
++            )
++
++        if context is not None:
++            return context.run(self._spawn, coro, name=name)
++        else:
++            return self._spawn(coro, name=name)
+ 
+     async def start(
+-        self, func: Callable[..., Awaitable[Any]], *args: object, name: object = None
++        self,
++        func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
++        *args: Unpack[PosArgsT],
++        name: object = None,
++        return_handle: Literal[False] | Literal[True] = False,
+     ) -> Any:
++        if not self._entered or not self.cancel_scope._active:
++            raise RuntimeError(
++                "This task group is not active; no new tasks can be started."
++            )
++
+         future: asyncio.Future = asyncio.Future()
+-        task = self._spawn(func, args, name, future)
++        final_name = get_callable_name(func, name)
++        task_status = _AsyncioTaskStatus(future, id(self.cancel_scope._host_task))
++        coro = call_for_coroutine(func, args, task_status=task_status)
++        handle = self._spawn(coro, final_name, future)
+ 
+         # If the task raises an exception after sending a start value without a switch
+         # point between, the task group is cancelled and this method never proceeds to
+         # process the completed future. That's why we have to have a shielded cancel
+         # scope here.
+         try:
+-            return await future
+-        except CancelledError:
+-            # Cancel the task and wait for it to exit before returning
+-            task.cancel()
+-            with CancelScope(shield=True), suppress(CancelledError):
+-                await task
++            await future
++        except BaseException:
++            if handle.status is TaskHandle.Status.PENDING:
++                # Cancel the task and wait for it to exit before returning
++                handle.cancel()
++                with CancelScope(shield=True):
++                    await handle.wait()
+ 
+             raise
+ 
++        if return_handle:
++            handle._start_value = future.result()
++            return handle
++        else:
++            return future.result()
++
+ 
+ #
+ # Threads
+@@ -2585,11 +2593,11 @@ class AsyncIOBackend(AsyncBackend):
+     @classmethod
+     def run_async_from_thread(
+         cls,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
++        func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
+         args: tuple[Unpack[PosArgsT]],
+         token: object,
+-    ) -> T_Retval:
+-        async def task_wrapper() -> T_Retval:
++    ) -> T_co:
++        async def task_wrapper() -> T_co:
+             __tracebackhide__ = True
+             if scope is not None:
+                 task = cast(asyncio.Task, current_task())
+@@ -2612,7 +2620,7 @@ class AsyncIOBackend(AsyncBackend):
+         context = copy_context()
+         context.run(set_current_async_library, "asyncio")
+         scope = getattr(threadlocals, "current_cancel_scope", None)
+-        f: concurrent.futures.Future[T_Retval] = context.run(
++        f: concurrent.futures.Future[T_co] = context.run(
+             asyncio.run_coroutine_threadsafe, task_wrapper(), loop=loop
+         )
+         return f.result()
+diff --git a/src/anyio/_backends/_trio.py b/src/anyio/_backends/_trio.py
+index fc9b24c..35c2474 100644
+--- a/src/anyio/_backends/_trio.py
++++ b/src/anyio/_backends/_trio.py
+@@ -18,7 +18,9 @@ from collections.abc import (
+     Sequence,
+ )
+ from contextlib import AbstractContextManager
++from contextvars import Context
+ from dataclasses import dataclass
++from functools import partial
+ from io import IOBase
+ from os import PathLike
+ from signal import Signals
+@@ -29,6 +31,7 @@ from typing import (
+     TYPE_CHECKING,
+     Any,
+     Generic,
++    Literal,
+     NoReturn,
+     ParamSpec,
+     TypeVar,
+@@ -78,8 +81,10 @@ from .._core._synchronization import (
+ )
+ from .._core._synchronization import Semaphore as BaseSemaphore
+ from .._core._tasks import CancelScope as BaseCancelScope
++from .._core._tasks import TaskHandle
+ from ..abc import IPSockAddrType, UDPPacketType, UNIXDatagramPacketType
+ from ..abc._eventloop import AsyncBackend, StrOrBytesPath
++from ..abc._tasks import T_contra, call_for_coroutine, get_callable_name
+ from ..streams.memory import MemoryObjectSendStream
+ 
+ if TYPE_CHECKING:
+@@ -93,6 +98,7 @@ else:
+ 
+ T = TypeVar("T")
+ T_Retval = TypeVar("T_Retval")
++T_co = TypeVar("T_co", covariant=True)
+ T_SockAddr = TypeVar("T_SockAddr", str, IPSockAddrType)
+ PosArgsT = TypeVarTuple("PosArgsT")
+ P = ParamSpec("P")
+@@ -165,6 +171,22 @@ class CancelScope(BaseCancelScope):
+ # Task groups
+ #
+ 
++empty_start_value = object()
++
++
++class _TrioTaskStatus(Generic[T_contra], abc.TaskStatus[T_contra]):
++    early_start_value: T_contra | object = empty_start_value
++    real_task_status: trio.TaskStatus[T_contra | None] | None = None
++
++    def started(self, value: T_contra | None = None) -> None:
++        if self.real_task_status is None:
++            if self.early_start_value is not empty_start_value:
++                raise RuntimeError("called 'started' twice on the same task status")
++
++            self.early_start_value = value
++        else:
++            self.real_task_status.started(value)
++
+ 
+ class TaskGroup(abc.TaskGroup):
+     def __init__(self) -> None:
+@@ -201,28 +223,69 @@ class TaskGroup(abc.TaskGroup):
+             del exc_val, exc_tb
+             self._active = False
+ 
+-    def start_soon(
+-        self,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[Any]],
+-        *args: Unpack[PosArgsT],
+-        name: object = None,
+-    ) -> None:
++    def _check_active(self, coro: Coroutine | None = None) -> None:
+         if not self._active:
++            if coro is not None:
++                coro.close()
++
+             raise RuntimeError(
+                 "This task group is not active; no new tasks can be started."
+             )
+ 
+-        self._nursery.start_soon(func, *args, name=name)
++    def create_task(
++        self,
++        coro: Coroutine[Any, Any, T_co],
++        *,
++        name: object = None,
++        context: Context | None = None,
++    ) -> TaskHandle[T_co]:
++        if not isinstance(coro, Coroutine):
++            raise TypeError(f"expected a coroutine, got {coro.__class__.__qualname__}")
++
++        self._check_active(coro)
++        handle = TaskHandle(coro, name)
++        if context is not None:
++            context.run(
++                partial(self._nursery.start_soon, handle._run_coro, name=handle.name)
++            )
++        else:
++            self._nursery.start_soon(handle._run_coro, name=handle.name)
++
++        return handle
+ 
+     async def start(
+-        self, func: Callable[..., Awaitable[Any]], *args: object, name: object = None
++        self,
++        func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
++        *args: Unpack[PosArgsT],
++        name: object = None,
++        return_handle: Literal[False] | Literal[True] = False,
+     ) -> Any:
+-        if not self._active:
+-            raise RuntimeError(
+-                "This task group is not active; no new tasks can be started."
+-            )
++        handle: TaskHandle[T_co]
++
++        async def run_coro_with_task_status(
++            *, task_status: trio.TaskStatus[Any]
++        ) -> None:
++            nonlocal handle
++            wrapper_task_status = _TrioTaskStatus()
++            coro = call_for_coroutine(func, args, task_status=wrapper_task_status)
++            if wrapper_task_status.early_start_value is not empty_start_value:
++                task_status.started(wrapper_task_status.early_start_value)
++            else:
++                wrapper_task_status.real_task_status = task_status
+ 
+-        return await self._nursery.start(func, *args, name=name)
++            handle = TaskHandle(coro, name)
++            await handle._run_coro()
++
++        self._check_active()
++        final_name = get_callable_name(func, name)
++        start_value = await self._nursery.start(
++            run_coro_with_task_status, name=final_name
++        )
++        if return_handle:
++            handle._start_value = start_value
++            return handle
++        else:
++            return start_value
+ 
+ 
+ #
+@@ -1073,10 +1136,10 @@ class TrioBackend(AsyncBackend):
+     @classmethod
+     def run_async_from_thread(
+         cls,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
++        func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
+         args: tuple[Unpack[PosArgsT]],
+         token: object,
+-    ) -> T_Retval:
++    ) -> T_co:
+         trio_token = cast("trio.lowlevel.TrioToken | None", token)
+         try:
+             return trio.from_thread.run(func, *args, trio_token=trio_token)
+diff --git a/src/anyio/_core/_tasks.py b/src/anyio/_core/_tasks.py
+index 7edaf9b..ad5fb16 100644
+--- a/src/anyio/_core/_tasks.py
++++ b/src/anyio/_core/_tasks.py
+@@ -9,22 +9,29 @@ from collections.abc import (
+ from contextlib import (
+     contextmanager,
+ )
+-from contextvars import ContextVar
++from contextvars import ContextVar, copy_context
+ from enum import Enum, auto
++from inspect import iscoroutine
+ from types import TracebackType
+-from typing import Any, Generic, TypeVar, final
++from typing import Any, Generic, final
+ 
+ from ..abc import TaskGroup, TaskStatus
+ from ._eventloop import get_async_backend, get_cancelled_exc_class
+ from ._exceptions import TaskCancelled, TaskFailed, TaskNotFinished
+ 
++if sys.version_info >= (3, 13):
++    from typing import TypeVar
++else:
++    from typing_extensions import TypeVar
++
+ if sys.version_info >= (3, 11):
+-    from typing import TypeVarTuple
++    from typing import Never, TypeVarTuple
+ else:
+-    from typing_extensions import TypeVarTuple
++    from typing_extensions import Never, TypeVarTuple
+ 
+ T = TypeVar("T")
+ T_co = TypeVar("T_co", covariant=True)
++T_startval = TypeVar("T_startval", covariant=True, default=Never)
+ PosArgsT = TypeVarTuple("PosArgsT")
+ 
+ _current_task_handle: ContextVar[TaskHandle] = ContextVar("_current_task_handle")
+@@ -197,12 +204,12 @@ def create_task_group() -> TaskGroup:
+ 
+ 
+ @final
+-class TaskHandle(Generic[T_co]):
++class TaskHandle(Generic[T_co, T_startval]):
+     """
+-    Returned from :meth:`TaskGroup.create_task() <.abc.TaskGroup.create_task>`.
+-    Can be awaited on to get the return value of the task (or the raised exception).
+-    If the task was terminated by a :exc:`BaseException`, :exc:`TaskFailed` will be
+-    raised (or its subclass :exc:`TaskCancelled` if the task was cancelled).
++    Returned from the task-spawning methods of :class:`TaskGroup`. Can be awaited on to
++    get the return value of the task (or the raised exception). If the task was
++    terminated by a :exc:`BaseException`, :exc:`TaskFailed` will be raised (or its
++    subclass :exc:`TaskCancelled` if the task was cancelled).
+ 
+     .. versionadded:: 4.14.0
+     """
+@@ -241,19 +248,31 @@ class TaskHandle(Generic[T_co]):
+         "_cancel_scope",
+         "_finished_event",
+         "_return_value",
++        "_start_value",
+         "_exception",
++        "_done_callbacks",
++        "_draining_callbacks",
+     )
+ 
+     _return_value: T_co
++    _start_value: T_startval
+ 
+-    def __init__(self, coro: Coroutine[Any, Any, T_co], name: str | None) -> None:
++    def __init__(self, coro: Coroutine[Any, Any, T_co], name: object) -> None:
+         from ._synchronization import Event
+ 
+         self._coro = coro
+         self._cancel_scope = CancelScope()
+         self._finished_event = Event()
+-        self._name = name or coro.__qualname__
+         self._exception: BaseException | None = None
++        self._done_callbacks = []
++        self._draining_callbacks = False
++
++        if name is not None:
++            self._name = str(name)
++        elif iscoroutine(coro):
++            self._name = coro.__qualname__
++        else:
++            self._name = str(coro)  # coroutine-like object (e.g. asend() objects)
+ 
+     async def _run_coro(self) -> None:
+         __tracebackhide__ = True
+@@ -268,6 +287,43 @@ class TaskHandle(Generic[T_co]):
+                 self._return_value = retval
+             finally:
+                 self._finished_event.set()
++                self._drain_done_callbacks()
++                del self  # Break the reference cycle
++
++    def add_done_callback(self, callback) -> None:
++        """Run a synchronous callback with this handle upon completion.
++
++        Capture the registration context. Already-completed handles deliver
++        callbacks immediately, with registrations made during delivery queued.
++        """
++        if not callable(callback):
++            raise TypeError("Done callback must be callable")
++        self._done_callbacks.append((callback, copy_context()))
++        if self._finished_event.is_set():
++            self._drain_done_callbacks()
++
++    def remove_done_callback(self, callback) -> int:
++        """Remove pending registrations of this exact callback object."""
++        before = len(self._done_callbacks)
++        self._done_callbacks = [
++            entry for entry in self._done_callbacks if entry[0] is not callback
++        ]
++        return before - len(self._done_callbacks)
++
++    def _drain_done_callbacks(self) -> None:
++        if self._draining_callbacks:
++            return
++        self._draining_callbacks = True
++        try:
++            while self._done_callbacks:
++                callback, context = self._done_callbacks.pop(0)
++                try:
++                    context.run(callback, self)
++                except Exception:
++                    import logging
++                    logging.getLogger("anyio").exception("TaskHandle done callback failed")
++        finally:
++            self._draining_callbacks = False
+ 
+     def cancel(self) -> None:
+         """
+@@ -284,7 +340,10 @@ class TaskHandle(Generic[T_co]):
+ 
+     @property
+     def coro(self) -> Coroutine[Any, Any, T_co]:
+-        """The coroutine object that was passed to :meth:`TaskGroup.create_task`."""
++        """
++        The coroutine object that was passed to one of the task-spawning methods in
++        :class:`TaskGroup`.
++        """
+         return self._coro
+ 
+     @property
+@@ -361,6 +420,21 @@ class TaskHandle(Generic[T_co]):
+             case TaskHandle.Status.FAILED:
+                 raise TaskFailed("the task raised an exception") from self._exception
+ 
++    @property
++    def start_value(self) -> T_startval:
++        """
++        The value passed to :meth:`task_status.started() <.abc.TaskStatus.started>`,
++
++        :raises RuntimeError: if the task was not started with :meth:`TaskGroup.start()
++            <.abc.TaskGroup.start>`
++        """
++        try:
++            return self._start_value
++        except AttributeError:
++            raise RuntimeError(
++                "the task was not started with TaskGroup.start()"
++            ) from None
++
+     async def wait(self) -> None:
+         """
+         Wait for the task to finish.
+diff --git a/src/anyio/abc/_eventloop.py b/src/anyio/abc/_eventloop.py
+index ae06288..cad3fa7 100644
+--- a/src/anyio/abc/_eventloop.py
++++ b/src/anyio/abc/_eventloop.py
+@@ -3,7 +3,7 @@ from __future__ import annotations
+ import math
+ import sys
+ from abc import ABCMeta, abstractmethod
+-from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
++from collections.abc import AsyncIterator, Awaitable, Callable, Coroutine, Sequence
+ from contextlib import AbstractContextManager
+ from os import PathLike
+ from signal import Signals
+@@ -43,6 +43,7 @@ if TYPE_CHECKING:
+     from ._testing import TestRunner
+ 
+ T_Retval = TypeVar("T_Retval")
++T_co = TypeVar("T_co", covariant=True)
+ PosArgsT = TypeVarTuple("PosArgsT")
+ StrOrBytesPath: TypeAlias = str | bytes | PathLike[str] | PathLike[bytes]
+ 
+@@ -209,10 +210,10 @@ class AsyncBackend(metaclass=ABCMeta):
+     @abstractmethod
+     def run_async_from_thread(
+         cls,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
++        func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
+         args: tuple[Unpack[PosArgsT]],
+         token: object,
+-    ) -> T_Retval:
++    ) -> T_co:
+         pass
+ 
+     @classmethod
+diff --git a/src/anyio/abc/_tasks.py b/src/anyio/abc/_tasks.py
+index 0060593..44ee3a7 100644
+--- a/src/anyio/abc/_tasks.py
++++ b/src/anyio/abc/_tasks.py
+@@ -2,12 +2,10 @@ from __future__ import annotations
+ 
+ import sys
+ from abc import ABCMeta, abstractmethod
+-from collections.abc import Awaitable, Callable, Coroutine
++from collections.abc import Callable, Coroutine
+ from contextvars import Context
+-from functools import partial
+-from inspect import iscoroutine
+ from types import TracebackType
+-from typing import TYPE_CHECKING, Any, Protocol, overload
++from typing import TYPE_CHECKING, Any, Literal, Protocol, final, overload
+ 
+ if sys.version_info >= (3, 13):
+     from typing import TypeVar
+@@ -22,11 +20,43 @@ else:
+ if TYPE_CHECKING:
+     from .._core._tasks import CancelScope, TaskHandle
+ 
+-T_Retval = TypeVar("T_Retval")
++T_co = TypeVar("T_co", covariant=True)
+ T_contra = TypeVar("T_contra", contravariant=True, default=None)
+ PosArgsT = TypeVarTuple("PosArgsT")
+ 
+ 
++def get_callable_name(func: Callable, override: object = None) -> str:
++    if override is not None:
++        return str(override)
++
++    module = getattr(func, "__module__", None)
++    qualname = getattr(func, "__qualname__", None)
++    return ".".join([x for x in (module, qualname) if x])
++
++
++def call_for_coroutine(
++    func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
++    args: tuple[Unpack[PosArgsT]],
++    **kwargs: Any,
++) -> Coroutine[Any, Any, T_co]:
++    """
++    Call the given function with the given positional and keyword arguments.
++
++    :return: the resulting coroutine
++    :raises TypeError: if the return value was not a coroutine object
++
++    """
++    coro = func(*args, **kwargs)
++    if not isinstance(coro, Coroutine):
++        prefix = f"{func.__module__}." if hasattr(func, "__module__") else ""
++        raise TypeError(
++            f"Expected {prefix}{func.__qualname__}() to return a coroutine, but "
++            f"the return value ({coro!r}) is not a coroutine object"
++        )
++
++    return coro
++
++
+ class TaskStatus(Protocol[T_contra]):
+     @overload
+     def started(self: TaskStatus[None]) -> None: ...
+@@ -71,13 +101,14 @@ class TaskGroup(metaclass=ABCMeta):
+         """
+         self.cancel_scope.cancel(reason)
+ 
++    @abstractmethod
+     def create_task(
+         self,
+-        coro: Coroutine[Any, Any, T_Retval],
++        coro: Coroutine[Any, Any, T_co],
+         *,
+-        name: str | None = None,
++        name: object = None,
+         context: Context | None = None,
+-    ) -> TaskHandle[T_Retval]:
++    ) -> TaskHandle[T_co]:
+         """
+         Create a new task from a coroutine object and schedule it to run.
+ 
+@@ -87,44 +118,56 @@ class TaskGroup(metaclass=ABCMeta):
+         :return: a task handle
+ 
+         .. versionadded:: 4.14.0
+-
+         """
+-        from .._core._tasks import TaskHandle
+-
+-        if not iscoroutine(coro):
+-            raise TypeError(f"expected a coroutine, got {coro.__class__.__qualname__}")
+-
+-        handle = TaskHandle[T_Retval](coro, name)
+-        if context is not None:
+-            context.run(partial(self.start_soon, handle._run_coro, name=handle.name))
+-        else:
+-            self.start_soon(handle._run_coro, name=handle.name)
+-
+-        return handle
+ 
+-    @abstractmethod
++    @final
+     def start_soon(
+         self,
+-        func: Callable[[Unpack[PosArgsT]], Awaitable[Any]],
++        func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
+         *args: Unpack[PosArgsT],
+         name: object = None,
+-    ) -> None:
++    ) -> TaskHandle[T_co]:
+         """
+         Start a new task in this task group.
+ 
+         :param func: a coroutine function
+         :param args: positional arguments to call the function with
+         :param name: name of the task, for the purposes of introspection and debugging
++        :return: a task handle
+ 
+         .. versionadded:: 3.0
++        .. versionchanged:: 4.14.0
++            This method now returns a task handle.
++
+         """
++        final_name = get_callable_name(func, name)
++        return self.create_task(call_for_coroutine(func, args), name=final_name)
++
++    @overload
++    async def start(
++        self,
++        func: Callable[..., Coroutine[Any, Any, T_co]],
++        *args: object,
++        name: object = None,
++        return_handle: Literal[False] = ...,
++    ) -> Any: ...
++
++    @overload
++    async def start(
++        self,
++        func: Callable[..., Coroutine[Any, Any, T_co]],
++        *args: object,
++        name: object = None,
++        return_handle: Literal[True],
++    ) -> TaskHandle[T_co, Any]: ...
+ 
+     @abstractmethod
+     async def start(
+         self,
+-        func: Callable[..., Awaitable[Any]],
++        func: Callable[..., Coroutine[Any, Any, T_co]],
+         *args: object,
+         name: object = None,
++        return_handle: Literal[False] | Literal[True] = False,
+     ) -> Any:
+         """
+         Start a new task and wait until it signals for readiness.
+@@ -141,6 +184,8 @@ class TaskGroup(metaclass=ABCMeta):
+             argument
+         :param args: positional arguments to call the function with
+         :param name: an optional name for the task, for introspection and debugging
++        :param return_handle: if ``True``, return a :class:`TaskHandle` which also
++            contains the start value in ``start_value``
+         :return: the value passed to ``task_status.started()``
+         :raises RuntimeError: if the task finishes without calling
+             ``task_status.started()``
+diff --git a/src/anyio/from_thread.py b/src/anyio/from_thread.py
+index cd6f80c..8c7914c 100644
+--- a/src/anyio/from_thread.py
++++ b/src/anyio/from_thread.py
+@@ -10,7 +10,7 @@ __all__ = (
+ )
+ 
+ import sys
+-from collections.abc import Awaitable, Callable, Generator
++from collections.abc import Awaitable, Callable, Coroutine, Generator
+ from concurrent.futures import Future
+ from contextlib import (
+     AbstractAsyncContextManager,
+@@ -65,10 +65,10 @@ def _token_or_error(token: EventLoopToken | None) -> EventLoopToken:
+ 
+ 
+ def run(
+-    func: Callable[[Unpack[PosArgsT]], Awaitable[T_Retval]],
++    func: Callable[[Unpack[PosArgsT]], Coroutine[Any, Any, T_co]],
+     *args: Unpack[PosArgsT],
+     token: EventLoopToken | None = None,
+-) -> T_Retval:
++) -> T_co:
+     """
+     Call a coroutine function from a worker thread.
+ 

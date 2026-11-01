@@ -1,0 +1,1 @@
+Also, `str()` calls `__repr__()` if `__str__()` is not defined, so I feel mentioning `__repr__()` is sufficient.

@@ -1,0 +1,131 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+  ],
+  "case_id": "sf140_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "SSB_ARROW_TEST_PYTHONPATH": "/work/native/optional-arrow"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f",
+      "python": "3.12.12",
+      "requirements": "requirements/5f83db8323a0bf87-3.12.12-de98864f.txt",
+      "source": "dependency-source/5f83db8323a0bf87-3.12.12-de98864f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+      "python": "3.12.12",
+      "requirements": "requirements/77b27ac286257193-3.12.12-d873b2d0.txt",
+      "source": "dependency-source/77b27ac286257193-3.12.12-d873b2d0.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1",
+      "python": "3.12.12",
+      "requirements": "requirements/5f83db8323a0bf87-3.12.12-28ca9fd1.txt",
+      "source": "dependency-source/5f83db8323a0bf87-3.12.12-28ca9fd1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/cd8e04c093a36173-3.12.12-2f5f65d8",
+      "python": "3.12.12",
+      "requirements": "requirements/cd8e04c093a36173-3.12.12-2f5f65d8.txt",
+      "source": "dependency-source/cd8e04c093a36173-3.12.12-2f5f65d8.tar.gz"
+    }
+  ],
+  "native_aliases": {
+    "/work/native/optional-arrow": "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0"
+  },
+  "native_build_paths": [
+    "/opt/ssb/deps/cd8e04c093a36173-3.12.12-2f5f65d8"
+  ],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "2b9c54e024ae088724fe892407c8b93e9f8e2c48",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "825c68f4aef6e9d6e96ef8d5b8baedbde5790ca2",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "11c5d0ea92d218d9148515b613a60f444a717814",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "04172af18099112beca6ec18cdee64c6c1185b1e",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "20bd243b5df8d5a499fb0c01d04b9c8326b6fc30",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w04"
+    }
+  ]
+}

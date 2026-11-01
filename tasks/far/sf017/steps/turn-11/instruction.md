@@ -1,0 +1,1 @@
+Please check this too: WAFV2: support `Arn` parameter in `get_web_acl` The [`wafv2.get_web_acl`]( accepts either an `ARN` or the `(Name, Id, Scope)`. This isn't documented (or I couldn't find it), but the ARN takes precedence over the `(Name, Id, Scope)` tuple.

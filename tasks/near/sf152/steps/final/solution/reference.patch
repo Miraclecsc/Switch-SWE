@@ -1,0 +1,80 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 0525866..cf779cc 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -6,6 +6,11 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ **UNRELEASED**
+ 
+ - Added ``env`` and ``cwd`` keyword arguments to ``run_process()`` and ``open_process``.
++- Changed asyncio task groups so that if the host and child tasks have only raised
++  ``CancelledErrors``, just one ``CancelledError`` will now be raised instead of an
++  ``ExceptionGroup``, allowing asyncio to ignore it when it propagates out of the task
++- Fixed odd ``ExceptionGroup: 0 exceptions were raised in the task group`` appearing under certain
++  circumstances on asyncio
+ - Fixed ``wait_all_tasks_blocked()`` returning prematurely on asyncio when a previously blocked
+   task is cancelled (PR by Thomas Grainger)
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index b029a2a..97a3864 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -354,6 +354,9 @@ class CancelScope(BaseCancelScope):
+         should_retry = False
+         current = current_task()
+         for task in self._tasks:
++            if task._must_cancel:  # type: ignore
++                continue
++
+             # The task is eligible for cancellation if it has started and is not in a cancel
+             # scope shielded from this one
+             cancel_scope = _task_states[task].cancel_scope
+@@ -540,7 +543,11 @@ class TaskGroup(abc.TaskGroup):
+ 
+         try:
+             if len(exceptions) > 1:
+-                raise ExceptionGroup(exceptions)
++                if all(isinstance(e, CancelledError) and not e.args for e in exceptions):
++                    # Tasks were cancelled natively, without a cancellation message
++                    raise CancelledError
++                else:
++                    raise ExceptionGroup(exceptions)
+             elif exceptions and exceptions[0] is not exc_val:
+                 raise exceptions[0]
+         except BaseException as exc:
+@@ -556,12 +563,20 @@ class TaskGroup(abc.TaskGroup):
+         filtered_exceptions: List[BaseException] = []
+         for exc in exceptions:
+             if isinstance(exc, ExceptionGroup):
+-                exc.exceptions = TaskGroup._filter_cancellation_errors(exc.exceptions)
+-                if len(exc.exceptions) > 1:
+-                    filtered_exceptions.append(exc)
+-                elif exc.exceptions:
+-                    filtered_exceptions.append(exc.exceptions[0])
+-            elif not isinstance(exc, CancelledError):
++                new_exceptions = TaskGroup._filter_cancellation_errors(exc.exceptions)
++                if len(new_exceptions) == 1:
++                    filtered_exceptions.append(new_exceptions[0])
++                elif new_exceptions:
++                    if len(new_exceptions) == len(exc.exceptions) and all(
++                            new is original for new, original in zip(new_exceptions, exc.exceptions)):
++                        filtered_exceptions.append(exc)
++                    else:
++                        new_exc = ExceptionGroup(new_exceptions)
++                        new_exc.__cause__ = exc.__cause__
++                        new_exc.__context__ = exc.__context__
++                        new_exc.__traceback__ = exc.__traceback__
++                        filtered_exceptions.append(new_exc)
++            elif not isinstance(exc, CancelledError) or exc.args:
+                 filtered_exceptions.append(exc)
+ 
+         return filtered_exceptions
+@@ -600,6 +615,9 @@ class TaskGroup(abc.TaskGroup):
+             try:
+                 exc = _task.exception()
+             except CancelledError as e:
++                while isinstance(e.__context__, CancelledError):
++                    e = e.__context__
++
+                 exc = e
+ 
+             if exc is not None:

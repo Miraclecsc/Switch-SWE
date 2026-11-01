@@ -1,0 +1,1 @@
+Also, It'd be better to move these to the `type_tests` folder, which is also run under Pyright. Use bare `# type: ignore` so we check that it errors for both checkers.

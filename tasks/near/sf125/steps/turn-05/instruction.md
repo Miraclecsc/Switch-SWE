@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Some other changes might be needed here as well. The reason for using PurePoly here is so that polys with different symbols compare equal. In this PR you have made sure that they all use the same symbol so it should not be necessary to use PurePoly any more.

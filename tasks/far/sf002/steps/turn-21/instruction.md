@@ -1,0 +1,1 @@
+Also, > I've thought a lot about this and the alternatives are all inferior to this solution. Depends on the metric you use for "inferior", but FWIW I tend to agree.

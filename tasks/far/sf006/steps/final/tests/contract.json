@@ -1,0 +1,56 @@
+{
+  "case_id": "sf006_switched",
+  "task_id": "ssb_v2_task_0089",
+  "repo": "django/django",
+  "base_commit": "4702b36120ea4c736d3f6b5595496f96e0021e46",
+  "derived_fail_to_pass": [
+    "model_regress.test_state.ModelStateTests.test_one_to_one_field_cycle_collection",
+    "model_regress.test_cache_ownership_v1.StateCacheOwnershipTests.test_copy_cache_edits_are_local_and_values_remain_shallow",
+    "model_regress.test_cache_ownership_v1.StateCacheOwnershipTests.test_discarding_shallow_state_copy_preserves_live_relations",
+    "model_regress.test_cache_ownership_v1.StateCacheOwnershipTests.test_serialization_snapshots_do_not_own_the_live_cache"
+  ],
+  "derived_pass_to_pass": [
+    "model_regress.test_state.ModelStateTests.test_fields_cache_descriptor",
+    "model_regress.test_cache_ownership_v1.StateCacheOwnershipTests.test_copying_model_keeps_existing_relation_semantics",
+    "model_regress.test_cache_ownership_v1.StateCacheOwnershipTests.test_pickle_retains_flags_without_aliasing_cache"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/model_regress/models.py",
+    "tests/model_regress/test_state.py",
+    "tests/model_regress/test_cache_ownership_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/model_regress/models.py",
+    "tests/model_regress/test_cache_ownership_v1.py",
+    "tests/model_regress/test_state.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "e7b2c46a291913f3c1fbddbc8fa2ebf60434d78d8437247382cc864217c99022",
+    "config/recipes.json": "bd3eb3135a5ae2f3a3f6a9f657f0d2e1754bac4882fa3f562b3d43f21fe93354"
+  }
+}

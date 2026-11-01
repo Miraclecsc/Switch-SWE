@@ -1,0 +1,3 @@
+And here, In that PR, the consensus seems to have been that `edge_betweenness_centrality` and the subset betweenness centralities didn't need to change:
+
+Extend both betweenness_centrality_subset and edge_betweenness_centrality_subset to finite iterable sources and targets, including one-shot generators. Each source must see the same target collection. Preserve the existing weighted/unweighted, directed/undirected and normalized/unnormalized scaling, plus the original sampled-edge fix.

@@ -1,0 +1,1 @@
+One more thing: I'm not sure that the item should appear at all in the `__repr__()`, but if it does, it should at least not appear if there isn't any.

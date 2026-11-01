@@ -1,0 +1,1 @@
+For the checkout at /work/w01, wafv2: support arn in `get_web_acl` The `get_web_acl` accepts either an ARN or the Name, Id, and Scope. I also tested against the aws cli, and the arn parameter has priority over the other parameters.

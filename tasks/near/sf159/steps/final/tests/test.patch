@@ -1,0 +1,65 @@
+diff --git a/tests/models/test_responses.py b/tests/models/test_responses.py
+index 9e65de8154..9177773a50 100644
+--- a/tests/models/test_responses.py
++++ b/tests/models/test_responses.py
+@@ -298,6 +298,23 @@ def test_response_force_encoding():
+     assert response.encoding == "iso-8859-1"
+ 
+ 
++def test_response_force_encoding_after_text_accessed():
++    response = httpx.Response(
++        200,
++        content=b"Hello, world!",
++    )
++    assert response.status_code == 200
++    assert response.reason_phrase == "OK"
++    assert response.text == "Hello, world!"
++    assert response.encoding == "utf-8"
++
++    with pytest.raises(ValueError):
++        response.encoding = "UTF8"
++
++    with pytest.raises(ValueError):
++        response.encoding = "iso-8859-1"
++
++
+ def test_read():
+     response = httpx.Response(
+         200,
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,32 @@
++import pytest
++import httpx
++
++def test_unknown_encoding_is_atomic():
++    r = httpx.Response(200, content=b'caf\xe9')
++    r.encoding = 'latin-1'
++    previous = r.encoding
++    for name in ('not-a-real-codec', ''):
++        with pytest.raises(ValueError):
++            r.encoding = name
++        assert r.encoding == previous
++        assert r.content == b'caf\xe9'
++    r.encoding = 'iso-8859-1'
++    assert r.text == 'café'
++
++def test_wrong_type_does_not_poison_response():
++    r = httpx.Response(200, content=b'hello')
++    previous = r.encoding
++    for value in (None, 7, False, b'utf8'):
++        with pytest.raises(TypeError):
++            r.encoding = value
++        assert r.encoding == previous
++    r.encoding = 'UTF8'
++    assert r.text == 'hello'
++
++def test_text_lock_keeps_cached_value():
++    r = httpx.Response(200, content=b'text')
++    assert r.text == 'text'
++    for value in ('utf8', 'unknown-encoding', None):
++        with pytest.raises(ValueError):
++            r.encoding = value
++    assert r.text == 'text'

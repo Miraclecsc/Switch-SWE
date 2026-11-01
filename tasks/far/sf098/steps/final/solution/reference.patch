@@ -1,0 +1,61 @@
+diff --git a/.mailmap b/.mailmap
+index 042d2a233a..ada6a497e9 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -231,6 +231,7 @@ Addison Cugini <ajcugini@gmail.com> <addisonc@pcp065368pcs.dhcp.calpoly.edu>
+ Aditya Jindal <jaditya8889@gmail.com>
+ Aditya Kapoor <aditya.kapoor.apm12@itbhu.ac.in>
+ Aditya Kumar Sinha <adityakumar113141@gmail.com> aditya113141 <adityakumar113141@gmail.com>
++Aditya Prakash <prakashaditya2709@gmail.com>
+ Aditya Ravuri <infprobscix@gmail.com> InfProbSciX <infprobscix@gmail.com>
+ Aditya Rohan <riyuzakiiitk@gmail.com>
+ Aditya Shah <adityashah30@gmail.com>
+diff --git a/sympy/geometry/plane.py b/sympy/geometry/plane.py
+index d5f69f46ec..4582db4a64 100644
+--- a/sympy/geometry/plane.py
++++ b/sympy/geometry/plane.py
+@@ -333,6 +333,34 @@ def equals(self, o):
+             return False
+ 
+ 
++    def equation_with_symbols(self, x=None, y=None, z=None):
++        """Return an equation and its three unambiguous coordinate symbols."""
++        coordinates = [x, y, z]
++        occupied = {symbol.name for symbol in self.free_symbols}
++        explicit_names = set()
++        for index, value in enumerate(coordinates):
++            if value is None:
++                continue
++            if isinstance(value, str):
++                value = Symbol(value, real=True)
++            if not isinstance(value, Symbol):
++                raise TypeError("coordinate placeholders must be symbols or strings")
++            if value.name in occupied or value.name in explicit_names:
++                raise ValueError("coordinate names clash with plane parameters or each other")
++            explicit_names.add(value.name)
++            coordinates[index] = value
++        occupied.update(explicit_names)
++        for index, base in enumerate("xyz"):
++            if coordinates[index] is None:
++                name = base
++                suffix = 1
++                while name in occupied:
++                    name = base + "_" + str(suffix)
++                    suffix += 1
++                coordinates[index] = Symbol(name, real=True)
++                occupied.add(name)
++        return self.equation(*coordinates), tuple(coordinates)
++
+     def equation(self, x=None, y=None, z=None):
+         """The equation of the Plane.
+ 
+@@ -348,6 +376,9 @@ def equation(self, x=None, y=None, z=None):
+         6*x + 6*y + 6*z - 42
+ 
+         """
++        coords = {x, y, z} - {None}
++        if coords & self.free_symbols:
++            raise ValueError("Provided symbols clash with symbols used to define the plane")
+         x, y, z = [i if i else Symbol(j, real=True) for i, j in zip((x, y, z), 'xyz')]
+         a = Point3D(x, y, z)
+         b = self.p1.direction_ratio(a)

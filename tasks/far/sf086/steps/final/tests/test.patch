@@ -1,0 +1,87 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index c9e921e1d..e7f1c583c 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -781,6 +781,14 @@ def test_all_args(self):
+             tags.Tag("cp32", "abi3", "plat2"),
+         ]
+ 
++        result = list(tags.cpython_tags((3, 13), ["cp313t"], ["plat1", "plat2"]))
++        assert result == [
++            tags.Tag("cp313", "cp313t", "plat1"),
++            tags.Tag("cp313", "cp313t", "plat2"),
++            tags.Tag("cp313", "none", "plat1"),
++            tags.Tag("cp313", "none", "plat2"),
++        ]
++
+     def test_python_version_defaults(self):
+         tag = next(tags.cpython_tags(abis=["abi3"], platforms=["any"]))
+         interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+@@ -894,6 +902,17 @@ def test__generic_abi_graal(self, monkeypatch):
+         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+         assert tags._generic_abi() == ["graalpy_38_native"]
+ 
++    def test__generic_abi_disable_gil(self, monkeypatch):
++        config = {
++            "Py_DEBUG": False,
++            "EXT_SUFFIX": ".cpython-313t-x86_64-linux-gnu.so",
++            "WITH_PYMALLOC": 0,
++            "Py_NOGIL": 1,
++        }
++        monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
++        assert tags._generic_abi() == ["cp313t"]
++        assert tags._generic_abi() == tags._cpython_abis((3, 13))
++
+     def test__generic_abi_none(self, monkeypatch):
+         config = {"EXT_SUFFIX": "..so"}
+         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+@@ -922,6 +941,7 @@ def test__generic_abi_old_windows(self, monkeypatch):
+             "EXT_SUFFIX": ".pyd",
+             "Py_DEBUG": 0,
+             "WITH_PYMALLOC": 0,
++            "Py_NOGIL": 0,
+         }
+         monkeypatch.setattr(sysconfig, "get_config_var", config.__getitem__)
+         assert tags._generic_abi() == tags._cpython_abis(sys.version_info[:2])
+diff --git a/tests/test_sf086_extension.py b/tests/test_sf086_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf086_extension.py
+@@ -0,0 +1,37 @@
++import pytest
++from packaging import tags
++
++@pytest.mark.parametrize("threading,stable",[(True,False),(False,True)])
++def test_explicit_policy(threading,stable):
++    result=list(tags.cpython_tags((3,13),["opaque"],["target"],threading=threading))
++    assert any(t.abi == "abi3" for t in result) is stable
++    assert result[0] == tags.Tag("cp313","opaque","target")
++    assert tags.Tag("cp313","none","target") in result
++
++@pytest.mark.parametrize("threading,expected",[(True,"cp313td"),(False,"cp313d")])
++def test_generated_policy_avoids_host(monkeypatch,threading,expected):
++    def config(name,warn=False):
++        assert name != "Py_NOGIL"
++        return name == "Py_DEBUG"
++    monkeypatch.setattr(tags,"_get_config_var",config)
++    result=list(tags.cpython_tags((3,13),platforms=["target"],threading=threading,warn=True))
++    assert result[0].abi == expected
++    assert any(t.abi == "abi3" for t in result) is (not threading)
++
++def test_all_abis_one_shot(monkeypatch):
++    monkeypatch.setattr(tags,"_get_config_var",lambda *a,**kw:pytest.fail("host inspected"))
++    result=list(tags.cpython_tags((3,13),iter(["opaque","cp313td"]),["target"]))
++    assert [t.abi for t in result] == ["opaque","cp313td","none"]
++
++def test_opaque_t_not_a_flag():
++    result=list(tags.cpython_tags((3,13),["cp313custom"],["target"]))
++    assert tags.Tag("cp313","abi3","target") in result
++
++def test_pre313_explicit_policy(monkeypatch):
++    monkeypatch.setattr(tags,"_get_config_var",lambda name,warn=False:0)
++    result=list(tags.cpython_tags((3,12),platforms=["target"],threading=True))
++    assert result[0].abi == "cp312"
++    assert all(t.abi != "abi3" for t in result)
++
++def test_original_free_threading():
++    assert [t.abi for t in tags.cpython_tags((3,13),["cp313t"],["target"])] == ["cp313t","none"]

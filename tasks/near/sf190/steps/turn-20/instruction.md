@@ -1,0 +1,1 @@
+And here, Yep, I was aware of the fact you can can `isinstance` with type argument being a tuple, but didn't put 2 and 2 together that it will be the case with `attrs.validators.instance_of` as well. 🤦🏻‍♂️

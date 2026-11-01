@@ -1,0 +1,87 @@
+{
+  "case_id": "sf188_switched",
+  "task_id": "ssb_v4_python-attrs__attrs_1372",
+  "repo": "python-attrs/attrs",
+  "base_commit": "ee0f19b696c60064c58cdc08b3265aef56d49ff8",
+  "derived_fail_to_pass": [
+    "tests.test_converters.TestOptional::test_converter_instance",
+    "tests.test_converters.TestOptionalPipe::test_instance",
+    "tests.test_converters.TestOptionalPipe::test_optional",
+    "tests.test_converters.TestOptionalPipe::test_pipe",
+    "tests.test_sf188_staged::test_optional_sequences_and_empty_identity",
+    "tests.test_sf188_staged::test_contextual_optional_sequence_construction_and_assignment",
+    "tests.test_sf188_staged::test_none_bypasses_failing_pipeline_and_errors_propagate"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_converters.TestConverter::test_annotations_if_last_in_pipe",
+    "tests.test_converters.TestConverter::test_fmt_converter_call[scenario0]",
+    "tests.test_converters.TestConverter::test_fmt_converter_call[scenario1]",
+    "tests.test_converters.TestConverter::test_fmt_converter_call[scenario2]",
+    "tests.test_converters.TestConverter::test_fmt_converter_call[scenario3]",
+    "tests.test_converters.TestConverter::test_pickle[False-False]",
+    "tests.test_converters.TestConverter::test_pickle[False-True]",
+    "tests.test_converters.TestConverter::test_pickle[True-False]",
+    "tests.test_converters.TestConverter::test_pickle[True-True]",
+    "tests.test_converters.TestConverter::test_works_as_adapter",
+    "tests.test_converters.TestDefaultIfNone::test_factory_takes_self",
+    "tests.test_converters.TestDefaultIfNone::test_missing_default",
+    "tests.test_converters.TestDefaultIfNone::test_none_factory",
+    "tests.test_converters.TestDefaultIfNone::test_none_value",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[0]",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[1]",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[False]",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[True]",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[]",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[foo]",
+    "tests.test_converters.TestDefaultIfNone::test_not_none[val6]",
+    "tests.test_converters.TestDefaultIfNone::test_too_many_defaults",
+    "tests.test_converters.TestOptional::test_fail",
+    "tests.test_converters.TestOptional::test_success_with_none",
+    "tests.test_converters.TestOptional::test_success_with_type",
+    "tests.test_converters.TestPipe::test_empty",
+    "tests.test_converters.TestPipe::test_fail",
+    "tests.test_converters.TestPipe::test_success",
+    "tests.test_converters.TestPipe::test_sugar",
+    "tests.test_converters.TestPipe::test_wrapped_annotation",
+    "tests.test_converters.TestToBool::test_falsy",
+    "tests.test_converters.TestToBool::test_truthy",
+    "tests.test_converters.TestToBool::test_unhashable"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_converters.py",
+    "tests/test_sf188_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_converters.py",
+    "tests/test_sf188_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "4ef8910977fc74f66f7f9907e1e7cd965f6f1e592c2529b96a04b01cc09017d1",
+    "config/recipes.json": "6d17a53b3385aeb11491319de69b5d59ab494138ea56824ab8c8996a45f2e20c"
+  }
+}

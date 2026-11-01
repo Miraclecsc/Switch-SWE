@@ -1,0 +1,1 @@
+One more thing: Extend @admin.action's location option: accept a single ActionLocation or any finite iterable of ActionLocation values, including one-shot generators. Validate the configuration when decorating and raise TypeError for invalid values. Repeated action discovery for both change forms and change lists must produce stable results.

@@ -1,0 +1,141 @@
+diff --git a/doc/reference/algorithms/distance_measures.rst b/doc/reference/algorithms/distance_measures.rst
+index 42a0f703a..04f1b3d34 100644
+--- a/doc/reference/algorithms/distance_measures.rst
++++ b/doc/reference/algorithms/distance_measures.rst
+@@ -6,7 +6,6 @@ Distance Measures
+ .. autosummary::
+    :toctree: generated/
+ 
+-   barycenter
+    center
+    centroid
+    diameter
+@@ -18,4 +17,3 @@ Distance Measures
+    radius
+    resistance_distance
+ 
+-
+diff --git a/networkx/algorithms/distance_measures.py b/networkx/algorithms/distance_measures.py
+index cbd9bbf15..d08c04349 100644
+--- a/networkx/algorithms/distance_measures.py
++++ b/networkx/algorithms/distance_measures.py
+@@ -261,6 +261,10 @@ def eccentricity(G, v=None, sp=None, weight=None):
+ 
+     sp : dict of dicts, optional
+        All pairs shortest path lengths as a dictionary of dictionaries
++    node_weight : str, optional
++       Node attribute containing finite nonnegative demand (missing: 1).
++       Minimize sum(demand[u] * distance(v, u)). Objective attributes are
++       written only after the entire calculation succeeds.
+ 
+     weight : string, function, or None (default=None)
+         If this is a string, then edge weights will be accessed via the
+@@ -557,7 +561,7 @@ def periphery(G, e=None, usebounds=False, weight=None):
+ 
+     See Also
+     --------
+-    barycenter
++    centroid
+     center
+     """
+     if usebounds is True and e is None and not G.is_directed():
+@@ -703,7 +707,7 @@ def center(G, e=None, usebounds=False, weight=None):
+     See Also
+     --------
+     :func:`~networkx.algorithms.tree.distance_measures.center` : tree center
+-    barycenter
++    centroid
+     periphery
+     :func:`~networkx.algorithms.tree.distance_measures.centroid` : tree centroid
+     """
+@@ -719,7 +723,7 @@ def center(G, e=None, usebounds=False, weight=None):
+ 
+ 
+ @nx._dispatchable(edge_attrs="weight", mutates_input={"attr": 2})
+-def centroid(G, weight=None, attr=None, sp=None):
++def centroid(G, weight=None, attr=None, sp=None, *, node_weight=None):
+     r"""Calculate centroid of a connected graph, optionally with edge weights.
+ 
+     The :dfn:`centroid` of a
+@@ -736,6 +740,10 @@ def centroid(G, weight=None, attr=None, sp=None):
+     This quantity is also known as the :dfn:`barycenter` or :dfn:`median`.
+     See [West01]_, p. 78.
+ 
++    .. versionchanged:: 3.7
++       ``centroid()`` is created by a renaming of ``barycenter()``.
++       The old name still works to call this function.
++
+     Parameters
+     ----------
+     G : :class:`networkx.Graph`
+@@ -773,10 +781,16 @@ def centroid(G, weight=None, attr=None, sp=None):
+     --------
+     center
+     periphery
+-    barycenter
+     :func:`~networkx.algorithms.tree.distance_measures.centroid` : tree centroid
+     """
+-    if weight is None and attr is None and sp is None:
++    # Demand is separate from edge length; read it before writing objectives.
++    demand = {v: 1 if node_weight is None else G.nodes[v].get(node_weight, 1)
++              for v in G}
++    import math
++    for value in demand.values():
++        if not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
++            raise ValueError("Node weights must be finite nonnegative numbers")
++    if weight is None and attr is None and sp is None and node_weight is None:
+         if not G.is_directed() and nx.is_tree(G):
+             return nx.tree.centroid(G)
+ 
+@@ -786,29 +800,31 @@ def centroid(G, weight=None, attr=None, sp=None):
+         sp = sp.items()
+         if weight is not None:
+             raise ValueError("Cannot use both sp, weight arguments together")
++    objectives = {}
+     smallest, centroid_vertices, n = float("inf"), [], len(G)
+     for v, dists in sp:
+-        if len(dists) < n:
++        if set(dists) != set(G):
+             raise nx.NetworkXNoPath(
+                 f"Input graph {G} is disconnected, so every induced subgraph "
+                 "has infinite barycentricity."
+             )
+-        barycentricity = sum(dists.values())
+-        if attr is not None:
+-            G.nodes[v][attr] = barycentricity
++        barycentricity = sum(demand[u] * distance for u, distance in dists.items())
++        objectives[v] = barycentricity
+         if barycentricity < smallest:
+             smallest = barycentricity
+             centroid_vertices = [v]
+         elif barycentricity == smallest:
+             centroid_vertices.append(v)
++    if set(objectives) != set(G):
++        raise nx.NetworkXNoPath("Shortest-path cache must contain every source")
+     if attr is not None:
++        for v, objective in objectives.items():
++            G.nodes[v][attr] = objective
+         nx._clear_cache(G)
+     return centroid_vertices
+ 
+ 
+-def barycenter(G, weight=None, attr=None, sp=None):
+-    """Alias for `centroid` - see `centroid` docstring for details."""
+-    return centroid(G, weight, attr, sp)
++barycenter = centroid
+ 
+ 
+ @not_implemented_for("directed")
+diff --git a/networkx/algorithms/tree/distance_measures.py b/networkx/algorithms/tree/distance_measures.py
+index 6440c95ef..a252aafa2 100644
+--- a/networkx/algorithms/tree/distance_measures.py
++++ b/networkx/algorithms/tree/distance_measures.py
+@@ -194,7 +194,7 @@ def centroid(G):
+ 
+     See Also
+     --------
+-    :func:`~networkx.algorithms.distance_measures.barycenter`
++    :func:`~networkx.algorithms.distance_measures.centroid`
+     :func:`~networkx.algorithms.distance_measures.center`
+     center : tree center
+     """

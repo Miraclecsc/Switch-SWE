@@ -1,0 +1,4 @@
+Please check this too: Creating a cache key with `(args, frozenset(kwargs.items()))` will fail if `args` contains unhashable types like lists or dicts. The typed version wraps args in tuples but this untyped version doesn't handle unhashable arguments. Consider wrapping args in a try-except or documenting this limitation.
+
+Make cache insertion transactional with respect to the wrapped computation. A failed or cancelled computation is a miss but must not store a value, consume a completed-value slot, or evict a previous completed value. A subsequent same-key caller can compute again; waiting callers must not see a stale pending marker or KeyError. Evict completed LRU entries only when a new value successfully commits.
+Implement and validate this.

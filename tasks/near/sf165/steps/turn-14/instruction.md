@@ -1,0 +1,1 @@
+One more thing: Is this the only thing in the documentation that uses that type?

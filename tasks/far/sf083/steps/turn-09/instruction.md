@@ -1,0 +1,1 @@
+Also, I have a question about `__all__`, the class names, and the module name: Is `packaging.errors` meant to be a public interface. Users presumably may want it to get that type. But should that type be public. Does it make sense to name it `_ErrorCollector` to mark it internal to `packaging`.

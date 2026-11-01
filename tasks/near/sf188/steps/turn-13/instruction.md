@@ -1,0 +1,1 @@
+Also, Are you sure that it is should be `TypedDict`? The problem concerns `typing.NamedTuple` (and `collection.namedtuple`). And unfortunately, it can not be determined using `isinstance`. Except like this:

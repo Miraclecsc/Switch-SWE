@@ -1,0 +1,1 @@
+I have this in /work/w00: z3_satisfiable: Fix ignored negated predicate bug

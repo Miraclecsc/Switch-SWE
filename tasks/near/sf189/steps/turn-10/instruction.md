@@ -1,0 +1,1 @@
+One more thing: The method name and docstring indeed did not match, I updated the name. I was trying to test the `else` branch inside the recursive part of the `asdict` implementation. The branch covers non-atomic objects minus some container types. I could add some more tests (e.g. `fraction.Fraction`) if needed.

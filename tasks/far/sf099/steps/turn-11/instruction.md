@@ -1,0 +1,1 @@
+Please check this too: When it says coeff.is_zero is not True what is that for? Is it expected that is_zero could be None?

@@ -1,0 +1,1 @@
+Please check this too: I hope you don't mind me sticking my nose in (as usual!), especially since this is still a WiP. Is it necessary to remove the `Separator` for this improved version of that type, or is this a design choice? Specifying a separator with None is obviously less intuitive, and it would be a shame to introduce a breaking change if it can be avoided.

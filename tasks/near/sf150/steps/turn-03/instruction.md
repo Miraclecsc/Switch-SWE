@@ -1,0 +1,3 @@
+Please check this too: > Looks OK. > > Now if there was a semantic patching tool for Python I could use to autoreplace all the calls that actually refer to anyio objects (and _only_ those) I'd be even more happy. :-/ Well, this is the best I can do. I've thought a lot about this and the alternatives are all inferior to this solution.
+
+> I've thought a lot about this and the alternatives are all inferior to this solution. Depends on the metric you use for "inferior", but FWIW I tend to agree.

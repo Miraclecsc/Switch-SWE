@@ -1,0 +1,1 @@
+Also, @dschult Would the desirable state be that the only place `barycenter` shows up is where we need it for backward compatibility (and in a note saying it's equivalent to `centroid`)?

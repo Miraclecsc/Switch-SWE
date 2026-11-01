@@ -1,0 +1,1 @@
+Please check this too: Yes, it's based on the ordering in `types` dict. Since python does not have separate types for `int` and `long`, we're always writing all integers as `long` to be on the safe side. Same is the case for `float` and `double`. Since this behavour is a little ambiguous, I've removed the explicit XML type checks as per your suggestion.

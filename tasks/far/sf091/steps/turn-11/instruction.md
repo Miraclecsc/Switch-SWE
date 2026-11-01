@@ -1,0 +1,1 @@
+I have this in /work/w00: Add grouping to CI logs GitHub supports adding [some annotations]( to `stdout` to allow collapsing sections of the log. This makes it easy to skip past long bits that succeeded. It'll still work fine locally, this just adds some more text to `stdout` and sets an environment variable.

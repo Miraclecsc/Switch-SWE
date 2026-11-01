@@ -1,0 +1,1 @@
+Please check this too: Exercise the small-graph behavior with and without self-loops and weights. Preserve the existing behavior and convergence controls for larger connected graphs.

@@ -1,0 +1,1 @@
+One more thing: I kinda think it should be named differently to avoid confusion with the special type, maybe `PathT`?

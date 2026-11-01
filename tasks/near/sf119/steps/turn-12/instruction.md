@@ -1,0 +1,1 @@
+And here, Actually, I think there's still quite a bit of overhead from the isinstance check, which is maybe where the variation is coming from. I suspect the fast path will be even faster pathier by changing the check from `isinstance(other, Version)` to `type(other) is Version`. I'll try and play around with that later.

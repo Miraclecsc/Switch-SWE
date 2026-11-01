@@ -1,0 +1,139 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e",
+    "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f"
+  ],
+  "case_id": "sf013_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": ".:/work/test-deps/01:/work/test-deps/00"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+      "python": "3.12.12",
+      "requirements": "requirements/07001f250a6c7059-3.12.12-701a407f.txt",
+      "source": "dependency-source/07001f250a6c7059-3.12.12-701a407f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e",
+      "python": "3.12.12",
+      "requirements": "requirements/241e3b2e3913784b-3.12.12-d164db9e.txt",
+      "source": "dependency-source/241e3b2e3913784b-3.12.12-d164db9e.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/495c3e8a365eb1c0-3.12.12-93a51456",
+      "python": "3.12.12",
+      "requirements": "requirements/495c3e8a365eb1c0-3.12.12-93a51456.txt",
+      "source": "dependency-source/495c3e8a365eb1c0-3.12.12-93a51456.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/07001f250a6c7059-3.12.12-4486e8a3",
+      "python": "3.12.12",
+      "requirements": "requirements/07001f250a6c7059-3.12.12-4486e8a3.txt",
+      "source": "dependency-source/07001f250a6c7059-3.12.12-4486e8a3.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/241e3b2e3913784b-3.12.12-2258866c",
+      "python": "3.12.12",
+      "requirements": "requirements/241e3b2e3913784b-3.12.12-2258866c.txt",
+      "source": "dependency-source/241e3b2e3913784b-3.12.12-2258866c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/495c3e8a365eb1c0-3.12.12-93a51456",
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-4486e8a3",
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-2258866c"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "1aa69a7491ce7f7f1f164a26a3dfaaa1aeeab217",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "a49be25e6128a3272960ed4f6f6506d147596395",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "53645750412efa1e9013004040db328bd515e0f1",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "82da72b74851808c08ec98fe609efe52609f29ad",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "5d5f95da40afbaede9f483de891c14f5da0e8218",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w04"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Also, > Codex likes to check `===`. I don't think this is something to worry about for this PR, but might be useful for later. It turned out to be a small fix, so I did it here anyway.

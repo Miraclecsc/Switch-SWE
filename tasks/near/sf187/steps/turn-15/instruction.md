@@ -1,0 +1,1 @@
+Please check this too: The reason why docs are failing is because you're using which is is short for Please use asterisks when referring to arguments. Sadly, there's no good way to have Markdown docstrings for now.

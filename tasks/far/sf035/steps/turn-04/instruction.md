@@ -1,0 +1,3 @@
+And here, @v1kku Hi! I'm doing some PR cleanup, would you have time to update this PR with the latest main resolving the reported conflict? Then we can re-ping Sergey regarding your latest comments. Thank you!
+
+A valid change-form action must execute on exactly the URL object even when no checkbox field was submitted; do not turn a tampered selection into an empty-queryset crash. Preserve object lookup and permissions, action-specific permissions, custom action responses/streaming, and the behavior of save buttons. Test through the admin HTTP view with at least two objects and show that neither unrelated objects nor unsaved form fields are changed by invoking an action.

@@ -1,0 +1,75 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+index 76f2b00..77f4b4b 100644
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -49,6 +49,8 @@ Unreleased
+     :issue:`3043`
+ -   Add :class:`NoSuchCommand` exception with suggestions for misspelled
+     commands. :issue:`3107` :pr:`3228`
++-   Use :class:`ValueError` message when conversion in :class:`FuncParamType` would
++    fail. :issue:`3105` :pr:`3211`
+ -   Add ``click.get_pager_file`` for file-like access to an output
+     pager. :pr:`1572`
+ 
+diff --git a/src/click/types.py b/src/click/types.py
+index 699bb31..f667589 100644
+--- a/src/click/types.py
++++ b/src/click/types.py
+@@ -184,7 +184,11 @@ class FuncParamTypeInfoDict(ParamTypeInfoDict):
+ 
+ class FuncParamType(ParamType[ParamTypeValue]):
+     def __init__(self, func: t.Callable[[t.Any], ParamTypeValue]) -> None:
+-        self.name: str = func.__name__
++        named = func
++        import functools
++        while isinstance(named, functools.partial):
++            named = named.func
++        self.name: str = getattr(named, "__name__", type(named).__name__)
+         self.func = func
+ 
+     def to_info_dict(self) -> FuncParamTypeInfoDict:
+@@ -195,13 +199,19 @@ class FuncParamType(ParamType[ParamTypeValue]):
+     ) -> ParamTypeValue:
+         try:
+             return self.func(value)
+-        except ValueError:
+-            try:
+-                value = str(value)
+-            except UnicodeError:
+-                value = value.decode("utf-8", "replace")
++        except ValueError as exc:
++            message = str(exc)
+ 
+-            self.fail(value, param, ctx)
++            if not message:
++                try:
++                    message = str(value)
++                except UnicodeError:
++                    message = value.decode("utf-8", "replace")
++
++            notes = getattr(exc, "__notes__", ())
++            if notes:
++                message = "\n".join([message, *map(str, notes)])
++            self.fail(message, param, ctx)
+ 
+ 
+ class UnprocessedParamType(ParamType[t.Any]):
+@@ -1156,9 +1166,15 @@ class Tuple(CompositeParamType[tuple[t.Any, ...]]):
+                 ctx=ctx,
+             )
+ 
+-        return tuple(
+-            ty(x, param, ctx) for ty, x in zip(self.types, value, strict=False)
+-        )
++        converted = []
++        for index, (ty, x) in enumerate(zip(self.types, value, strict=False), 1):
++            try:
++                converted.append(ty(x, param, ctx))
++            except BadParameter as exc:
++                if isinstance(ty, (FuncParamType, Tuple)):
++                    exc.message = f"item {index}: {exc.message}"
++                raise
++        return tuple(converted)
+ 
+ 
+ def _guess_type(

@@ -1,0 +1,1 @@
+Also, Preserve existing mapping order for previously valid inputs. Invalid input validation must not mutate either graph.

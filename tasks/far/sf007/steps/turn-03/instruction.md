@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Fixed #37053 -- Added validate=True to base64.b64decode() calls.

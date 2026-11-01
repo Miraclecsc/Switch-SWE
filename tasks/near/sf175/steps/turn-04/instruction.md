@@ -1,0 +1,1 @@
+And here, Implement and test this repository change: Add a couple of tests for the return value

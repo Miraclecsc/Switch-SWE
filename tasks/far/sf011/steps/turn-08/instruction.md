@@ -1,0 +1,1 @@
+And here, Issue: Best to use the public APIs for mutating the state here, rather than modifying the cache directly. Also, We're missing a test where there is a key but no data and the result is still True.

@@ -1,0 +1,1 @@
+Also, Hello @hynek, I wanted to ask you for your guidance here on how to approach the failing pre-commit - - copy-pasting it here for convinience: --- Even though I generally agree with ruff's complaints, in this case, I believe all of them can be ignored. What do you think? --- In the case we don't want to ignore the complaints, I think the following would work:

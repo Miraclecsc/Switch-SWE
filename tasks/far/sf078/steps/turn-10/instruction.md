@@ -1,0 +1,1 @@
+One more thing: Consider the spec needs to change. I've proposed an spec update in to allow this to move forward (with `platform_release` added to the "version-like" set for now, to avoid any real-world effect).

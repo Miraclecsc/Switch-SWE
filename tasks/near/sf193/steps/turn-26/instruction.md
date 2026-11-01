@@ -1,0 +1,1 @@
+One more thing: I'll work on this over the weekend. I was just working from another validator's code, but I'll try to replicate a more recent one. Was the `subclass_of` stuff abhorrent, or OK to leave in (just using it for 'internal-use' validation)?

@@ -1,0 +1,1 @@
+Please check this too: maybe we could extract it to a private "module-scoped" variable, rather than re-creating it for each invocation of the `size` function? :thinking:

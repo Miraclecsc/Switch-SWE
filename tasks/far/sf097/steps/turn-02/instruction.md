@@ -1,0 +1,1 @@
+For the checkout at /work/w03, use _sympify before calling Poly._from_expr in GroebnerBasis.reduce to handle raw Python integers

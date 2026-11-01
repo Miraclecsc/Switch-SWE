@@ -1,0 +1,1 @@
+One more thing: Aha, so _that_ is where `ssl.SyscallError` enters the picture. And that already raises `BrokenResourceError` unconditionally.

@@ -1,0 +1,1 @@
+In the checkout at /work/w01, Fixed #36727 -- Deprecated Field.get_placeholder in favor of get_placeholder_sql.

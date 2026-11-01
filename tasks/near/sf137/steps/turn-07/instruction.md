@@ -1,0 +1,1 @@
+Please check this too: this is a good example of why Consider the whole text/binary stream handling in Click is not needed. It's completely bypassed for stdin/stdout here, and all tests still pass.

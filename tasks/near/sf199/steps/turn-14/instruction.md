@@ -1,0 +1,1 @@
+One more thing: > The test test_issue_21034 became very slow after [aaacaff]( It seems that it slowed down then but then slowed down again in 3c23cee1b6 which changed `evalf_log`.

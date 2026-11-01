@@ -1,0 +1,1 @@
+Please check this too: Looked into using `functools.cache` but the fact we want to cache `* -> *` complicates the implementation. The fact the abstraction is made thread-safe by using a `RLock` (`functools.cache` is just `.lru_cache` in disguise on CPython) is also an unnecessary cost as compilers should never be shared between threads.

@@ -1,0 +1,1 @@
+And here, It took me some time to understand why we weren't catching that before! `_random_k_out_graph_numpy` and `_random_k_out_graph_python` don't have the `_dispatchable` decorator, so that was never getting tested. It's good to see the effort in #8223 isn't completely theoretical :). And, side note: is that a new PR label?

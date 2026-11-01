@@ -1,0 +1,1 @@
+Please check this too: Are these methods or functions? I use the term method to refer to a function that is bound to a class, while function refers to either stand-alone functions or methods. But I may be using that term too loosely. The term `method` shows up in the doc_strings as well. This is more of a question than a suggestion.

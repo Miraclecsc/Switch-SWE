@@ -1,0 +1,1 @@
+And here, My advisor doesn't need this alogirthm directly but needs it because we want to generate DAGs with a controlled width. So we need to be able to check the width quickly. In our case the width is a parameter of the graphs we want to generate. From what I understand it is connected to experiments on scheduling/precedence constraints and labeling problems.

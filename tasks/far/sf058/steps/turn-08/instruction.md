@@ -1,0 +1,1 @@
+And here, This test verifies that re-entering an already-used instance raises `RuntimeError`. The first `async with tg: pass` enters and exits the group normally, consuming the single-use entry. The second `async with tg:` then triggers the `_entered` guard. Would you like me to restructure the test or add additional cases.

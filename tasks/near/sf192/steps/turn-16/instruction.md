@@ -1,0 +1,1 @@
+And here, I would suggest we make the default `None` and then do a That would simplify the code a lot.

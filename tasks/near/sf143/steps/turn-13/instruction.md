@@ -1,0 +1,3 @@
+Also, I see! However, `f_locals` being a Python dictionary it doesn't support the `getattr` protocol if I'm not wrong? But I updated the `_rich_traceback_guard` management so that both look the same. Also, they are both activated as soon as the value is defined in the locals and its value is _true-ish_ value, rather than strict `True` :slightly_smiling_face: --> done there: [f0ca6ff](
+
+Give _rich_traceback_guard the same callable behavior. An active guard clears every accumulated frame up to and including its own frame, even if _rich_traceback_omit is also active there. Subsequent deeper frames remain eligible for display.

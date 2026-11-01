@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: parsing.mathematica: Fix KeyError for '!'. Added "Not": Not to_node_conversions. Added tests for basic Not operator parsing, including combinations with And (&&), Or (||), and boolean constants. Added special case to handle '!' operator.

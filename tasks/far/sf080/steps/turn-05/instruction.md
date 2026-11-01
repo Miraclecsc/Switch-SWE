@@ -1,0 +1,1 @@
+Also, The spec allows the 3 values to be set and does not explicitly say they must be consistent. Here I chose to not check for consistency and use this priority order to select the name.

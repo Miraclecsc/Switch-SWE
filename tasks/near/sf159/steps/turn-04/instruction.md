@@ -1,0 +1,1 @@
+And here, perhaps this could do with some code comments. ```python input = "abc%20de f" output = "".join([percent_encoded("abc"), "%20", percent_encoded("de f")]) assert quote(input) == output

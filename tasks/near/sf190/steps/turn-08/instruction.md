@@ -1,0 +1,1 @@
+And here, Would you mind inverting the logic and just make the Zope tests conditional on the presence of Zope.interface? That seems to be the more common approach nowadays anyways.

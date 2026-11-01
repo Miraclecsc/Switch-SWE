@@ -1,0 +1,1 @@
+One more thing: Validate both that method and that method using a pipe passed into a child that also creates a new session. Preserve empty pass_fds behavior and normal resource cleanup. Keep the original subprocess tests; this extends child-process setup rather than replacing the earlier session requirement.

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Don't we need to keep the original `root_path` and `path` in the child scope?

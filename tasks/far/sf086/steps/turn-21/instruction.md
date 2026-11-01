@@ -1,0 +1,1 @@
+Also, Well `hash()` computes a hash meaning you could have a hash collision between two completely different versions. I'd find something like: cleaner instead of relying on the huge hash space & hash randomization to avoid issues.

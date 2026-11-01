@@ -1,0 +1,1 @@
+Please check this too: There's no `_have_compatible_abi` on musllinux and here, we just assume it's indeed armhf ABI.

@@ -1,0 +1,3 @@
+Also, We don't need the import from private API space here. We can use `httpx.ASGITransport`, same as the other tests.
+
+Treat an ASGI application returning normally without sending a terminal http.response.body as an incomplete response. With raise_app_exceptions=True, raise RuntimeError explaining that the application did not complete its response. Do not use an assertion as the user-facing failure.

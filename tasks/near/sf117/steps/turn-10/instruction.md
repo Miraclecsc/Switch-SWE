@@ -1,0 +1,1 @@
+One more thing: Reviewing this I discovered this is much broader, this fixes only allowing ASCII anywhere in the version string where Unicode was previously normalized to an ascii value, e.g. Prior to this PR: With this PR: This is correct to fix, but it definitely has a chance of being a breaking change for someone out there.

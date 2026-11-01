@@ -1,0 +1,1 @@
+I have this in /work/w01: Enforced quoting of all database object names.

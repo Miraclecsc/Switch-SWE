@@ -1,0 +1,1 @@
+Also, Can you add a suite of tests that generate random graphs and validate the output is a connected dominating set? For example like this one

@@ -1,0 +1,1 @@
+One more thing: @pradyunsg what do you want to do about the Python 3.8 requirement? Should I hold off on merging this until 3.7 hits EOL, or at this point are we assuming the next release can drop 3.7 support regardless of when it comes out?

@@ -1,0 +1,126 @@
+diff --git a/networkx/drawing/tests/test_layout.py b/networkx/drawing/tests/test_layout.py
+index 7704d14191c..7f0412ce04c 100644
+--- a/networkx/drawing/tests/test_layout.py
++++ b/networkx/drawing/tests/test_layout.py
+@@ -56,6 +56,7 @@ def test_smoke_int(self):
+         nx.circular_layout(G)
+         nx.planar_layout(G)
+         nx.spring_layout(G)
++        nx.forceatlas2_layout(G)
+         nx.fruchterman_reingold_layout(G)
+         nx.fruchterman_reingold_layout(self.bigG)
+         nx.spectral_layout(G)
+@@ -75,6 +76,7 @@ def test_smoke_string(self):
+         nx.circular_layout(G)
+         nx.planar_layout(G)
+         nx.spring_layout(G)
++        nx.forceatlas2_layout(G)
+         nx.fruchterman_reingold_layout(G)
+         nx.spectral_layout(G)
+         nx.shell_layout(G)
+@@ -174,6 +176,10 @@ def test_single_nodes(self):
+         vpos = nx.shell_layout(G, [[0], [1, 2], [3]], rotate=0)
+         assert np.linalg.norm(vpos[3]) <= 1  # ensure node 3 fits (#3753)
+ 
++    def test_smoke_initial_pos_forceatlas2(self):
++        pos = nx.circular_layout(self.Gi)
++        npos = nx.forceatlas2_layout(self.Gi, pos=pos)
++
+     def test_smoke_initial_pos_fruchterman_reingold(self):
+         pos = nx.circular_layout(self.Gi)
+         npos = nx.fruchterman_reingold_layout(self.Gi, pos=pos)
+@@ -249,6 +255,8 @@ def test_empty_graph(self):
+         assert vpos == {}
+         vpos = nx.kamada_kawai_layout(G, center=(1, 1))
+         assert vpos == {}
++        vpos = nx.forceatlas2_layout(G)
++        assert vpos == {}
+         vpos = nx.arf_layout(G)
+         assert vpos == {}
+ 
+@@ -388,6 +396,15 @@ def test_spiral_layout_equidistant(self):
+         dist = np.linalg.norm(p[1:] - p[:-1], axis=1)
+         assert np.allclose(np.diff(dist), 0, atol=1e-3)
+ 
++    def test_forceatlas2_layout_partial_input_test(self):
++        # check whether partial pos input still returns a full proper position
++        G = self.Gs
++        node = nx.utils.arbitrary_element(G)
++        pos = nx.circular_layout(G)
++        del pos[node]
++        pos = nx.forceatlas2_layout(G, pos=pos)
++        assert len(pos) == len(G)
++
+     def test_rescale_layout_dict(self):
+         G = nx.empty_graph()
+         vpos = nx.random_layout(G, center=(1, 1))
+@@ -419,9 +436,7 @@ def test_rescale_layout_dict(self):
+             assert (s_vpos[k] == v).all()
+ 
+     def test_arf_layout_partial_input_test(self):
+-        """
+-        Checks whether partial pos input still returns a proper position.
+-        """
++        # Checks whether partial pos input still returns a proper position.
+         G = self.Gs
+         node = nx.utils.arbitrary_element(G)
+         pos = nx.circular_layout(G)
+@@ -436,6 +451,13 @@ def test_arf_layout_negative_a_check(self):
+         G = self.Gs
+         pytest.raises(ValueError, nx.arf_layout, G=G, a=-1)
+ 
++    def test_smoke_seed_input(self):
++        G = self.Gs
++        nx.random_layout(G, seed=42)
++        nx.spring_layout(G, seed=42)
++        nx.arf_layout(G, seed=42)
++        nx.forceatlas2_layout(G, seed=42)
++
+ 
+ def test_multipartite_layout_nonnumeric_partition_labels():
+     """See gh-5123."""
+diff --git a/networkx/drawing/tests/test_sf065_fixed_nodes.py b/networkx/drawing/tests/test_sf065_fixed_nodes.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/drawing/tests/test_sf065_fixed_nodes.py
+@@ -0,0 +1,40 @@
++
++import numpy as np
++import pytest
++import networkx as nx
++
++@pytest.mark.parametrize("kwargs", [{}, {"linlog": True}, {"node_size": {0: 0.1, 1: 0.1, 2: 0.1}},
++                                  {"distributed_action": True, "strong_gravity": True}])
++def test_fixed_nodes_keep_positions_and_still_influence_layout(kwargs):
++    graph = nx.path_graph(3)
++    pos = {0: np.array([1., 1.]), 1: np.array([3., 2.]), 2: np.array([6., 4.])}
++    original = {n: p.copy() for n, p in pos.items()}
++    result = nx.forceatlas2_layout(graph, pos=pos, fixed=(n for n in [0, 0]),
++                                  max_iter=4, seed=3, **kwargs)
++    np.testing.assert_array_equal(result[0], pos[0])
++    assert not np.allclose(result[1], pos[1])
++    assert all(np.isfinite(value).all() for value in result.values())
++    for node in graph:
++        np.testing.assert_array_equal(pos[node], original[node])
++    moved_anchor = dict(pos, **{})
++    moved_anchor[0] = np.array([10., 1.])
++    other = nx.forceatlas2_layout(graph, pos=moved_anchor, fixed=[0], max_iter=4, seed=3, **kwargs)
++    assert not np.allclose(result[1], other[1])
++
++def test_all_fixed_and_empty_fixed():
++    graph = nx.path_graph(2)
++    pos = {0: np.array([0., 0., 0.]), 1: np.array([2., 1., 3.])}
++    result = nx.forceatlas2_layout(graph, pos=pos, fixed=graph, max_iter=10)
++    for node in graph:
++        np.testing.assert_array_equal(result[node], pos[node])
++        assert result[node] is not pos[node]
++    normal = nx.forceatlas2_layout(graph, seed=4, max_iter=3)
++    empty = nx.forceatlas2_layout(graph, seed=4, max_iter=3, fixed=[])
++    for node in graph:
++        np.testing.assert_array_equal(normal[node], empty[node])
++
++@pytest.mark.parametrize("pos,fixed", [(None, [0]), ({1: [1., 2.]}, [0]),
++                                    ({0: [1., 2.]}, [8])])
++def test_fixed_validation(pos, fixed):
++    with pytest.raises(ValueError):
++        nx.forceatlas2_layout(nx.path_graph(2), pos=pos, fixed=fixed)

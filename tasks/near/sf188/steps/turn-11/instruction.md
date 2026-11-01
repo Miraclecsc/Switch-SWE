@@ -1,0 +1,1 @@
+Please check this too: Thanks for looking into this! I think I'm not comfortable with such a broad treatment of the rather common TypeError. The risk of masking other problems is too high. I would prefer if you'd add something to the effect of `if not isinstance(cf, TypedDict): raise` before the workaround.

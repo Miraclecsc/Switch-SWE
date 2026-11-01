@@ -1,0 +1,1 @@
+Also, lack of `socks5h://` support. I cannot use `socks5://` because it is interpreted differently by other tools (e.g. I did test this PR + 1 line change in to add default port for sock5h and it works as expected traffic is sent to the proxy without resolving hostname.

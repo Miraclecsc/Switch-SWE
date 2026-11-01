@@ -1,0 +1,1 @@
+One more thing: The name ``comparator`` is not great but we're struggling to come up with an alternative. Other ideas were ``cmpspec``, ``cmp_class``, ``compare``... Any suggestions?

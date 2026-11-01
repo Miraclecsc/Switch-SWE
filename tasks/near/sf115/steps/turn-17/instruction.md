@@ -1,0 +1,1 @@
+Also, So it turns out #3151 has nothing to do with this issue. In the end the race condition highlighted here is a problem with `CliRunner`'s I/O stream lifecycle management. Specifically, who owns the streams, and who is responsible for closing Also, feel free to review my test suite to confirm we cover your case.

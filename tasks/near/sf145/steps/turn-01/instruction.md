@@ -1,0 +1,1 @@
+I have this in /work/w01: mutate via data bind Fixes - Ensures that watchers are called on data bound children, when calling `mutate_reactive`. - Also enforces a new instance when data binding. Previously parent and child would end up sharing an instance, which would sure be a common source of errors.

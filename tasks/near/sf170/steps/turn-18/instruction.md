@@ -1,0 +1,1 @@
+One more thing: I think the fix involves removing the `sorted` within each section. Then for the `if mode == "fast...":` clause sort the node-tuples with something like `return sorted(zip(d1, t1)) == sorted(zip(d2, t2))` But there might be other ways to do it -- and @eriknw points to `collections.Counter` on the node-tuples which might be faster.

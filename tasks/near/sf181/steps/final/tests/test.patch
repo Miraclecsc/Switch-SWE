@@ -1,0 +1,79 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index d7c1514a2..82364898d 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -37,11 +37,6 @@ def is_x86():
+     return re.match(r"(i\d86|x86_64)", platform.machine()) is not None
+ 
+ 
+-@pytest.fixture
+-def is_64bit_os():
+-    return platform.architecture()[0] == "64bit"
+-
+-
+ @pytest.fixture
+ def manylinux_module(monkeypatch):
+     monkeypatch.setattr(tags, "_have_compatible_glibc", lambda *args: False)
+@@ -415,19 +410,22 @@ def test_glibc_version_string_none(self, monkeypatch):
+         monkeypatch.setattr(tags, "_glibc_version_string", lambda: None)
+         assert not tags._have_compatible_glibc(2, 4)
+ 
+-    def test_linux_platforms_64bit_on_64bit_os(self, is_64bit_os, is_x86, monkeypatch):
+-        if platform.system() != "Linux" or not is_64bit_os or not is_x86:
+-            monkeypatch.setattr(distutils.util, "get_platform", lambda: "linux_x86_64")
+-            monkeypatch.setattr(tags, "_is_manylinux_compatible", lambda *args: False)
+-        linux_platform = list(tags._linux_platforms(is_32bit=False))[-1]
+-        assert linux_platform == "linux_x86_64"
+-
+-    def test_linux_platforms_32bit_on_64bit_os(self, is_64bit_os, is_x86, monkeypatch):
+-        if platform.system() != "Linux" or not is_64bit_os or not is_x86:
+-            monkeypatch.setattr(distutils.util, "get_platform", lambda: "linux_x86_64")
+-            monkeypatch.setattr(tags, "_is_manylinux_compatible", lambda *args: False)
+-        linux_platform = list(tags._linux_platforms(is_32bit=True))[-1]
+-        assert linux_platform == "linux_i686"
++    @pytest.mark.parametrize(
++        "arch,is_32bit,expected",
++        [
++            ("linux-x86_64", False, "linux_x86_64"),
++            ("linux-x86_64", True, "linux_i686"),
++            ("linux-aarch64", False, "linux_aarch64"),
++            ("linux-aarch64", True, "linux_armv7l"),
++        ],
++    )
++    def test_linux_platforms_32_64bit_on_64bit_os(
++        self, arch, is_32bit, expected, monkeypatch
++    ):
++        monkeypatch.setattr(distutils.util, "get_platform", lambda: arch)
++        monkeypatch.setattr(tags, "_is_manylinux_compatible", lambda *args: False)
++        linux_platform = list(tags._linux_platforms(is_32bit=is_32bit))[-1]
++        assert linux_platform == expected
+ 
+     def test_linux_platforms_manylinux_unsupported(self, monkeypatch):
+         monkeypatch.setattr(distutils.util, "get_platform", lambda: "linux_x86_64")
+diff --git a/tests/test_sf181_staged.py b/tests/test_sf181_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf181_staged.py
+@@ -0,0 +1,22 @@
++
++import sys
++import types
++from packaging import tags
++
++def test_armv8l_32bit_hardfloat_and_fallback(monkeypatch):
++    monkeypatch.setattr(tags.distutils.util, 'get_platform', lambda: 'linux-armv8l')
++    monkeypatch.setattr(tags, '_is_manylinux_compatible', lambda *args: True)
++    monkeypatch.setattr(tags, '_is_linux_armhf', lambda: True)
++    assert list(tags._linux_platforms(is_32bit=True)) == ['manylinux2014_armv7l', 'linux_armv7l']
++    monkeypatch.setattr(tags, '_is_linux_armhf', lambda: False)
++    assert list(tags._linux_platforms(is_32bit=True)) == ['linux_armv7l']
++
++def test_explicit_manylinux_veto_survives_newer_acceptance(monkeypatch):
++    monkeypatch.setattr(tags.distutils.util, 'get_platform', lambda: 'linux-x86_64')
++    monkeypatch.setitem(sys.modules, '_manylinux', types.SimpleNamespace(manylinux2014_compatible=True, manylinux2010_compatible=False, manylinux1_compatible=True))
++    assert list(tags._linux_platforms(is_32bit=False)) == ['manylinux2014_x86_64', 'manylinux1_x86_64', 'linux_x86_64']
++
++def test_missing_older_flags_keep_inference(monkeypatch):
++    monkeypatch.setattr(tags.distutils.util, 'get_platform', lambda: 'linux-x86_64')
++    monkeypatch.setitem(sys.modules, '_manylinux', types.SimpleNamespace(manylinux2014_compatible=True))
++    assert list(tags._linux_platforms(is_32bit=False)) == ['manylinux2014_x86_64', 'manylinux2010_x86_64', 'manylinux1_x86_64', 'linux_x86_64']

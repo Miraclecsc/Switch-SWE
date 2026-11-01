@@ -1,0 +1,1 @@
+In the checkout at /work/w04, It is usually more efficient to collect the terms and use e.g. `Add(*terms)` but I don't know if it needs to be something other than `Add` here.

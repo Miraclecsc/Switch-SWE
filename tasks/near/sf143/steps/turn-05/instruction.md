@@ -1,0 +1,1 @@
+In the checkout at /work/w04, @UltraStudioLTD The wrapper abstracts legacy Windows console API calls behind an easier to understand and more Pythonic interface, so that the rest of Rich doesn't need to know anything about legacy Windows APIs. The purpose of this PR is to drop the dependency on Colorama, and handle older Windows systems in a slightly more performative way.

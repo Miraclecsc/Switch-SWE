@@ -1,0 +1,1 @@
+And here, Yeah it needs TypeVarTuple. That protocol would only match callables that actually themselves use `*args`, which is not ideal. I got myself a little mixed up when trying to do it.

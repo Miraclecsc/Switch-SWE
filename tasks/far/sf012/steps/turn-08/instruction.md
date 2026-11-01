@@ -1,0 +1,1 @@
+And here, But they also savor our foresight to prevent them shooting themselves in the foot.

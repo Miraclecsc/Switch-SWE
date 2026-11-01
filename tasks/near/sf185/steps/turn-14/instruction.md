@@ -1,0 +1,1 @@
+One more thing: Do we want to cache this? If not, this property seems redundant and perhaps we should call `canonicalize_name` directly instead.

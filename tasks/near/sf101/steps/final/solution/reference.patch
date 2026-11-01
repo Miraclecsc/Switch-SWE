@@ -1,0 +1,128 @@
+diff --git a/django/contrib/auth/hashers.py b/django/contrib/auth/hashers.py
+index 35a295cf17..814185e51a 100644
+--- a/django/contrib/auth/hashers.py
++++ b/django/contrib/auth/hashers.py
+@@ -422,7 +422,7 @@ class Argon2PasswordHasher(BasePasswordHasher):
+         variety, *_, b64salt, hash = rest.split("$")
+         # Add padding.
+         b64salt += "=" * (-len(b64salt) % 4)
+-        salt = base64.b64decode(b64salt).decode("latin1")
++        salt = base64.b64decode(b64salt, validate=True).decode("latin1")
+         return {
+             "algorithm": algorithm,
+             "hash": hash,
+diff --git a/django/core/cache/backends/db.py b/django/core/cache/backends/db.py
+index 03add8c4a5..8245e4f225 100644
+--- a/django/core/cache/backends/db.py
++++ b/django/core/cache/backends/db.py
+@@ -93,7 +93,7 @@ class DatabaseCache(BaseDatabaseCache):
+                 expired_keys.append(key)
+             else:
+                 value = connection.ops.process_clob(value)
+-                value = pickle.loads(base64.b64decode(value.encode()))
++                value = pickle.loads(base64.b64decode(value.encode(), validate=True))
+                 result[key_map.get(key)] = value
+         self._base_delete_many(expired_keys)
+         return result
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index a7ec41bf75..493238608c 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1,3 +1,4 @@
++import binascii
+ import copy
+ import datetime
+ import decimal
+@@ -2743,6 +2744,9 @@ class URLField(CharField):
+ class BinaryField(Field):
+     description = _("Raw binary data")
+     empty_values = [None, b""]
++    default_error_messages = {
++        "invalid": _("“%(value)s” is not a valid binary value."),
++    }
+ 
+     def __init__(self, *args, **kwargs):
+         kwargs.setdefault("editable", False)
+@@ -2800,7 +2804,23 @@ class BinaryField(Field):
+     def to_python(self, value):
+         # If it's a string, it should be base64-encoded data
+         if isinstance(value, str):
+-            return memoryview(b64decode(value.encode("ascii")))
++            try:
++                encoded = value.encode("ascii")
++                decoded = b64decode(encoded, validate=True)
++                if b64encode(decoded) != encoded:
++                    raise binascii.Error("Non-canonical Base64")
++                return memoryview(decoded)
++            except (UnicodeEncodeError, binascii.Error):
++                raise exceptions.ValidationError(
++                    self.error_messages["invalid"],
++                    code="invalid",
++                    params={"value": value},
++                )
++
++        if value is not None and not isinstance(value, (bytes, bytearray, memoryview)):
++            raise exceptions.ValidationError(
++                self.error_messages["invalid"], code="invalid", params={"value": value}
++            )
+         return value
+ 
+ 
+diff --git a/django/http/multipartparser.py b/django/http/multipartparser.py
+index 1195b056d9..9048d81c1a 100644
+--- a/django/http/multipartparser.py
++++ b/django/http/multipartparser.py
+@@ -231,7 +231,7 @@ class MultiPartParser:
+                         raw_data = field_stream.read(size=read_size)
+                         num_bytes_read += len(raw_data)
+                         try:
+-                            data = base64.b64decode(raw_data)
++                            data = base64.b64decode(raw_data, validate=True)
+                         except binascii.Error:
+                             data = raw_data
+                     else:
+@@ -319,7 +319,9 @@ class MultiPartParser:
+                                 stripped_chunk = b"".join(stripped_parts)
+ 
+                                 try:
+-                                    chunk = base64.b64decode(stripped_chunk)
++                                    chunk = base64.b64decode(
++                                        stripped_chunk, validate=True
++                                    )
+                                 except Exception as exc:
+                                     # Since this is only a chunk, any error is
+                                     # an unfixable error.
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index 987d46874a..61ec6144d6 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -338,6 +338,10 @@ Models
+   ``OR``, ``XOR``, respectively. These aggregates were previously included only
+   in ``contrib.postgres``.
+ 
++* :class:`django.db.models.BinaryField` now validates Base64 input strictly.
++  Invalid Base64 strings now raise ``ValidationError`` instead of being
++  silently accepted.
++
+ Pagination
+ ~~~~~~~~~~
+ 
+@@ -542,6 +546,18 @@ Miscellaneous
+   ``SimpleUploadedFile`` retain the previous behavior of evaluating based on
+   the ``name`` attribute.
+ 
++* ``django.http.multipartparser.MultiPartParser`` now uses strict Base64
++  validation when decoding encoded request data. Previously, invalid data could
++  be silently ignored or result in empty values. Invalid data now raises
++  ``MultiPartParserError``.
++
++* ``django.core.cache.backends.db.DatabaseCache`` now uses strict Base64
++  validation when decoding cached values. Invalid Base64 data will raise an
++  exception instead of being silently ignored. Cache values generated by Django
++  are unaffected, as they are always valid Base64. However, existing cache
++  entries containing non-standard or corrupted Base64 data may no longer be
++  readable.
++
+ .. _deprecated-features-6.1:
+ 
+ Features deprecated in 6.1

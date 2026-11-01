@@ -1,0 +1,1 @@
+One more thing: More simply this can be an if without changing the following conditions and just set `o = o.encode(...)` in the block then let the rest of the logic work. As it will hit another condition which will get it's length

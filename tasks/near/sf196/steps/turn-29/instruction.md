@@ -1,0 +1,1 @@
+Also, I suspect type checkers won't actually pick up the signature of `__reduce__` from the metaclass, but I think we might as well stick to the signature used in typeshed for it:

@@ -1,0 +1,1 @@
+Also, > Fix edge case when k=n and endpoints is False Here is where this fix comes into play. If `k = n`, these scales would be different for each of these branches. If `k = n`, the `k is None` branch should be used, because the `else` branch violates the assumption that `v` is not `s` or `t`.

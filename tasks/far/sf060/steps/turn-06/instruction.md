@@ -1,0 +1,4 @@
+One more thing: This test verifies that re-entering an already-used instance raises `RuntimeError`. The first `async with tg: pass` enters and exits the group normally, consuming the single-use entry. The second `async with tg:` then triggers the `_entered` guard. Would you like me to restructure the test or add additional cases.
+
+Refine the same lifecycle on asyncio: if acquiring the cancel scope fails before __aenter__ succeeds, propagate that exact exception and leave that type unentered. This failed attempt must not consume its one successful use. Starting children while still unentered must reject before invoking the callable; after the entry failure is repaired, entering and using the same group must work.
+Implement and validate this.

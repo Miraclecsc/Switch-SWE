@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Add trio.testing.wait_all_threads_completed Alternative to #2880

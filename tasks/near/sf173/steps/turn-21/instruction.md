@@ -1,0 +1,1 @@
+Also, > There also seems to be way too many context managers and levels of indirection for the pager machinery at this point. I'm not sure how we got here, but I'd sure love to refactor and simplify it somehow. This part of Click is insane. The only thing that gives me confidence is the amount of collected cases from users that we transformed into unittests.

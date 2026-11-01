@@ -1,0 +1,1 @@
+Please check this too: If we say it's `Stylesheet` the rel should be fixed. That being said, people will misuse this. And the equality function should be fixed, as the same logic error does apply to `Script` too.

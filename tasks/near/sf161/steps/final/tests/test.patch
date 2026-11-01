@@ -1,0 +1,91 @@
+diff --git a/tests/test_templates.py b/tests/test_templates.py
+index 527872666..1f1909f4b 100644
+--- a/tests/test_templates.py
++++ b/tests/test_templates.py
+@@ -1,6 +1,7 @@
+ import os
+ from pathlib import Path
+ 
++import jinja2
+ import pytest
+ 
+ from starlette.applications import Starlette
+@@ -124,3 +125,36 @@ async def page_b(request):
+     assert response.text == "<html><a href='http://testserver/b'></a> b</html>"
+     assert response.template.name == "template_b.html"
+     assert set(response.context.keys()) == {"request"}
++
++
++def test_templates_require_directory_or_environment():
++    with pytest.raises(
++        AssertionError, match="either 'directory' or 'env' arguments must be passed"
++    ):
++        Jinja2Templates()  # type: ignore[call-overload]
++
++
++def test_templates_with_directory(tmpdir):
++    path = os.path.join(tmpdir, "index.html")
++    with open(path, "w") as file:
++        file.write("Hello")
++
++    templates = Jinja2Templates(directory=str(tmpdir))
++    template = templates.get_template("index.html")
++    assert template.render({}) == "Hello"
++
++
++def test_templates_with_environment(tmpdir):
++    path = os.path.join(tmpdir, "index.html")
++    with open(path, "w") as file:
++        file.write("Hello")
++
++    env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(tmpdir)))
++    templates = Jinja2Templates(env=env)
++    template = templates.get_template("index.html")
++    assert template.render({}) == "Hello"
++
++
++def test_templates_with_environment_options_emit_warning(tmpdir):
++    with pytest.warns(DeprecationWarning):
++        Jinja2Templates(str(tmpdir), autoescape=True)
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,37 @@
++import jinja2
++import pytest
++from starlette.templating import Jinja2Templates
++
++class Request:
++    def __init__(self, prefix):
++        self.prefix = prefix
++    def url_for(self, name, **params):
++        return self.prefix + '/' + name + '/' + str(params['id'])
++
++def test_supplied_environment_gets_request_aware_url_for():
++    env = jinja2.Environment(loader=jinja2.DictLoader({'x':'{{ url_for("item", id=7) }}'}), autoescape=False)
++    templates = Jinja2Templates(env=env)
++    assert templates.env is env
++    first = templates.TemplateResponse('x', {'request': Request('first')})
++    second = templates.TemplateResponse('x', {'request': Request('second')})
++    assert first.body == b'first/item/7'
++    assert second.body == b'second/item/7'
++
++def test_conflicting_modes_leave_environment_unchanged(tmp_path):
++    env = jinja2.Environment(loader=jinja2.DictLoader({}))
++    before = dict(env.globals)
++    with pytest.raises(ValueError):
++        Jinja2Templates(directory=tmp_path, env=env)
++    with pytest.raises(ValueError):
++        Jinja2Templates(env=env, autoescape=False)
++    assert env.globals == before
++
++def test_existing_customization_is_preserved():
++    env = jinja2.Environment(loader=jinja2.DictLoader({'x':'{{ url_for() | tag }}'}), autoescape=False)
++    custom = lambda: '<custom>'
++    env.globals['url_for'] = custom
++    env.filters['tag'] = lambda v: v + '!'
++    templates = Jinja2Templates(env=env)
++    assert templates.env is env
++    assert env.globals['url_for'] is custom
++    assert templates.TemplateResponse('x', {'request': Request('unused')}).body == b'<custom>!'

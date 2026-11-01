@@ -1,0 +1,3 @@
+Please check this too: Yeah, `get_default_columns`. Another case of the Mondays...
+
+Add Progress.set_columns(*columns, before=(), after=()) to replace the display layout of an existing Progress. No positional columns obtains fresh subclass defaults at call time. Preserve tasks, task IDs, completion values, and task custom fields; refresh the displayed layout after a successful replacement.

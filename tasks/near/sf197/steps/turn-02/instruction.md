@@ -1,0 +1,1 @@
+For the checkout at /work/w02, hmmm. Does this not raise a type error that would also need to be silenced? (Also probably good with a comment that B018 is `useless expression`, as mentioned in other comments)

@@ -1,0 +1,125 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+  ],
+  "case_id": "sf199_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c",
+      "python": "3.12.12",
+      "requirements": "requirements/959dd1f1db35c157-3.12.12-7f10686c.txt",
+      "source": "dependency-source/959dd1f1db35c157-3.12.12-7f10686c.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+      "python": "3.12.12",
+      "requirements": "requirements/07001f250a6c7059-3.12.12-701a407f.txt",
+      "source": "dependency-source/07001f250a6c7059-3.12.12-701a407f.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "225b2b461028a60fac5f1dc993b4de560cb5e176",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "787c6888a1827027081cdd10338cf23060b72b94",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "4a735bb4f38f7534f11c6634ab1cc36a8d57885e",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "30afbe52cebf2b03bab230320b9c67c9e1b96711",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "dec2b0c6ef0b3cb5c75e41389b66ffab8ada20a2",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/core/power.py",
+          "sha256": "663b24ca3f331d52699dafbae3b5197f199042214670515fe2340b75f4e84a00"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/core/tests/test_power.py",
+          "sha256": "9029db76b5c25867aa3f033045b6a78ee450a1596f6bfdd9b116413007def9aa"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w04"
+    }
+  ]
+}

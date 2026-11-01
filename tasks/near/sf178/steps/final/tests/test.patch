@@ -1,0 +1,74 @@
+diff --git a/tests/test_requests.py b/tests/test_requests.py
+index 34796dc7ec..77aac3fecb 100644
+--- a/tests/test_requests.py
++++ b/tests/test_requests.py
+@@ -2810,3 +2810,13 @@ def test_status_code_425(self):
+         assert r4 == 425
+         assert r5 == 425
+         assert r6 == 425
++
++
++def test_json_decode_errors_are_serializable_deserializable():
++    json_decode_error = requests.exceptions.JSONDecodeError(
++        "Extra data",
++        '{"responseCode":["706"],"data":null}{"responseCode":["706"],"data":null}',
++        36,
++    )
++    deserialized_error = pickle.loads(pickle.dumps(json_decode_error))
++    assert repr(json_decode_error) == repr(deserialized_error)
+diff --git a/tests/test_sf178_staged.py b/tests/test_sf178_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf178_staged.py
+@@ -0,0 +1,51 @@
++
++import copy
++import pickle
++import pytest
++from requests import Request, Response
++from requests.exceptions import JSONDecodeError
++
++def make_error():
++    request = Request('GET', 'https://example.invalid/item').prepare()
++    response = Response()
++    response.request = request
++    response.status_code = 422
++    error = JSONDecodeError('bad value', '{invalid}', 1, response=response)
++    error.detail = {'attempts': [1, 2]}
++    return error
++
++def test_pickle_context_all_protocols():
++    for protocol in range(pickle.HIGHEST_PROTOCOL + 1):
++        error = make_error()
++        error.origin = error
++        restored = pickle.loads(pickle.dumps(error, protocol=protocol))
++        assert restored.request.url == error.request.url
++        assert restored.response.status_code == 422
++        assert restored.response.request is restored.request
++        assert restored.detail == error.detail
++        assert restored.origin is restored
++        assert (restored.msg, restored.doc, restored.pos, str(restored)) == (error.msg, error.doc, error.pos, str(error))
++
++def test_copy_context_semantics():
++    error = make_error()
++    shallow = copy.copy(error)
++    deep = copy.deepcopy(error)
++    assert shallow.detail is error.detail
++    assert shallow.response is error.response
++    assert deep.detail == error.detail and deep.detail is not error.detail
++    assert deep.response is not error.response
++    assert deep.response.request is deep.request
++
++def test_response_json_attaches_context_both_decoding_paths():
++    for encoding, content in [('utf-8', b'{invalid}'), (None, '{invalid}'.encode('utf-16'))]:
++        response = Response()
++        response.request = Request('POST', 'https://example.invalid/json').prepare()
++        response._content = content
++        response.encoding = encoding
++        with pytest.raises(JSONDecodeError) as caught:
++            response.json()
++        assert caught.value.response is response
++        assert caught.value.request is response.request
++        restored = pickle.loads(pickle.dumps(caught.value))
++        assert restored.response.content == content
++        assert restored.request.method == 'POST'

@@ -1,0 +1,3 @@
+Also, I share your sentiment , this should be implemented at the `KeyTransformIExact` level and not hardcoded here. The reason why `exact` and `iexact` are here today is due to how they must span `OUTER JOIN` when targeting a reverse relationship, I hope to remove it entirely with #16817.
+
+On SQLite, key-path exact=None and iexact=None must match JSON null only, never the string 'null', a missing path, or SQL NULL. Apply this consistently to nested object paths and array elements while preserving the original exact/iexact None symmetry.

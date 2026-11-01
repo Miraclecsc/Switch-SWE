@@ -1,0 +1,3 @@
+One more thing: fix: Move piecewise printing fix to AbstractPythonPrinter PR #28371 identified and fixed a bug in piecewise printing using the pycode printer, but patched that type and so left some printers buggy. This commit moves the patch to Also, SymPyPrinter displays same fixed behaviour as PythonCodePrinter.
+
+Reject unbounded loop/summation indices and branches whose nonempty free-index set differs from the target with ValueError, rather than emitting unbound or silently partial assignments. Check runtime values for offset bounds and empty ranges as well as ordinary scalar assignment.

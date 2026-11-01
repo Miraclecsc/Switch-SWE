@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: [RAM] Accept service principals and IAM ARNs as resource share principals The principal validation in add_principals only accepted 12-digit account IDs, organization ARNs, and OU ARNs. AWS RAM also accepts service principals (e.g. backup.amazonaws.com) and IAM role/user ARNs as valid principals. Fixes #9439

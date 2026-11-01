@@ -1,0 +1,1 @@
+One more thing: I'm not sure I follow. You original post showed a clear failure to narrow down the return type when decorator arguments were used. Did I misunderstand something?

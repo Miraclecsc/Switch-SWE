@@ -1,0 +1,3 @@
+Please check this too: I would suggest here to make this two separate methods like `new` and `_new` where the private constructor `_new` assumes that its input is already reduced.
+
+Extend the public group.dtype constructor to validate array-form input before reduction: every generator must belong to that group, and each exponent must be integer-indexable (Python int, SymPy Integer, or another __index__ provider). Reject unknown generators with ValueError and nonintegral exponents with TypeError. Accept a one-shot iterable and do not modify caller-owned pairs/containers. Keep the private trusted constructor fast and preserve all reduction semantics.

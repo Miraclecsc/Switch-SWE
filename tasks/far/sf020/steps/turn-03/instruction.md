@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: S3: support dualstack and FIPS endpoint URLs REGION_URL_REGEX extracted 'dualstack.{region}' instead of '{region}' when use_dualstack_endpoint=true was set in AWS config. Also fix the path-style detection regex in subdomain_based_buckets() which had the same issue. Closes #9832

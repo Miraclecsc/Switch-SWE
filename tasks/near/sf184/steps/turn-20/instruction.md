@@ -1,0 +1,1 @@
+And here, An alternative to flattening `_markers` here would be doing it directly on the `__init__` method (that could potentially also simplify the `_format_marker` function)

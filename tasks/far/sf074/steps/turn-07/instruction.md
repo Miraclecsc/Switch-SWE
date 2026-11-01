@@ -1,0 +1,1 @@
+Please check this too: The + closing marker opts out of the entire blank-line trim for that tag, and the - marker retains its existing all-whitespace stripping semantics. Support custom delimiters and Environment.overlay without mixing lexer caches across trim modes.

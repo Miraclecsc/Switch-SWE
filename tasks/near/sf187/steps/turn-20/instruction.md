@@ -1,0 +1,1 @@
+And here, JFTR, I've looked at another notable attrs user and couldn't find any dangerous/relevant use of kw_only. The tests pass with current main too, so I hope they should be fine, too. aiohttp uses only old-school `attr.s` that hasn't changed and doesn't use *kw_only* at all.

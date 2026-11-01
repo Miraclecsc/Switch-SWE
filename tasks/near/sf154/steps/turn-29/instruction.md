@@ -1,0 +1,3 @@
+Also, The changes to `.pre-commit-config.yaml` are largely unncessary. There seems to be a mypy bug that causes it to behave differently when only a portion of the files are being scanned, as opposed to the whole code base. When that happens, I check with `pre-commit run -a` to see if it's a real problem, and if it doesn't show up in that scan, I just disable the git hooks for that commit. The workaround would be to force mypy to always check all the files with the following config:
+
+The traversal budget counts every literal .. component in the computed path, including components already present in the target. Do not resolve paths or touch the filesystem to count them; the return value remains an AnyIO Path.

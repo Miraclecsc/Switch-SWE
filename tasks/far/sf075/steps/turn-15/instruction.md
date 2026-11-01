@@ -1,0 +1,1 @@
+Please check this too: `isdigit()` checks if a string only contains digits

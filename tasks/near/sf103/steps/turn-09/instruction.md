@@ -1,0 +1,1 @@
+Also, Consider for now we should just mimic the behaviour of `ruff`, nobody benefits from us and them having different standards for the sorting. The PEP doesn't say anything about preferred sorting order, but the order `ruff` implemented makes a Also, I also took their example and used it as a test case in our code!

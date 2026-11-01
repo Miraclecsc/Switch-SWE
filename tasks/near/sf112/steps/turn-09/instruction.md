@@ -1,0 +1,3 @@
+Also, `is_default_resolver` function call should only happen if `trace_default_resolver` is set to true. Its micro-optimization, but those are justified during query execution.
+
+The trace_default_resolver option must work consistently for ApolloTracingExtensionSync and ApolloTracingExtension in real GraphQL execution. With the option enabled, ordinary fields handled by the default resolver must produce resolver timing records in both modes; the default option remains disabled.

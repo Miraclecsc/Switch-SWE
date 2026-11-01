@@ -1,0 +1,1 @@
+I have this in /work/w01: BUG: DataFrame.eval inconsistently handles duplicated columns - [x] closes #65588 (Replace xxxx with the GitHub issue number) - [x] [Tests added and passed]( if fixing a bug or adding a new feature - [x] All [code checks passed](

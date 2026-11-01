@@ -1,0 +1,1 @@
+Also, I don't think this looks very general (what if the name ends with `-precommit`? or similar) and it's not an error if something that could be picked up automatically isn't, so I think I'd prefer a manual addition. I don't know of anything I would add that this wouldn't work with, but I also don't know anything I would add to the pre-commit configuration to begin with!

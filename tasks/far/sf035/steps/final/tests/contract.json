@@ -1,0 +1,61 @@
+{
+  "case_id": "sf035_switched",
+  "task_id": "ssb_v3_django__django_f30acb184f",
+  "repo": "django/django",
+  "base_commit": "952f42e958e5887fb297ec4d5607ceec5e1bf20b",
+  "derived_fail_to_pass": [
+    "modeladmin.test_actions.AdminActionsTests.test_actions_inheritance",
+    "modeladmin.test_actions.AdminActionsTests.test_actions_replace_global_action",
+    "modeladmin.test_actions.AdminActionsTests.test_global_actions_description",
+    "admin_views.test_sf035_action_scope.ChangeFormActionScopeTests.test_action_does_not_save_unsubmitted_edits",
+    "admin_views.test_sf035_action_scope.ChangeFormActionScopeTests.test_forged_selection_is_url_scoped",
+    "admin_views.test_sf035_action_scope.ChangeFormActionScopeTests.test_multi_selection_and_select_across_are_url_scoped",
+    "admin_views.test_sf035_action_scope.ChangeFormActionScopeTests.test_omitted_checkbox_still_targets_current_object"
+  ],
+  "derived_pass_to_pass": [
+    "modeladmin.test_actions.AdminActionsTests.test_get_actions_respects_permissions"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/admin_views/admin.py",
+    "tests/admin_views/models.py",
+    "tests/admin_views/test_actions.py",
+    "tests/modeladmin/test_actions.py",
+    "tests/admin_views/test_sf035_action_scope.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/admin_views/admin.py",
+    "tests/admin_views/models.py",
+    "tests/admin_views/test_actions.py",
+    "tests/admin_views/test_sf035_action_scope.py",
+    "tests/modeladmin/test_actions.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "06549177f1b949545bf6f993cab6eaf4647b3c7229667f52bd0e01fdf1592221",
+    "config/recipes.json": "58a365d6e17677c975d8106921c693b152345a4591fe0124dde502fde126d5ff"
+  }
+}

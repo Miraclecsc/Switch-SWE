@@ -1,0 +1,3 @@
+Also, Sorry, what I mean is just that maybe we should test that the errors that come with `strict_exception_groups=True` (which are still `MultiErrors`, I think? Just non-collapsed, I believe?) are also pickle-able.
+
+Also preserve picklable instance attributes, exception notes, __cause__, __context__, and __suppress_context__ on MultiError groups. Preserve ordinary pickle aliasing, including a custom attribute referring back to the group and repeated references to the same child. Do not mutate original groups or children. This extension does not require a traceback serializer or change the original traceback limitations.

@@ -1,0 +1,3 @@
+And here, > > > @alex-oleshkevich @abersheeran Can you check this, please? > > > > > > All good. > > In the sense that this implementation makes sense, or something different? 🤔 We want to have a typed request state and keep backward compatibility. That was achieved, so all is good :)
+
+Support copy.copy(State) as a distinct State with an independent top-level mapping but shared nested values. Support copy.deepcopy(State) with independent nested values and normal memo/cycle behavior, including a State containing itself. Preserve the concrete State subclass when constructing either copy.

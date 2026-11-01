@@ -1,0 +1,1 @@
+Also, Won't it trigger twice now when you access `Version._version`.

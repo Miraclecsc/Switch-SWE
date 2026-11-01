@@ -1,0 +1,150 @@
+diff --git a/tests/test_dynamodb/exceptions/test_dynamodb_transactions.py b/tests/test_dynamodb/exceptions/test_dynamodb_transactions.py
+index 735fa15f185b..9f8766ff389e 100644
+--- a/tests/test_dynamodb/exceptions/test_dynamodb_transactions.py
++++ b/tests/test_dynamodb/exceptions/test_dynamodb_transactions.py
+@@ -84,6 +84,49 @@ def test_transact_write_items__put_and_delete_on_same_item(table_name=None):
+     )
+ 
+ 
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_range=True)
++def test_transact_write_items__put_and_delete_with_different_key_order(table_name=None):
++    """Duplicate key detection should work regardless of key attribute order.
++
++    When a Put constructs the key as {pk, sk} but a Delete uses {sk, pk},
++    TransactWriteItems should still detect the duplicate and raise
++    ValidationException. See https://github.com/getmoto/moto/issues/9904.
++    """
++    dynamodb = boto3.client("dynamodb", region_name="us-east-1")
++
++    with pytest.raises(ClientError) as exc:
++        dynamodb.transact_write_items(
++            TransactItems=[
++                {
++                    "Put": {
++                        "TableName": table_name,
++                        "Item": {
++                            "pk": {"S": "pk1"},
++                            "sk": {"S": "sk1"},
++                            "data": {"S": "val"},
++                        },
++                    }
++                },
++                {
++                    "Delete": {
++                        "TableName": table_name,
++                        "Key": {
++                            "sk": {"S": "sk1"},
++                            "pk": {"S": "pk1"},
++                        },
++                    }
++                },
++            ]
++        )
++    err = exc.value.response["Error"]
++    assert err["Code"] == "ValidationException"
++    assert (
++        err["Message"]
++        == "Transaction request cannot include multiple operations on one item"
++    )
++
++
+ @pytest.mark.aws_verified
+ @dynamodb_aws_verified(add_range=True)
+ def test_transact_write_items__update_with_multiple_set_clauses(table_name=None):
+diff --git a/tests/test_dynamodb/exceptions/test_target_identity_v1.py b/tests/test_dynamodb/exceptions/test_target_identity_v1.py
+new file mode 100644
+index 000000000..66175b425
+--- /dev/null
++++ b/tests/test_dynamodb/exceptions/test_target_identity_v1.py
+@@ -0,0 +1,90 @@
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++from moto import mock_aws
++
++
++def setup_table(c, name="numbers"):
++    return c.create_table(TableName=name, BillingMode="PAY_PER_REQUEST",
++        KeySchema=[{"AttributeName":"pk","KeyType":"HASH"},{"AttributeName":"sk","KeyType":"RANGE"}],
++        AttributeDefinitions=[{"AttributeName":"pk","AttributeType":"N"},{"AttributeName":"sk","AttributeType":"S"}]
++    )["TableDescription"]["TableArn"]
++
++
++def key(number):
++    return {"sk":{"S":"row"}, "pk":{"N":number}}
++
++
++def operation(kind, table, number):
++    spec = {"TableName":table}
++    spec["Item" if kind == "Put" else "Key"] = key(number)
++    if kind == "Update":
++        spec.update(UpdateExpression="SET payload = :v", ExpressionAttributeValues={":v":{"S":"changed"}})
++    if kind == "ConditionCheck":
++        spec["ConditionExpression"] = "attribute_exists(pk)"
++    return {kind:spec}
++
++
++@pytest.mark.parametrize("left,right", [
++    ("Put","Delete"), ("Update","Put"), ("ConditionCheck","Update"), ("Delete","ConditionCheck")
++])
++@mock_aws
++def test_numeric_key_equivalence_across_operation_kinds(left, right):
++    c = boto3.client("dynamodb", region_name="us-east-1")
++    setup_table(c)
++    original = {**key("1"),"payload":{"S":"original"}}
++    c.put_item(TableName="numbers", Item=original)
++    with pytest.raises(ClientError) as caught:
++        c.transact_write_items(TransactItems=[
++            operation(left,"numbers","1.0"), operation(right,"numbers","1E0")])
++    assert caught.value.response["Error"]["Code"] == "ValidationException"
++    assert "multiple operations on one item" in caught.value.response["Error"]["Message"]
++    assert c.get_item(TableName="numbers",Key=key("1"))["Item"] == original
++
++
++@mock_aws
++def test_table_arn_and_name_identify_same_transaction_target():
++    c = boto3.client("dynamodb", region_name="us-east-1")
++    arn = setup_table(c)
++    with pytest.raises(ClientError) as caught:
++        c.transact_write_items(TransactItems=[
++            operation("Put",arn,"2"), operation("Delete","numbers","2")])
++    assert caught.value.response["Error"]["Code"] == "ValidationException"
++    assert c.scan(TableName="numbers")["Items"] == []
++
++
++@mock_aws
++def test_duplicate_identity_is_rejected_before_evaluating_conditions():
++    c = boto3.client("dynamodb", region_name="us-east-1")
++    setup_table(c)
++    with pytest.raises(ClientError) as caught:
++        c.transact_write_items(TransactItems=[
++            operation("ConditionCheck","numbers","3.00"),
++            operation("Put","numbers","3e0")])
++    assert caught.value.response["Error"]["Code"] == "ValidationException"
++    assert "multiple operations on one item" in caught.value.response["Error"]["Message"]
++    assert c.scan(TableName="numbers")["Items"] == []
++
++
++@mock_aws
++def test_failure_rolls_back_tables_referred_to_only_by_arn():
++    c = boto3.client("dynamodb", region_name="us-east-1")
++    arn = setup_table(c)
++    setup_table(c,"other")
++    with pytest.raises(ClientError) as caught:
++        c.transact_write_items(TransactItems=[
++            operation("Put",arn,"7"), operation("ConditionCheck","other","8")])
++    assert caught.value.response["Error"]["Code"] == "TransactionCanceledException"
++    assert c.scan(TableName="numbers")["Items"] == []
++
++
++@mock_aws
++def test_distinct_numeric_keys_and_distinct_tables_are_not_duplicates():
++    c = boto3.client("dynamodb", region_name="us-east-1")
++    setup_table(c)
++    setup_table(c,"other")
++    c.transact_write_items(TransactItems=[
++        operation("Put","numbers","1"), operation("Put","numbers","1.01"),
++        operation("Put","other","1.0")])
++    assert c.scan(TableName="numbers")["Count"] == 2
++    assert c.scan(TableName="other")["Count"] == 1

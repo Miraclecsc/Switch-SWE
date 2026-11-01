@@ -1,0 +1,1 @@
+And here, I don't think this is quite right - this is already allowed and will pass on `main`. The unit test should fail on `main` and pass with the fix. The easiest way to do this is to adhere more closely to the example in the OP of the issue, which uses `colors=["red"]*5` (i.e. a list of scalars).

@@ -1,0 +1,1 @@
+Also, This doesn't account for multiple search terms (see `smart_split(search_term)` below) where some might need cast and others don't. For example, if your search for `foo 123` the resulting query should be with your current path it'll be doing See how #18765 changed the logic to no longer be search term `bit` specific and how we might need to restore it.

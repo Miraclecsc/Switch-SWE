@@ -1,0 +1,1 @@
+I have this in /work/w03: gh-580: avoid calling await getaddrinfo(...) in exception handler

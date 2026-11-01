@@ -1,0 +1,54 @@
+diff --git a/src/packaging/tags.py b/src/packaging/tags.py
+index 0741149..814b977 100644
+--- a/src/packaging/tags.py
++++ b/src/packaging/tags.py
+@@ -4,6 +4,7 @@
+ 
+ import logging
+ import platform
++import struct
+ import subprocess
+ import sys
+ import sysconfig
+@@ -37,7 +38,7 @@ INTERPRETER_SHORT_NAMES: Dict[str, str] = {
+ }
+ 
+ 
+-_32_BIT_INTERPRETER = sys.maxsize <= 2**32
++_32_BIT_INTERPRETER = struct.calcsize("P") == 4
+ 
+ 
+ class Tag:
+@@ -467,12 +468,14 @@ def mac_platforms(
+                 )
+ 
+ 
+-def _linux_platforms(is_32bit: bool = _32_BIT_INTERPRETER) -> Iterator[str]:
++def _linux_platforms(is_32bit: Optional[bool] = None) -> Iterator[str]:
+     linux = _normalize_string(sysconfig.get_platform())
+     if not linux.startswith("linux_"):
+         # we should never be here, just yield the sysconfig one and return
+         yield linux
+         return
++    if is_32bit is None:
++        is_32bit = struct.calcsize("P") == 4
+     if is_32bit:
+         if linux == "linux_x86_64":
+             linux = "linux_i686"
+@@ -490,14 +493,14 @@ def _generic_platforms() -> Iterator[str]:
+     yield _normalize_string(sysconfig.get_platform())
+ 
+ 
+-def platform_tags() -> Iterator[str]:
++def platform_tags(*, is_32bit: Optional[bool] = None) -> Iterator[str]:
+     """
+     Provides the platform tags for this installation.
+     """
+     if platform.system() == "Darwin":
+         return mac_platforms()
+     elif platform.system() == "Linux":
+-        return _linux_platforms()
++        return _linux_platforms() if is_32bit is None else _linux_platforms(is_32bit=is_32bit)
+     else:
+         return _generic_platforms()
+ 

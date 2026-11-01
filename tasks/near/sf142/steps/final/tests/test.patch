@@ -1,0 +1,115 @@
+diff --git a/tests/test_console.py b/tests/test_console.py
+index 82339a3b67..d993ba923e 100644
+--- a/tests/test_console.py
++++ b/tests/test_console.py
+@@ -3,7 +3,8 @@
+ import os
+ import sys
+ import tempfile
+-from typing import Optional
++from typing import Optional, Tuple, Type, Union
++from unittest import mock
+ 
+ import pytest
+ 
+@@ -122,6 +123,48 @@ def test_size():
+     assert w == 99 and h == 101
+ 
+ 
++@pytest.mark.parametrize(
++    "is_windows,no_descriptor_size,stdin_size,stdout_size,stderr_size,expected_size",
++    [
++        # on Windows we'll use `os.get_terminal_size()` without arguments...
++        (True, (133, 24), ValueError, ValueError, ValueError, (133, 24)),
++        (False, (133, 24), ValueError, ValueError, ValueError, (80, 25)),
++        # ...while on other OS we'll try to pass stdin, then stdout, then stderr to it:
++        (False, ValueError, (133, 24), ValueError, ValueError, (133, 24)),
++        (False, ValueError, ValueError, (133, 24), ValueError, (133, 24)),
++        (False, ValueError, ValueError, ValueError, (133, 24), (133, 24)),
++        (False, ValueError, ValueError, ValueError, ValueError, (80, 25)),
++    ],
++)
++@mock.patch("rich.console.os.get_terminal_size")
++def test_size_can_fall_back_to_std_descriptors(
++    get_terminal_size_mock: mock.MagicMock,
++    is_windows: bool,
++    no_descriptor_size: Union[Tuple[int, int], Type[ValueError]],
++    stdin_size: Union[Tuple[int, int], Type[ValueError]],
++    stdout_size: Union[Tuple[int, int], Type[ValueError]],
++    stderr_size: Union[Tuple[int, int], Type[ValueError]],
++    expected_size,
++):
++    def get_terminal_size_mock_impl(fileno: int = None) -> Tuple[int, int]:
++        value = {
++            None: no_descriptor_size,
++            sys.__stdin__.fileno(): stdin_size,
++            sys.__stdout__.fileno(): stdout_size,
++            sys.__stderr__.fileno(): stderr_size,
++        }[fileno]
++        if value is ValueError:
++            raise value
++        return value
++
++    get_terminal_size_mock.side_effect = get_terminal_size_mock_impl
++
++    console = Console(legacy_windows=False)
++    with mock.patch("rich.console.WINDOWS", new=is_windows):
++        w, h = console.size
++    assert (w, h) == expected_size
++
++
+ def test_repr():
+     console = Console()
+     assert isinstance(repr(console), str)
+diff --git a/tests/test_sf142_dimensions.py b/tests/test_sf142_dimensions.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf142_dimensions.py
+@@ -0,0 +1,47 @@
++import io
++import os
++import pytest
++import rich.console as mod
++from rich.console import Console
++
++class Output(io.StringIO):
++    def fileno(self): return 99
++
++def setup(monkeypatch,sizes):
++    calls=[]
++    monkeypatch.setattr(mod,"WINDOWS",False)
++    monkeypatch.setattr(mod,"_STD_STREAMS",(10,11,12))
++    def probe(fd):
++        calls.append(fd)
++        value=sizes.get(fd)
++        if value is None: raise OSError("not a terminal")
++        return os.terminal_size(value)
++    monkeypatch.setattr(mod.os,"get_terminal_size",probe)
++    return calls
++
++def test_output_preferred_and_resize(monkeypatch):
++    sizes={99:(100,40),10:(80,20)};calls=setup(monkeypatch,sizes)
++    c=Console(file=Output(),_environ={"TERM":"xterm"})
++    assert c.size==(100,40) and calls==[99]
++    sizes[99]=(120,50)
++    assert c.size==(120,50)
++
++def test_partial_dimensions_and_duplicate_descriptors(monkeypatch):
++    calls=setup(monkeypatch,{99:(0,40),10:(-1,50),11:(120,60)})
++    monkeypatch.setattr(mod,"_STD_STREAMS",(99,10,11,12))
++    c=Console(file=Output(),_environ={"TERM":"xterm"})
++    assert c.size==(120,40) and calls==[99,10,11]
++
++@pytest.mark.parametrize("invalid",["0","-5","bad"])
++def test_env_validation_and_explicit_precedence(monkeypatch,invalid):
++    setup(monkeypatch,{99:(100,40)})
++    c=Console(file=Output(),width=70,_environ={"TERM":"xterm","COLUMNS":"150","LINES":invalid})
++    assert c.size==(70,40)
++    c=Console(file=Output(),height=30,_environ={"TERM":"xterm","COLUMNS":invalid,"LINES":"60"})
++    assert c.size==(100,30)
++
++def test_closed_output_and_dimension_default(monkeypatch):
++    setup(monkeypatch,{10:(0,35),11:(0,0)})
++    out=io.StringIO();out.close()
++    c=Console(file=out,_environ={"TERM":"xterm"})
++    assert c.size==(80,35)

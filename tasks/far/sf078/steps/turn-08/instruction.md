@@ -1,0 +1,1 @@
+And here, Are we covering up for a gap in typeshed here? I think this is a Python-2-only problem since the annotation for that isn't complete. If so, I'd rather that we fix that, instead of carrying stubs in packaging.

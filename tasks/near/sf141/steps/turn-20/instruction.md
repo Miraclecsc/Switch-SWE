@@ -1,0 +1,1 @@
+And here, Add a regression case where VS16 follows a zero-width character that doesn't set `last_measured_character` (e.g. "\x1b\ufe0f" or "\u200d\ufe0f"). This currently can trigger the same non-advancing-index infinite loop in `split_graphemes`, and a test here would prevent it from returning.

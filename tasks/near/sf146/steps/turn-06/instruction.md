@@ -1,0 +1,1 @@
+One more thing: I'm reconsidering the copy. It's not clear what the dev would expect when modifying a child attribute that has been bound. I'm not sure if they would expect the changes to be reflected on the parent. But I don't know if they would expect the inverse either. Going to remove the copy, until I have a better idea what it would fix (if anything)

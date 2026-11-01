@@ -1,0 +1,1 @@
+I have this in /work/w04: Add: Added `refine_sin_cos` function to handle simplifications for cos and sin

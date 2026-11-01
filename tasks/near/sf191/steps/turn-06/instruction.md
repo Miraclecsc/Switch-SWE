@@ -1,0 +1,1 @@
+I have this in /work/w00: Maybe (just maybe) we should keep it simple and prefer your PR over mine. I think @Tinche would agree that conversion should be done with cattrs anyways, so why add a lot of converters to attrs? On the other hand, they don't hurt and may be very handy for some use cases. I’ll have to think about this and discuss it with him and Hynek. :)

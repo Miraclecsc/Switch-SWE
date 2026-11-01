@@ -1,0 +1,1 @@
+Please check this too: Validate all rendered mapping values before creating labels: require real numbers excluding bool (TypeError otherwise), finite and within [0,1] (ValueError otherwise). Snapshot the chosen positions so later caller mutations do not alter labels during redraw.

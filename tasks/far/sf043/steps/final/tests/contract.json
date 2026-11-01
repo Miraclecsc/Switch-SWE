@@ -1,0 +1,61 @@
+{
+  "case_id": "sf043_switched",
+  "task_id": "ssb_v3_networkx__networkx_09d4ebed4f",
+  "repo": "networkx/networkx",
+  "base_commit": "bc2ba5f087d291ead6c05568c12dc3551baada16",
+  "derived_fail_to_pass": [
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_quotes_and_backslashes_roundtrip",
+    "networkx.readwrite.tests.test_pajek_switch_contract.CandidateTests::test_token_roundtrips",
+    "networkx.readwrite.tests.test_pajek_switch_contract.CandidateTests::test_graph_roundtrips",
+    "networkx.readwrite.tests.test_pajek_switch_contract.CandidateTests::test_record_delimiter_rejected_at_token_boundary",
+    "networkx.readwrite.tests.test_pajek_switch_contract.CandidateTests::test_late_invalid_graph_is_rejected_before_output"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_ignored_attribute",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_noname",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_parse_pajek",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_parse_pajek_mat",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_parse_pajek_simple",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_read_pajek",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_unicode",
+    "networkx.readwrite.tests.test_pajek.TestPajek::test_write_pajek",
+    "networkx.readwrite.tests.test_pajek_switch_contract.CandidateTests::test_ignored_attributes_keep_legacy_behavior"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/readwrite/tests/test_pajek.py",
+    "networkx/readwrite/tests/test_pajek_switch_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/readwrite/tests/test_pajek.py",
+    "networkx/readwrite/tests/test_pajek_switch_contract.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "4ea58b0b98a5bd20e2cd708031e4f9cbaaa096969d37bd34ad144a3bf452b62e",
+    "config/recipes.json": "a4f16a4da1aa655b226f36792a5d38f221d1c12c39665fe07b3cd0b65571b923"
+  }
+}

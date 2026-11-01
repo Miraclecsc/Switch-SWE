@@ -1,0 +1,1 @@
+For the checkout at /work/w02, fix table rendering order of box elements * Previously "mid" box elements appeared in last line of table (footer), while "footer" box elements appeared mid table body. Reversed that order so mid is truly mid, footer is truly footer. * Tested with: After change, correct ordering:

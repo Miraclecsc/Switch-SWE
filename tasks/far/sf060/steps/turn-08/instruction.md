@@ -1,0 +1,4 @@
+And here, Good catch — you're right, that first `async with create_task_group(): pass` was dead code creating an unrelated task group. I've removed it in the latest push. The test now correctly creates a single that type, enters it once, then asserts that re-entry raises `RuntimeError`.
+
+Extend the failed-entry retry guarantee to Trio nursery entry, including an awaited entry interrupted by caller cancellation. Discard an entry manager that failed, keep the group inactive and without accepted children, and allow a fresh entry attempt. Once an entry succeeds, the original single-use rule still applies. Failed acquisition is rolled back; successful use is never reset.
+Implement and validate this.

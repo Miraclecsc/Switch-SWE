@@ -1,0 +1,1 @@
+And here, I've heard other reviewers ask contributors to reuse models, while being somewhat conscious of test isolation. I see we have a custom manager that performs filtering on `class FilteredManager`.

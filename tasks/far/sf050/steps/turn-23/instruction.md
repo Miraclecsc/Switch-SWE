@@ -1,0 +1,1 @@
+Please check this too: Yes (presented in the hexadecimal format) as `repr()` does for objects not having their own `__repr__()` method).

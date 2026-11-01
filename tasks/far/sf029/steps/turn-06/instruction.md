@@ -1,0 +1,3 @@
+One more thing: I'm a bit late, I would recommend also adding a test in `test_parser_mathematica_tokenizer()`, testing that the S-expression equivalent is correctly parsed before converting to a SymPy expression.
+
+Verify the parser at both public parse_mathematica and the tokens-to-fullform-list stage: preserve every Not in the intermediate tree even when boolean evaluation later cancels it. Mixed expressions such as !!(7!! > 10) must preserve postfix double factorial inside the relation. Dangling prefix ! runs (alone, after &&/||, or at the end of an enclosure) must raise SyntaxError instead of leaking a KeyError/IndexError. Keep existing single !, postfix factorial and all original tokenizer tests.

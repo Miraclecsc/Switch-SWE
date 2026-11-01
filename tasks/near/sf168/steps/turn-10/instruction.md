@@ -1,0 +1,1 @@
+One more thing: > Note that `betweenness_centrality_subset` and `bipartite.betweenness_centrality` don't have `k`, so they don't have this issue. I haven't considered whether `edge_betweenness_centrality` could have a similar issue. `edge_betweenness_centrality` has no `endpoints` parameter, so the scaling logic is straightforward.

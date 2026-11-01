@@ -1,0 +1,1 @@
+And here, * Classes like `Curl, Gradient` were introduced in #12696 . Originally, they inherited from `Basic`, but then they changed to `Expr`. * The `Cross` class was meant to represent an unevaluated cross product. Then, at some point you added [this "evaluation"]( ).

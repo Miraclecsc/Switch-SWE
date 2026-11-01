@@ -1,0 +1,95 @@
+diff --git a/tests/test_markers.py b/tests/test_markers.py
+index c7aa068aa..5a9ca9e65 100644
+--- a/tests/test_markers.py
++++ b/tests/test_markers.py
+@@ -80,10 +80,25 @@ def test_base_class(self) -> None:
+ 
+ class TestOperatorEvaluation:
+     def test_prefers_pep440(self) -> None:
+-        assert Marker('"2.7.9" < "foo"').evaluate(dict(foo="2.7.10"))
++        assert Marker('"2.7.9" < python_full_version').evaluate(
++            dict(python_full_version="2.7.10")
++        )
++        assert not Marker('"2.7.9" < python_full_version').evaluate(
++            dict(python_full_version="2.7.8")
++        )
+ 
+-    def test_falls_back_to_python(self) -> None:
+-        assert Marker('"b" > "a"').evaluate(dict(a="a"))
++    def test_new_string_rules(self) -> None:
++        assert not Marker('"b" < python_full_version').evaluate(
++            dict(python_full_version="c")
++        )
++        assert not Marker('"b" < python_full_version').evaluate(
++            dict(python_full_version="a")
++        )
++        assert not Marker('"b" > "a"').evaluate(dict(a="a"))
++        assert not Marker('"b" < "a"').evaluate(dict(a="a"))
++        assert not Marker('"b" >= "a"').evaluate(dict(a="a"))
++        assert not Marker('"b" <= "a"').evaluate(dict(a="a"))
++        assert Marker('"a" <= "a"').evaluate(dict(a="a"))
+ 
+     def test_fails_when_undefined(self) -> None:
+         with pytest.raises(UndefinedComparison):
+@@ -443,3 +458,24 @@ def test_extras_and_dependency_groups_disallowed(self, variable: str) -> None:
+ 
+         with pytest.raises(KeyError):
+             marker.evaluate(context="requirement")
++
++    @pytest.mark.parametrize(
++        ("marker_string", "environment", "expected"),
++        [
++            ('extra == "v2"', None, False),
++            ('extra == "v2"', {"extra": ""}, False),
++            ('extra == "v2"', {"extra": "v2"}, True),
++            ('extra == "v2"', {"extra": "v2a3"}, False),
++            ('extra == "v2a3"', {"extra": "v2"}, False),
++            ('extra == "v2a3"', {"extra": "v2a3"}, True),
++        ],
++    )
++    def test_version_like_equality(
++        self, marker_string: str, environment: dict[str, str] | None, expected: bool
++    ) -> None:
++        """
++        Test for issue #938: Extras are meant to be literal strings, even if
++        they look like versions, and therefore should not be parsed as version.
++        """
++        marker = Marker(marker_string)
++        assert marker.evaluate(environment) is expected
+diff --git a/tests/test_marker_short_circuit_v1.py b/tests/test_marker_short_circuit_v1.py
+new file mode 100644
+index 0000000..5e6f392
+--- /dev/null
++++ b/tests/test_marker_short_circuit_v1.py
+@@ -0,0 +1,31 @@
++import pytest
++from packaging.markers import Marker, UndefinedComparison
++
++
++ENV = {"os_name":"posix", "sys_platform":"linux", "python_version":"3.12", "implementation_name":"cpython"}
++
++
++def test_true_or_branch_skips_invalid_version_comparison():
++    assert Marker("os_name == 'posix' or python_version ~= 'surprise'").evaluate(ENV)
++
++
++def test_false_and_branch_skips_invalid_version_comparison():
++    assert not Marker("os_name == 'nt' and python_version ~= 'surprise'").evaluate(ENV)
++
++
++def test_nested_short_circuit_and_precedence():
++    assert Marker("(os_name == 'posix' or python_version ~= 'surprise') and implementation_name == 'cpython'").evaluate(ENV)
++    assert Marker("os_name == 'nt' and python_version ~= 'surprise' or sys_platform == 'linux'").evaluate(ENV)
++
++
++def test_unavailable_context_variable_is_not_read_in_unreachable_branch():
++    assert Marker("os_name == 'posix' or 'dev' in extras").evaluate(ENV,context="metadata")
++    assert not Marker("os_name == 'nt' and 'dev' in dependency_groups").evaluate(ENV,context="metadata")
++
++
++def test_reached_errors_and_version_semantics_are_preserved():
++    with pytest.raises(UndefinedComparison):
++        Marker("os_name == 'nt' or python_version ~= 'surprise'").evaluate(ENV)
++    assert Marker("python_version == '3.12.0'").evaluate(ENV)
++    assert not Marker("os_name < 'zzz'").evaluate(ENV)
++    assert Marker("python_version >= '3.0' and os_name == 'posix'").evaluate(ENV)

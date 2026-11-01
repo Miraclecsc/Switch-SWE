@@ -1,0 +1,1 @@
+One more thing: I'd definitely not want to pollute the API with functions for each option. I'd be much more inclined to add docstring examples.

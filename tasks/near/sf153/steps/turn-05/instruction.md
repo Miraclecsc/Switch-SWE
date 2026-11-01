@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Use Self to preserve subclass types in anyio.Path path-returning methods

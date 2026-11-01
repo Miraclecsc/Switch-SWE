@@ -1,0 +1,1 @@
+And here, The newly public compatible_tags function must work with one-shot platform iterators as well as lists. Every applicable Python-version tag must be paired with every supplied platform in the same order; do not consume a generator once and silently drop older compatible versions.

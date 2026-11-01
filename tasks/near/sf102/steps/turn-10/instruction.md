@@ -1,0 +1,1 @@
+I have this in /work/w01: This also allowed the removal of the explanation of the settings. So `docs/ref/csp.txt` should be more just "reference" material on the settings, the structure, the constants, and nonces.

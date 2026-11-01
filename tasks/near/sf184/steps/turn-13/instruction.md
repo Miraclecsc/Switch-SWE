@@ -1,0 +1,1 @@
+Also, Thanks for taking a stab at this! I haven't looked at the code, but a tweak we might want to make to the output is to emit the `manylinux1`, `manylinux2010`, and `manylinux2014` tags **after** [the matching perennial manylinux tag]( We also want to emit the tags in priority order, so newer glibc versions should come first.

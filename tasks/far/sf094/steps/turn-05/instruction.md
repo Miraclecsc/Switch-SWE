@@ -1,0 +1,1 @@
+In the checkout at /work/w01, gh-3108: Avoid materializing f_locals for KI protection Fixes Fixes In this pull request, we avoid materializing `f_locals` by using weak references to code objects instead.

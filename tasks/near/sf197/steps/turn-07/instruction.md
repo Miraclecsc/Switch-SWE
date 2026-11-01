@@ -1,0 +1,1 @@
+Please check this too: `get()` should not be able to return `NoValue`, that's just an internal sentinel here. You might want to mark the class as `final`, then change to `type[NoValue]` instead of `_NO_DEFAULT` - no point instantiating it and this way Mypy will [soon be able to prove it's correct](

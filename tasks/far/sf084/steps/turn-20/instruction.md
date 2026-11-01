@@ -1,0 +1,1 @@
+And here, I wanted type checkers to complain when `_Version` is accessed directly or `_version` is used.

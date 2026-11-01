@@ -1,0 +1,1 @@
+One more thing: Forgot to guard this with `TYPE_CHECKING`

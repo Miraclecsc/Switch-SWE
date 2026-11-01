@@ -1,0 +1,1 @@
+Please check this too: we know that `_run_until_complete_cb` won't be used with partial, and 'uvloop.loop' doesn't use it either

@@ -1,0 +1,1 @@
+Also, Typing ``_socket`` makes it look legitimate and not something that needs to be put on a road and stomped in the head repeatedly.

@@ -1,0 +1,1 @@
+Please check this too: Consider the *documentation* should continue to describe the default value as `fail_silently=False`. It still behaves that way from the caller's standpoint. (It's an implementation detail that the code now uses `None` as a sentinel for error checking.)

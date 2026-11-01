@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Make `anyio.run` support `Awaitable` at runtime on all backends ## Changes Adds `anyio.run` runtime support for callables returning arbitrary, non-`Coroutine` `Awaitable`s. Follow-up for Also adds tests for `BlockingPortal`'s runtime `Awaitable` support.

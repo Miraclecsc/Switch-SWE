@@ -1,0 +1,1 @@
+Please check this too: The `random_state` mechanism is needed for both this random placement and for the call to `random_layout` about 15 lines up.

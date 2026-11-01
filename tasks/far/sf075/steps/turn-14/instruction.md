@@ -1,0 +1,1 @@
+One more thing: Drive-by review question: Is `x.isdigit()` correct here? What about integer indexes greater than 9? E.g. '10' should be converted to 10, but `'10'.isdigit() == False`, right? What about negative indexes? Also, the docstrings here only mention attribute lookup but in fact support item lookup as well, is that right?

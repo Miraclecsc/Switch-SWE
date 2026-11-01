@@ -1,0 +1,1 @@
+And here, This has some of the automatic simplification logic. We should try to implement every assumption based simplification that does here. For example we can do a simplification if we know that the arg is not finite or infinite:

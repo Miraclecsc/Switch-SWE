@@ -1,0 +1,1 @@
+One more thing: * Re-added the note to `CHANGES.rst` * Changed the PR to be based off of [`stable`]( ) * Updated docstrings for `confirm` and `prompt`

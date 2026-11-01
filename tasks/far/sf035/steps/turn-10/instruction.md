@@ -1,0 +1,1 @@
+I have this in /work/w02: make a try at getting the `verbose_name_raw` instead.

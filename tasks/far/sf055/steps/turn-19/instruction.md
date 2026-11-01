@@ -1,0 +1,1 @@
+Please check this too: Retain compatibility with existing Lock and Semaphore callers, including default arguments and explicit checkpoint_every=None. Preserve the original synchronization tests. You can add regression tests for the public bounded-mode rules.

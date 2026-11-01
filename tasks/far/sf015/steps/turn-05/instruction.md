@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Fix Cloudwatch query sorting This should fix #9818. It inverts the sorting boolean and updates the query tests to match. I don't think it should impact anything else. And I'm hoping that some automated test runs will confirm that.

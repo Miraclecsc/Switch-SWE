@@ -1,0 +1,1 @@
+I have this in /work/w03: Fixed memory object stream sometimes dropping sent items Check if the receiving task has a pending cancellation before sending an item. Fixes #728.

@@ -1,0 +1,1 @@
+Also, For strongly connected two-node directed graphs, compute the left eigenvector, honoring asymmetric positive edge weights. Return a nonnegative unit Euclidean vector. Merely weakly connected graphs must still raise AmbiguousSolution.

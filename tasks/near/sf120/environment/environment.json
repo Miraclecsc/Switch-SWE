@@ -1,0 +1,144 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a",
+    "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+    "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3"
+  ],
+  "case_id": "sf120_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTEST_PLUGINS": "pytest_timeout,ssb_legacy_collections",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3",
+      "python": "3.12.12",
+      "requirements": "requirements/fa953ba3b4170360-3.12.12-89d14bb3.txt",
+      "source": "dependency-source/fa953ba3b4170360-3.12.12-89d14bb3.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+      "python": "3.12.12",
+      "requirements": "requirements/56d0bb6a78809d1f-3.12.12-145d0b10.txt",
+      "source": "dependency-source/56d0bb6a78809d1f-3.12.12-145d0b10.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a",
+      "python": "3.12.12",
+      "requirements": "requirements/8e87d20fe955230a-3.12.12-402af74a.txt",
+      "source": "dependency-source/8e87d20fe955230a-3.12.12-402af74a.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3",
+        "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3",
+        "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3",
+        "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3",
+        "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/fa953ba3b4170360-3.12.12-89d14bb3",
+        "/opt/ssb/deps/56d0bb6a78809d1f-3.12.12-145d0b10",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-402af74a"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "f7fa5a810c4c6919b6ce56228226c68bf4859e45",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "c4587c07935eea8bd7b520da52fd30e082d63a30",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "37ac3ef0888bbd9235d17cbc6d284856f5276b44",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "4ce5ddd4985ce4047487663208041cbda16d941f548e32aa981ea7e2b5440367"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_make.py",
+          "sha256": "8f4bef2e58b05ae487436969b5bbb1c0e0c31e9dff3b92dcd33b6d62c7bc42c8"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "a328e671690be4e6342d50056d121506b64da9d3",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "d40d9f3c97302f3d9bfe7c72e4d5b542e041f3d8",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w04"
+    }
+  ]
+}

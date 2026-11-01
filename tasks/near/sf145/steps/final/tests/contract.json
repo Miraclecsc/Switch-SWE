@@ -1,0 +1,81 @@
+{
+  "case_id": "sf145_switched",
+  "task_id": "ssb_v4_Textualize__textual_4828",
+  "repo": "Textualize/textual",
+  "base_commit": "13ec4c3298e3993b4a87159adece0116dfb603cb",
+  "derived_fail_to_pass": [
+    "tests.test_reactive::test_mutate_reactive_data_bind",
+    "tests.test_sf145_batch::test_chain_propagates_final_value_once",
+    "tests.test_sf145_batch::test_nested_batch_bound_children_and_exception_flush",
+    "tests.test_sf145_batch::test_order_dedup_and_shared_object",
+    "tests.test_sf145_batch::test_unrelated_reactive_rejected_without_pending_work"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_reactive::test_async_reactive_watch_callbacks_go_on_the_watcher",
+    "tests.test_reactive::test_compute",
+    "tests.test_reactive::test_external_watch_init_does_not_propagate",
+    "tests.test_reactive::test_external_watch_init_does_not_propagate_to_externals",
+    "tests.test_reactive::test_message_sender_from_reactive",
+    "tests.test_reactive::test_mutate_reactive",
+    "tests.test_reactive::test_no_duplicate_external_watchers",
+    "tests.test_reactive::test_premature_reactive_call",
+    "tests.test_reactive::test_private_compute",
+    "tests.test_reactive::test_private_validate",
+    "tests.test_reactive::test_public_and_private_compute",
+    "tests.test_reactive::test_public_and_private_validate",
+    "tests.test_reactive::test_public_and_private_validate_order",
+    "tests.test_reactive::test_public_and_private_watch",
+    "tests.test_reactive::test_reactive_always_update",
+    "tests.test_reactive::test_reactive_compute_first_time_set",
+    "tests.test_reactive::test_reactive_inheritance",
+    "tests.test_reactive::test_reactive_method_call_order",
+    "tests.test_reactive::test_reactive_with_callable_default",
+    "tests.test_reactive::test_set_reactive",
+    "tests.test_reactive::test_sync_reactive_watch_callbacks_go_on_the_watcher",
+    "tests.test_reactive::test_validate_init_true",
+    "tests.test_reactive::test_validate_init_true_set_before_dom_ready",
+    "tests.test_reactive::test_watch",
+    "tests.test_reactive::test_watch_async_init_false",
+    "tests.test_reactive::test_watch_async_init_true",
+    "tests.test_reactive::test_watch_compute",
+    "tests.test_reactive::test_watch_init_false_always_update_false",
+    "tests.test_reactive::test_watch_init_true"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_reactive.py",
+    "tests/test_sf145_batch.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_reactive.py",
+    "tests/test_sf145_batch.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "391d1e88cf04ec95f07a6b2ec034e35d06cec2eec0ed9a9c73a0eb437c294398",
+    "config/recipes.json": "53bb464351c72cfd410efd1f48b9f806806474baa2767393550df480506bfb80"
+  }
+}

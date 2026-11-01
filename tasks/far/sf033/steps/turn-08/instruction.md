@@ -1,0 +1,1 @@
+And here, I assume this doctest would fail because of `>>>`. It should be possible to wrap the long output line.

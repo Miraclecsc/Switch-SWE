@@ -1,0 +1,1 @@
+One more thing: Why was this changed? Using `None` as a key in the edge attr dict is inconsistent with the expectations of `partition_spanning_tree`.

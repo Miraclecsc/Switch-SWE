@@ -1,0 +1,1 @@
+And here, We no longer need the `type: ignore` here because `name` can be properly inferred as a `str` instead of as a key type within the dictionary.

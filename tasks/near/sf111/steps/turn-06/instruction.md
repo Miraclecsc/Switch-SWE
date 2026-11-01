@@ -1,0 +1,1 @@
+One more thing: zstandard is an optional install. So if your `requirements.txt` just has `httpx` and not `httpx[zstd]`, and you have `zstandard==[old version]` somehow, this would prevent breakage.

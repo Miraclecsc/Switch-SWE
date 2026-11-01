@@ -1,0 +1,1 @@
+Also, > Actually, does trio want a dependency on `typing_extensions`? #2507 suggests not, so it'd be better to move the import into the `if TYPE_CHECKING` guard, then just unconditionally import from `typing`. ah yes, good catch

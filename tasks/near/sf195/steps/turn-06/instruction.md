@@ -1,0 +1,1 @@
+I have this in /work/w00: Add stubs for wrapped methods to trio.Path, add tests for mypy seeing exported symbols, and test for seeing class members For #2630

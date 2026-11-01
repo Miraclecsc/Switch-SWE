@@ -1,0 +1,107 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+  ],
+  "case_id": "sf038_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1",
+      "python": "3.12.12",
+      "requirements": "requirements/49f338bc7f91ae07-3.12.12-774eb9f1.txt",
+      "source": "dependency-source/49f338bc7f91ae07-3.12.12-774eb9f1.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "abe3554720bc747e905f6e9da13d7d46ec320795",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "5d98cd52ef1e2b8e486baac1f7c48e69581fc4ff",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "45e51dcf99f3a270b0bcec1aec5410b4345863a9",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "4a811767bcba6e933bf7a8b48edef5993ce8948e",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "a59397db889e3a96c4f34b1406957a3b92e1e8b5",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w04"
+    }
+  ]
+}

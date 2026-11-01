@@ -1,0 +1,269 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571",
+    "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+    "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa"
+  ],
+  "case_id": "sf121_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/opt/runtime/case-libraries:/work/test-deps/02/lib:/opt/runtime/deps/02/lib",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa",
+      "python": "3.12.12",
+      "requirements": "requirements/12db73dfa8285534-3.12.12-794e2cfa.txt",
+      "source": "dependency-source/12db73dfa8285534-3.12.12-794e2cfa.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+      "python": "3.12.12",
+      "requirements": "requirements/0bf7060f627e9ee4-3.12.12-8fa8315a.txt",
+      "source": "dependency-source/0bf7060f627e9ee4-3.12.12-8fa8315a.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571",
+      "python": "3.12.12",
+      "requirements": "requirements/6473bf8135ce521a-3.12.12-727b9571.txt",
+      "source": "dependency-source/6473bf8135ce521a-3.12.12-727b9571.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa",
+        "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa",
+        "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa",
+        "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa",
+        "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/12db73dfa8285534-3.12.12-794e2cfa",
+        "/opt/ssb/deps/0bf7060f627e9ee4-3.12.12-8fa8315a",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.12-727b9571"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "379d99bfe7c2e0b837aa79a4c26191bf06c98a8a",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_run.py",
+          "sha256": "53804837c114886354a5cd43279c5ab8ff98731a6270ed33ca6a60c5a09d5419"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "bb63c53681cd27569ecef99201ba38517d8527b0",
+      "overlays": [],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "77dd921d98a75dbb5a1cf14334a39b175994530c",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "newsfragments/3232.feature.rst",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_channel.py",
+          "sha256": "30f096864e2185f72a51524f661733fc225167c7058b0162cefdc344d25a2498"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_asyncgens.py",
+          "sha256": "0b867b653df8f8e2ae4687bf61583d47d1aae489339d129d4e0327db3962a91d"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_exceptions.py",
+          "sha256": "cbf0be183bdbd994e9e9c3cbfabeed15dbdc82acca81aca84b446045502ccb56"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_run.py",
+          "sha256": "ac8d6fa36ba0ef0420350faf0b00dd78ebb9869f1868fa8e6fd7d861bcd421cf"
+        },
+        {
+          "mode": "delete",
+          "path": "src/trio/_core/_tests/test_cancelled.py"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_run.py",
+          "sha256": "5cf9250f6655f35f88d686dc83285f3373348bcdde9d72de7d1c93f1361de7e6"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_highlevel_generic.py",
+          "sha256": "6edd5667e60267b51fbde6afe06fcfb198fd29c85ea190f0a0d7705d2fab87ec"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_highlevel_open_tcp_stream.py",
+          "sha256": "b3c9d6774a359ad770871323329f10d0f135f621a8ae27b8597f0075f8fe5d93"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_subprocess.py",
+          "sha256": "2ff9ca528afbdbb31fea2965ecfdb5dd6c37ead3db098ec10d12e95b835a70c3"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_tests/test_threads.py",
+          "sha256": "16af874708ba51ceb22212af4d8a3169df492950f9c2535a4f024865a33f08d4"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_tests/test_util.py",
+          "sha256": "b88879eb043802fe53ca3f79872b2f038d4fb79c125170a319dd46dd657e9b09"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_threads.py",
+          "sha256": "90bea1b4793a74e108ae7db9a46898a8163c3bdd91a01ccf54cf27c23419299f"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "3350c11db98521547e3bf078c36e07968b2b6a57",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_run.py",
+          "sha256": "77be7796b3cae01f20daf7bc9641600ada9378495ba58f7d8e123e6026ad3770"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "c1e1167a3e2a9e953fb237656e5609b7bb2a9519",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_channel.py",
+          "sha256": "4d29b5fce57f1b7bd5c89ce0d3f6ca853f422c5677468baf33bc0eec49c1a8f3"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_asyncgens.py",
+          "sha256": "0b867b653df8f8e2ae4687bf61583d47d1aae489339d129d4e0327db3962a91d"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_exceptions.py",
+          "sha256": "cbf0be183bdbd994e9e9c3cbfabeed15dbdc82acca81aca84b446045502ccb56"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_run.py",
+          "sha256": "255896ba3ca59fdda1b541ba19f570ac06df493e9364fd47469f8a66e47179f6"
+        },
+        {
+          "mode": "delete",
+          "path": "src/trio/_core/_tests/test_cancelled.py"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_run.py",
+          "sha256": "9a3d7c4300f0ca8bb0b0d65bb341e404b66d00db5e8b740975b594cf5a8a21c8"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_highlevel_generic.py",
+          "sha256": "6edd5667e60267b51fbde6afe06fcfb198fd29c85ea190f0a0d7705d2fab87ec"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_highlevel_open_tcp_stream.py",
+          "sha256": "b3c9d6774a359ad770871323329f10d0f135f621a8ae27b8597f0075f8fe5d93"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_subprocess.py",
+          "sha256": "2ff9ca528afbdbb31fea2965ecfdb5dd6c37ead3db098ec10d12e95b835a70c3"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_tests/test_threads.py",
+          "sha256": "16af874708ba51ceb22212af4d8a3169df492950f9c2535a4f024865a33f08d4"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_tests/test_util.py",
+          "sha256": "b88879eb043802fe53ca3f79872b2f038d4fb79c125170a319dd46dd657e9b09"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_threads.py",
+          "sha256": "90bea1b4793a74e108ae7db9a46898a8163c3bdd91a01ccf54cf27c23419299f"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w04"
+    }
+  ]
+}

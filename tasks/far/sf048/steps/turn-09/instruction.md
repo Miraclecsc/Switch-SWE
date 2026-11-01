@@ -1,0 +1,1 @@
+Also, this is better, but still involves two copies. the ideal way to do this would be an Offset._add_date_array method that handles this directly in cython.

@@ -1,0 +1,1 @@
+One more thing: It's okay to call `_version_nodot()` in this case as you're not testing the version details, so no need to duplicate the logic here.

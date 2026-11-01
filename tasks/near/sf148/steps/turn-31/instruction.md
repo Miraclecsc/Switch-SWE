@@ -1,0 +1,1 @@
+Please check this too: Why remove this test? We still support 3.10 and this test still passes on this branch. AFAICT this was also the only test that visited the `TypeError` branch in `call_for_coroutine`.

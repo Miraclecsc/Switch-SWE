@@ -1,0 +1,1 @@
+Also, Mapping positions must behave exactly like the corresponding existing positional sequence for arc3, angle3, arc, angle and bar styles, including after axis rescaling. Keep existing scalar/sequence, self-loop and display behavior and all original tests.

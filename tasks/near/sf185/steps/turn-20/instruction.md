@@ -1,0 +1,1 @@
+And here, Oh since we’re already inside a tuple, could this be simplified to `(self.__class__.__name__, *self._iter_parts(...))` and still be correct?

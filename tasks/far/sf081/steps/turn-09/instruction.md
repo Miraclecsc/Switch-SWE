@@ -1,0 +1,1 @@
+I have this in /work/w02: I think that this should be an `enum`, rather than magic ints.

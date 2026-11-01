@@ -1,0 +1,104 @@
+diff --git a/pandas/tests/io/json/test_pandas.py b/pandas/tests/io/json/test_pandas.py
+index 3f1c270..e7f73bd 100644
+--- a/pandas/tests/io/json/test_pandas.py
++++ b/pandas/tests/io/json/test_pandas.py
+@@ -1461,6 +1461,7 @@ class TestPandasContainer:
+     )
+     def test_tz_range_is_utc(self, tz_range):
+         exp = '["2013-01-01T05:00:00.000Z","2013-01-02T05:00:00.000Z"]'
++        serexp = '{"0":"2013-01-01T05:00:00.000Z","1":"2013-01-02T05:00:00.000Z"}'
+         dfexp = '{"DT":{"0":"2013-01-01T05:00:00.000Z","1":"2013-01-02T05:00:00.000Z"}}'
+ 
+         assert ujson_dumps(tz_range, iso_dates=True) == exp
+@@ -1469,25 +1470,49 @@ class TestPandasContainer:
+         # in addition to the normal DTI case
+         assert ujson_dumps(dti, iso_dates=True) == exp
+         assert ujson_dumps(dti.astype(object), iso_dates=True) == exp
++        # Series[dt64tz] must preserve the tz like the DTI case
++        assert ujson_dumps(Series(dti), iso_dates=True) == serexp
+         df = DataFrame({"DT": dti})
+         result = ujson_dumps(df, iso_dates=True)
+         assert result == dfexp
+-        assert ujson_dumps(df.astype({"DT": object}), iso_dates=True)
++        assert ujson_dumps(df.astype({"DT": object}), iso_dates=True) == dfexp
+ 
+     def test_tz_range_is_naive(self):
+         dti = date_range("2013-01-01 05:00:00", periods=2, unit="ns")
+ 
+         exp = '["2013-01-01T05:00:00.000","2013-01-02T05:00:00.000"]'
++        serexp = '{"0":"2013-01-01T05:00:00.000","1":"2013-01-02T05:00:00.000"}'
+         dfexp = '{"DT":{"0":"2013-01-01T05:00:00.000","1":"2013-01-02T05:00:00.000"}}'
+ 
+         # Ensure datetimes in object array are serialized correctly
+         # in addition to the normal DTI case
+         assert ujson_dumps(dti, iso_dates=True) == exp
+         assert ujson_dumps(dti.astype(object), iso_dates=True) == exp
++        assert ujson_dumps(Series(dti), iso_dates=True) == serexp
+         df = DataFrame({"DT": dti})
+         result = ujson_dumps(df, iso_dates=True)
+         assert result == dfexp
+-        assert ujson_dumps(df.astype({"DT": object}), iso_dates=True)
++        assert ujson_dumps(df.astype({"DT": object}), iso_dates=True) == dfexp
++
++    @pytest.mark.parametrize(
++        "orient", ["split", "records", "index", "columns", "values"]
++    )
++    def test_tz_aware_to_json_matches_object(self, orient):
++        # tz-aware datetime values and labels serialize identically to the
++        # equivalent object-dtype Timestamps for every orient, keeping the
++        # trailing "Z" -- the "split" data path in particular regressed when
++        # values were taken straight from the datetime64 ndarray
++        dti = date_range("2013-01-01 05:00:00", periods=2, tz="US/Eastern")
++        ser = Series(dti, index=dti)
++        expected = Series(dti.astype(object), index=dti.astype(object))
++        assert ser.to_json(orient=orient, date_format="iso") == expected.to_json(
++            orient=orient, date_format="iso"
++        )
++        df = DataFrame({"A": dti}, index=dti)
++        df_expected = DataFrame({"A": dti.astype(object)}, index=dti.astype(object))
++        assert df.to_json(orient=orient, date_format="iso") == df_expected.to_json(
++            orient=orient, date_format="iso"
++        )
+ 
+     def test_read_inline_jsonl(self):
+         # GH9180
+diff --git a/pandas/tests/io/json/test_sf047_values_contract.py b/pandas/tests/io/json/test_sf047_values_contract.py
+new file mode 100644
+--- /dev/null
++++ b/pandas/tests/io/json/test_sf047_values_contract.py
+@@ -0,0 +1,35 @@
++import json
++import numpy as np
++import pandas as pd
++import pytest
++from pandas.io.json import ujson_dumps
++
++class HookFailure(RuntimeError):pass
++
++def test_array_property_preserves_exception_identity():
++    failure=HookFailure('array property failed')
++    class BrokenSeries(pd.Series):
++        @property
++        def array(self):raise failure
++    with pytest.raises(HookFailure) as caught:ujson_dumps(BrokenSeries([1,2]),orient='values')
++    assert caught.value is failure
++
++def test_extension_hook_preserves_exception_identity(monkeypatch):
++    series=pd.Series([1,2]);failure=HookFailure('hook failed')
++    def broken(self):raise failure
++    with monkeypatch.context() as scoped:
++        scoped.setattr(type(series.array),'_values_for_json',broken)
++        with pytest.raises(HookFailure) as caught:ujson_dumps(series,orient='values')
++        assert caught.value is failure
++    assert json.loads(ujson_dumps(series,orient='values'))==[1,2]
++
++@pytest.mark.parametrize('values',[np.array([[1,2],[3,4]]),np.array([1,2,3])])
++def test_invalid_extension_shape_or_length(values,monkeypatch):
++    series=pd.Series([1,2])
++    monkeypatch.setattr(type(series.array),'_values_for_json',lambda self:values)
++    with pytest.raises(ValueError):ujson_dumps(series,orient='values')
++
++def test_valid_strided_hook_output(monkeypatch):
++    series=pd.Series([1,2,3]);values=np.array([10,0,20,0,30,0])[::2]
++    monkeypatch.setattr(type(series.array),'_values_for_json',lambda self:values)
++    assert json.loads(ujson_dumps(series,orient='values'))==[10,20,30]

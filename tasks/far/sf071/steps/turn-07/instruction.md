@@ -1,0 +1,1 @@
+I have this in /work/w02: If we do make it a parameter (and even if we don't) can we change this variable name? Even spelling `el` is easier to read than `l` which can look like a capital i or a 1 depending on font. Would also be fine with me to remove that parameter. It currently has no effect and it is not clear what it is doing or how that affects things.

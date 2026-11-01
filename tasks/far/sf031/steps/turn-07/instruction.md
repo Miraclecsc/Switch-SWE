@@ -1,0 +1,3 @@
+Please check this too: In coordsys.rst appears Should that be updated. Does `rotation_matrix` docstring need clarification to indicate when it should/should not be used.
+
+Add CoordSys3D.transform_point_to(other, coordinates), returning a tuple of three SymPy expressions for the same point in other. Unlike a vector-component basis change, this must include origin translations. Support identity and forward composition to ancestor charts using the declared coordinate transformations, including nonlinear charts. Preserve the existing matrix/vector APIs.

@@ -1,0 +1,1 @@
+And here, A slotted attrs subclass that disables on_setattr hooks must also reset an inherited attrs-generated setter when plain non-attrs classes intervene in the inheritance chain. Disabling hooks must permit assignments that the ancestor hook would reject; normal constructor validation remains intact.

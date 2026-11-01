@@ -1,0 +1,74 @@
+{
+  "case_id": "sf012_switched",
+  "task_id": "ssb_v2_task_0121",
+  "repo": "django/django",
+  "base_commit": "920b43eb5b40190bb2dbee00773e17307bc699d8",
+  "derived_fail_to_pass": [
+    "signing.tests.TestSigner.test_base64_hmac_default_algorithm_deprecation",
+    "utils_tests.test_crypto.TestUtilsCryptoMisc.test_salted_hmac_default_algorithm_deprecation",
+    "signing.test_algorithm_migration_v1.AlgorithmMigrationTests.test_fallback_does_not_accept_tampering_wrong_salt_or_unlisted_algorithm",
+    "signing.test_algorithm_migration_v1.AlgorithmMigrationTests.test_old_algorithm_and_old_key_combinations_verify",
+    "signing.test_algorithm_migration_v1.AlgorithmMigrationTests.test_signing_uses_primary_algorithm_and_copies_fallback_configuration",
+    "signing.test_algorithm_migration_v1.AlgorithmMigrationTests.test_timestamp_and_compressed_object_checks_still_apply"
+  ],
+  "derived_pass_to_pass": [
+    "signing.tests.TestBase62.test_base62",
+    "signing.tests.TestSigner.test_custom_algorithm",
+    "signing.tests.TestSigner.test_default_keys_verification",
+    "signing.tests.TestSigner.test_invalid_algorithm",
+    "signing.tests.TestSigner.test_sign_unsign_ignore_secret_key_fallbacks",
+    "signing.tests.TestSigner.test_sign_unsign_non_string",
+    "signing.tests.TestSigner.test_sign_unsign_object",
+    "signing.tests.TestSigner.test_signature_with_salt",
+    "signing.tests.TestSigner.test_valid_sep",
+    "signing.tests.TestSigner.test_verify_with_non_default_key",
+    "signing.tests.TestSigner.test_works_with_non_ascii_keys",
+    "signing.tests.TestTimestampSigner.test_timestamp_signer",
+    "utils_tests.test_crypto.TestUtilsCryptoMisc.test_constant_time_compare",
+    "utils_tests.test_crypto.TestUtilsCryptoMisc.test_invalid_algorithm",
+    "utils_tests.test_crypto.TestUtilsCryptoMisc.test_salted_hmac",
+    "utils_tests.test_crypto.TestUtilsCryptoPBKDF2.test_default_hmac_alg",
+    "utils_tests.test_crypto.TestUtilsCryptoPBKDF2.test_public_vectors",
+    "utils_tests.test_crypto.TestUtilsCryptoPBKDF2.test_regression_vectors",
+    "signing.test_algorithm_migration_v1.AlgorithmMigrationTests.test_default_signer_does_not_implicitly_accept_sha1"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/signing/tests.py",
+    "tests/utils_tests/test_crypto.py",
+    "tests/signing/test_algorithm_migration_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/signing/test_algorithm_migration_v1.py",
+    "tests/signing/tests.py",
+    "tests/utils_tests/test_crypto.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "8e91821e9d1551483eb3688cb371fad4b3440d31765b326cafd6e64feff565f1",
+    "config/recipes.json": "28bc8ed71d91aa1103ce0bac92a27da968b679bd2061e91ab391e2d58c0e57e4"
+  }
+}

@@ -1,0 +1,2 @@
+I have this in /work/w01: FEAT: Added basic random walk utilities #8378 This PR is in reference with the following idea discussion : [#8378]( -> added unweighted_random_walk and weighted_random_walk to networkx.algorithms.walks, including input validation, seeded RNG support, and clear behavior for zero/negative weights Thanks @dschult for the support. Please let me know if I should revise something.
+Use the reviewed unified random_walk(G, *, start, weight=None, seed=None) generator, yielding start first and stopping when no valid outgoing transition exists.

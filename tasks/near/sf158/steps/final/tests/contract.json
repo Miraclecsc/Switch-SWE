@@ -1,0 +1,73 @@
+{
+  "case_id": "sf158_switched",
+  "task_id": "ssb_v4_encode__httpx_2669",
+  "repo": "encode/httpx",
+  "base_commit": "f9abbbbb4898cac96420e5c5b9d34036a94d46bf",
+  "derived_fail_to_pass": [
+    "tests.test_asgi::test_asgi_exc_no_raise[asyncio]",
+    "tests.test_asgi::test_asgi_exc_no_raise[trio]",
+    "tests.test_staged_contract::test_no_start_recovery",
+    "tests.test_staged_contract::test_partial_recovery_and_isolation",
+    "tests.test_staged_contract::test_strict_incomplete_error"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_asgi::test_asgi[asyncio]",
+    "tests.test_asgi::test_asgi[trio]",
+    "tests.test_asgi::test_asgi_disconnect_after_response_complete[asyncio]",
+    "tests.test_asgi::test_asgi_disconnect_after_response_complete[trio]",
+    "tests.test_asgi::test_asgi_exc[asyncio]",
+    "tests.test_asgi::test_asgi_exc[trio]",
+    "tests.test_asgi::test_asgi_exc_after_response[asyncio]",
+    "tests.test_asgi::test_asgi_exc_after_response[trio]",
+    "tests.test_asgi::test_asgi_headers[asyncio]",
+    "tests.test_asgi::test_asgi_headers[trio]",
+    "tests.test_asgi::test_asgi_raw_path[asyncio]",
+    "tests.test_asgi::test_asgi_raw_path[trio]",
+    "tests.test_asgi::test_asgi_transport[asyncio]",
+    "tests.test_asgi::test_asgi_transport[trio]",
+    "tests.test_asgi::test_asgi_transport_no_body[asyncio]",
+    "tests.test_asgi::test_asgi_transport_no_body[trio]",
+    "tests.test_asgi::test_asgi_upload[asyncio]",
+    "tests.test_asgi::test_asgi_upload[trio]",
+    "tests.test_asgi::test_asgi_urlencoded_path[asyncio]",
+    "tests.test_asgi::test_asgi_urlencoded_path[trio]",
+    "tests.test_staged_contract::test_strict_actual_exception_identity"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_asgi.py",
+    "tests/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_asgi.py",
+    "tests/test_staged_contract.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "61e93aeb344e2c3fe66a22754e0e2b7afe2ca0765fe77d11df83c13b3b60b3e8",
+    "config/recipes.json": "57b0c8d4636bc73270af6b974c41e591c4e79b6448e96e10524c803587a5c370"
+  }
+}

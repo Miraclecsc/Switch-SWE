@@ -1,0 +1,1 @@
+One more thing: Thanks! Can you add the snippet as a unit test? Also, I think that instead of setting the last value to 1, it would be cleaner if we compute all the sums and then normalize in a second pass.

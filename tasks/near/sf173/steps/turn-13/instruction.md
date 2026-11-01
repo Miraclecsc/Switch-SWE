@@ -1,0 +1,1 @@
+Also, Argument.get_help_record(ctx) must return None for a hidden argument, including one with a deprecation label.

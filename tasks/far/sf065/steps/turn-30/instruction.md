@@ -1,0 +1,1 @@
+One more thing: Validate exact anchor preservation and observable motion of unanchored neighbors without prescribing their final coordinates.

@@ -1,0 +1,1 @@
+And here, Currently this `NetworkXPointlessConcept` is internally raised by `is_connected` and the error message is as follows: You can consider adding an `if nx.is_empty(G)` condition before the `is_connected` "if" condition and returning a more appropriate error message.

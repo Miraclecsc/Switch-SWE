@@ -1,0 +1,1 @@
+One more thing: Hi, I noticed the discussion about moving the sort() tests to the extension array test suite. I’m new to contributing to pandas, but I’d be happy to help look into the existing extension test structure and check whether a common ExtensionArray.sort test can be added. Please let me know if this would be useful, and I can start exploring it.

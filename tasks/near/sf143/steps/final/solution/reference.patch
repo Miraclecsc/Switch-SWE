@@ -1,0 +1,51 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 5001a075..e4691104 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ 
+ - Ability to change terminal window title https://github.com/Textualize/rich/pull/2200
+ - Added show_speed parameter to progress.track which will show the speed when the total is not known
++- Python blocks can now opt out from being rendered in tracebacks's frames, by setting a `_rich_traceback_omit = True` in their local scope https://github.com/Textualize/rich/issues/2207
+ 
+ ### Fixed
+ 
+diff --git a/rich/traceback.py b/rich/traceback.py
+index 5feefb93..24ffc9fb 100644
+--- a/rich/traceback.py
++++ b/rich/traceback.py
+@@ -367,6 +367,19 @@ class Traceback:
+                 if filename and not filename.startswith("<"):
+                     if not os.path.isabs(filename):
+                         filename = os.path.join(_IMPORT_CWD, filename)
++                def marker_active(name):
++                    marker = frame_summary.f_locals.get(name, False)
++                    try:
++                        return bool(marker(exc_value) if callable(marker) else marker)
++                    except Exception:
++                        return False
++
++                # A guard clears the prefix even when its own frame is omitted.
++                if marker_active("_rich_traceback_guard"):
++                    del stack.frames[:]
++                    continue
++                if marker_active("_rich_traceback_omit"):
++                    continue
+                 frame = Frame(
+                     filename=filename or "?",
+                     lineno=line_no,
+@@ -378,13 +391,12 @@ class Traceback:
+                             max_string=locals_max_string,
+                         )
+                         for key, value in frame_summary.f_locals.items()
++                        if key not in ("_rich_traceback_omit", "_rich_traceback_guard")
+                     }
+                     if show_locals
+                     else None,
+                 )
+                 append(frame)
+-                if "_rich_traceback_guard" in frame_summary.f_locals:
+-                    del stack.frames[:]
+ 
+             cause = getattr(exc_value, "__cause__", None)
+             if cause and cause.__traceback__:

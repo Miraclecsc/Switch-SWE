@@ -1,0 +1,1 @@
+For the checkout at /work/w04, Fix return value and type signature of `shell_completion.add_completion_class` function

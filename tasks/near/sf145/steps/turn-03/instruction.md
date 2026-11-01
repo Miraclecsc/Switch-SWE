@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: > Pilot.click will return True if the initial mouse down is on the specified target Doesn't this risk false positives? For example, if start clicking a button but it somehow moves before mouse up, this wouldn't actually produce a click in the app?

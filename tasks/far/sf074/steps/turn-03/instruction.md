@@ -1,0 +1,1 @@
+For the checkout at /work/w03, add default to map filter added ability to pass default entry to map filter if attribute is not defined. If default is not defined it defaults to an empty string. fixes #557

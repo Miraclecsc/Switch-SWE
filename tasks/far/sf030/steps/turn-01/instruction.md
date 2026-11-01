@@ -1,0 +1,1 @@
+I have this in /work/w00: Do not pollute exception context in Middleware

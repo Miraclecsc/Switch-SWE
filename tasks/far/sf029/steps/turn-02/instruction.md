@@ -1,0 +1,1 @@
+For the checkout at /work/w01, TensMul._tensMul_contract_indices: Don't unconditionally change dummy indices to WildTensorIndex Just use the same type as the user specified.

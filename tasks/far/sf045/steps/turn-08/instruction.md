@@ -1,0 +1,1 @@
+I have this in /work/w00: Error message improvement for nbunch_iter ( NetworkXError raised with specific message on TypeError with "iter" in msg ) This closes Changes : Error message changed to include what nbunch is instead of just 'nbunch' Tests changed accordingly to look for new error message. Small improvement in documentation && documentation changed accordingly.

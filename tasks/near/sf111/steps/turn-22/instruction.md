@@ -1,0 +1,1 @@
+One more thing: Okay maybe we should instead do it the other way. If the 4-tuple is used, just ignore the `content_type` variable. That'd be okay enough, matches `requests` more closely, and we can forget about fiddly case-based header checking.

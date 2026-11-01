@@ -1,0 +1,1 @@
+And here, (If someone finds the time to contribute a copy-pasted `attr.evolve_recursive()` with appropriate tests/docs until tomorrow we could push a release that doesn't take anything away. 😇 Unfortunately, I'm busy for the rest of the day.)

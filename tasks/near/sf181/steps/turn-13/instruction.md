@@ -1,0 +1,1 @@
+Also, On a 32-bit interpreter, treat the Linux armv8l machine spelling like aarch64 for wheel-platform normalization: generate armv7l tags. Only advertise manylinux2014_armv7l when the running executable has the existing ARM hard-float ABI checks; otherwise keep the plain linux_armv7l fallback. Preserve 64-bit aarch64 behavior.

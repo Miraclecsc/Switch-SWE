@@ -1,0 +1,1 @@
+One more thing: here, you can use parameterized tests, like this:

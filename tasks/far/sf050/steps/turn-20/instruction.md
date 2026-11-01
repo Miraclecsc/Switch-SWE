@@ -1,0 +1,1 @@
+And here, The `pathlib.Path` instance is not weak referable. That is why I didn't include this. I wonder if the lack of a `__weakref__` slot is intentional there.

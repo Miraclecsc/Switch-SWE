@@ -1,0 +1,1 @@
+One more thing: Normalization must preserve the release-component precision of compatible-release (~=) constraints, because ~=1.0 and ~=1.0.0 have different upper bounds. They must remain distinct as dictionary/set keys and when combined in SpecifierSet. Ordinary equality constraints such as ==1.0 and ==1.0.0 remain equal with equal hashes.

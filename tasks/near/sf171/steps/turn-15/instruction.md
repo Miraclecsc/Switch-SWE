@@ -1,0 +1,1 @@
+Please check this too: Can you use the doc_string language for `weight` from one of the existing functoins that allows `weight` to be a function? That provides consistency and eases review.

@@ -1,0 +1,1 @@
+And here, > Not sure which changelog file I should add. I thought it was 773, but there is already a 787. I'm confused, what is about 787? :) Your correct issue number is 773 so make it `773.deprecation.rst` Don't spend too much time on it; I will edit it anyways because I need to add some apologies.

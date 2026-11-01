@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: In this class, `self.show_default` is a `Union[bool, str, None]`, but `termui.prompt` accepts only `bool`. Passing through show_default directly gives a type error, and also appears to do the wrong things for values of type `filenam`

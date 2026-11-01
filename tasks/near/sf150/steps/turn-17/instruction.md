@@ -1,0 +1,3 @@
+Also, Reading up on it once more, it's not so *clear* why this is so, but the `Any` type was introduced specifically for this purpose.
+
+Growing capacity must immediately admit already blocked senders in FIFO order up to available capacity, without requiring a receive call. Buffered items remain ahead of newly admitted items. Update tasks_waiting_send and current_buffer_used consistently before the awakened sender tasks resume.

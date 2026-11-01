@@ -1,0 +1,1 @@
+And here, This is not necessary, once the location gets figured out you should be able to just do `nx.k_lift(...)`. Also, nit: It's probably easier to visualize what's happening with a concrete example.

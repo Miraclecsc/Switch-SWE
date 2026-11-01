@@ -1,0 +1,1 @@
+Also, This way of calling a different initialized sounds a bit odd to me. What about defining a class variable like directed_allowed` and you override that on the subclass? Another option is to have a method to check graph types and you override that. Maybe you can leverage not_implemented_for decorator for this

@@ -1,0 +1,1 @@
+One more thing: Complete the task-state store's MutableMapping behavior for its already-supported preliminary coroutine keys: every stored key must be readable, and get, membership, items, setdefault, update, pop and clear must behave consistently with ordinary mapping semantics. This includes cleanup after temporary coroutine-state registration.

@@ -1,0 +1,1 @@
+Please check this too: Previously, due to #4980, this would incorrectly shrink down to `RichLog.min_width` rather than the actual available content width.

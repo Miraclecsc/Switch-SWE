@@ -1,0 +1,1 @@
+One more thing: See the example in the PR body: The reason is that `cf` becomes an _alias_ of the cached cyclic form `p._cyclic_form`, so any mutation of `cf` mutates the cyclic form. There are two possible solutions to this: make all cached properties immutable (tuple instead of the list, etc) or ensure that a deep copy of the cache is returned (I chose this approach).

@@ -1,0 +1,1 @@
+One more thing: Looking good, thanks! Can you please also add following line at the end of Ariadne 0.17 in changelog?

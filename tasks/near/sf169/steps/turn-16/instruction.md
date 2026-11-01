@@ -1,0 +1,1 @@
+And here, Thanks! That's good to know. I also tried to keep `seed` at the end of the args -- not _always_ the case in networkx, but often the case -- but I ran into issues possibly relating to the dispatcher logic and eventually settled for adding the new arg at the end.

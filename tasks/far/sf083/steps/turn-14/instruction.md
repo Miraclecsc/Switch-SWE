@@ -1,0 +1,1 @@
+One more thing: This boils down to the fact that that type only accepts `armv7l` for now. A more future proof way to do this would be to refactor `_have_compatible_abi` to return a list of architectures and yield multiple arch per manylinux version.

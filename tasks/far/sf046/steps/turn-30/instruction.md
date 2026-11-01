@@ -1,0 +1,1 @@
+One more thing: I'm not too sure why there should be a conversion but my gut tells me it's an RNG thing. I think the random layout function spits out 32bit floats whereas `rand.seed` should be machine dependent, mostly 64bit floats... I'll take another look today

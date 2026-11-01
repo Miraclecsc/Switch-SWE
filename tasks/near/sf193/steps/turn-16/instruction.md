@@ -1,0 +1,1 @@
+And here, I think you should add it to the __init__.pyi and the other missing ones like this:

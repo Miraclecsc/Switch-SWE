@@ -1,0 +1,1 @@
+Also, Is this one still needed. I would also expect that `_cast_pointwise_result` should essentially do that as well

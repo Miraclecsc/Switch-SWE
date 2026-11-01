@@ -1,0 +1,46 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index 39927e684..4ad35478c 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -49,6 +49,10 @@ def test_tag_equality():
+     assert tags.Tag(*args) == tags.Tag(*args)
+ 
+ 
++def test_tag_equality_fails_with_non_tag():
++    assert not tags.Tag("py3", "none", "any") == "non-tag"
++
++
+ def test_tag_hashing(example_tag):
+     tags = {example_tag}  # Should not raise TypeError.
+     assert example_tag in tags
+diff --git a/tests/test_sf078_extension.py b/tests/test_sf078_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf078_extension.py
+@@ -0,0 +1,26 @@
++import pytest
++from packaging.utils import canonicalize_version
++from packaging.version import Version
++
++@pytest.mark.parametrize("source,short,full", [
++    ("1.0.0", "1", "1.0.0"),
++    ("0.0", "0", "0.0"),
++    ("2!1.0.0rc1.post2.dev3+ABC.01", "2!1rc1.post2.dev3+abc.1", "2!1.0.0rc1.post2.dev3+abc.1"),
++    ("v1.2.0", "1.2", "1.2.0"),
++])
++def test_parsed_and_string_normalization(source, short, full):
++    version = Version(source)
++    before = str(version), version.release
++    assert canonicalize_version(version) == short
++    assert canonicalize_version(source, strip_trailing_zero=True) == short
++    assert canonicalize_version(version, strip_trailing_zero=False) == full
++    assert canonicalize_version(source, strip_trailing_zero=False) == full
++    assert (str(version), version.release) == before
++
++@pytest.mark.parametrize("legacy", ["not a version", "hello++", "invalid!"])
++def test_legacy_strings_are_preserved(legacy):
++    assert canonicalize_version(legacy, strip_trailing_zero=False) == legacy
++    assert canonicalize_version(legacy) == legacy
++
++def test_result_is_text():
++    assert isinstance(canonicalize_version(Version("1")), str)

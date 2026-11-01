@@ -1,0 +1,28 @@
+diff --git a/moto/sns/models.py b/moto/sns/models.py
+--- a/moto/sns/models.py
++++ b/moto/sns/models.py
+@@ -251,12 +251,12 @@
+         deduplication_id: Optional[str] = None,
+         message_structure: Optional[str] = None,
+     ) -> None:
++        if message_structure == "json":
++            message = self._parse_message_structure(message, self.protocol)
++
+         if self._filter_policy_matcher is not None:
+             if not self._filter_policy_matcher.matches(message_attributes, message):
+                 return
+-
+-        if message_structure == "json":
+-            message = self._parse_message_structure(message, self.protocol)
+ 
+         if self.protocol == "sqs":
+             queue_name = self.endpoint.split(":")[-1]
+@@ -284,7 +284,7 @@
+                 )
+             else:
+                 raw_message_attributes = {}
+-                for key, value in message_attributes.items():  # type: ignore
++                for key, value in (message_attributes or {}).items():
+                     attr_type = "StringValue"
+                     type_value = value["Value"]
+                     if value["Type"].startswith("Binary"):

@@ -1,0 +1,1 @@
+And here, It would only save one instance of `replace`, the PEP 600 tags do not use the map.

@@ -1,0 +1,1 @@
+One more thing: I had updated the code now moved type validation to after Complement/Intersection handling and changed from Interval-specific check to whitelist validation accepting types the subsequent code processes. Did it ok or need some refining..

@@ -1,0 +1,1 @@
+Please check this too: This means that a case like `pd.Index([1,2,3]).take([0, -1], fill_value=None)`, which currently uses `allow_fill=False` semantics, will change behaviour. Consider specifically for that case, we can easily add a warning (and generally I Also, Should the signature be updated here as well.

@@ -1,0 +1,111 @@
+diff --git a/networkx/algorithms/tests/test_perfect_graph.py b/networkx/algorithms/tests/test_perfect_graph.py
+new file mode 100644
+index 00000000000..51c12589fb7
+--- /dev/null
++++ b/networkx/algorithms/tests/test_perfect_graph.py
+@@ -0,0 +1,27 @@
++import networkx as nx
++
++
++def test_chordal_graph():
++    G = nx.complete_graph(5)
++    assert nx.is_perfect_graph(G)
++
++
++def test_odd_cycle():
++    G = nx.cycle_graph(5)  # Induced odd cycle
++    assert not nx.is_perfect_graph(G)
++
++
++def test_even_cycle():
++    G = nx.cycle_graph(6)  # Even cycle is perfect
++    assert nx.is_perfect_graph(G)
++
++
++def test_complement_of_odd_cycle():
++    G = nx.cycle_graph(7)
++    GC = nx.complement(G)
++    assert not nx.is_perfect_graph(GC)
++
++
++def test_disconnected_union_of_cliques():
++    G = nx.disjoint_union(nx.complete_graph(3), nx.complete_graph(4))
++    assert nx.is_perfect_graph(G)
+diff --git a/networkx/algorithms/tests/test_perfect_certificates_v1.py b/networkx/algorithms/tests/test_perfect_certificates_v1.py
+new file mode 100644
+index 000000000..f253d166b
+--- /dev/null
++++ b/networkx/algorithms/tests/test_perfect_certificates_v1.py
+@@ -0,0 +1,72 @@
++import itertools
++import networkx as nx
++import pytest
++
++
++def validate_witness(graph, witness):
++    assert set(witness) == {"kind", "cycle"}
++    cycle = witness["cycle"]
++    assert len(cycle) >= 5 and len(cycle) % 2 == 1
++    assert len(set(cycle)) == len(cycle) and set(cycle) <= set(graph)
++    assert witness["kind"] in {"hole", "antihole"}
++    selected = graph.subgraph(cycle)
++    if witness["kind"] == "antihole":
++        selected = nx.complement(selected)
++    assert nx.is_connected(selected)
++    assert all(d == 2 for _, d in selected.degree())
++    assert all(selected.has_edge(a,b) for a,b in zip(cycle,cycle[1:]+cycle[:1]))
++
++
++def test_hole_and_antihole_certificates_are_verifiable():
++    for graph in [nx.cycle_graph(5), nx.complement(nx.cycle_graph(7))]:
++        perfect, witness = nx.is_perfect_graph(graph, certificate=True)
++        assert perfect is False
++        validate_witness(graph, witness)
++    assert nx.is_perfect_graph(nx.complement(nx.cycle_graph(7)), certificate=True)[1]["kind"] == "antihole"
++
++
++def test_global_shortest_witness_and_kind_tie_break():
++    graph = nx.disjoint_union(nx.cycle_graph(7), nx.cycle_graph(5))
++    perfect, witness = nx.is_perfect_graph(graph, certificate=True)
++    assert not perfect
++    assert witness == {"kind":"hole", "cycle":(7,8,9,10,11)}
++
++
++def test_mixed_labels_use_insertion_order_and_preserve_graph():
++    labels = [("first",), 2, "third", frozenset({4}), 5.0]
++    graph = nx.Graph()
++    graph.add_nodes_from(labels)
++    nx.add_cycle(graph, labels)
++    before = dict(graph.nodes), set(graph.edges)
++    perfect, witness = nx.is_perfect_graph(graph, certificate=True)
++    assert not perfect
++    assert witness == {"kind":"hole","cycle":tuple(labels)}
++    assert (dict(graph.nodes),set(graph.edges)) == before
++
++
++def test_perfect_certificate_has_no_witness():
++    for graph in [nx.empty_graph(0),nx.path_graph(6),nx.complete_graph(6),nx.cycle_graph(6)]:
++        assert nx.is_perfect_graph(graph, certificate=True) == (True,None)
++
++
++def test_small_graphs_agree_with_independent_induced_subset_oracle():
++    for graph in nx.graph_atlas_g():
++        if len(graph)>5:
++            continue
++        bad = False
++        for nodes in itertools.combinations(graph,5):
++            induced = graph.subgraph(nodes)
++            bad |= nx.is_connected(induced) and all(d==2 for _,d in induced.degree())
++            complement = nx.complement(induced)
++            bad |= nx.is_connected(complement) and all(d==2 for _,d in complement.degree())
++        perfect,witness = nx.is_perfect_graph(graph,certificate=True)
++        assert perfect is (not bad)
++        if witness is not None:
++            validate_witness(graph,witness)
++
++
++def test_original_boolean_api_and_graph_type_restrictions():
++    assert nx.is_perfect_graph(nx.complete_graph(4)) is True
++    assert nx.is_perfect_graph(nx.cycle_graph(5)) is False
++    with pytest.raises(nx.NetworkXNotImplemented):
++        nx.is_perfect_graph(nx.DiGraph())

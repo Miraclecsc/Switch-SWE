@@ -1,0 +1,1 @@
+I have this in /work/w01: API: Add reduction methods to pandas EAs

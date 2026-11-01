@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Enhance `super_len` to count encoded bytes for str This is a possible fix for issue #6586. I am not at all confident that this is an appropriate change for Requests. All of the unit tests pass locally for me (specifically `make ci`).

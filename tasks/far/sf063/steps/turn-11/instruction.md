@@ -1,0 +1,1 @@
+Please check this too: Extend the same keyword-construction repair to exception transport: HTTPException and WebSocketException constructed with keyword arguments must survive pickle roundtrips, preserving concrete type, normalized semantic fields, headers, str and repr. This includes compatible subclasses and both default and explicit empty details/reasons.

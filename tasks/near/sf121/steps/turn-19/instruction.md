@@ -1,0 +1,1 @@
+Please check this too: a specific warning will raise instead of warning. (in this case, Consider just setting the `PYTHONWARNINGS` envvar to `error:<the message>:DeprecationWarning` should work.)

@@ -1,0 +1,1 @@
+Also, I agree with your take, Ross. There's a semantic distinction in my mind between e.g. asking to compute a centrality measure for a nodeless graph—what does that even _mean_, and asking to give a list of trees with 0 nodes. Returning an empty list here feels like the "analytic continuation" of the function. The negative case is obviously different and should raise.

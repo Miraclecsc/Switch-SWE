@@ -1,0 +1,3 @@
+One more thing: Add test case for inverse derivative Verifies that d(S**-1)/dt is correctly computed as -S**-1
+
+Keep ordinary diff() and default Derivative.doit() conservative for noncommutative powers, including the existing unevaluated-derivative compatibility cases. Provide an explicit opt-in Derivative.doit(expand_noncommutative=True) for callers who need an ordered product-rule expansion of a concrete integer power. For positive powers, sum the derivative at every factor position in order; for inverse powers use the inverse differentiation rule, without commuting the derivative past the base. Apply this also when the base is itself a noncommutative product.

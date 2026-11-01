@@ -1,0 +1,74 @@
+diff --git a/networkx/algorithms/tree/tests/test_mst.py b/networkx/algorithms/tree/tests/test_mst.py
+index 66ed865..aab7917 100644
+--- a/networkx/algorithms/tree/tests/test_mst.py
++++ b/networkx/algorithms/tree/tests/test_mst.py
+@@ -470,6 +470,14 @@ class TestSpanningTreeIterator:
+             assert edges_equal(actual, self.spanning_trees[tree_index])
+             tree_index -= 1
+ 
++    def test_next_without_iter(self):
++        """Iteration error. See gh-8563"""
++        G = nx.cycle_graph(3)
++        spanning_trees = nx.SpanningTreeIterator(G)
++        tree = next(spanning_trees)  # must not raise AttributeError
++        assert isinstance(tree, nx.Graph)
++        assert nx.is_tree(tree)
++
+ 
+ class TestSpanningTreeMultiGraphIterator:
+     """
+diff --git a/networkx/algorithms/tree/tests/test_sf044_partition_iterator.py b/networkx/algorithms/tree/tests/test_sf044_partition_iterator.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/tree/tests/test_sf044_partition_iterator.py
+@@ -0,0 +1,50 @@
++from itertools import combinations
++import networkx as nx
++import pytest
++from networkx.algorithms.tree.mst import EdgePartition
++
++def edges(graph):return frozenset(frozenset(e) for e in graph.edges)
++
++@pytest.mark.parametrize('minimum',[True,False])
++def test_initial_partitions_match_exhaustive_oracle(minimum):
++    graph=nx.complete_graph(4)
++    for index,(u,v) in enumerate(graph.edges):graph[u][v]['cost']=index+1
++    saved=graph.copy()
++    include=frozenset((0,1));exclude=frozenset((2,3))
++    expected=set()
++    for subset in combinations(graph.edges,3):
++        tree=nx.Graph();tree.add_nodes_from(graph);tree.add_edges_from(subset)
++        signature=edges(tree)
++        if nx.is_tree(tree) and include in signature and exclude not in signature:expected.add(signature)
++    iterator=nx.SpanningTreeIterator(graph,weight='cost',minimum=minimum,partition={(1,0):EdgePartition.INCLUDED,(3,2):EdgePartition.EXCLUDED})
++    first=next(iterator);assert iter(iterator) is iterator
++    trees=[first,*iterator]
++    assert len(trees)==len(expected) and {edges(tree) for tree in trees}==expected
++    costs=[tree.size(weight='cost') for tree in trees]
++    assert costs==sorted(costs,reverse=not minimum)
++    assert nx.utils.graphs_equal(graph,saved)
++
++def test_exhaustion_is_permanent():
++    iterator=nx.SpanningTreeIterator(nx.cycle_graph(3))
++    assert len(list(iterator))==3
++    for _ in range(3):
++        assert iter(iterator) is iterator
++        assert next(iterator,None) is None
++
++def test_infeasible_partitions_and_disconnected_graph():
++    graph=nx.cycle_graph(3)
++    cycle={edge:EdgePartition.INCLUDED for edge in graph.edges}
++    assert list(nx.SpanningTreeIterator(graph,partition=cycle))==[]
++    cut={(0,1):EdgePartition.EXCLUDED,(0,2):EdgePartition.EXCLUDED}
++    assert list(nx.SpanningTreeIterator(graph,partition=cut))==[]
++    assert list(nx.SpanningTreeIterator(nx.empty_graph(3)))==[]
++
++def test_bad_edges_and_conflicting_orientations():
++    graph=nx.path_graph(3)
++    with pytest.raises(ValueError):nx.SpanningTreeIterator(graph,partition={(0,9):EdgePartition.INCLUDED})
++    with pytest.raises(ValueError):nx.SpanningTreeIterator(graph,partition={(0,1):EdgePartition.INCLUDED,(1,0):EdgePartition.EXCLUDED})
++
++def test_original_direct_next_regression():
++    graph=nx.path_graph(3);graph[0][1]['tag']='keep'
++    tree=next(nx.SpanningTreeIterator(graph))
++    assert edges(tree)==edges(graph) and tree[0][1]['tag']=='keep'

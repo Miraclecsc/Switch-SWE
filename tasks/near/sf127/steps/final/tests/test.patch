@@ -1,0 +1,86 @@
+diff --git a/sympy/core/tests/test_function.py b/sympy/core/tests/test_function.py
+index a69c6b81b786..2beef79ec4ff 100644
+--- a/sympy/core/tests/test_function.py
++++ b/sympy/core/tests/test_function.py
+@@ -1366,6 +1366,29 @@ def test_noncommutative_issue_15131():
+     assert eqdt.args[-1] == ft.diff(t)
+ 
+ 
++def test_noncommutative_derivative():
++    t = symbols('t')
++    S = Function('S', commutative=False)(t)
++    T = Function('T', commutative=False)(t)
++
++    dS = Derivative(S, t)
++    dT = Derivative(T, t)
++
++    assert diff(S**2, t) == Derivative(S**2, t)
++    assert diff(S**3, t) == Derivative(S**3, t)
++    assert diff(S**-1, t) == Derivative(S**-1, t)
++    assert diff(S**-2, t) == Derivative(S**-2, t)
++
++    assert diff(S*T, t) == dS*T + S*dT
++
++    U = Function('U')(t)
++    dU = Derivative(U, t)
++    assert diff(U**2, t) == 2*U*dU
++
++    n = symbols('n')
++    assert diff(S**n, t) == Derivative(S**n, t)
++
++
+ def test_Subs_Derivative():
+     a = Derivative(f(g(x), h(x)), g(x), h(x),x)
+     b = Derivative(Derivative(f(g(x), h(x)), g(x), h(x)),x)
+diff --git a/sympy/core/tests/test_sf127_ordered_diff.py b/sympy/core/tests/test_sf127_ordered_diff.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/core/tests/test_sf127_ordered_diff.py
+@@ -0,0 +1,47 @@
++import pytest
++from sympy import Derivative, Function, Symbol, Add, Mul, Integer, diff, expand
++
++t=Symbol("t")
++S=Function("S",commutative=False)(t)
++T=Function("T",commutative=False)(t)
++
++def ordered(expr, *variables):
++    return Derivative(expr,*variables,evaluate=False).doit(expand_noncommutative=True)
++
++@pytest.mark.parametrize("n", [2,3,4,-1,-2,-3])
++def test_integer_power(n):
++    ds=diff(S,t)
++    expected = Add(*(S**i*ds*S**(n-1-i) for i in range(n))) if n>0 else -Add(*(S**(-i)*ds*S**(n+i-1) for i in range(1,-n+1)))
++    assert expand(ordered(S**n,t)-expected)==0
++    assert diff(S**n,t)==Derivative(S**n,t)
++    assert Derivative(S**n,t).doit()==Derivative(S**n,t)
++
++@pytest.mark.parametrize("n", [2,-1,-2])
++def test_product_base(n):
++    b=S*T;db=diff(S,t)*T+S*diff(T,t)
++    expected = Add(*(b**i*db*b**(n-i-1) for i in range(n))) if n>0 else -Add(*(b**(-i)*db*b**(n+i-1) for i in range(1,-n+1)))
++    assert expand(ordered(b**n,t)-expected)==0
++
++def test_repeated_and_sum_product():
++    expr=S**2*T+T*S**3
++    first=diff(S,t)*S*T+S*diff(S,t)*T+S**2*diff(T,t)+diff(T,t)*S**3+T*(diff(S,t)*S**2+S*diff(S,t)*S+S**2*diff(S,t))
++    assert expand(ordered(expr,t)-first)==0
++    # Use explicit unevaluated products as an independent product-rule oracle.
++    square=Mul(S,S,evaluate=False)
++    expected=2*diff(S,t)*diff(S,t)+diff(S,t,2)*S+S*diff(S,t,2)
++    assert expand(ordered(S**2,(t,2))-expected)==0
++
++def test_mixed_variables():
++    u=Symbol("u");B=Function("B",commutative=False)(t,u)
++    expected=diff(B,t,u)*B+diff(B,t)*diff(B,u)+diff(B,u)*diff(B,t)+B*diff(B,t,u)
++    assert expand(ordered(B**2,t,u)-expected)==0
++
++@pytest.mark.parametrize("exponent", [Symbol("n",integer=True),t,Integer(1)/2])
++def test_unsupported_exponent(exponent):
++    assert ordered(S**exponent,t)==Derivative(S**exponent,t)
++
++def test_commutative_and_constants():
++    f=Function("f")(t)
++    assert ordered(f**3,t)==3*f**2*diff(f,t)
++    assert ordered(S**0,t)==0
++    assert ordered(Symbol("A",commutative=False)**2,t)==0

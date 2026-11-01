@@ -1,0 +1,1 @@
+In the checkout at /work/w04, [traceback] Add traceback frame opt-out via a `_rich_traceback_omit = True` machinery

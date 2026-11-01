@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Does "replace" or "insert_at_cursor" work for this as a one liner?

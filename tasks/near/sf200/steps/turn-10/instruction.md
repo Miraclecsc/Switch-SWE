@@ -1,0 +1,1 @@
+One more thing: don't use LLMs to write your messages. Are you literally just typing my review comments into Claude and asking it to "fix the code and write a reply comment".

@@ -1,0 +1,1 @@
+I have this in /work/w01: Stop `body_stream` in case `more_body=False` Closes We need to check how this interacts with FastAPI: I've tested this with the following application: Run with `uvicorn --http h11 main:app --reload`. I've used the following client: Run with `python client.py`.

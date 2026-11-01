@@ -1,0 +1,1 @@
+And here, > Does it make sense to add a test + test fixture for the case when password is empty (it will add a test for the newly added check)? Done.

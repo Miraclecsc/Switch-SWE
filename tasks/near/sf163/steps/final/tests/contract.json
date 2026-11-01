@@ -1,0 +1,93 @@
+{
+  "case_id": "sf163_switched",
+  "task_id": "ssb_v4_encode__starlette_2576",
+  "repo": "encode/starlette",
+  "base_commit": "96c90f26622c8f243ad965371eae2c2028a518de",
+  "derived_fail_to_pass": [
+    "tests.test_responses::test_streaming_response_memoryview[asyncio]",
+    "tests.test_staged_contract::test_regular_response_accepts_memoryview_without_copy",
+    "tests.test_staged_contract::test_regular_response_typed_view_counts_wire_bytes",
+    "tests.test_staged_contract::test_regular_response_multidimensional_view_counts_wire_bytes",
+    "tests.test_staged_contract::test_noncontiguous_regular_response_uses_logical_order",
+    "tests.test_staged_contract::test_noncontiguous_typed_response_uses_logical_bytes",
+    "tests.test_staged_contract::test_stream_noncontiguous_views_are_wire_consumable",
+    "tests.test_staged_contract::test_memoryview_response_header_rules_remain_intact",
+    "tests.test_staged_contract::test_readonly_views_and_noncontiguous_async_stream"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_responses::test_bytes_response[asyncio]",
+    "tests.test_responses::test_delete_cookie[asyncio]",
+    "tests.test_responses::test_empty_204_response[asyncio]",
+    "tests.test_responses::test_empty_response[asyncio]",
+    "tests.test_responses::test_expires_on_set_cookie[asyncio-datetime]",
+    "tests.test_responses::test_expires_on_set_cookie[asyncio-int]",
+    "tests.test_responses::test_expires_on_set_cookie[asyncio-str]",
+    "tests.test_responses::test_file_response[asyncio]",
+    "tests.test_responses::test_file_response_known_size[asyncio]",
+    "tests.test_responses::test_file_response_on_head_method[asyncio]",
+    "tests.test_responses::test_file_response_with_chinese_filename[asyncio]",
+    "tests.test_responses::test_file_response_with_directory_raises_error[asyncio]",
+    "tests.test_responses::test_file_response_with_inline_disposition[asyncio]",
+    "tests.test_responses::test_file_response_with_method_warns[asyncio]",
+    "tests.test_responses::test_file_response_with_missing_file_raises_error[asyncio]",
+    "tests.test_responses::test_file_response_with_pathsend[asyncio]",
+    "tests.test_responses::test_head_method[asyncio]",
+    "tests.test_responses::test_json_none_response[asyncio]",
+    "tests.test_responses::test_non_empty_response[asyncio]",
+    "tests.test_responses::test_populate_headers[asyncio]",
+    "tests.test_responses::test_quoting_redirect_response[asyncio]",
+    "tests.test_responses::test_redirect_response[asyncio]",
+    "tests.test_responses::test_redirect_response_content_length_header[asyncio]",
+    "tests.test_responses::test_response_do_not_add_redundant_charset[asyncio]",
+    "tests.test_responses::test_response_headers[asyncio]",
+    "tests.test_responses::test_response_phrase[asyncio]",
+    "tests.test_responses::test_set_cookie[asyncio]",
+    "tests.test_responses::test_streaming_response[asyncio]",
+    "tests.test_responses::test_streaming_response_custom_iterable[asyncio]",
+    "tests.test_responses::test_streaming_response_custom_iterator[asyncio]",
+    "tests.test_responses::test_streaming_response_known_size[asyncio]",
+    "tests.test_responses::test_streaming_response_stops_if_receiving_http_disconnect[asyncio]",
+    "tests.test_responses::test_streaming_response_unknown_size[asyncio]",
+    "tests.test_responses::test_sync_streaming_response[asyncio]",
+    "tests.test_responses::test_text_response[asyncio]",
+    "tests.test_staged_contract::test_async_stream_preserves_zero_copy_and_yield_timing",
+    "tests.test_staged_contract::test_mixed_stream_and_empty_views"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_responses.py",
+    "tests/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_responses.py",
+    "tests/test_staged_contract.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "387c6054cacefac9568a0e49cea6e89d8b923e7baf4bde7ef9449d9c6c7d1da7",
+    "config/recipes.json": "bf7e7aeb0c027eca3352f88f8d1cac2d89bae1c3cce83c19de197c5db42e07aa"
+  }
+}

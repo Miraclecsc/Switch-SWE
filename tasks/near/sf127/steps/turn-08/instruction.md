@@ -1,0 +1,1 @@
+And here, > adding `list` annotations in this file might raise errors in `numpydoc` in the newer versions on Python That something to be fixed in numpydoc. The type annotations should use a consistent PEP 560 style and the docs should be made to work with that.

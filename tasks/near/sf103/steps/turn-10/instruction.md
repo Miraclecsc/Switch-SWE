@@ -1,0 +1,1 @@
+One more thing: I added a fix for the error that was caught by `hypothesis`, but now the cyclomatic complexity check is failing :)

@@ -1,0 +1,1 @@
+Please check this too: This should check `K.is_EXRAW` first and then call a separate function rather than computing `zero_prod` up front.

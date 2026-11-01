@@ -1,0 +1,1 @@
+Also, > > Since these names are not the same as SemVer > > Well, any reason not to add `patch` as an equivalent of `micro` and make them support SemVer? I've added also `patch` property as requested. Tests are greet, PTAL.

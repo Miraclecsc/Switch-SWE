@@ -1,0 +1,1 @@
+Please check this too: Can i have some help here please? I have made the changes required but after running the pre-commit, files I do not wish to change seem to get changed. Only formatting changes like removing whitespace. This was pointed out earlier and I tried to fix it. Could anyone provide guidance on how I should proceed? Thanks

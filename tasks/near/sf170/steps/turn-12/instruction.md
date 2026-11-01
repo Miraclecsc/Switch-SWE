@@ -1,0 +1,1 @@
+And here, I think to make this work as either row-first or column-first we need to avoid sorting by value collected. The current impl keeps the deg, tri, cliq in order of the nodes considered. This PR sorts then (I believe by the values -- not by the node order). Removing the sort (which is not needed I believe) would, I think, make it a row-first vs column-first change.

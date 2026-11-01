@@ -1,0 +1,1 @@
+Also, Hmm to make result get garbage collected we can pass a boxed [result] and just .pop() to get it. The other option is to run a checkpoint in the tests

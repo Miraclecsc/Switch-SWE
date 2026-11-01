@@ -1,0 +1,81 @@
+{
+  "case_id": "sf094_switched",
+  "task_id": "ssb_v4_python-trio__trio_3325",
+  "repo": "python-trio/trio",
+  "base_commit": "fc352b2b8ee84071273142375d8babb44333d115",
+  "derived_fail_to_pass": [
+    "src.trio._tests.test_channel::test_as_safe_channel_genexit_exception_group",
+    "src.trio._tests.test_channel::test_as_safe_channel_genexit_filter",
+    "src.trio._tests.test_channel::test_as_safe_channel_swallowing_extra_exceptions",
+    "src.trio._tests.test_sf094_extension::test_all_generator_exits_suppressed_and_closed_once",
+    "src.trio._tests.test_sf094_extension::test_body_and_cleanup_failures_both_survive",
+    "src.trio._tests.test_sf094_extension::test_ordinary_exhaustion",
+    "src.trio._tests.test_sf094_extension::test_policy_validation",
+    "src.trio._tests.test_sf094_extension::test_real_cleanup_failure_preserved"
+  ],
+  "derived_pass_to_pass": [
+    "src.trio._tests.test_channel::test_553",
+    "src.trio._tests.test_channel::test_as_safe_channel_broken_resource",
+    "src.trio._tests.test_channel::test_as_safe_channel_buffer_size_too_small",
+    "src.trio._tests.test_channel::test_as_safe_channel_cancelled",
+    "src.trio._tests.test_channel::test_as_safe_channel_does_not_suppress_nested_genexit",
+    "src.trio._tests.test_channel::test_as_safe_channel_doesnt_leak_cancellation",
+    "src.trio._tests.test_channel::test_as_safe_channel_dont_unwrap_user_exceptiongroup",
+    "src.trio._tests.test_channel::test_as_safe_channel_exhaust",
+    "src.trio._tests.test_channel::test_as_safe_channel_genexit_finally",
+    "src.trio._tests.test_channel::test_as_safe_channel_multi_cancel",
+    "src.trio._tests.test_channel::test_as_safe_channel_multiple_receiver",
+    "src.trio._tests.test_channel::test_as_safe_channel_nested_loop",
+    "src.trio._tests.test_channel::test_as_safe_channel_no_interleave",
+    "src.trio._tests.test_channel::test_as_safe_channel_no_race",
+    "src.trio._tests.test_channel::test_channel",
+    "src.trio._tests.test_channel::test_channel_fairness",
+    "src.trio._tests.test_channel::test_channel_multiple_consumers",
+    "src.trio._tests.test_channel::test_channel_multiple_producers",
+    "src.trio._tests.test_channel::test_close_basics",
+    "src.trio._tests.test_channel::test_close_multiple_receive_handles",
+    "src.trio._tests.test_channel::test_close_multiple_send_handles",
+    "src.trio._tests.test_channel::test_close_sync",
+    "src.trio._tests.test_channel::test_inf_capacity",
+    "src.trio._tests.test_channel::test_receive_channel_clone_and_close",
+    "src.trio._tests.test_channel::test_statistics",
+    "src.trio._tests.test_channel::test_unbuffered"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "src/trio/_tests/test_channel.py",
+    "src/trio/_tests/test_sf094_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "src/trio/_tests/test_channel.py",
+    "src/trio/_tests/test_sf094_extension.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "fdf256b40d83988b9a426b50c503ea3602b2b156bc9b128005cba9a696dd4d64",
+    "config/recipes.json": "2ec7a2c32a536c00dc71e40a2a0b52816c51dedc93acfba312a037cefc38b474"
+  }
+}

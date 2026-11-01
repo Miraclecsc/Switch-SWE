@@ -1,0 +1,1 @@
+I have this in /work/w03: Added support for numbers in camelCase variables. The previous version of the 'convert_camel_case_to_snake' utility function did not handle numbers inside the 'graphql_name'. So passing a string like "foo365Bar" woud have resulted in "foo365_bar". Now it would result in: "foo_365_bar"

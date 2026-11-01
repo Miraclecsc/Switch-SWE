@@ -1,0 +1,1 @@
+One more thing: This PR changes that method on Trio to use the `call_for_coroutine` exception string instead of a Trio exception string. Perhaps we should also use the `call_for_coroutine` exception string for `start` on Trio. If we did, then the "non-coroutine" exception strings for all three of that method, `start`, and `create_task` would no longer be backend-dependent.

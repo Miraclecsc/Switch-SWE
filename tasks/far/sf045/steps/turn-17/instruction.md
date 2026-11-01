@@ -1,0 +1,1 @@
+Also, I'd probably write the test something like: Note that `spring_layout` is the "official" implementation, with `fruchterman_reingold_layout` as an alias, so it's probably worth testing both. Either way, not a blocker!

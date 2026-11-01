@@ -1,0 +1,1 @@
+For the checkout at /work/w04, The `G.edges` removes the bidirectionality only to have it reinstated here. Probably better to use the idiom for reporting edges in both directions: Using u,v is also of course used in that idiom.

@@ -1,0 +1,1 @@
+One more thing: Also support connected two-node undirected graphs with the same nonnegative unit Euclidean normalization used for larger graphs; preserve arbitrary node labels and the selected weight attribute.

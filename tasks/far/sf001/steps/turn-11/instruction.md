@@ -1,0 +1,1 @@
+Please check this too: Moved `inspect_signature_extra` to the module scope and am now checking `sys.version_info` instead of `try/except ImportError`. Does this look acceptable. See

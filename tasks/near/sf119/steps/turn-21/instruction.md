@@ -1,0 +1,1 @@
+Also, > Is it expected for `to_specifier_set()` to return `None` here? Nope, it's expected we can always round trip `specifier_set.to_range().to_specifier_set()`, but it's a very tricky problem and there's lots of edge cases, I'll take a look now!

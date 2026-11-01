@@ -1,0 +1,37 @@
+diff --git a/newsfragments/3205.bugfix.rst b/newsfragments/3205.bugfix.rst
+new file mode 100644
+index 00000000..101a3cde
+--- /dev/null
++++ b/newsfragments/3205.bugfix.rst
+@@ -0,0 +1 @@
++Don't mutate the global runner when MockClock is created.
+diff --git a/src/trio/_core/_mock_clock.py b/src/trio/_core/_mock_clock.py
+index 7e85df2f..197bcef7 100644
+--- a/src/trio/_core/_mock_clock.py
++++ b/src/trio/_core/_mock_clock.py
+@@ -70,7 +70,7 @@ class MockClock(Clock):
+         self._real_base = 0.0
+         self._virtual_base = 0.0
+         self._rate = 0.0
+-        self._autojump_threshold = 0.0
++
+         # kept as an attribute so that our tests can monkeypatch it
+         self._real_clock = time.perf_counter
+ 
+@@ -114,12 +114,12 @@ class MockClock(Clock):
+     def _try_resync_autojump_threshold(self) -> None:
+         try:
+             runner = GLOBAL_RUN_CONTEXT.runner
+-            if runner.is_guest:
+-                runner.force_guest_tick_asap()
+         except AttributeError:
+-            pass
+-        else:
++            return
++        if runner.clock is self:
+             runner.clock_autojump_threshold = self._autojump_threshold
++            if runner.is_guest:
++                runner.force_guest_tick_asap()
+ 
+     # Invoked by the run loop when runner.clock_autojump_threshold is
+     # exceeded.

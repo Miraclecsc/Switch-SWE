@@ -1,0 +1,1 @@
+Also, This should be a try block. Right now, it's replacing falsey values with the default, which it shouldn't do, but it will still fail if the attribute doesn't exist, which is what the issue was about. Also, it causes the function to be called twice.

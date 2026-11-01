@@ -1,0 +1,1 @@
+And here, Materialize a field_transformer result once, then validate that every item is an Attribute before attempting ordering, alias resolution or code generation. A bad item raises TypeError mentioning Attribute. Preserve generator exceptions and do not iterate one-shot results twice.

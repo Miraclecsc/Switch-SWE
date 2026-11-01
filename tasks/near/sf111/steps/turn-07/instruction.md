@@ -1,0 +1,3 @@
+Please check this too: Consider now is good time to discuss about deprecation policy, since there are few `1.0 proposal` PRs those trying to directly remove APIs without any deprecation.
+
+While the deprecated shortcut is supported, its in-process routing must remain equivalent to explicit WSGITransport/ASGITransport: ambient HTTP_PROXY/HTTPS_PROXY/ALL_PROXY settings must not create proxy routes for an app client, including that type with trust_env=True. Preserve explicit transport precedence, ordinary non-app proxy behavior, and all prior requirements.

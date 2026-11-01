@@ -1,0 +1,43 @@
+diff --git a/networkx/algorithms/isomorphism/tests/test_tree_isomorphism.py b/networkx/algorithms/isomorphism/tests/test_tree_isomorphism.py
+index 05e05723ea9..e7baa01fcb2 100644
+--- a/networkx/algorithms/isomorphism/tests/test_tree_isomorphism.py
++++ b/networkx/algorithms/isomorphism/tests/test_tree_isomorphism.py
+@@ -295,3 +295,9 @@ def test_negative(maxk=11):
+             for j in range(i + 1, len(test_trees)):
+                 trial += 1
+                 assert tree_isomorphism(test_trees[i], test_trees[j]) == []
++
++
++def test_long_paths_graphs():
++    """Smoke test for potential RecursionError. See gh-7945."""
++    G = nx.path_graph(10_000)
++    rooted_tree_isomorphism(G, 0, G, 0) == [(n, n) for n in G]
+diff --git a/tests/test_sf170_staged.py b/tests/test_sf170_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf170_staged.py
+@@ -0,0 +1,24 @@
++import networkx as nx
++import pytest
++from networkx.algorithms.isomorphism import rooted_tree_isomorphism
++
++def test_directed_wrong_root_rejected():
++    good = nx.DiGraph([(0, 1), (1, 2)])
++    for first, r1, second, r2 in [(good, 1, good, 0), (good, 0, good, 1)]:
++        with pytest.raises(nx.NetworkXError):
++            rooted_tree_isomorphism(first, r1, second, r2)
++
++def test_mixed_orientation_rejected_without_mutation():
++    invalid = nx.DiGraph([(0, 1), (2, 1), (2, 3)])
++    good = nx.path_graph(4, create_using=nx.DiGraph)
++    before = list(invalid.edges())
++    for first, second in [(invalid, good), (good, invalid)]:
++        with pytest.raises(nx.NetworkXError):
++            rooted_tree_isomorphism(first, 0, second, 0)
++    assert list(invalid.edges()) == before
++
++def test_valid_deep_directed_mapping_is_complete():
++    a = nx.path_graph(1200, create_using=nx.DiGraph)
++    b = nx.relabel_nodes(a, lambda n: ("node", n))
++    result = dict(rooted_tree_isomorphism(a, 0, b, ("node", 0)))
++    assert result == {n: ("node", n) for n in a}

@@ -1,0 +1,1 @@
+And here, I think we can only use dual-stack binding when the local address is either `None`, `localhost` or `::`, yes? Assuming no specific IP family is requested of course.

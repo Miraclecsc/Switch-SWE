@@ -1,0 +1,1 @@
+Also, Note to self and other reviewers: this change is correct ✅ . It avoids the new errors for conflicting args, while continuing to verify that using these positional args causes a deprecation warning. (`None` is still a positional arg value. An equivalent change would keep the first three values and change `mail.get_connection()` to `None`, but this seems fine too.)

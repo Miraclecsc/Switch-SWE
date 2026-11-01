@@ -1,0 +1,193 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1",
+    "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0"
+  ],
+  "case_id": "sf138_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w00",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+      "python": "3.12.12",
+      "requirements": "requirements/77b27ac286257193-3.12.12-d873b2d0.txt",
+      "source": "dependency-source/77b27ac286257193-3.12.12-d873b2d0.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1",
+      "python": "3.12.12",
+      "requirements": "requirements/5f83db8323a0bf87-3.12.12-28ca9fd1.txt",
+      "source": "dependency-source/5f83db8323a0bf87-3.12.12-28ca9fd1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/9a1646bb705e4a3c-3.12.12-df9d1f16",
+      "python": "3.12.12",
+      "requirements": "requirements/9a1646bb705e4a3c-3.12.12-df9d1f16.txt",
+      "source": "dependency-source/9a1646bb705e4a3c-3.12.12-df9d1f16.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [
+    "/opt/ssb/deps/9a1646bb705e4a3c-3.12.12-df9d1f16"
+  ],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/77b27ac286257193-3.12.12-d873b2d0",
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-28ca9fd1"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "4566159aea6a36cd25f8a4d217efd16f77c63558",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "11c5d0ea92d218d9148515b613a60f444a717814",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "20bd243b5df8d5a499fb0c01d04b9c8326b6fc30",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "2455fb9066628929be67011d01bb62a098cdb9ea",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "18068988802273a4a9eb2b43c737313cdde5c36b",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/source/reference/extensions.rst",
+          "sha256": "cb743233c04a7cc46333acb605aa610e91a4db401359d008bd328de5b0d96d79"
+        },
+        {
+          "mode": "100644",
+          "path": "doc/source/whatsnew/v3.1.0.rst",
+          "sha256": "dfea48403359141ea97fe563c1aaaef668f3eaed4608c4961001faf0213043c2"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/core/arrays/_mixins.py",
+          "sha256": "517c2bf994ddc7ca91b065dd84ea9c4ff4d9dcca37d25d420f64b71437f60c52"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/core/arrays/arrow/array.py",
+          "sha256": "4bc5ffbac0411b58e3c86a0a95b1dc88125058bb7c61c4fe1864ce2c7b4901e0"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/core/arrays/base.py",
+          "sha256": "7467799883debc6cde00fe6ff0e1a48bc3a902380f19e88d6b968f96156d4c44"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/core/arrays/sparse/array.py",
+          "sha256": "6e533d8cdb5086c388188b2f72ca7084ac5de0269bdc086e9801d47440942136"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/arrays/numpy_/test_numpy.py",
+          "sha256": "78dcf6498c8de948140c0562bf8432ceb0e9f227c165f1d0588138c57463160d"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/arrays/string_/test_string.py",
+          "sha256": "bea860c70a7e9d6e4234a57493f02b3b20a429d9d063fd83cf691bedf984758d"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/extension/base/methods.py",
+          "sha256": "50fdaf46146a5abf4c4dcb4225feefbfd48620d83b9bba9a90c928f55c35d45a"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/extension/json/array.py",
+          "sha256": "73090ae51ed7f3512e0383058a4af43a4e10f7ba53500c6c361fc1a272f040df"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/extension/json/test_json.py",
+          "sha256": "e8411f60d2142a2f99c1f6bd878fc67cbcdea3a3e73191afb8991e543a953174"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/extension/test_arrow.py",
+          "sha256": "ad19aef9edfb11d3cf2bde8629d03b3e4bfa3345c9fa106756416cbff0830bff"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/extension/test_sparse.py",
+          "sha256": "bbbabe2daf95730d0d2858b63c97bae0db3425da07306a7e2ceb79bd002918e7"
+        }
+      ],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w04"
+    }
+  ]
+}

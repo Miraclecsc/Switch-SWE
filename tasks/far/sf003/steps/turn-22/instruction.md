@@ -1,0 +1,1 @@
+One more thing: I'll update the changelog then. There's another problem: since `self._loop.run_until_complete(...)` raises `StopAsyncIteration` on fixture teardown, it won't look at the accumulated exceptions. And even if it did, there's *another* problem: the exception list is not cleared between runs, so the same exceptions would be raised again!

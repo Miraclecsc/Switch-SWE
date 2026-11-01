@@ -1,0 +1,1 @@
+Please check this too: > Tbh you can probably add uv pre-commit to keep those up to date too, just not have it with updating flags I'm afraid I don't quite understand what you mean by this. As far as I am aware, regenerating the generated code files doesn't have anything to do with uv, right?

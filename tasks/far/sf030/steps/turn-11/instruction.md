@@ -1,0 +1,1 @@
+Please check this too: What you are proposing is to not add the `state` to `startup` and `shutdown` at all? What you mention about the PEP-696 can still be done without this PR getting in.

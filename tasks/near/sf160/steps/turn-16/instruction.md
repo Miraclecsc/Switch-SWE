@@ -1,0 +1,1 @@
+And here, @tomchristie so since `LineDecoder` is only used after `iter_text`, I think it's no longer possible to get empty string to be the input to `decode`. To test a null input to `LineDecoder.decode`, I would have to directly import and test it. What do you think of that?

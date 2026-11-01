@@ -1,0 +1,191 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+  ],
+  "case_id": "sf065_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902",
+      "python": "3.12.12",
+      "requirements": "requirements/34ebeb00cebfd28c-3.12.12-46181902.txt",
+      "source": "dependency-source/34ebeb00cebfd28c-3.12.12-46181902.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "f02879d8bd86e7634c384d896e356d02611bcb26",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/drawing.rst",
+          "sha256": "e90cf6a202353dfe7885c9ac488356e739fef684321a7709964b3a8bc5782ac0"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/layout.py",
+          "sha256": "d469690a13d764def728888803ab3835bce2ef6b177c79dd5cd0c92652efd3d9"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/nx_pylab.py",
+          "sha256": "1062ecb66039c87db1ff9dc6e68b54ab945789377a50eb1a13786b6dee6d5529"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/tests/test_layout.py",
+          "sha256": "a73ffe77f3dcc4599b365b9f884634d28f89962c664f69df4a3262ac225dae97"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "69a2f3f5382aba1ad21aa4e1f8e61b9acfdc642f",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/drawing.rst",
+          "sha256": "e90cf6a202353dfe7885c9ac488356e739fef684321a7709964b3a8bc5782ac0"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/layout.py",
+          "sha256": "75c7460e4e8e7d10ad17de0e113f856c137a6dd781937984a178beef8f3224d6"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/nx_pylab.py",
+          "sha256": "1062ecb66039c87db1ff9dc6e68b54ab945789377a50eb1a13786b6dee6d5529"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/tests/test_layout.py",
+          "sha256": "a73ffe77f3dcc4599b365b9f884634d28f89962c664f69df4a3262ac225dae97"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "22c7c100c97f20857788b68e09b3bffa30685a4b",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/drawing.rst",
+          "sha256": "4765838c3a42c91c262777134bd64abbdeaf91ef6728e04e3580ac005978e3c6"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/layout.py",
+          "sha256": "93006c5523126c2a3c610f0bdcb4fb31f86ed40e11f1733379466430c4458c96"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/nx_pylab.py",
+          "sha256": "7a298c670d8ab08c2d26decaea9379f14b8f3ed64ccd383ae8f5bb779387a089"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/tests/test_layout.py",
+          "sha256": "05e4c440faed0fdb9d13f9e835b35c55b78b47a0c21850b464539719fd826436"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "7d195ae20c9f043da680a25f437e328aada0055b",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "61d209875422f5c40600d2d425bd92fac9cc1b02",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/drawing.rst",
+          "sha256": "cdf15243bc7b98ff4ea0ce61dd53c5ac8c165f408c79fb56bae544b5db2a57f3"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/layout.py",
+          "sha256": "1576775e4d3f584bc038a40e9bfcb2a4bc66f4dda25c705d88fff71b7a2b2aa6"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/nx_pylab.py",
+          "sha256": "0bacf1cc41afb700d3ddce82b7d947812bb5b98f39ecf47a77cdbaba6b863804"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/drawing/tests/test_layout.py",
+          "sha256": "9c52bb04e2056a911dd74e22db1eeb7f0d81040b6915a5439d33c992d172dcb9"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w04"
+    }
+  ]
+}

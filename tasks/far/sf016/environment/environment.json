@@ -1,0 +1,139 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+  ],
+  "case_id": "sf016_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w00",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e",
+      "python": "3.12.12",
+      "requirements": "requirements/121ec7ee69f22989-3.12.12-06fd2a7e.txt",
+      "source": "dependency-source/121ec7ee69f22989-3.12.12-06fd2a7e.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "c0fa5b6a300b161ecd5cbd38317acd5d288572d7",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "95cd9fe04e55c801d15d34405f252b7de52c5cac",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/bedrockagentcorecontrol/models.py",
+          "sha256": "158ba6b28df8c8a38730761d39596839189e04c672a9615a0f0954425fdd41c9"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/bedrockagentcorecontrol/responses.py",
+          "sha256": "ce5f4d7e7eda0b46827a470725f14ea33932588f4ccce0ff68e38df1df4d1af1"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py",
+          "sha256": "23443c37d846df8557d9e444f1b4c05038a136661e267c8dd5689b4d8d3e7649"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "ced3bb1618f8a51262de8dc7b386a14cad4be662",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/bedrockagentcorecontrol/models.py",
+          "sha256": "158ba6b28df8c8a38730761d39596839189e04c672a9615a0f0954425fdd41c9"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/bedrockagentcorecontrol/responses.py",
+          "sha256": "ce5f4d7e7eda0b46827a470725f14ea33932588f4ccce0ff68e38df1df4d1af1"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py",
+          "sha256": "23443c37d846df8557d9e444f1b4c05038a136661e267c8dd5689b4d8d3e7649"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "25813d3742bfe6cf31a740a68d7603a7c7b44702",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "830a798c567bcdded2447efb7e98ca6d89b6a8c5",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w04"
+    }
+  ]
+}

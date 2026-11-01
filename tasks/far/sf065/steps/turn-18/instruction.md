@@ -1,0 +1,1 @@
+One more thing: My main confusion as a user came from the KeyError refering to a node when the actual missing entity is the edge (I thought that a node was missing when it was not). With the current version we have: which clarifies that the edge is the actualy entity missing.

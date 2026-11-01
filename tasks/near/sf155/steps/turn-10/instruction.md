@@ -1,0 +1,1 @@
+One more thing: I pushed changes to only use the `getattr` since that seems cleaner to me.

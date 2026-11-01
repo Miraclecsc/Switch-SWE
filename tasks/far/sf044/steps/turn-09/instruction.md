@@ -1,0 +1,1 @@
+Also, I've changed this to check if number_of_edges is 0 instead, good idea! Greedy++ is fine with disconnected singleton vertices, but no points in running the main code if the number of edges is already 0!

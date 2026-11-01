@@ -1,0 +1,3 @@
+One more thing: `KeyTransformExact` does have the flag set to `True`; it is defined in `JSONExact` which `KeyTransformExact` subclasses. The change in Django 7 will remove the flag from `JSONExact` but keep it in `KeyTransformExact`, i.e. move it from the superclass to the subclass. Good catch, seems like a bug. Test failure for iexact: The queries are:
+
+Complete SQLite key comparison type handling: with a Python string RHS, exact and iexact must match JSON strings only, including strings such as 'null', 'true', 'false' and numeric text. Keep exact case-sensitive and iexact case-insensitive; JSON null, booleans and numbers must not match these string RHS values. Preserve non-string comparisons and existing backend behavior outside SQLite.

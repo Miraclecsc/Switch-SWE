@@ -1,0 +1,1 @@
+And here, Hmm ... If that is the case, we have to wait after `nursery.start_soon(c.acquire_on_behalf_of, 1)`, right ? Then, there will be only one task waiting to acquire ("1" is borrower).

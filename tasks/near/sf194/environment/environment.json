@@ -1,0 +1,181 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+  ],
+  "case_id": "sf194_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229",
+      "python": "3.12.12",
+      "requirements": "requirements/8e87d20fe955230a-3.12.12-1ba64229.txt",
+      "source": "dependency-source/8e87d20fe955230a-3.12.12-1ba64229.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/1fbde72fa42ad142-3.9.23-289fe84b",
+      "python": "3.9.23",
+      "requirements": "requirements/1fbde72fa42ad142-3.9.23-289fe84b.txt",
+      "source": "dependency-source/1fbde72fa42ad142-3.9.23-289fe84b.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5003288e7e65910d-3.9.23-487ab253",
+      "python": "3.9.23",
+      "requirements": "requirements/5003288e7e65910d-3.9.23-487ab253.txt",
+      "source": "dependency-source/5003288e7e65910d-3.9.23-487ab253.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/3ab159ce92f4cc8a-3.9.23-2d20779e",
+      "python": "3.9.23",
+      "requirements": "requirements/3ab159ce92f4cc8a-3.9.23-2d20779e.txt",
+      "source": "dependency-source/3ab159ce92f4cc8a-3.9.23-2d20779e.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8e87d20fe955230a-3.9.23-4dc9029e",
+      "python": "3.9.23",
+      "requirements": "requirements/8e87d20fe955230a-3.9.23-4dc9029e.txt",
+      "source": "dependency-source/8e87d20fe955230a-3.9.23-4dc9029e.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/1fbde72fa42ad142-3.9.23-289fe84b",
+        "/opt/ssb/deps/5003288e7e65910d-3.9.23-487ab253",
+        "/opt/ssb/deps/3ab159ce92f4cc8a-3.9.23-2d20779e",
+        "/opt/ssb/deps/8e87d20fe955230a-3.9.23-4dc9029e"
+      ],
+      "python": "3.9.23"
+    },
+    "w02": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-1ba64229"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "7f18d92d7339171823ae3571ab75eb6648c2ccb5",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/validators.py",
+          "sha256": "0f5d3a4545152183ca176a4a8776d39894ca6a2a25c018a76100131cedd203d8"
+        },
+        {
+          "mode": "100644",
+          "path": "src/attr/validators.pyi",
+          "sha256": "f4ddf3ef8b506b301c5b7e50a4bd60630b2edec50ed998137cb7973823167291"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_validators.py",
+          "sha256": "9b14bbbdac75d8cb318be59d1026fad49232aff66906d53779000233772f2c7f"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "2c8bd463399a1439b099d47c73f1f21c8a0bb906",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "baa8f8c5b2b3698b40d4c72809e9757e4f75062f",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "b75436630fafde95ba2954052c5c4d7d4f506b28",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "01413df3db8e64437547f7fa6439a646fa116a98",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/validators.py",
+          "sha256": "cedcd9e9c0c6daaf501d7d29780e3a982caf844d1ae15b33be5fb349f5f9e6eb"
+        },
+        {
+          "mode": "100644",
+          "path": "src/attr/validators.pyi",
+          "sha256": "51a18beed8e9e5a525dff598480856e7db6cc272d427930e80a353feb1859907"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_validators.py",
+          "sha256": "7195a06cb7420ecb27b266bef0a9229db9a7046c063ca51e01a70dbb3f5bbc6e"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w04"
+    }
+  ]
+}

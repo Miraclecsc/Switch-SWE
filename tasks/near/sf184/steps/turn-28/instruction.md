@@ -1,0 +1,1 @@
+And here, Should probably define this statically as a private module attribute, like `_LEGACY_MANYLINUX_MAP` or something. It can also include the supported architectures if necessary.

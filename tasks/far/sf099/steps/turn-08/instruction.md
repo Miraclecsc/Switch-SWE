@@ -1,0 +1,1 @@
+And here, Strengthen isinstance and constancy checks for edge cases- Use ONLY isinstance(Integer) to prevent TypeError on symbolic integers- Use ONLY dexp.is_zero for strict constancy check

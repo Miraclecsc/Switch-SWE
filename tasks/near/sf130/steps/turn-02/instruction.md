@@ -1,0 +1,1 @@
+For the checkout at /work/w04, The user may not expect or want the two scripts included. Evaluate whether to consider a `MediaAttributeConflictWarning` analogous to the `MediaOrderConflictWarning`.

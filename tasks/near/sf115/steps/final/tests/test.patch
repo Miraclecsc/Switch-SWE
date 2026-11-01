@@ -1,0 +1,135 @@
+diff --git a/tests/test_shell_completion.py b/tests/test_shell_completion.py
+index fb39486dcc..819ca8bd57 100644
+--- a/tests/test_shell_completion.py
++++ b/tests/test_shell_completion.py
+@@ -1,4 +1,6 @@
++import textwrap
+ import warnings
++from collections.abc import Mapping
+ 
+ import pytest
+ 
+@@ -354,6 +356,79 @@ def test_full_complete(runner, shell, env, expect):
+     assert result.output == expect
+ 
+ 
++@pytest.mark.parametrize(
++    ("env", "expect"),
++    [
++        (
++            {"COMP_WORDS": "", "COMP_CWORD": "0"},
++            textwrap.dedent(
++                """\
++                    plain
++                    a
++                    _
++                    plain
++                    b
++                    bee
++                    plain
++                    c\\:d
++                    cee:dee
++                    plain
++                    c:e
++                    _
++                """
++            ),
++        ),
++        (
++            {"COMP_WORDS": "a c", "COMP_CWORD": "1"},
++            textwrap.dedent(
++                """\
++                    plain
++                    c\\:d
++                    cee:dee
++                    plain
++                    c:e
++                    _
++                """
++            ),
++        ),
++        (
++            {"COMP_WORDS": "a c:", "COMP_CWORD": "1"},
++            textwrap.dedent(
++                """\
++                    plain
++                    c\\:d
++                    cee:dee
++                    plain
++                    c:e
++                    _
++                """
++            ),
++        ),
++    ],
++)
++@pytest.mark.usefixtures("_patch_for_completion")
++def test_zsh_full_complete_with_colons(
++    runner, env: Mapping[str, str], expect: str
++) -> None:
++    cli = Group(
++        "cli",
++        commands=[
++            Command("a"),
++            Command("b", help="bee"),
++            Command("c:d", help="cee:dee"),
++            Command("c:e"),
++        ],
++    )
++    result = runner.invoke(
++        cli,
++        env={
++            **env,
++            "_CLI_COMPLETE": "zsh_complete",
++        },
++    )
++    assert result.output == expect
++
++
+ @pytest.mark.usefixtures("_patch_for_completion")
+ def test_context_settings(runner):
+     def complete(ctx, param, incomplete):
+diff --git a/tests/test_zsh_record_escaping_v1.py b/tests/test_zsh_record_escaping_v1.py
+new file mode 100644
+index 0000000..f8990e3
+--- /dev/null
++++ b/tests/test_zsh_record_escaping_v1.py
+@@ -0,0 +1,38 @@
++import click
++import pytest
++from click.shell_completion import CompletionItem, ZshComplete
++
++
++def format_item(value, help=None, type="plain"):
++    return ZshComplete(click.Command("cli"), {}, "cli", "_CLI_COMPLETE").format_completion(
++        CompletionItem(value, help=help, type=type))
++
++
++@pytest.mark.parametrize("value,escaped", [
++    (r"folder\:name", r"folder\\\:name"),
++    (r"a\\:b:c", r"a\\\\\:b\:c"),
++    ("path\\", "path\\\\"),
++])
++def test_described_values_escape_backslashes_before_colons(value, escaped):
++    assert format_item(value,"description") == "plain\n"+escaped+"\ndescription"
++
++
++def test_raw_compadd_branch_preserves_backslashes_and_colons():
++    value = r"a\:b\\c:"
++    for help in [None, "", "_"]:
++        assert format_item(value,help) == "plain\n"+value+"\n_"
++
++
++def test_help_cannot_create_extra_protocol_records():
++    assert format_item("name","first\r\nsecond\n\nthird") == "plain\nname\nfirst second third"
++
++
++@pytest.mark.parametrize("value,type", [("bad\nvalue","plain"),("bad\rvalue","plain"),("ok","plain\nfile")])
++def test_nonrepresentable_record_fields_are_rejected(value,type):
++    with pytest.raises(ValueError):
++        format_item(value,"help",type)
++
++
++def test_original_colon_behavior_without_backslashes():
++    assert format_item("host:port","help") == "plain\nhost\\:port\nhelp"
++    assert format_item("host:port") == "plain\nhost:port\n_"

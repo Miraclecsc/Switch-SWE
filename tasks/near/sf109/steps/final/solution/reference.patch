@@ -1,0 +1,72 @@
+diff --git a/django/db/models/lookups.py b/django/db/models/lookups.py
+index 4c08999fb6..1755a4ee4a 100644
+--- a/django/db/models/lookups.py
++++ b/django/db/models/lookups.py
+@@ -542,12 +542,12 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
+ 
+     def as_sql(self, compiler, connection):
+         max_in_list_size = connection.ops.max_in_list_size()
+-        if (
+-            self.rhs_is_direct_value()
+-            and max_in_list_size
+-            and len(self.rhs) > max_in_list_size
+-        ):
+-            return self.split_parameter_list_as_sql(compiler, connection)
++        if self.rhs_is_direct_value() and max_in_list_size:
++            rhs = [value for value in self.rhs if value is not None]
++            if len(rhs) > max_in_list_size:
++                clone = self.copy()
++                clone.rhs = rhs
++                return clone.split_parameter_list_as_sql(compiler, connection)
+         return super().as_sql(compiler, connection)
+ 
+     def split_parameter_list_as_sql(self, compiler, connection):
+diff --git a/django/db/models/sql/query.py b/django/db/models/sql/query.py
+index 7a4cf843c1..38f431e60a 100644
+--- a/django/db/models/sql/query.py
++++ b/django/db/models/sql/query.py
+@@ -13,7 +13,7 @@ import functools
+ import sys
+ import warnings
+ from collections import Counter, namedtuple
+-from collections.abc import Iterator, Mapping
++from collections.abc import Iterable, Iterator, Mapping
+ from itertools import chain, count, product
+ from string import ascii_uppercase
+ 
+@@ -1582,8 +1582,15 @@ class Query(BaseExpression):
+             )
+ 
+             # Prevent iterator from being consumed by check_related_objects()
+-            if isinstance(value, Iterator):
++            if isinstance(value, Iterator) or (
++                current_negated and lookups[-1:] == ["in"]
++                and isinstance(value, Iterable) and not isinstance(value, (str, bytes))
++                and not hasattr(value, "resolve_expression")
++            ):
+                 value = list(value)
++            if current_negated and lookups[-1:] == ["in"] and isinstance(value, (list, tuple)):
++                from django.db.models.expressions import Value
++                value = [item.value if isinstance(item, Value) else item for item in value]
+             self.check_related_objects(join_info.final_field, value, join_info.opts)
+ 
+             # split_exclude() needs to know which joins were generated for the
+@@ -1638,7 +1645,17 @@ class Query(BaseExpression):
+                 ):
+                     lookup_class = targets[0].get_lookup("isnull")
+                     col = self._get_col(targets[0], join_info.targets[0], alias)
+-                    clause.add(lookup_class(col, False), AND)
++                    # Use OR + IS NULL when RHS `in` values include None.
++                    if (
++                        lookup_type == "in"
++                        # Check containers (not strings or bytes).
++                        and isinstance(condition.rhs, Iterable)
++                        and not isinstance(condition.rhs, (str, bytes))
++                        and any(v is None for v in condition.rhs)
++                    ):
++                        clause.add(lookup_class(col, True), OR)
++                    else:
++                        clause.add(lookup_class(col, False), AND)
+                 # If someval is a nullable column, someval IS NOT NULL is
+                 # added.
+                 if isinstance(value, Col) and self.is_nullable(value.target):

@@ -1,0 +1,3 @@
+Also, This shows the main motivation for supporting that method before `call_next`: it allows you to handle authentication or other concerns differently depending on the URL without hardcoding paths or path prefixes.
+
+Allow middleware to resolve application-level or namespaced routes when the current router raises NoMatchFound: try scope['app'] next, with the same name/path parameters. Fall back only on NoMatchFound; propagate other errors. If all available providers miss, preserve the first NoMatchFound for diagnosis. Do not invoke the same provider object twice when router and app refer to it.

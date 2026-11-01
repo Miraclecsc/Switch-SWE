@@ -1,0 +1,1 @@
+I have this in /work/w03: I don't think `limiter` should be writable. Swapping it on a live `AsyncFile` or `Path` mid-operation (e.g. between two `to_thread.run_sync` calls in a loop) would be a footgun with no obvious use case. I'd drop the setter and validate in `__init__` instead: Same applies to `Path`.

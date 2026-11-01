@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Add: Added `refine_sin_cos` function to handle simplifications for cos and sin

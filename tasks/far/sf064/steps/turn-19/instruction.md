@@ -1,0 +1,1 @@
+Please check this too: Let's drop this type and query for scalar `User` fields in "simple" test cases.

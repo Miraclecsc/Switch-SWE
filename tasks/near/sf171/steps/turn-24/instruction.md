@@ -1,0 +1,1 @@
+And here, For a strongly connected singleton without a self-loop, report period 0; with a self-loop report period 1.

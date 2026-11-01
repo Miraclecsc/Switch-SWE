@@ -1,0 +1,1 @@
+I have this in /work/w02: Then, I would add a sentence to the docs for `StringAgg.distinct` that on SQLite, distinct=True is only compatible with the default delimiter (",").

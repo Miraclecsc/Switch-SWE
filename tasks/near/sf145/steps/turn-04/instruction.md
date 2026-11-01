@@ -1,0 +1,1 @@
+And here, Perhaps I've misunderstood this new `COMMAND_PALETTE_DISPLAY` variable , but why does the snapshot show `^\` rather than `ctrl+\`?

@@ -1,0 +1,1 @@
+And here, Consider what happens if the exception has no cause or context. Then does that type become the new cause / context.

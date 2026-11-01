@@ -1,0 +1,1 @@
+And here, here, you can consider raising `NetworkXUnfeasible` instead of `NetworkXError`(ref. [docs](

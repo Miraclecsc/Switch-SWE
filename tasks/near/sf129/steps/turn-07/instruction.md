@@ -1,0 +1,1 @@
+Please check this too: BUG/TST: fix a race in `click.testing.StreamMixer`'s finalization, seen in a multi-threaded context

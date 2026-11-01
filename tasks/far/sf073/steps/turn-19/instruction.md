@@ -1,0 +1,1 @@
+Please check this too: I think we should resolve method at the start (replacing auto) and clean up all the auto checks. This includes removing the try catch for method selection

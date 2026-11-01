@@ -1,0 +1,1 @@
+One more thing: This required the change to `file_uploads.tests.FileUploadTests.test_base64_invalid_upload`. This test is now very similar to `requests_tests.tests.RequestsTests.test_base64_invalid_encoding`.

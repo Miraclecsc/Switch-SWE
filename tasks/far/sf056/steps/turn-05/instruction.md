@@ -1,0 +1,1 @@
+Also, You also need to add the changelog entry (the third checkbox).

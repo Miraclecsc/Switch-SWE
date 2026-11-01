@@ -1,0 +1,1 @@
+And here, I'm asking since previously you were checking and python documentation says ([link]( that > If the netrc file did not contain an entry for the given host, return the tuple associated with the ‘default’ entry. If neither matching host nor default entry is available, return None.

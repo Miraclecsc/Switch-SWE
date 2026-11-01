@@ -1,0 +1,1 @@
+Also, I haven't put much thought into this so I might be wrong, but I think that using outcome would decrease the number of trio frames in all Python versions: this would mean nicer (but not optimally nice) tracebacks in pre-3.11 without messing around with tracebacks here. (of course, we could still remove the extra tracebacks after that and have even nicer things in 3.11+)

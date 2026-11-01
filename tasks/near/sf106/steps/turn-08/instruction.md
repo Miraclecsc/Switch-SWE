@@ -1,0 +1,1 @@
+I have this in /work/w01: You can remove these tests; we wouldn't mock feature flags in a test, and we try to avoid asserting over exact SQL unless absolutely necessary.

@@ -1,0 +1,1 @@
+Please check this too: i think it would be more obvious what this was doing if the RHS was `Series([np.nan, np.nan, 99.0, np.nan])`?

@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Make dominance functions consistent with definitions * The entry node does not have an immediate dominator * The dominance frontier should handle loops on the entry node properly

@@ -1,0 +1,1 @@
+One more thing: Unfortunately, we can't use `@typing_extensions.deprecated` without making `typing_extensions` mandatory for Starlette. Also, the `@deprecated` PEP was still not accepted.

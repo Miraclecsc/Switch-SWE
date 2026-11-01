@@ -1,0 +1,1 @@
+And here, My inclination is to add the decorators to these "special" views instead of having this short-circuit here.

@@ -1,0 +1,3 @@
+One more thing: I think we can simplify a little. The only legal types are a `str` or anything callable. Maybe this?
+
+Extend class SCREENS entries to allow string aliases to other installed screen names. Resolve multi-hop aliases lazily in get_screen and when modes reference them. All aliases to one terminal entry return its same cached Screen within an app; independent app instances retain independent factory-created screens.

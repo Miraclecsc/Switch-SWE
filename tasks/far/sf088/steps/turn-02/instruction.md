@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Still trying to figure out how best to test this. The current `test_tags.py` is *huge*. Any suggestions? Maybe the ELF parsing logic can be covered by extending the `hello-world` tests?

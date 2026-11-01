@@ -1,0 +1,1 @@
+Also, The docstring makes it sound like the method is doing self.height = None

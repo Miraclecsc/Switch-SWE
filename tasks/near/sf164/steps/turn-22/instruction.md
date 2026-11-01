@@ -1,0 +1,3 @@
+One more thing: is the removal of `background` here intentional? We use `background` for both actual background tasks but also to detect when a streaming request was cancelled by the client (`request.is_disconnected` had some minor overhead).
+
+Run the assigned response background hook exactly once after iterator cleanup on every exit, including failed/cancelled sending. A failing close must not prevent the background hook from being attempted. Preserve the original stream/send/cancellation exception if cleanup also fails; when streaming succeeds, surface the first cleanup/background exception instead of swallowing it. Preserve response metadata, debug-event order and the original repeated-disconnect behavior.

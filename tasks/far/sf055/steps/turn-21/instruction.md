@@ -1,0 +1,1 @@
+Also, Run a warm-up before any diagnostic benchmarks. Validate the functional behavior on asyncio, asyncio with uvloop, and trio available in this environment. Record failures honestly; no speed ratio, backend-specific class layout, or match to a reference implementation is required.

@@ -1,0 +1,1 @@
+Please check this too: ~~While I get using `int | None` to work around flaws in the type system, I think there should at least be a deprecation period.~~ OH I should read the docs first. Oops. Deprecation not needed. Ignore me.

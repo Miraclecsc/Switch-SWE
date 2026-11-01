@@ -1,0 +1,1 @@
+Also, Support binary nonblocking handles: when their read() or readinto() returns None because no data is available, propagate None without advancing progress. Count successful partial reads exactly once and keep EOF from advancing it.

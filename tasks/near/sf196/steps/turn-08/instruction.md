@@ -1,0 +1,1 @@
+And here, we could instead add `__reduce__` to the `NoPublicConstructor` metaclass to enable pickling for all objects that make use of it

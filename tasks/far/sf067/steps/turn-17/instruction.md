@@ -1,0 +1,1 @@
+Also, I see now that you probably meant more than just "cpm" refers to `constant_potts_model`. We should probably point to the docs for the two functions `constant_potts_model` and `modularity` so people can follow up with more info in those docs. :\

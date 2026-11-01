@@ -1,0 +1,3 @@
+Please check this too: Do not pollute exception context in Middleware Avoid passing `anyio.EndOfStream` as exception context when reraising the exception in middleware. Instead try to preserve the original context.
+
+Refine BaseHTTPMiddleware application-exception reraising to respect explicit Python chaining. An explicit cause must be retained by identity even if its __bool__ returns False. If an exception was raised from None, do not promote its suppressed context to a cause. Preserve the existing convention that an unsuppressed implicit application context is promoted to cause, and keep the original no-context regression behavior.

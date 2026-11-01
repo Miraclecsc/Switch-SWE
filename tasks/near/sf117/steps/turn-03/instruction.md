@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: I should maybe have kept this as draft as the [d.p.o discussion]( and are going in a different direction. @henryiii I see you changed the title to fix(pylock), but it is not really a fix, it's rather a new validation check.

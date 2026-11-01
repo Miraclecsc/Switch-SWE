@@ -1,0 +1,73 @@
+{
+  "case_id": "sf176_switched",
+  "task_id": "ssb_v4_pallets__jinja_1169",
+  "repo": "pallets/jinja",
+  "base_commit": "0a370316c6a4f0d034da5f90df5a671a32a8e376",
+  "derived_fail_to_pass": [
+    "tests.test_loader.TestLoaders::test_choice_loader",
+    "tests.test_loader.TestLoaders::test_package_loader",
+    "tests.test_loader::test_package_dir_list",
+    "tests.test_loader::test_package_dir_source[foo/test.html-FOO]",
+    "tests.test_loader::test_package_dir_source[test.html-BAR]",
+    "tests.test_loader::test_package_zip_list",
+    "tests.test_loader::test_package_zip_source[foo/test.html-FOO]",
+    "tests.test_loader::test_package_zip_source[test.html-BAR]",
+    "tests.test_loader::test_pep_451_import_hook",
+    "tests.test_sf176_staged::test_namespace_fallback_and_precedence"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_loader.TestFileSystemLoader::test_caches_template_based_on_mtime",
+    "tests.test_loader.TestFileSystemLoader::test_searchpath_as_list_including_pathlib",
+    "tests.test_loader.TestFileSystemLoader::test_searchpath_as_pathlib",
+    "tests.test_loader.TestFileSystemLoader::test_searchpath_as_str",
+    "tests.test_loader.TestFileSystemLoader::test_uses_specified_encoding[iso-8859-1-\\xe6\\x96\\x87\\xe5\\xad\\x97\\xe5\\x8c\\x96\\xe3\\x81\\x91]",
+    "tests.test_loader.TestFileSystemLoader::test_uses_specified_encoding[utf-8-\\u6587\\u5b57\\u5316\\u3051]",
+    "tests.test_loader.TestLoaders::test_cache_loader_change",
+    "tests.test_loader.TestLoaders::test_caching",
+    "tests.test_loader.TestLoaders::test_dict_loader",
+    "tests.test_loader.TestLoaders::test_dict_loader_cache_invalidates",
+    "tests.test_loader.TestLoaders::test_filesystem_loader_overlapping_names",
+    "tests.test_loader.TestLoaders::test_function_loader",
+    "tests.test_loader.TestLoaders::test_limited_size_cache",
+    "tests.test_loader.TestLoaders::test_no_cache",
+    "tests.test_loader.TestLoaders::test_prefix_loader",
+    "tests.test_loader.TestLoaders::test_split_template_path"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_loader.py",
+    "tests/test_sf176_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_loader.py",
+    "tests/test_sf176_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "0048612712b17e739bbc57c092505ea0f49fcf501030d3dffb03a09c435fdd15",
+    "config/recipes.json": "3466e2b0c546dde52cecb252293f4d69e4179cee6e2d490984f1cc259be2237a"
+  }
+}

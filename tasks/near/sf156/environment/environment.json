@@ -1,0 +1,164 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-35574358",
+    "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-3ea0b05c"
+  ],
+  "case_id": "sf156_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-3ea0b05c",
+      "python": "3.12.12",
+      "requirements": "requirements/58b52e65c84a02f0-3.12.12-3ea0b05c.txt",
+      "source": "dependency-source/58b52e65c84a02f0-3.12.12-3ea0b05c.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-35574358",
+      "python": "3.12.12",
+      "requirements": "requirements/f4593af98e6c1c07-3.12.12-35574358.txt",
+      "source": "dependency-source/f4593af98e6c1c07-3.12.12-35574358.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/368d737f72c1f755-3.12.12-40707c1b",
+      "python": "3.12.12",
+      "requirements": "requirements/368d737f72c1f755-3.12.12-40707c1b.txt",
+      "source": "dependency-source/368d737f72c1f755-3.12.12-40707c1b.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-93c874b5",
+      "python": "3.12.12",
+      "requirements": "requirements/58b52e65c84a02f0-3.12.12-93c874b5.txt",
+      "source": "dependency-source/58b52e65c84a02f0-3.12.12-93c874b5.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-e8ab77b8",
+      "python": "3.12.12",
+      "requirements": "requirements/f4593af98e6c1c07-3.12.12-e8ab77b8.txt",
+      "source": "dependency-source/f4593af98e6c1c07-3.12.12-e8ab77b8.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/368d737f72c1f755-3.12.12-40707c1b",
+        "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-93c874b5",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-e8ab77b8"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-3ea0b05c",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-35574358"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-3ea0b05c",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-35574358"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-3ea0b05c",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-35574358"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/58b52e65c84a02f0-3.12.12-3ea0b05c",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-35574358"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "246ec4295f05d8fb943a23d366f036346cbfe091",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "a5b4e55f984ceeff916a3fb386f9119ba5e70b97",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "29a5e04e0f171af9db3a9d0556ed47f91d88d183",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/versionhistory.rst",
+          "sha256": "2c01df75a5ee00036a7ad96ed7579ed7e24446399fa842f73acb818d739f56f0"
+        },
+        {
+          "mode": "100644",
+          "path": "src/anyio/_backends/_asyncio.py",
+          "sha256": "476b9a0c52d1ce06d5feac939baca9ea5a47946498ece7d79e5fde93849695d9"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_taskgroups.py",
+          "sha256": "ea7b6a4bf258def950b03c7260e0884937ddda61589341ee88d2c541c7a1d79b"
+        }
+      ],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "6c70118450b97b6088046d5e71f6a90836ddbc04",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "44ca5eab5499afd567c5cf1f840346326e07de1d",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w04"
+    }
+  ]
+}

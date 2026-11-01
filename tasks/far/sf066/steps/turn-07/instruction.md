@@ -1,0 +1,1 @@
+Please check this too: Validate the whole sequence before calling anything: it must be nonempty and contain only nonempty strings. Raise ValueError for empty sequences and TypeError for invalid entries. Deduplicate repeated names while preserving order; if exhausted, raise NotImplementedError. Unexpected backend exceptions propagate immediately.

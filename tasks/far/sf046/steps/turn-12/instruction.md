@@ -1,0 +1,1 @@
+And here, It might be worth mentioning (if possible) what impact this has on the number of nodes in multiple communities. The meaning of `resolution` in modularity is described as a parameter controlling the tradeoff between inter/intra community edges. Does the degree of overlap between communities vary with this parameter. Not a blocker, just curious!

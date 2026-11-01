@@ -1,0 +1,109 @@
+diff --git a/newsfragments/2696.feature.rst b/newsfragments/2696.feature.rst
+new file mode 100644
+index 00000000..560cf3b3
+--- /dev/null
++++ b/newsfragments/2696.feature.rst
+@@ -0,0 +1,4 @@
++:func:`trio.lowlevel.start_guest_run` now does a bit more setup of the guest run
++before it returns to its caller, so that the caller can immediately make calls to
++:func:`trio.current_time`, :func:`trio.lowlevel.spawn_system_task`,
++:func:`trio.lowlevel.current_trio_token`, etc.
+diff --git a/trio/_core/_run.py b/trio/_core/_run.py
+index 4ad1119d..f8f9b342 100644
+--- a/trio/_core/_run.py
++++ b/trio/_core/_run.py
+@@ -19,7 +19,7 @@ from collections.abc import (
+     Sequence,
+ )
+ from contextlib import AbstractAsyncContextManager, contextmanager
+-from contextvars import copy_context
++from contextvars import Context, copy_context
+ from heapq import heapify, heappop, heappush
+ from math import inf
+ from time import perf_counter
+@@ -2265,6 +2265,7 @@ def start_guest_run(
+     instruments: Sequence[Instrument] = (),
+     restrict_keyboard_interrupt_to_checkpoints: bool = False,
+     strict_exception_groups: bool = False,
++    context: Context | None = None,
+ ) -> None:
+     """Start a "guest" run of Trio on top of some other "host" event loop.
+ 
+@@ -2279,6 +2280,16 @@ def start_guest_run(
+     the host loop and then immediately starts the guest run, and then shuts
+     down the host when the guest run completes.
+ 
++    Once :func:`start_guest_run` returns successfully, the guest run
++    has been set up enough that you can invoke sync-colored Trio
++    functions such as :func:`~trio.current_time`, :func:`spawn_system_task`,
++    and :func:`current_trio_token`. If a `~trio.TrioInternalError` occurs
++    during this early setup of the guest run, it will be raised out of
++    :func:`start_guest_run`.  All other errors, including all errors
++    raised by the *async_fn*, will be delivered to your
++    *done_callback* at some point after :func:`start_guest_run` returns
++    successfully.
++
+     Args:
+ 
+       run_sync_soon_threadsafe: An arbitrary callable, which will be passed a
+@@ -2315,12 +2326,16 @@ def start_guest_run(
+     For the meaning of other arguments, see `trio.run`.
+ 
+     """
++    if context is not None and not isinstance(context, Context):
++        raise TypeError("context must be a contextvars.Context or None")
+     runner = setup_runner(
+         clock,
+         instruments,
+         restrict_keyboard_interrupt_to_checkpoints,
+         strict_exception_groups,
+     )
++    if context is not None:
++        runner.system_context = context.copy()
+     runner.is_guest = True
+     runner.guest_tick_scheduled = True
+ 
+@@ -2339,6 +2354,43 @@ def start_guest_run(
+             host_uses_signal_set_wakeup_fd=host_uses_signal_set_wakeup_fd,
+         ),
+     )
++
++    # Run a few ticks of the guest run synchronously, so that by the
++    # time we return, the system nursery exists and callers can use
++    # spawn_system_task. We don't actually run any user code during
++    # this time, so it shouldn't be possible to get an exception here,
++    # except for a TrioInternalError.
++    next_send = None
++    for tick in range(5):  # expected need is 2 iterations + leave some wiggle room
++        if runner.system_nursery is not None:
++            # We're initialized enough to switch to async guest ticks
++            break
++        try:
++            timeout = guest_state.unrolled_run_gen.send(next_send)
++        except StopIteration:  # pragma: no cover
++            raise TrioInternalError(
++                "Guest runner exited before system nursery was initialized"
++            )
++        if timeout != 0:  # pragma: no cover
++            guest_state.unrolled_run_gen.throw(
++                TrioInternalError(
++                    "Guest runner blocked before system nursery was initialized"
++                )
++            )
++        # next_send should be the return value of
++        # IOManager.get_events() if no I/O was waiting, which is
++        # platform-dependent. We don't actually check for I/O during
++        # this init phase because no one should be expecting any yet.
++        next_send = 0 if sys.platform == "win32" else ()
++    else:  # pragma: no cover
++        guest_state.unrolled_run_gen.throw(
++            TrioInternalError(
++                "Guest runner yielded too many times before "
++                "system nursery was initialized"
++            )
++        )
++
++    guest_state.unrolled_run_next_send = Value(next_send)
+     run_sync_soon_not_threadsafe(guest_state.guest_tick)
+ 
+ 

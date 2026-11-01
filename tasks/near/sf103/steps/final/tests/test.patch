@@ -1,0 +1,88 @@
+diff --git a/tests/unit/test_hooks.py b/tests/unit/test_hooks.py
+index efa129d0..3acc9bd4 100644
+--- a/tests/unit/test_hooks.py
++++ b/tests/unit/test_hooks.py
+@@ -74,6 +74,23 @@ class FakeProcessResponse:
+                 hooks.git_hook(modify=True)
+ 
+ 
++def test_git_hook_lazy(tmpdir):
++    # Write an actual unsorted file to disk & check that `lazy=True` spots it
++
++    has_problems = tmpdir.join("test_has_problems.py")
++    has_problems.write_text("import b\nimport a\n", "utf8")
++
++    # get_lines is called by git_hook to get the list of modified files to be checked
++    with patch("isort.hooks.get_lines", MagicMock(return_value=[str(has_problems)])):
++        with patch("subprocess.run", MagicMock(side_effect=RuntimeError("donotcall"))) as run_mock:
++            found_errors = hooks.git_hook(lazy=True, strict=True)
++            # subprocess.run (via get_output) should not be called when lazy=True
++            # because we're not asking git for the staged content
++            assert run_mock.call_count == 0
++
++    assert found_errors == 1
++
++
+ def test_git_hook_uses_the_configuration_file_specified_in_settings_path(tmp_path: Path) -> None:
+     subdirectory_path = tmp_path / "subdirectory"
+     configuration_file_path = subdirectory_path / ".isort.cfg"
+diff --git a/tests/unit/test_staged_contract.py b/tests/unit/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/unit/test_staged_contract.py
+@@ -0,0 +1,55 @@
++import subprocess
++from pathlib import Path
++from unittest.mock import patch
++
++from isort import hooks
++
++
++def repository(tmp_path, monkeypatch):
++    monkeypatch.chdir(tmp_path)
++    def git(*args):
++        return subprocess.run(["git", *args], check=True, capture_output=True)
++    git("init")
++    git("-c", "user.name=Contract", "-c", "user.email=contract@example.invalid", "commit", "--allow-empty", "-m", "base")
++    return git
++
++
++def test_quoted_paths(tmp_path, monkeypatch):
++    git = repository(tmp_path, monkeypatch)
++    for name in (" leading.py", "tab\tname.py", "line\nname.py", "café.py"):
++        (tmp_path / name).write_text("import b\nimport a\n")
++    git("add", ".")
++    assert hooks.git_hook(lazy=True, strict=True) == 4
++    assert hooks.git_hook(lazy=False, strict=True) == 4
++
++
++def test_per_file_configuration(tmp_path, monkeypatch):
++    git = repository(tmp_path, monkeypatch)
++    for folder, single in (("a", "true"), ("b", "false")):
++        directory = tmp_path / folder
++        directory.mkdir()
++        (directory / ".isort.cfg").write_text("[settings]\nforce_single_line=" + single + "\n")
++        (directory / "module.py").write_text("from somewhere import a, b\n")
++    git("add", ".")
++    assert hooks.git_hook(lazy=True, strict=True) == 1
++    assert hooks.git_hook(lazy=False, strict=True) == 1
++    assert hooks.git_hook(lazy=True, strict=True, settings_file=str(tmp_path / "b/.isort.cfg")) == 0
++
++
++def test_disappearing_worktree_file(tmp_path, monkeypatch):
++    repository(tmp_path, monkeypatch)
++    existing = tmp_path / "existing.py"
++    existing.write_text("import b\nimport a\n")
++    with patch("isort.hooks.get_lines", return_value=[str(tmp_path / "gone.py"), str(existing)]):
++        assert hooks.git_hook(lazy=True, strict=True) == 1
++
++
++def test_staged_and_worktree_remain_distinct(tmp_path, monkeypatch):
++    git = repository(tmp_path, monkeypatch)
++    path = tmp_path / "module.py"
++    path.write_text("import a\nimport b\n")
++    git("add", ".")
++    path.write_text("import b\nimport a\n")
++    assert hooks.git_hook(strict=True) == 0
++    assert hooks.git_hook(lazy=True, strict=True) == 1
++    assert hooks.git_hook(lazy=True, strict=False) == 0

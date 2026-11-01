@@ -1,0 +1,1 @@
+And here, Okay, this is good to go now on my end. Does this qualify as a bug fix now that the return type is changed from `numpy` scalars to Python? I'll hold off on changing the title until that's cleared up. I'll go ahead and update the PR description to reflect the new changes though.

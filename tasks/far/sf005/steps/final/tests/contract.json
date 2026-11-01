@@ -1,0 +1,84 @@
+{
+  "case_id": "sf005_switched",
+  "task_id": "ssb_v2_task_0085",
+  "repo": "django/django",
+  "base_commit": "6025eab3c509b4de922117e16866bbfe0ee99aa6",
+  "derived_fail_to_pass": [
+    "signals.tests.TestReceiversContextVarsSharing.test_asend_correct_contextvars_sharing_async_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_asend_correct_contextvars_sharing_mix_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_asend_correct_contextvars_sharing_sync_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_asend_robust_correct_contextvars_sharing_async_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_asend_robust_correct_contextvars_sharing_mix_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_asend_robust_correct_contextvars_sharing_sync_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_send_correct_contextvars_sharing_async_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_send_robust_correct_contextvars_sharing_async_receivers",
+    "signals.test_reentrant_context_v1.NestedDispatchContextTests.test_nested_dispatch_shares_live_values_bidirectionally",
+    "signals.test_reentrant_context_v1.NestedDispatchContextTests.test_nested_robust_failure_keeps_live_context_and_response_order"
+  ],
+  "derived_pass_to_pass": [
+    "signals.tests.AsyncReceiversTests.test_asend",
+    "signals.tests.AsyncReceiversTests.test_asend_only_async_receivers",
+    "signals.tests.AsyncReceiversTests.test_asend_robust",
+    "signals.tests.AsyncReceiversTests.test_asend_robust_only_async_receivers",
+    "signals.tests.AsyncReceiversTests.test_send",
+    "signals.tests.AsyncReceiversTests.test_send_robust",
+    "signals.tests.LazyModelRefTests.test_already_loaded_model",
+    "signals.tests.LazyModelRefTests.test_disconnect_registered_model",
+    "signals.tests.LazyModelRefTests.test_disconnect_unregistered_model",
+    "signals.tests.LazyModelRefTests.test_invalid_sender_model_name",
+    "signals.tests.LazyModelRefTests.test_not_loaded_model",
+    "signals.tests.SignalTests.test_decorators",
+    "signals.tests.SignalTests.test_delete_signals",
+    "signals.tests.SignalTests.test_delete_signals_origin_model",
+    "signals.tests.SignalTests.test_delete_signals_origin_queryset",
+    "signals.tests.SignalTests.test_disconnect_model",
+    "signals.tests.SignalTests.test_lazy_model_signal",
+    "signals.tests.SignalTests.test_model_pre_init_and_post_init",
+    "signals.tests.SignalTests.test_save_and_delete_signals_with_m2m",
+    "signals.tests.SignalTests.test_save_signals",
+    "signals.tests.TestReceiversContextVarsSharing.test_send_correct_contextvars_sharing_mix_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_send_correct_contextvars_sharing_sync_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_send_robust_correct_contextvars_sharing_mix_receivers",
+    "signals.tests.TestReceiversContextVarsSharing.test_send_robust_correct_contextvars_sharing_sync_receivers",
+    "signals.test_reentrant_context_v1.NestedDispatchContextTests.test_completed_dispatch_does_not_reuse_stale_context",
+    "signals.test_reentrant_context_v1.NestedDispatchContextTests.test_exception_restores_changed_context_without_wrapping_single_error",
+    "signals.test_reentrant_context_v1.NestedDispatchContextTests.test_independent_top_level_tasks_keep_separate_contexts"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/signals/tests.py",
+    "tests/signals/test_reentrant_context_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/signals/test_reentrant_context_v1.py",
+    "tests/signals/tests.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "70e39d8c9303da594f8104f35ed759eb90dba09d1a079db63d801946ac83ee56",
+    "config/recipes.json": "4e062ed9ad3e1a361511d51f5c70b9d6c16fad60facd0024f1aac2e6e5400643"
+  }
+}

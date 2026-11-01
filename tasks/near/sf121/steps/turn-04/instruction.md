@@ -1,0 +1,1 @@
+And here, A good question! The `Self` type is special and can only be used in conventional class method declarations. Since we're using it here in a decorator/wrapper, it's not usable.

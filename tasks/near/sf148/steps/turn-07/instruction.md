@@ -1,0 +1,1 @@
+Please check this too: Well, there's no requirement for a context manager to return Self and the wrapper shouldn't enforce that. It should accept / forward whatever type `__contextmanager__` is declared to return. On the other hand, what this wrapper does not do is to ensure that the context is not entered twice, and *that* **really** is a bug.

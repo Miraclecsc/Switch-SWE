@@ -1,0 +1,1 @@
+Please check this too: I've added a few basic tests, mostly form the examples I've included in the PR. I think these are enough to catch any breakage at least until #7589 lands, which has a much more robust set of tests.

@@ -1,0 +1,1 @@
+One more thing: This is not an acceptable solution. The `media_type` isn't supposed to have a `charset`. You can do the following:

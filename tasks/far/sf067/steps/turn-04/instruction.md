@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: The tests should not involve drawing (and hoping that a human can figure it out). Each test should be a function inside `generators/tests/test_small.py`. Take a look at those to see what's usual. Use something like:

@@ -1,0 +1,1 @@
+And here, pip's version of the SOABI fallback code is more elaborate – if `get_config_var` returns None then it tries to sniff some other way. Is removing those fallbacks intentional?

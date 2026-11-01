@@ -1,0 +1,5 @@
+That should be enough. Send the complete patch.
+
+Respond with strict JSON:
+{"task_id": "task_50ea72b73f6188ac143b2fd5ae602b51", "analysis": "...", "patch": "<unified diff>"}
+The patch must be a standalone unified diff applying at the original base commit.

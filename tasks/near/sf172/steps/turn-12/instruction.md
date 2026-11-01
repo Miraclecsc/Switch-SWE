@@ -1,0 +1,1 @@
+And here, The callable-default extension must retain literal True for boolean flags, including flag_value=False. A callable flag_value such as a class remains a value and must never be invoked by activation resolution. None returned by a default factory remains None.

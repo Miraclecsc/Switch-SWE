@@ -1,0 +1,1 @@
+I have this in /work/w04: Fix draw_networkx_nodes return type This PR addresses #7684 by returning the collection object rather than axis object in `draw_networkx_nodes`. Additional tests are added to check that the return types of `draw_networkx_nodes` and `draw_networkx_edges` return expected types.

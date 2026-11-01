@@ -1,0 +1,1 @@
+One more thing: Extend this whitespace-control mechanism with trim_blocks='blank_lines' on Environment. After an ordinary block/comment/endraw closing tag, remove consecutive blank lines, including spaces/tabs on those blank lines, while preserving indentation before the next nonblank text. Existing boolean trim_blocks behavior is unchanged.

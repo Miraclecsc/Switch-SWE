@@ -1,0 +1,224 @@
+diff --git a/pandas/tests/arrays/numpy_/test_numpy.py b/pandas/tests/arrays/numpy_/test_numpy.py
+index f55348d..d22d1ba 100644
+--- a/pandas/tests/arrays/numpy_/test_numpy.py
++++ b/pandas/tests/arrays/numpy_/test_numpy.py
+@@ -171,6 +171,14 @@ def test_to_numpy_readonly():
+     assert result.flags.writeable
+ 
+ 
++def test_sort_readonly():
++    arr = NumpyExtensionArray(np.array([3, 1, 2]))
++    arr._readonly = True
++    with pytest.raises(ValueError, match="Cannot modify read-only array"):
++        arr.sort()
++    tm.assert_extension_array_equal(arr, NumpyExtensionArray(np.array([3, 1, 2])))
++
++
+ @pytest.mark.skipif(not np_version_gt2, reason="copy keyword introduced in np 2.0")
+ @pytest.mark.parametrize("dtype", [None, "int64"])
+ def test_asarray_readonly(dtype):
+diff --git a/pandas/tests/arrays/string_/test_string.py b/pandas/tests/arrays/string_/test_string.py
+index 3dd98f1..c2ec72a 100644
+--- a/pandas/tests/arrays/string_/test_string.py
++++ b/pandas/tests/arrays/string_/test_string.py
+@@ -650,3 +650,12 @@ def test_numpy_random_permute(dtype, box):
+     result = rng.permutation(arr)
+     assert isinstance(result, np.ndarray)
+     assert sorted(result.tolist()) == ["a", "bb", "ccc"]
++
++
++def test_sort_unique_result(dtype):
++    # https://github.com/pandas-dev/pandas/issues/64977
++    arr = pd.array(["Bob", "Alice", "Bob"], dtype=dtype)
++    unique_names = arr.unique()
++    unique_names.sort()
++    expected = pd.array(["Alice", "Bob"], dtype=dtype)
++    tm.assert_extension_array_equal(unique_names, expected)
+diff --git a/pandas/tests/extension/base/methods.py b/pandas/tests/extension/base/methods.py
+index a9c22da..bb56395 100644
+--- a/pandas/tests/extension/base/methods.py
++++ b/pandas/tests/extension/base/methods.py
+@@ -294,6 +294,35 @@ class BaseMethodsTests:
+         )
+         tm.assert_frame_equal(result, expected)
+ 
++    def test_sort_inplace(self, data_for_sorting):
++        # https://github.com/pandas-dev/pandas/issues/64977
++        arr = data_for_sorting.copy()
++        result = arr.sort()
++        assert result is None
++        expected = data_for_sorting.take([2, 0, 1])
++        tm.assert_extension_array_equal(arr, expected)
++
++    def test_sort_inplace_descending(self, data_for_sorting):
++        # https://github.com/pandas-dev/pandas/issues/64977
++        arr = data_for_sorting.copy()
++        arr.sort(ascending=False)
++        if pd.Series(data_for_sorting).nunique() == 2:
++            expected = data_for_sorting.take([0, 1, 2])
++        else:
++            expected = data_for_sorting.take([1, 0, 2])
++        tm.assert_extension_array_equal(arr, expected)
++
++    @pytest.mark.parametrize("na_position", ["first", "last"])
++    def test_sort_inplace_na_position(self, data_missing_for_sorting, na_position):
++        # https://github.com/pandas-dev/pandas/issues/64977
++        arr = data_missing_for_sorting.copy()
++        arr.sort(na_position=na_position)
++        if na_position == "last":
++            expected = data_missing_for_sorting.take([2, 0, 1])
++        else:
++            expected = data_missing_for_sorting.take([1, 2, 0])
++        tm.assert_extension_array_equal(arr, expected)
++
+     @pytest.mark.parametrize("ascending", [True, False])
+     def test_rank(self, data_for_sorting, ascending):
+         ser = pd.Series(data_for_sorting)
+diff --git a/pandas/tests/extension/json/array.py b/pandas/tests/extension/json/array.py
+index 9adb728..0b48cbb 100644
+--- a/pandas/tests/extension/json/array.py
++++ b/pandas/tests/extension/json/array.py
+@@ -143,6 +143,9 @@ class JSONArray(ExtensionArray):
+         if isinstance(key, numbers.Integral):
+             self.data[key] = value
+         else:
++            if isinstance(key, slice):
++                key = range(*key.indices(len(self)))
++
+             if not isinstance(value, (type(self), abc.Sequence)):
+                 # broadcast value
+                 value = itertools.cycle([value])
+diff --git a/pandas/tests/extension/json/test_json.py b/pandas/tests/extension/json/test_json.py
+index 592cbbb..6f0d119 100644
+--- a/pandas/tests/extension/json/test_json.py
++++ b/pandas/tests/extension/json/test_json.py
+@@ -393,12 +393,6 @@ class TestJSONArray(base.ExtensionTests):
+     def test_setitem_scalar_key_sequence_raise(self, data):
+         super().test_setitem_scalar_key_sequence_raise(data)
+ 
+-    def test_setitem_with_expansion_dataframe_column(self, data, full_indexer, request):
+-        if "full_slice" in request.node.name:
+-            mark = pytest.mark.xfail(reason="slice is not iterable")
+-            request.applymarker(mark)
+-        super().test_setitem_with_expansion_dataframe_column(data, full_indexer)
+-
+     @pytest.mark.xfail(reason="slice is not iterable")
+     def test_setitem_frame_2d_values(self, data):
+         super().test_setitem_frame_2d_values(data)
+@@ -410,10 +404,12 @@ class TestJSONArray(base.ExtensionTests):
+     def test_setitem_mask_broadcast(self, data, setter):
+         super().test_setitem_mask_broadcast(data, setter)
+ 
+-    @pytest.mark.xfail(
+-        reason="cannot set using a slice indexer with a different length"
+-    )
+-    def test_setitem_slice(self, data, box_in_series):
++    def test_setitem_slice(self, data, box_in_series, request):
++        if box_in_series:
++            mark = pytest.mark.xfail(
++                reason="cannot set using a slice indexer with a different length"
++            )
++            request.applymarker(mark)
+         super().test_setitem_slice(data, box_in_series)
+ 
+     @pytest.mark.xfail(reason="slice object is not iterable")
+@@ -424,10 +420,6 @@ class TestJSONArray(base.ExtensionTests):
+     def test_setitem_slice_mismatch_length_raises(self, data):
+         super().test_setitem_slice_mismatch_length_raises(data)
+ 
+-    @pytest.mark.xfail(reason="slice object is not iterable")
+-    def test_setitem_slice_array(self, data):
+-        super().test_setitem_slice_array(data)
+-
+     @pytest.mark.xfail(reason="Fail to raise")
+     def test_setitem_invalid(self, data, invalid_scalar):
+         super().test_setitem_invalid(data, invalid_scalar)
+diff --git a/pandas/tests/extension/test_arrow.py b/pandas/tests/extension/test_arrow.py
+index 5a136a7..88a3c64 100644
+--- a/pandas/tests/extension/test_arrow.py
++++ b/pandas/tests/extension/test_arrow.py
+@@ -4159,6 +4159,15 @@ def test_fillna_zero():
+     tm.assert_series_equal(result, expected)
+ 
+ 
++def test_sort_readonly():
++    arr = pd.array([3, 1, 2], dtype="int64[pyarrow]")
++    arr._readonly = True
++    with pytest.raises(ValueError, match="Cannot modify read-only array"):
++        arr.sort()
++    # the array must be left unchanged
++    tm.assert_extension_array_equal(arr, pd.array([3, 1, 2], dtype="int64[pyarrow]"))
++
++
+ @pytest.mark.parametrize(
+     "offset",
+     [
+diff --git a/pandas/tests/extension/test_sparse.py b/pandas/tests/extension/test_sparse.py
+index 6a460b3..4c765c4 100644
+--- a/pandas/tests/extension/test_sparse.py
++++ b/pandas/tests/extension/test_sparse.py
+@@ -330,6 +330,22 @@ class TestSparseArray(base.ExtensionTests):
+         with tm.assert_produces_warning(performance_warning, check_stacklevel=False):
+             super().test_searchsorted(data_for_sorting, as_series)
+ 
++    def test_sort_inplace(self, data_for_sorting):
++        # https://github.com/pandas-dev/pandas/issues/64977
++        with pytest.raises(NotImplementedError):
++            data_for_sorting.sort()
++
++    def test_sort_inplace_descending(self, data_for_sorting):
++        # https://github.com/pandas-dev/pandas/issues/64977
++        with pytest.raises(NotImplementedError):
++            data_for_sorting.sort(ascending=False)
++
++    @pytest.mark.parametrize("na_position", ["first", "last"])
++    def test_sort_inplace_na_position(self, data_missing_for_sorting, na_position):
++        # https://github.com/pandas-dev/pandas/issues/64977
++        with pytest.raises(NotImplementedError):
++            data_missing_for_sorting.sort(na_position=na_position)
++
+     def test_shift_0_periods(self, data):
+         # GH#33856 shifting with periods=0 should return a copy, not same obj
+         result = data.shift(0)
+diff --git a/pandas/tests/arrays/string_/test_sf138_sort_key.py b/pandas/tests/arrays/string_/test_sf138_sort_key.py
+new file mode 100644
+--- /dev/null
++++ b/pandas/tests/arrays/string_/test_sf138_sort_key.py
+@@ -0,0 +1,37 @@
++import numpy as np
++import pandas as pd
++import pandas._testing as tm
++import pytest
++
++@pytest.mark.parametrize("storage",["python","pyarrow"])
++@pytest.mark.parametrize("ascending",[True,False])
++def test_numeric_keys_and_stable_ties(storage,ascending):
++    a=pd.array(["bb","a","cc","d"],dtype=pd.StringDtype(storage=storage))
++    calls=[]
++    def key(copy):
++        calls.append(copy)
++        assert copy is not a
++        return np.array([2,1,2,1])
++    assert a.sort(key=key,ascending=ascending,kind="stable") is None
++    want=["a","d","bb","cc"] if ascending else ["bb","cc","a","d"]
++    tm.assert_extension_array_equal(a,pd.array(want,dtype=a.dtype))
++    assert len(calls)==1
++
++@pytest.mark.parametrize("storage",["python","pyarrow"])
++def test_missing_keys_and_empty(storage):
++    a=pd.array(["b",None,"a"],dtype=pd.StringDtype(storage=storage))
++    a.sort(key=lambda x:np.array([2,np.nan,1]),na_position="first")
++    tm.assert_extension_array_equal(a,pd.array([None,"a","b"],dtype=a.dtype))
++    empty=pd.array([],dtype=a.dtype);empty.sort(key=lambda x:[])
++    assert len(empty)==0
++
++@pytest.mark.parametrize("storage",["python","pyarrow"])
++@pytest.mark.parametrize("bad",["length","dimension","raise"])
++def test_failure_and_copy_are_atomic(storage,bad):
++    a=pd.array(["z","a"],dtype=pd.StringDtype(storage=storage));before=a.copy()
++    def key(copy):
++        copy[0]="changed"
++        if bad=="raise": raise RuntimeError("key failed")
++        return [1] if bad=="length" else [[1,2]]
++    with pytest.raises(RuntimeError if bad=="raise" else ValueError): a.sort(key=key)
++    tm.assert_extension_array_equal(a,before)

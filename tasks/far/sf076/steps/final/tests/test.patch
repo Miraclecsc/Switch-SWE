@@ -1,0 +1,66 @@
+diff --git a/tests/test_requirements.py b/tests/test_requirements.py
+index f12129494..f1a43fda4 100644
+--- a/tests/test_requirements.py
++++ b/tests/test_requirements.py
+@@ -107,6 +107,18 @@ def test_invalid_url(self):
+         assert "Invalid URL: " in str(e)
+         assert "gopher:/foo/com" in str(e)
+ 
++    def test_file_url(self):
++        req = Requirement("name @ file:///absolute/path")
++        self._assert_requirement(req, "name", "file:///absolute/path")
++        req = Requirement("name @ file://.")
++        self._assert_requirement(req, "name", "file://.")
++
++    def test_invalid_file_urls(self):
++        with pytest.raises(InvalidRequirement):
++            Requirement("name @ file:.")
++        with pytest.raises(InvalidRequirement):
++            Requirement("name @ file:/.")
++
+     def test_extras_and_url_and_marker(self):
+         req = Requirement(
+             "name [fred,bar] @ http://foo.com ; python_version=='2.7'")
+diff --git a/tests/test_sf076_extension.py b/tests/test_sf076_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf076_extension.py
+@@ -0,0 +1,38 @@
++import pytest
++from packaging.requirements import Requirement, InvalidRequirement
++
++@pytest.mark.parametrize("path,url", [
++    ("/tmp/plugin", "file:///tmp/plugin"),
++    ("/tmp/a b#c?d%", "file:///tmp/a%20b%23c%3Fd%25"),
++    ("/tmp/\u00e9", "file:///tmp/%C3%A9"),
++    ("/a/../b", "file:///a/../b"),
++])
++def test_file_path_builder(path, url):
++    original = Requirement('plugin[z,a] @ https://example.org/old ; python_version >= "3"')
++    saved = str(original)
++    result = original.with_file_path(path)
++    assert result is not original and result.url == url
++    assert str(original) == saved
++    assert result.name == original.name and result.extras == {"z", "a"}
++    assert str(result.marker) == str(original.marker)
++    assert Requirement(str(result)).url == url
++    result.extras.add("other")
++    assert original.extras == {"z", "a"}
++
++@pytest.mark.parametrize("path", ["", "relative", "//server/share", None, 123, "/bad\x00path"])
++def test_invalid_local_path(path):
++    with pytest.raises(InvalidRequirement):
++        Requirement("plugin").with_file_path(path)
++
++def test_version_constraint_is_not_silently_lost():
++    req = Requirement("plugin>=2")
++    with pytest.raises(InvalidRequirement):
++        req.with_file_path("/plugin")
++    assert str(req.specifier) == ">=2"
++
++def test_url_less_requirement():
++    req = Requirement('plugin; os_name == "posix"')
++    result = req.with_file_path("/plugin")
++    assert req.url is None
++    assert result.url == "file:///plugin"
++    assert str(result.marker) == str(req.marker)

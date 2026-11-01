@@ -1,0 +1,59 @@
+diff --git a/networkx/drawing/layout.py b/networkx/drawing/layout.py
+index 8e6a3d5e0..9332f095b 100644
+--- a/networkx/drawing/layout.py
++++ b/networkx/drawing/layout.py
+@@ -465,6 +465,7 @@ def spring_layout(
+     *,
+     method="auto",
+     gravity=1.0,
++    auto_threshold=500,
+ ):
+     """Position nodes using Fruchterman-Reingold force-directed algorithm.
+ 
+@@ -551,6 +552,11 @@ def spring_layout(
+         Used only for the method='energy'.
+         The positive coefficient of gravitational forces per connected component.
+ 
++    auto_threshold : int, optional (default: 500)
++        Positive node-count cutoff used by method='auto': force below it,
++        energy at or above it. Ignored for explicit methods. Numerical
++        sparse/dense storage selection remains independent of this cutoff.
++
+     Returns
+     -------
+     pos : dict
+@@ -587,6 +593,12 @@ def spring_layout(
+ 
+     if method not in ("auto", "force", "energy"):
+         raise ValueError("the method must be either auto, force, or energy.")
++    if method == "auto":
++        if isinstance(auto_threshold, bool) or not isinstance(auto_threshold, int):
++            raise TypeError("auto_threshold must be an integer")
++        if auto_threshold <= 0:
++            raise ValueError("auto_threshold must be positive")
++        method = "force" if len(G) < auto_threshold else "energy"
+ 
+     G, center = _process_params(G, center, dim)
+ 
+@@ -621,10 +633,8 @@ def spring_layout(
+             nx.set_node_attributes(G, pos, store_pos_as)
+         return pos
+ 
+-    try:
+-        # Sparse matrix
+-        if method in ["auto", "force"] and len(G) < 500:
+-            raise ValueError
++    # Sparse matrix
++    if len(G) >= 500 or method == "energy":
+         A = nx.to_scipy_sparse_array(G, weight=weight, dtype="f")
+         if k is None and fixed is not None:
+             # We must adjust k by domain size for layouts not near 1x1
+@@ -633,7 +643,7 @@ def spring_layout(
+         pos = _sparse_fruchterman_reingold(
+             A, k, pos_arr, fixed, iterations, threshold, dim, seed, method, gravity
+         )
+-    except ValueError:
++    else:
+         A = nx.to_numpy_array(G, weight=weight)
+         if k is None and fixed is not None:
+             # We must adjust k by domain size for layouts not near 1x1

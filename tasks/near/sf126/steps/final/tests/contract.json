@@ -1,0 +1,80 @@
+{
+  "case_id": "sf126_switched",
+  "task_id": "ssb_v2_task_0446",
+  "repo": "sympy/sympy",
+  "base_commit": "24733a6c933dcf2517b3a35afc08f22e6a9904e0",
+  "derived_fail_to_pass": [
+    "sympy.assumptions.tests.test_refine::test_sin_cos",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_integral_quotient[False-cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_integral_quotient[False-sin]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_integral_quotient[True-cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_integral_quotient[True-sin]"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.assumptions.tests.test_refine::test_Abs",
+    "sympy.assumptions.tests.test_refine::test_Piecewise",
+    "sympy.assumptions.tests.test_refine::test_arg",
+    "sympy.assumptions.tests.test_refine::test_atan2",
+    "sympy.assumptions.tests.test_refine::test_complex",
+    "sympy.assumptions.tests.test_refine::test_eval_refine",
+    "sympy.assumptions.tests.test_refine::test_exp",
+    "sympy.assumptions.tests.test_refine::test_func_args",
+    "sympy.assumptions.tests.test_refine::test_im",
+    "sympy.assumptions.tests.test_refine::test_issue_refine_9384",
+    "sympy.assumptions.tests.test_refine::test_matrixelement",
+    "sympy.assumptions.tests.test_refine::test_pow1",
+    "sympy.assumptions.tests.test_refine::test_pow2",
+    "sympy.assumptions.tests.test_refine::test_re",
+    "sympy.assumptions.tests.test_refine::test_refine_issue_12724",
+    "sympy.assumptions.tests.test_refine::test_sign",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[False-phase0-cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[False-phase0-sin]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[False-phase1-cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[False-phase1-sin]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[True-phase0-cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[True-phase0-sin]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[True-phase1-cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_joint_parity[True-phase1-sin]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_partial_phase_compatibility[cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_partial_phase_compatibility[sin]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_unknown_parity_is_preserved[cos]",
+    "sympy.assumptions.tests.test_sf126_joint_phase::test_unknown_parity_is_preserved[sin]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/assumptions/tests/test_refine.py",
+    "sympy/assumptions/tests/test_sf126_joint_phase.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/assumptions/tests/test_refine.py",
+    "sympy/assumptions/tests/test_sf126_joint_phase.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "3bd69d3eb038ab7651d6235bbec35573fe91c7645072fda2e64999924cee08a9",
+    "config/recipes.json": "26b3a1798a1909402dbd4b9403441a0bfbc0e1c5236105ca7ca105899c536ff0"
+  }
+}

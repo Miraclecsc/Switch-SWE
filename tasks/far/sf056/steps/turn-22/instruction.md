@@ -1,0 +1,1 @@
+One more thing: In what case does `localhost` not resolve to `::1` or `127.0.0.1`?

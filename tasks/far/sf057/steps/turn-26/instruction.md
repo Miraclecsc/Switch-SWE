@@ -1,0 +1,1 @@
+One more thing: Validate that dropped startup values can be collected while their services remain running, and that pre-readiness and post-readiness failures still reach the correct caller.

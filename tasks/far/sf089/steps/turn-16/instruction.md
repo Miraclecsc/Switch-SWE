@@ -1,0 +1,1 @@
+And here, wait... because `pytestmark` is used, the tests aren't run on non-windows at all (that surely deserves a comment anywhere it's used IMHO), so can just skip typechecking the file on non-windows.

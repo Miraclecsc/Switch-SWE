@@ -1,0 +1,1 @@
+Please check this too: The tests I'm proposing in show that this fixes an edge case where the current behavior breaks the monotonic invariant, that given versions `v1` and `v2` and `v2 < v1` then if the specifier `<V` matches `v1` it should also match `v2`.

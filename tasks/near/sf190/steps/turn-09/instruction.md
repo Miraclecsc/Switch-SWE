@@ -1,0 +1,1 @@
+I have this in /work/w01: Add `attrs.validators.or_` validator Closes #1214 # Summary Add `attrs.validators.or_` validator, which is satisfied if at least one of the validators it is wrapping is satisfied, thus complementing the `and_` and `not_` "logical connectives" validators. # Pull Request Check List

@@ -1,0 +1,5 @@
+Also, I took a step back and did a full audit against the old admin tests to ensure 1:1 parity.
+
+Extend that method so explicit random ordering cannot be certified deterministic merely because a unique tie breaker appears later. Recognize '?' and Random(), including Random nested in ordering expressions and annotation aliases referenced by name or F/OrderBy.
+Only the deterministic prefix before the first random ordering expression can establish total order. If that prefix already contains a nonnullable unique field, primary key, or complete qualifying composite unique key, later random terms cannot break its ordering and totally_ordered remains True. A random term before completion of that unique prefix makes it False.
+Preserve nullable/conditional constraint rules, relation handling, ordering direction, default/unordered behavior and all original tests. Do not execute SQL or infer arbitrary custom functions' volatility; this extension concerns explicit Random expressions and the '?' directive.

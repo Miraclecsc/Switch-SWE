@@ -1,0 +1,1 @@
+Please check this too: hmm, maybe a `typing.NamedTuple` would be apt here?

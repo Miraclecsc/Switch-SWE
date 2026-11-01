@@ -1,0 +1,1 @@
+One more thing: Extend the default/activation rule to callable defaults. When get_default(ctx, call=True) evaluates a default factory and obtains True for a non-boolean flag, resolve it to flag_value exactly as with literal default=True. Invoke the factory once. With call=False return the factory without calling it.

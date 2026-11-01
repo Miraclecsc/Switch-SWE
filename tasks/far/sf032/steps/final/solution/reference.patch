@@ -1,0 +1,39 @@
+diff --git a/sympy/core/evalf.py b/sympy/core/evalf.py
+--- a/sympy/core/evalf.py
++++ b/sympy/core/evalf.py
+@@ -990,16 +990,26 @@
+ 
+     re = mpf_log(mpf_abs(xre), prec, rnd)
+     size = fastlog(re)
+-    if prec - size > workprec and re != fzero:
++    re_acc = prec
++    if prec - size > workprec:
+         from .add import Add
+-        # We actually need to compute 1+x accurately, not x
+-        add = Add(S.NegativeOne, arg, evaluate=False)
+-        xre, xim, _, _ = evalf_add(add, prec, options)
+-        prec2 = workprec - fastlog(xre)
+-        # xre is now x - 1 so we add 1 back here to calculate x
+-        re = mpf_log(mpf_abs(mpf_add(xre, fone, prec2)), prec, rnd)
+-
+-    re_acc = prec
++        # We actually need to compute x-1 accurately, not x
++        magnitude = -arg if imaginary_term else arg
++        if magnitude.doit() == S.One:
++            return fzero, mpf_pi(prec) if imaginary_term else None, prec, prec if imaginary_term else None
++        add = Add(S.NegativeOne, magnitude, evaluate=False)
++        xre, xim, xre_acc, _ = evalf_add(add, prec, options)
++        if xre_acc is not None:
++            re_acc = min(prec, xre_acc)
++            if options.get("strict") and re_acc < prec:
++                raise PrecisionExhausted("Insufficient precision for logarithm near unit magnitude")
++        if xre != fzero and (xre_acc is None or xre_acc > 1):
++            prec2 = workprec - fastlog(xre)
++            # xre is now x - 1 so we add 1 back here to calculate x
++            re = mpf_log(mpf_abs(mpf_add(xre, fone, prec2)), prec, rnd)
++        elif xre_acc is not None and xre_acc <= 1:
++            # Preserve the correction's uncertainty rather than claiming exact zero.
++            re = xre
+ 
+     if imaginary_term:
+         return re, mpf_pi(prec), re_acc, prec

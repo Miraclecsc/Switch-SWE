@@ -1,0 +1,3 @@
+One more thing: I added these `# fmt: ` annotations just to avoid Black changing the second test case so that it spawns across multiple lines when the 1st one doesn't, as they are functionally the same thing But happy to let Black format _everything_ and remove those if you prefer, of course :slightly_smiling_face:
+
+Extend the local _rich_traceback_omit marker to accept a predicate callable receiving the exception currently being extracted. Omit the frame only when its result is truthy; ordinary truthy/falsy markers retain their behavior. Evaluate a callable marker once for that frame in that exception stack.

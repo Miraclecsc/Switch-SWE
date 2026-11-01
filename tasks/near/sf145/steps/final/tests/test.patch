@@ -1,0 +1,129 @@
+diff --git a/tests/test_reactive.py b/tests/test_reactive.py
+index ad2da5724d..54b57e337e 100644
+--- a/tests/test_reactive.py
++++ b/tests/test_reactive.py
+@@ -783,3 +783,44 @@ def compose(self) -> ComposeResult:
+         widget.mutate_reactive(TestWidget.names)
+         # Watcher should be invoked
+         assert watched_names == [[], ["Paul"], ["Jessica"]]
++
++
++async def test_mutate_reactive_data_bind() -> None:
++    """https://github.com/Textualize/textual/issues/4825"""
++
++    # Record mutations to TestWidget.messages
++    widget_messages: list[list[str]] = []
++
++    class TestWidget(Widget):
++        messages: reactive[list[str]] = reactive(list, init=False)
++
++        def watch_messages(self, names: list[str]) -> None:
++            widget_messages.append(names.copy())
++
++    class TestApp(App):
++        messages: reactive[list[str]] = reactive(list, init=False)
++
++        def compose(self) -> ComposeResult:
++            yield TestWidget().data_bind(TestApp.messages)
++
++    app = TestApp()
++    async with app.run_test():
++        test_widget = app.query_one(TestWidget)
++        assert widget_messages == [[]]
++        assert test_widget.messages == []
++
++        # Should be the same instance
++        assert app.messages is test_widget.messages
++
++        # Mutate app
++        app.messages.append("foo")
++        # Mutations aren't detected
++        assert widget_messages == [[]]
++        assert app.messages == ["foo"]
++        assert test_widget.messages == ["foo"]
++        # Explicitly mutate app reactive
++        app.mutate_reactive(TestApp.messages)
++        # Mutating app, will also invoke watchers on any data binds
++        assert widget_messages == [[], ["foo"]]
++        assert app.messages == ["foo"]
++        assert test_widget.messages == ["foo"]
+diff --git a/tests/test_sf145_batch.py b/tests/test_sf145_batch.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf145_batch.py
+@@ -0,0 +1,75 @@
++import pytest
++from textual.app import App
++from textual.widget import Widget
++from textual.reactive import reactive,ReactiveError
++
++async def test_nested_batch_bound_children_and_exception_flush():
++    events=[]
++    class Child(Widget):
++        values=reactive(list,init=False)
++        def watch_values(self,value):events.append(tuple(value))
++    class Parent(App):
++        values=reactive(list,init=False)
++        def compose(self):yield Child().data_bind(Parent.values)
++    app=Parent()
++    async with app.run_test():
++        child=app.query_one(Child);events.clear()
++        with app.batch_mutate():
++            app.values.append("one");app.mutate_reactive(Parent.values)
++            with app.batch_mutate():
++                app.values.append("two");app.mutate_reactive(Parent.values)
++            assert events==[]
++        assert events==[("one","two")] and child.values is app.values
++        with pytest.raises(RuntimeError):
++            with app.batch_mutate():
++                app.values.append("three");app.mutate_reactive(Parent.values)
++                raise RuntimeError("body")
++        assert events[-1]==("one","two","three")
++        app.mutate_reactive(Parent.values)
++        assert len(events)==3
++
++async def test_order_dedup_and_shared_object():
++    events=[]
++    class Parent(App):
++        first=reactive(list,init=False);second=reactive(list,init=False)
++        def watch_first(self,value):events.append(("first",tuple(value)))
++        def watch_second(self,value):events.append(("second",tuple(value)))
++    app=Parent()
++    async with app.run_test():
++        shared=[0];app.first=shared;app.second=shared;events.clear()
++        with app.batch_mutate():
++            shared.append(1)
++            app.mutate_reactive(Parent.second)
++            app.mutate_reactive(Parent.first)
++            app.mutate_reactive(Parent.second)
++        assert events==[("second",(0,1)),("first",(0,1))]
++        with app.batch_mutate(): pass
++        assert len(events)==2
++
++async def test_chain_propagates_final_value_once():
++    events=[]
++    class Leaf(Widget):
++        values=reactive(list,init=False)
++        def watch_values(self,value):events.append(tuple(value))
++    class Middle(Widget):
++        values=reactive(list,init=False)
++        def compose(self):yield Leaf().data_bind(Middle.values)
++    class Parent(App):
++        values=reactive(list,init=False)
++        def compose(self):yield Middle().data_bind(Parent.values)
++    app=Parent()
++    async with app.run_test():
++        events.clear()
++        with app.batch_mutate():
++            for n in range(3):
++                app.values.append(n);app.mutate_reactive(Parent.values)
++        assert events==[(0,1,2)]
++        assert app.query_one(Leaf).values is app.values
++
++async def test_unrelated_reactive_rejected_without_pending_work():
++    class Parent(App): values=reactive(list,init=False)
++    class Other(Widget): values=reactive(list,init=False)
++    app=Parent()
++    async with app.run_test():
++        with app.batch_mutate():
++            with pytest.raises(ReactiveError):app.mutate_reactive(Other.values)

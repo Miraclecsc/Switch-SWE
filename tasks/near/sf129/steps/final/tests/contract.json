@@ -1,0 +1,87 @@
+{
+  "case_id": "sf129_switched",
+  "task_id": "ssb_v2_task_0487",
+  "repo": "pallets/click",
+  "base_commit": "d959898db264aaf07e70ad4eafa254286f9a5185",
+  "derived_fail_to_pass": [
+    "tests.test_formatting::test_wrap_text_visible_width[styled-body-wraps-on-visible-width]",
+    "tests.test_formatting::test_wrap_text_visible_width[styled-initial-indent-does-not-break-body]",
+    "tests.test_formatting::test_wrap_text_visible_width[styled-long-word-breaks-on-visible-width]",
+    "tests.test_formatting::test_write_usage_styled_prefix_keeps_options_on_one_line",
+    "tests.test_sf129_hyperlinks::test_hyperlink_long_word[12-\\x07]",
+    "tests.test_sf129_hyperlinks::test_hyperlink_long_word[12-\\x1b\\\\]",
+    "tests.test_sf129_hyperlinks::test_hyperlink_long_word[3-\\x07]",
+    "tests.test_sf129_hyperlinks::test_hyperlink_long_word[3-\\x1b\\\\]",
+    "tests.test_sf129_hyperlinks::test_hyperlink_long_word[7-\\x07]",
+    "tests.test_sf129_hyperlinks::test_hyperlink_long_word[7-\\x1b\\\\]",
+    "tests.test_sf129_hyperlinks::test_linked_indent_and_formatter[\\x07]",
+    "tests.test_sf129_hyperlinks::test_linked_indent_and_formatter[\\x1b\\\\]",
+    "tests.test_sf129_hyperlinks::test_visible_word_boundaries_and_csi[\\x07]",
+    "tests.test_sf129_hyperlinks::test_visible_word_boundaries_and_csi[\\x1b\\\\]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_formatting::test_basic_functionality",
+    "tests.test_formatting::test_formatting_custom_type_metavar",
+    "tests.test_formatting::test_formatting_empty_help_lines",
+    "tests.test_formatting::test_formatting_usage_custom_help",
+    "tests.test_formatting::test_formatting_usage_error",
+    "tests.test_formatting::test_formatting_usage_error_help_hint[help_names0-extra_options0-Try 'cli foo --help' for help.]",
+    "tests.test_formatting::test_formatting_usage_error_help_hint[help_names1-extra_options1-Try 'cli foo --help' for help.]",
+    "tests.test_formatting::test_formatting_usage_error_help_hint[help_names2-extra_options2-Try 'cli foo -h' for help.]",
+    "tests.test_formatting::test_formatting_usage_error_help_hint[help_names3-extra_options3-None]",
+    "tests.test_formatting::test_formatting_usage_error_help_hint[help_names4-extra_options4-Try 'cli foo --man' for help.]",
+    "tests.test_formatting::test_formatting_usage_error_help_hint[help_names5-extra_options5-Try 'cli foo --help' for help.]",
+    "tests.test_formatting::test_formatting_usage_error_metavar_bad_arg",
+    "tests.test_formatting::test_formatting_usage_error_metavar_missing_arg",
+    "tests.test_formatting::test_formatting_usage_error_nested",
+    "tests.test_formatting::test_formatting_usage_error_no_help",
+    "tests.test_formatting::test_formatting_with_options_metavar_empty",
+    "tests.test_formatting::test_global_show_default",
+    "tests.test_formatting::test_help_formatter_write_text",
+    "tests.test_formatting::test_removing_multiline_marker",
+    "tests.test_formatting::test_truncating_docstring",
+    "tests.test_formatting::test_truncating_docstring_no_help",
+    "tests.test_formatting::test_wrapping_long_command_name",
+    "tests.test_formatting::test_wrapping_long_options_strings",
+    "tests.test_sf129_hyperlinks::test_legacy_csi_and_plain",
+    "tests.test_sf129_hyperlinks::test_malformed_is_literal[\\x1b]8;;bad\\x1b[31m]",
+    "tests.test_sf129_hyperlinks::test_malformed_is_literal[\\x1b]8;;unterminated]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_formatting.py",
+    "tests/test_sf129_hyperlinks.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_formatting.py",
+    "tests/test_sf129_hyperlinks.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "ed72b31945a2be45ea05f6a492dbbc31c4c49e83cab05a774b5f3ddb83a13914",
+    "config/recipes.json": "792e9ee13cb03e7d6709a96d64b95fa136fe111fb69107a4af32e7ab5f1f20db"
+  }
+}

@@ -1,0 +1,1 @@
+Please check this too: I feel like this should be documented since copying can be expensive or potentially crash the program. I'm guessing shallow copying means it also wouldn't fix the confusion for e.g. a list of mutable objects. For example, if one of the objects in the list is mutated and I call `mutate_reactive`, the prior confusing scenario still arises.

@@ -1,0 +1,1 @@
+Please check this too: It may be better to raise an exception here. I believe the only situation where None could be returned is if there's some kind of bug. Or am I missing something?

@@ -1,0 +1,1 @@
+And here, Consider you could do it with a `bytes` too. Not that that would be very pleasant. CPython is [talking about adding a `frozendict`]( Consider if we also need a `frozenarray`.

@@ -1,0 +1,1 @@
+For the checkout at /work/w01, Switched start_blocking_portal() to use a daemon thread instead of ThreadPoolExecutor ThreadPoolExecutor used daemon threads in Python 3.8 and non-daemon threads in 3.9 onwards.

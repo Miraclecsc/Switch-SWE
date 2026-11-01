@@ -1,0 +1,3 @@
+One more thing: I think we dont want to add the barycenter name where it doesnt already occur (i.e. in the tree subpackage)
+
+Extend the shared centroid/barycenter function with keyword-only node_weight=None. A node attribute name selects nonnegative numeric demand at each destination node, defaulting missing attributes to 1. Minimize sum(demand[u] * distance(v, u)); node_weight=None preserves unit demand and the original alias identity.

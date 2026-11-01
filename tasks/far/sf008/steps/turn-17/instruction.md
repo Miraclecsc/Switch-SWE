@@ -1,0 +1,1 @@
+Also, Good spot, I put up a fix in should land soon! Also, Project style avoids words like "verify"/"ensure" in tests.

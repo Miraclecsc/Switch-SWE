@@ -1,0 +1,1 @@
+Please check this too: This is a follow up to that fixes support for NamedTemporaryFile following When checking out 2.33.1, the tests pass without the source change. Without this PR, the `test_post_named_tempfile` test fails with:

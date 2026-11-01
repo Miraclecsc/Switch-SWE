@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Fixed #36829 -- Revert unintended ClearableFileInput.use_fieldset change

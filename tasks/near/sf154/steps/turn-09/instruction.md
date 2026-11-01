@@ -1,0 +1,1 @@
+Also, would it be cheaper to avoid using the proxy in the common case? for the common case (construction under the loop context) this would move the overhead from on-every-attribute-access to on-construction.

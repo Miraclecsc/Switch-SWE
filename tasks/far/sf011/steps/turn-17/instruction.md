@@ -1,0 +1,1 @@
+Also, `build_crafted_xml` seems redundant as a function if it only gets called once.

@@ -1,0 +1,1 @@
+One more thing: Also just caught it. Please add to changes.rst.

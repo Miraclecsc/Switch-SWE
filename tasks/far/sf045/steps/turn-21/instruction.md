@@ -1,0 +1,3 @@
+Also, Done — renamed `vertices` to `uncovered_nodes`, replaced vertex/vertices with node/nodes throughout the docstring and comments. Also shortened a couple of comment lines that were wrapping.
+
+Add keyword-only forbidden=None: these nodes cannot be chosen but must still be dominated. Reject unknown constraint nodes and overlap with start_with via NetworkXError. Raise NetworkXUnfeasible if the allowed candidates cannot cover the remaining nodes instead of selecting zero-gain nodes or leaking min() errors. Default calls preserve the original behavior.

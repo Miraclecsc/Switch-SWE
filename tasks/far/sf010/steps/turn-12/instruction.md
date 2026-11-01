@@ -1,0 +1,1 @@
+And here, So my example of `UUIDField` on the ticket was just what I happened to be working with (and show a really validation problem when attempting the roundtrip). However, it's not very realistic as a member of a natural key (and doesn't work well with the yaml serializer).

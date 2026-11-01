@@ -1,0 +1,108 @@
+diff --git a/trio/_core/_tests/test_multierror.py b/trio/_core/_tests/test_multierror.py
+index 650f9bf597..7d31b1e889 100644
+--- a/trio/_core/_tests/test_multierror.py
++++ b/trio/_core/_tests/test_multierror.py
+@@ -1,15 +1,15 @@
+ import gc
+-import logging
+ import os
+ import subprocess
+ from pathlib import Path
++import pickle
++import warnings
+ 
+ import pytest
+ 
+ from traceback import (
+     extract_tb,
+     print_exception,
+-    format_exception,
+ )
+ from traceback import _cause_message  # type: ignore
+ import sys
+@@ -555,3 +555,36 @@ def test_apport_excepthook_monkeypatch_interaction():
+         ["--- 1 ---", "KeyError", "--- 2 ---", "ValueError"],
+         stdout,
+     )
++
++
++@pytest.mark.parametrize("protocol", range(0, pickle.HIGHEST_PROTOCOL + 1))
++def test_pickle_multierror(protocol) -> None:
++    # use trio.MultiError to make sure that pickle works through the deprecation layer
++    import trio
++
++    my_except = ZeroDivisionError()
++
++    try:
++        1 / 0
++    except ZeroDivisionError as e:
++        my_except = e
++
++    # MultiError will collapse into different classes depending on the errors
++    for cls, errors in (
++        (ZeroDivisionError, [my_except]),
++        (NonBaseMultiError, [my_except, ValueError()]),
++        (MultiError, [BaseException(), my_except]),
++    ):
++        with warnings.catch_warnings():
++            warnings.simplefilter("ignore", TrioDeprecationWarning)
++            me = trio.MultiError(errors)  # type: ignore[attr-defined]
++            dump = pickle.dumps(me, protocol=protocol)
++            load = pickle.loads(dump)
++        assert repr(me) == repr(load)
++        assert me.__class__ == load.__class__ == cls
++
++        assert me.__dict__.keys() == load.__dict__.keys()
++        for me_val, load_val in zip(me.__dict__.values(), load.__dict__.values()):
++            # tracebacks etc are not preserved through pickling for the default
++            # exceptions, so we only check that the repr stays the same
++            assert repr(me_val) == repr(load_val)
+diff --git a/trio/_core/_tests/test_sf089_extension.py b/trio/_core/_tests/test_sf089_extension.py
+new file mode 100644
+--- /dev/null
++++ b/trio/_core/_tests/test_sf089_extension.py
+@@ -0,0 +1,44 @@
++import pickle
++import pytest
++from .._multierror import MultiError
++
++pytestmark = pytest.mark.filterwarnings("ignore::trio.TrioDeprecationWarning")
++
++@pytest.mark.parametrize("protocol",range(pickle.HIGHEST_PROTOCOL+1))
++def test_singleton_shape(protocol):
++    inner=MultiError([ValueError("leaf")],_collapse=False)
++    outer=MultiError([inner],_collapse=False)
++    restored=pickle.loads(pickle.dumps(outer,protocol=protocol))
++    assert isinstance(restored,MultiError) and restored.collapse is False
++    assert len(restored.exceptions)==1 and isinstance(restored.exceptions[0],MultiError)
++    assert restored.exceptions[0].collapse is False
++    assert restored.exceptions[0].exceptions[0].args == ("leaf",)
++
++@pytest.mark.parametrize("protocol",[0,pickle.HIGHEST_PROTOCOL])
++def test_state_aliasing_and_causes(protocol):
++    leaf=ValueError("shared")
++    group=MultiError([leaf,leaf],_collapse=False)
++    group.details={"self":group,"leaf":leaf}
++    group.add_note("diagnostic note")
++    group.__cause__=KeyError("cause")
++    group.__context__=RuntimeError("context")
++    group.__suppress_context__=True
++    restored=pickle.loads(pickle.dumps(group,protocol=protocol))
++    assert restored.exceptions[0] is restored.exceptions[1]
++    assert restored.details["self"] is restored
++    assert restored.details["leaf"] is restored.exceptions[0]
++    assert restored.__notes__ == ["diagnostic note"]
++    assert restored.__cause__.args == ("cause",)
++    assert restored.__context__.args == ("context",)
++    assert restored.__suppress_context__ is True
++    assert group.details["self"] is group and group.exceptions[0] is leaf
++
++def test_base_exception_distinction():
++    group=MultiError([KeyboardInterrupt()],_collapse=False)
++    result=pickle.loads(pickle.dumps(group))
++    assert isinstance(result,MultiError) and not isinstance(result,Exception)
++    assert isinstance(result.exceptions[0],KeyboardInterrupt)
++
++def test_original_multi_child_pickle():
++    result=pickle.loads(pickle.dumps(MultiError([ValueError("a"),KeyError("b")])))
++    assert [e.args for e in result.exceptions] == [("a",),("b",)]

@@ -1,0 +1,3 @@
+Also, At there, I'm more fan of what done for `proxies`: So, what I can suggest at here is: 1. deprecate and mention scheduled removal if any (e.g. "The 'proxies' argument is now deprecated and it will remove in v1.0.0") 2. clear all deprecations in major release
+
+Both app deprecation warnings must identify the caller of the Client/that type constructor as their source location, so users can find and migrate their call sites. Keep the transport-specific migration guidance and prior requirements.

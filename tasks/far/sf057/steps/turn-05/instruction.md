@@ -1,0 +1,1 @@
+Also, This should also check that `sys.modules["__mp_main__"]` exists, for parity with `multiprocessing`. We didn't have that before (an oversight on my part).

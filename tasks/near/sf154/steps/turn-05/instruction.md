@@ -1,0 +1,1 @@
+Also, I was not able to 100% fix this on trio because it's unable to tell the difference between timeout based cancellation vs manual cancellation + deadline exceeded later, unlike the asyncio backend where the timer expiring event is explicitly recorded and checked against. Are you able to make the test program fail with asyncio though? If so, that then would indicate a problem.

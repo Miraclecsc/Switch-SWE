@@ -1,0 +1,61 @@
+diff --git a/CHANGELOG.rst b/CHANGELOG.rst
+index 33ece45..d5919c1 100644
+--- a/CHANGELOG.rst
++++ b/CHANGELOG.rst
+@@ -7,6 +7,14 @@ Changelog
+ 
+ * Fix string representation of PEP 508 direct URL requirements with markers.
+ 
++* Better handling of file URLs
++
++  This allows for using ``file:///absolute/path``, which was previously
++  prevented due to the missing ``netloc``.
++
++  This allows for all file URLs that ``urlunparse`` turns back into the
++  original URL to be valid.
++
+ 
+ 18.0 - 2018-09-26
+ ~~~~~~~~~~~~~~~~~
+diff --git a/packaging/requirements.py b/packaging/requirements.py
+index e20d90a..7c6943f 100644
+--- a/packaging/requirements.py
++++ b/packaging/requirements.py
+@@ -10,6 +10,7 @@ from pyparsing import stringStart, stringEnd, originalTextFor, ParseException
+ from pyparsing import ZeroOrMore, Word, Optional, Regex, Combine
+ from pyparsing import Literal as L  # noqa
+ from six.moves.urllib import parse as urlparse
++from six import string_types
+ 
+ from .markers import MARKER_EXPR, Marker
+ from .specifiers import LegacySpecifier, Specifier, SpecifierSet
+@@ -99,7 +100,10 @@ class Requirement(object):
+         self.name = req.name
+         if req.url:
+             parsed_url = urlparse.urlparse(req.url)
+-            if not (parsed_url.scheme and parsed_url.netloc) or (
++            if parsed_url.scheme == 'file':
++                if urlparse.urlunparse(parsed_url) != req.url:
++                    raise InvalidRequirement("Invalid URL given")
++            elif not (parsed_url.scheme and parsed_url.netloc) or (
+                     not parsed_url.scheme and not parsed_url.netloc):
+                 raise InvalidRequirement("Invalid URL: {0}".format(req.url))
+             self.url = req.url
+@@ -109,6 +113,17 @@ class Requirement(object):
+         self.specifier = SpecifierSet(req.specifier)
+         self.marker = req.marker if req.marker else None
+ 
++    def with_file_path(self, path):
++        """Return a new direct requirement for an absolute local POSIX path."""
++        if (not isinstance(path, string_types) or not path.startswith("/")
++                or path.startswith("//") or "\x00" in path):
++            raise InvalidRequirement("Expected an absolute local POSIX path")
++        if self.specifier:
++            raise InvalidRequirement("Cannot replace version constraints with a file")
++        result = Requirement(str(self))
++        result.url = "file://" + urlparse.quote(path.encode("utf-8"), safe="/")
++        return Requirement(str(result))
++
+     def __str__(self):
+         parts = [self.name]
+ 

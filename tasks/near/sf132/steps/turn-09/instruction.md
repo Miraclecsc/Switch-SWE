@@ -1,0 +1,1 @@
+Also, Oh, I didn't catch that when skimming the numpydoc style guide. Thanks for taking the time to explain!

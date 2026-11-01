@@ -1,0 +1,1 @@
+Please check this too: Evaluate the alternative of isolating the async boundary behind an aset_password helper, but avoid adding a new abstraction if it is only useful for this timing-attack mitigation path.

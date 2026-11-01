@@ -1,0 +1,1 @@
+Also, That's what I was planning to do originally, but that only works for the current interpreter. Some of the public APIs (and may of the tests) allow you to compute tags for a different Python version or ABI than the one currently running.

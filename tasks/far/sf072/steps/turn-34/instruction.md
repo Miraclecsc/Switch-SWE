@@ -1,0 +1,1 @@
+One more thing: I was initially thrown by the pattern of "conditionally set state, do calculation, conditionally reset state" here, but it's clear once I took the time to read it! An alternative might be: This is purely subjective, so feel free to ignore - it's fine as-is!

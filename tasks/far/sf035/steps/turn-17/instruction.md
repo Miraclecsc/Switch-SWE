@@ -1,0 +1,1 @@
+Also, Like the first version with `icontains`, I'm still concerned about substring conflation, can we avoid using `endswith` somehow.

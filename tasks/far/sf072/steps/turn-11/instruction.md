@@ -1,0 +1,1 @@
+Please check this too: Returning defaultdicts can be bug prone because they hide KeyErrors. Consider converting inner ones or drop defaultdict

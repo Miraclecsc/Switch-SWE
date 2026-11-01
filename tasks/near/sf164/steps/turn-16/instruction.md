@@ -1,0 +1,1 @@
+And here, > this does not solve the problem when someone wants to access `request.body` in other middleware. This issue is still there, isn't it? This solution (#1519) is more straightforward as fixes the issue everywhere. also resolves it in a way that compliments this PR, and without breaking other things.

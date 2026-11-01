@@ -1,0 +1,1 @@
+Please check this too: We're looking up `JUPYTER_COLUMNS` every time, even when `width` is non zero. Suggest structuring it so that it is clear we only use it when `width` is not set. i.e. `if not width:`

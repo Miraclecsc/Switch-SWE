@@ -1,0 +1,1 @@
+Please check this too: I think you should take this opportunity to enable type-checking on `trio/_tests/test_path` and fix any problems in it - it might have caught these errors if it was enabled originally.

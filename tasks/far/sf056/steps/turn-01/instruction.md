@@ -1,0 +1,2 @@
+I have this in /work/w03: Do you want to extract and pass on the cancel message?
+Fix the asyncio pytest runner hanging on KeyboardInterrupt. Fatal BaseExceptions must terminate the runner; ordinary exceptions and pytest outcome exceptions must remain deliverable without terminating it. Propagate cancellation messages.

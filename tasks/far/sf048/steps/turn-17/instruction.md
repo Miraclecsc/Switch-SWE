@@ -1,0 +1,1 @@
+Also, this is still iterating over python objects, which isn't an improvement. best case is to implement a performant version operating directly on the underlying integers. If you don't want to do that, then going back to the previous approach converting to DatetimeArray is fine.

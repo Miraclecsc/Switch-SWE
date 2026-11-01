@@ -1,0 +1,1 @@
+And here, Negative integer-like bounds must raise ValueError consistently with negative built-in integers. Keep directed and undirected multigraph semantics.

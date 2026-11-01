@@ -1,0 +1,1 @@
+Also, An alternative would be... Not sure if the more concise version is better or worse here. Or we could do explicitly length-based... Looking at it now, I think the length based version is probably neatest, since it's just very clear and obvious. Marginally nicer than the various indents that try..catch requires.

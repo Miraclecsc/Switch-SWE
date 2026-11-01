@@ -1,0 +1,3 @@
+One more thing: Would `except* GeneratorExit: pass` do what we want here?
+
+In the "all" policy remove only that type leaves. Preserve every other cleanup exception, including BaseException subclasses, and preserve simultaneous context-body errors through the existing grouping/unwrapping rules. Generator cleanup must still run exactly once on early context exit, while ordinary values, exhaustion, argument forwarding and default-policy behavior remain intact. Do not drop a real cleanup failure merely because that type occurred beside it.

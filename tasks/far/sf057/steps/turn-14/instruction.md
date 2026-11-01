@@ -1,0 +1,1 @@
+One more thing: Oh, I think I was wrong, `fail_after` would raise in master. I'll implement it.

@@ -1,0 +1,85 @@
+diff --git a/ariadne/contrib/tracing/apollotracing.py b/ariadne/contrib/tracing/apollotracing.py
+index 3694474..63333a5 100644
+--- a/ariadne/contrib/tracing/apollotracing.py
++++ b/ariadne/contrib/tracing/apollotracing.py
+@@ -23,7 +23,8 @@ TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+ 
+ 
+ class ApolloTracingExtension(Extension):
+-    def __init__(self):
++    def __init__(self, trace_default_resolver: bool = False):
++        self.trace_default_resolver = trace_default_resolver
+         self.start_date = None
+         self.start_timestamp = None
+         self.resolvers = []
+@@ -31,13 +32,15 @@ class ApolloTracingExtension(Extension):
+         self._totals = None
+ 
+     def request_started(self, context: ContextValue):
++        self.resolvers = []
++        self._totals = None
+         self.start_date = datetime.datetime.utcnow()
+         self.start_timestamp = perf_counter_ns()
+ 
+     async def resolve(
+         self, next_: Resolver, parent: Any, info: GraphQLResolveInfo, **kwargs
+     ):
+-        if not should_trace(info):
++        if not should_trace(info, self.trace_default_resolver):
+             result = next_(parent, info, **kwargs)
+             if isawaitable(result):
+                 result = await result
+@@ -92,7 +95,7 @@ class ApolloTracingExtensionSync(ApolloTracingExtension):
+     def resolve(
+         self, next_: Resolver, parent: Any, info: GraphQLResolveInfo, **kwargs
+     ):  # pylint: disable=invalid-overridden-method
+-        if not should_trace(info):
++        if not should_trace(info, self.trace_default_resolver):
+             result = next_(parent, info, **kwargs)
+             return result
+ 
+diff --git a/ariadne/contrib/tracing/utils.py b/ariadne/contrib/tracing/utils.py
+index c5594a1..ea1736b 100644
+--- a/ariadne/contrib/tracing/utils.py
++++ b/ariadne/contrib/tracing/utils.py
+@@ -11,19 +11,22 @@ def format_path(path: ResponsePath):
+     return elements[::-1]
+ 
+ 
+-def should_trace(info: GraphQLResolveInfo):
++def should_trace(info: GraphQLResolveInfo, trace_default_resolver: bool = False):
+     if info.field_name not in info.parent_type.fields:
+         return False
+ 
+     resolver = info.parent_type.fields[info.field_name].resolve
+-    return not (
+-        resolver is None
+-        or is_default_resolver(resolver)
+-        or is_introspection_field(info)
+-    )
++    if trace_default_resolver:
++        default_resolver_bool = False
++    else:
++        default_resolver_bool = is_default_resolver(resolver)
++    return not (default_resolver_bool or is_introspection_field(info))
+ 
+ 
+ def is_introspection_field(info: GraphQLResolveInfo):
++    parent_name = getattr(info.parent_type, "name", None)
++    if isinstance(parent_name, str):
++        return parent_name.startswith("__") or info.field_name.startswith("__")
+     path = info.path
+     while path:
+         if isinstance(path.key, str) and is_introspection_key(path.key):
+diff --git a/ariadne/resolvers.py b/ariadne/resolvers.py
+index e01bdbc..de60b93 100644
+--- a/ariadne/resolvers.py
++++ b/ariadne/resolvers.py
+@@ -61,6 +61,6 @@ def resolve_to(field_name: str) -> Resolver:
+ 
+ def is_default_resolver(resolver: Resolver) -> bool:
+     # pylint: disable=comparison-with-callable
+-    if resolver == default_field_resolver:
++    if resolver == default_field_resolver or not resolver:
+         return True
+     return hasattr(resolver, "_ariadne_alias_resolver")

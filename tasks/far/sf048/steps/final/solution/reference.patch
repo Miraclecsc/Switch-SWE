@@ -1,0 +1,83 @@
+diff --git a/pandas/core/algorithms.py b/pandas/core/algorithms.py
+--- a/pandas/core/algorithms.py
++++ b/pandas/core/algorithms.py
+@@ -1118,6 +1118,34 @@
+     return ranks
+ 
+ 
++def is_monotonic(values: ArrayLike, *, skipna: bool = False) -> tuple[bool, bool, bool]:
++    """
++    Determine whether values are monotonic increasing/decreasing.
++
++    Parameters
++    ----------
++    values : np.ndarray or ExtensionArray
++    skipna : bool, default False
++        Exclude missing values before checking the remaining order.
++
++    Returns
++    -------
++    tuple[bool, bool, bool]
++        (is_monotonic_increasing, is_monotonic_decreasing, is_strict_monotonic)
++
++    Raises
++    ------
++    TypeError
++        If the dtype is not orderable by the underlying routine (e.g. complex).
++    """
++    if skipna:
++        values = values[~isna(values)]
++    timelike = needs_i8_conversion(values.dtype)
++    values = _ensure_data(values)
++    inc, dec, strict = algos.is_monotonic(values, timelike=timelike)
++    return bool(inc), bool(dec), bool(strict)
++
++
+ # ---- #
+ # take #
+ # ---- #
+diff --git a/pandas/core/arrays/base.py b/pandas/core/arrays/base.py
+--- a/pandas/core/arrays/base.py
++++ b/pandas/core/arrays/base.py
+@@ -69,6 +69,7 @@
+ from pandas.core.algorithms import (
+     duplicated,
+     factorize_array,
++    is_monotonic,
+     isin,
+     map_array,
+     mode,
+@@ -2748,20 +2749,25 @@
+         """
+         return self._monotonic_check()[1]
+ 
+-    def _monotonic_check(self) -> tuple[bool, bool]:
++    def _monotonic_check(self, *, skipna: bool = False) -> tuple[bool, bool]:
+         """
+         Return (is_monotonic_increasing, is_monotonic_decreasing).
+ 
+-        Default implementation using ranks. Subclasses should override
+-        ``_is_monotonic_increasing`` and ``_is_monotonic_decreasing``
+-        instead of this method.
+-        """
++        Default implementation using ``_values_for_argsort``. Subclasses
++        should override ``_is_monotonic_increasing`` and
++        ``_is_monotonic_decreasing`` instead of this method.
++        """
++        if self._hasna and not skipna:
++            return False, False
+         try:
+-            ranks = self._rank()
++            ordered = self[~self.isna()] if skipna else self
++            values = ordered._values_for_argsort()
++            inc, dec, _ = is_monotonic(values)
+         except TypeError:
++            # Either ``_values_for_argsort`` is not implemented or the dtype is
++            # not orderable by ``is_monotonic`` (e.g. complex).
+             return False, False
+-        inc, dec, _ = libalgos.is_monotonic(ranks, timelike=False)
+-        return bool(inc), bool(dec)
++        return inc, dec
+ 
+     def _rank(
+         self,

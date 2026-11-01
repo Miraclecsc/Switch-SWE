@@ -1,0 +1,1 @@
+One more thing: This was the only way I could figure out how to cover an empty input to `LineDecoder.decode`.

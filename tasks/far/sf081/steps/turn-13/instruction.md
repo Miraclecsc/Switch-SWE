@@ -1,0 +1,1 @@
+Also, This could be a data class, which would could generate the `__init__`, `__eq__`, and `__hash__`. And of course `__repr__`. You'd still need `__slots__` and `__lt__`. If it's best not to use it for performance reasons, then please add a `__repr__` (at least) to all classes, so they show up nicely in error messages and debugging.

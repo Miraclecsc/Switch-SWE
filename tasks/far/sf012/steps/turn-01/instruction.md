@@ -1,0 +1,1 @@
+I have this in /work/w00: Fixed #37078 -- Deprecated SHA-1 default for salted_hmac() and base64_hmac() algorithm

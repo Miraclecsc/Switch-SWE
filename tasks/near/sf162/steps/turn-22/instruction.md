@@ -1,0 +1,1 @@
+One more thing: Thanks @alex-oleshkevich 🙏 For the record, this was accepted given that it is not a breaking change, and that we already have a follow-up PR to clean-up everything for V1: 🙏 The idea is to warn the users now, and then remove the `DeprecationWarning` for V1.

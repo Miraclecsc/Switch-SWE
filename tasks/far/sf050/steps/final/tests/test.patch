@@ -1,0 +1,121 @@
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index 054d29bd..e03afad0 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -214,6 +214,18 @@ async def test_cancel_after_release(self) -> None:
+         assert statistics.tasks_waiting == 0
+         lock.acquire_nowait()
+ 
++    async def test_cancelled_after_acquire(self) -> None:
++        lock = Lock()
++        lock.acquire_nowait()
++        async with create_task_group() as tg:
++            task1 = tg.create_task(lock.acquire())
++            await wait_all_tasks_blocked()
++            task1.cancel()
++            lock.release()
++            assert lock.statistics().tasks_waiting == 0
++            with fail_after(3):
++                await lock.acquire()
++
+     def test_instantiate_outside_event_loop(
+         self, anyio_backend_name: str, anyio_backend_options: dict[str, Any]
+     ) -> None:
+@@ -661,6 +673,18 @@ async def test_cancel_after_release(self) -> None:
+         assert semaphore.statistics().tasks_waiting == 0
+         semaphore.acquire_nowait()
+ 
++    async def test_cancelled_after_acquire(self) -> None:
++        semaphore = Semaphore(1, max_value=1)
++        semaphore.acquire_nowait()
++        async with create_task_group() as tg:
++            task1 = tg.create_task(semaphore.acquire())
++            await wait_all_tasks_blocked()
++            task1.cancel()
++            semaphore.release()
++            assert semaphore.statistics().tasks_waiting == 0
++            with fail_after(3):
++                await semaphore.acquire()
++
+     def test_instantiate_outside_event_loop(
+         self, anyio_backend_name: str, anyio_backend_options: dict[str, Any]
+     ) -> None:
+diff --git a/tests/test_sf050_weighted_cancellation.py b/tests/test_sf050_weighted_cancellation.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf050_weighted_cancellation.py
+@@ -0,0 +1,74 @@
++import pytest
++import anyio
++
++@pytest.fixture(params=['asyncio','trio'])
++def anyio_backend(request):
++    return request.param
++
++@pytest.mark.anyio
++async def test_fifo_atomic_waiting_and_queued_cancellation():
++    sem=anyio.WeightedSemaphore(0,max_value=3);order=[]
++    async def worker(units,*,task_status):
++        with anyio.CancelScope() as scope:
++            task_status.started(scope)
++            await sem.acquire(units)
++            order.append(units)
++            sem.release(units)
++    async with anyio.create_task_group() as tg:
++        first=await tg.start(worker,2)
++        await tg.start(worker,1)
++        await anyio.wait_all_tasks_blocked()
++        sem.release(1)
++        await anyio.wait_all_tasks_blocked()
++        assert sem.value==1 and order==[] and sem.statistics().tasks_waiting==2
++        with pytest.raises(anyio.WouldBlock):sem.acquire_nowait()
++        first.cancel()
++    assert order==[1] and sem.value==1 and sem.statistics().tasks_waiting==0
++
++@pytest.mark.anyio
++async def test_cancel_reserved_grant_refunds_all_units():
++    sem=anyio.WeightedSemaphore(0,max_value=3);order=[]
++    async def worker(units,*,task_status):
++        with anyio.CancelScope() as scope:
++            task_status.started(scope)
++            await sem.acquire(units)
++            order.append(units)
++            sem.release(units)
++    async with anyio.create_task_group() as tg:
++        first=await tg.start(worker,2)
++        await tg.start(worker,1)
++        await anyio.wait_all_tasks_blocked()
++        sem.release(2)
++        first.cancel()
++    assert order==[1] and sem.value==2 and sem.statistics().tasks_waiting==0
++
++@pytest.mark.anyio
++async def test_immediate_weighted_acquisition_and_nonblocking_failure():
++    sem=anyio.WeightedSemaphore(3,max_value=3)
++    await sem.acquire(2)
++    assert sem.value==1
++    with pytest.raises(anyio.WouldBlock):sem.acquire_nowait(2)
++    assert sem.value==1
++    sem.release(2);assert sem.value==3
++    sem.acquire_nowait(3);assert sem.value==0
++
++@pytest.mark.anyio
++async def test_cancelled_scope_does_not_take_available_units():
++    sem=anyio.WeightedSemaphore(3,max_value=3)
++    with anyio.CancelScope() as scope:
++        scope.cancel()
++        await sem.acquire(2)
++        pytest.fail('cancelled acquire returned')
++    assert sem.value==3
++
++def test_invalid_counts_and_release_overflow_are_atomic():
++    for initial in [-1,-2]:
++        with pytest.raises(ValueError):anyio.WeightedSemaphore(initial)
++    with pytest.raises(TypeError):anyio.WeightedSemaphore(1.5)
++    with pytest.raises(ValueError):anyio.WeightedSemaphore(2,max_value=1)
++    sem=anyio.WeightedSemaphore(2,max_value=3)
++    for units in [0,-1,4]:
++        with pytest.raises(ValueError):sem.acquire_nowait(units)
++        assert sem.value==2
++    with pytest.raises(ValueError):sem.release(2)
++    assert sem.value==2 and sem.statistics().tasks_waiting==0

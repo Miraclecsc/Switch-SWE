@@ -1,0 +1,1 @@
+And here, `Matcher(OSError, check={check_errno_is_5!r}): check did not return True for OSError(6, '')` seems reasonable to me? (and see above for Hypothesis' pprinter idea...)

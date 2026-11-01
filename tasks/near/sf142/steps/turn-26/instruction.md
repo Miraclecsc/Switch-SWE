@@ -1,0 +1,3 @@
+One more thing: Sorry I'm not sure I understand what you mean? :slightly_smiling_face: The loop iterates through the 3 standard file descriptors, and tries to get the terminal size for each of them. And as soon as one of them succeeds we want to stop the loop as we do have values for `width` and `height` at this point and job's done, we should stop without trying subsequent descriptors. Where would you like to add an `else:` clause there?
+
+Explicit constructor width/height remain highest priority, independently. Positive integer COLUMNS/LINES override discovered dimensions; zero, negative or invalid environment values are ignored rather than masking a usable terminal size. Recompute on each access so terminal resizing is observed.

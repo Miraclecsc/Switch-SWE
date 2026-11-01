@@ -1,0 +1,1 @@
+Also, Yes -- I had not seen this "trick" before and verified that it is like "extend" only in the middle of a list. I'll add a comment so its more clear. :)

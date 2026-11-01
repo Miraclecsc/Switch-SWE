@@ -1,0 +1,729 @@
+diff --git a/tests/test_dynamodb/__init__.py b/tests/test_dynamodb/__init__.py
+index 38fe0f6e1ae2..0db3a8b8ed1a 100644
+--- a/tests/test_dynamodb/__init__.py
++++ b/tests/test_dynamodb/__init__.py
+@@ -18,6 +18,7 @@ def dynamodb_aws_verified(
+     lsi_projection_type: str = "ALL",
+     numeric_gsi_range: bool = False,
+     numeric_lsi_range: bool = False,
++    add_multi_attribute_gsi: bool = False,
+ ):
+     """
+     Function that is verified to work against AWS.
+@@ -97,6 +98,29 @@ def create_table_and_test():
+                     db_kwargs["AttributeDefinitions"].append(
+                         {"AttributeName": "gsi_sk", "AttributeType": gsi_range_type}
+                     )
++                if add_multi_attribute_gsi:
++                    db_kwargs["GlobalSecondaryIndexes"] = [
++                        {
++                            "IndexName": "test_gsi",
++                            "KeySchema": [
++                                {"AttributeName": "gsi_pk", "KeyType": "HASH"},
++                                {"AttributeName": "gsi_sk", "KeyType": "RANGE"},
++                                {"AttributeName": "gsi_sk2", "KeyType": "RANGE"},
++                            ],
++                            "Projection": {"ProjectionType": gsi_projection_type},
++                            "ProvisionedThroughput": {
++                                "ReadCapacityUnits": 1,
++                                "WriteCapacityUnits": 1,
++                            },
++                        }
++                    ]
++                    db_kwargs["AttributeDefinitions"].extend(
++                        [
++                            {"AttributeName": "gsi_pk", "AttributeType": "S"},
++                            {"AttributeName": "gsi_sk", "AttributeType": "S"},
++                            {"AttributeName": "gsi_sk2", "AttributeType": "N"},
++                        ]
++                    )
+                 if add_lsi or numeric_lsi_range:
+                     db_kwargs["LocalSecondaryIndexes"] = [
+                         {
+diff --git a/tests/test_dynamodb/models/test_key_condition_expression_parser.py b/tests/test_dynamodb/models/test_key_condition_expression_parser.py
+index 3f45157ba1d7..fa6ee951e796 100644
+--- a/tests/test_dynamodb/models/test_key_condition_expression_parser.py
++++ b/tests/test_dynamodb/models/test_key_condition_expression_parser.py
+@@ -10,15 +10,14 @@ class TestHashKey:
+     @pytest.mark.parametrize("expression", ["job_id = :id", "job_id = :id "])
+     def test_hash_key_only(self, expression):
+         eav = {":id": {"S": "asdasdasd"}}
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=expression,
+             schema=self.schema,
+             expression_attribute_names={},
+         )
+-        assert desired_hash_key == eav[":id"]
+-        assert comparison is None
+-        assert range_values == []
++        assert hash_key_conditions[0][1] == eav[":id"]
++        assert range_key_conditions == []
+ 
+     def test_unknown_hash_key(self):
+         kce = "wrongName = :id"
+@@ -84,15 +83,15 @@ def test_unknown_range_key(self, expr):
+     )
+     def test_begin_with(self, expr):
+         eav = {":id": "pk", ":sk": "19"}
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=expr,
+             schema=self.schema,
+             expression_attribute_names={},
+         )
+-        assert desired_hash_key == "pk"
+-        assert comparison == "BEGINS_WITH"
+-        assert range_values == ["19"]
++        assert hash_key_conditions[0][1] == "pk"
++        assert range_key_conditions[0][1] == "BEGINS_WITH"
++        assert range_key_conditions[0][2] == ["19"]
+ 
+     @pytest.mark.parametrize("fn", ["Begins_with", "Begins_With", "BEGINS_WITH"])
+     def test_begin_with__wrong_case(self, fn):
+@@ -119,29 +118,29 @@ def test_begin_with__wrong_case(self, fn):
+     )
+     def test_in_between(self, expr):
+         eav = {":id": "pk", ":sk1": "19", ":sk2": "21"}
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=expr,
+             schema=self.schema,
+             expression_attribute_names={},
+         )
+-        assert desired_hash_key == "pk"
+-        assert comparison == "BETWEEN"
+-        assert range_values == ["19", "21"]
++        assert hash_key_conditions[0][1] == "pk"
++        assert range_key_conditions[0][1] == "BETWEEN"
++        assert range_key_conditions[0][2] == ["19", "21"]
+ 
+     @pytest.mark.parametrize("operator", [" < ", " <=", "= ", ">", ">="])
+     def test_numeric_comparisons(self, operator):
+         eav = {":id": "pk", ":sk": "19"}
+         expr = f"job_id = :id and start_date{operator}:sk"
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=expr,
+             schema=self.schema,
+             expression_attribute_names={},
+         )
+-        assert desired_hash_key == "pk"
+-        assert comparison == operator.strip()
+-        assert range_values == ["19"]
++        assert hash_key_conditions[0][1] == "pk"
++        assert range_key_conditions[0][1] == operator.strip().upper()
++        assert range_key_conditions[0][2] == ["19"]
+ 
+     @pytest.mark.parametrize(
+         "expr",
+@@ -154,13 +153,13 @@ def test_numeric_comparisons(self, operator):
+     )
+     def test_reverse_keys(self, expr):
+         eav = {":id": "pk", ":sk1": "19", ":sk2": "21"}
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=expr,
+             schema=self.schema,
+             expression_attribute_names={},
+         )
+-        assert desired_hash_key == "pk"
++        assert hash_key_conditions[0][1] == "pk"
+ 
+     @pytest.mark.parametrize(
+         "expr",
+@@ -171,13 +170,13 @@ def test_reverse_keys(self, expr):
+         ],
+     )
+     def test_brackets(self, expr):
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values={":id": "pk", ":sk": "19"},
+             key_condition_expression=expr,
+             schema=self.schema,
+             expression_attribute_names={},
+         )
+-        assert desired_hash_key == "pk"
++        assert hash_key_conditions[0][1] == "pk"
+ 
+ 
+ class TestNamesAndValues:
+@@ -187,22 +186,21 @@ def test_names_and_values(self):
+         kce = ":j = :id"
+         ean = {":j": "job_id"}
+         eav = {":id": {"S": "asdasdasd"}}
+-        desired_hash_key, comparison, range_values, _ = parse_expression(
++        hash_key_conditions, range_key_conditions, _ = parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=kce,
+             schema=self.schema,
+             expression_attribute_names=ean,
+         )
+-        assert desired_hash_key == eav[":id"]
+-        assert comparison is None
+-        assert range_values == []
++        assert hash_key_conditions[0][1] == eav[":id"]
++        assert range_key_conditions == []
+ 
+ 
+ def test_expression_attribute_names_found():
+     kce = ":j = :id"
+     ean = {":j": "job_id"}
+     eav = {":id": {"S": "asdasdasd"}}
+-    desired_hash_key, comparison, range_values, expression_attribute_names_used = (
++    hash_key_conditions, range_key_conditions, expression_attribute_names_used = (
+         parse_expression(
+             expression_attribute_values=eav,
+             key_condition_expression=kce,
+diff --git a/tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py b/tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py
+new file mode 100644
+index 000000000000..ce93d53b304c
+--- /dev/null
++++ b/tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py
+@@ -0,0 +1,472 @@
++"""
++Tests for multi-attribute GSI key support in DynamoDB.
++
++DynamoDB announced support for multi-attribute composite keys in GSIs in November 2025.
++This allows up to 4 attributes each for partition (HASH) and sort (RANGE) keys.
++
++Key semantics:
++- ALL hash key attributes must use equality (=)
++- Sort keys must be specified left-to-right (cannot skip)
++- Only the LAST sort key in your query can use range operators (<, >, BETWEEN, begins_with)
++- Earlier sort keys in your query must use equality (=)
++- You don't have to specify all range keys - partial prefix is allowed
++
++The decorator `dynamodb_aws_verified(add_multi_attribute_gsi=True)` creates a table with:
++- Table key: pk (HASH, S)
++- GSI "test_gsi": gsi_pk (HASH, S), gsi_sk (RANGE, S), gsi_sk2 (RANGE, N)
++"""
++
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++
++from tests.test_dynamodb import dynamodb_aws_verified
++
++
++def _insert_test_items(table_name: str):
++    """Insert test items using the decorator's attribute names."""
++    dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
++    table = dynamodb.Table(table_name)
++    items = [
++        {"pk": "1", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 100},
++        {"pk": "2", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 200},
++        {"pk": "3", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 300},
++        {"pk": "4", "gsi_pk": "pk1", "gsi_sk": "skB", "gsi_sk2": 150},
++        {"pk": "5", "gsi_pk": "pk2", "gsi_sk": "skA", "gsi_sk2": 250},
++    ]
++    for item in items:
++        table.put_item(Item=item)
++
++
++# === Table creation ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_create_gsi_with_multi_range_keys(table_name=None):
++    """Verify GSI with multiple range keys can be created and described."""
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    desc = client.describe_table(TableName=table_name)
++    gsi = desc["Table"]["GlobalSecondaryIndexes"][0]
++
++    assert gsi["IndexName"] == "test_gsi"
++    assert len(gsi["KeySchema"]) == 3
++    assert gsi["KeySchema"][0] == {"AttributeName": "gsi_pk", "KeyType": "HASH"}
++    assert gsi["KeySchema"][1] == {"AttributeName": "gsi_sk", "KeyType": "RANGE"}
++    assert gsi["KeySchema"][2] == {"AttributeName": "gsi_sk2", "KeyType": "RANGE"}
++
++
++# === Query tests ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_hash_only(table_name=None):
++    """Query with just hash key returns all matching items."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk",
++        ExpressionAttributeValues={":pk": {"S": "pk1"}},
++    )
++
++    assert result["Count"] == 4
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_partial_range_equality(table_name=None):
++    """Query with hash + first range key (equality) filters correctly."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk AND gsi_sk = :sk",
++        ExpressionAttributeValues={
++            ":pk": {"S": "pk1"},
++            ":sk": {"S": "skA"},
++        },
++    )
++
++    assert result["Count"] == 3
++    for item in result["Items"]:
++        assert item["gsi_sk"]["S"] == "skA"
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_partial_range_comparison(table_name=None):
++    """Query with range operator on first range key (valid - last in query)."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk AND gsi_sk > :sk",
++        ExpressionAttributeValues={
++            ":pk": {"S": "pk1"},
++            ":sk": {"S": "skA"},
++        },
++    )
++
++    # Should only return skB (which is > skA lexicographically)
++    assert result["Count"] == 1
++    assert result["Items"][0]["gsi_sk"]["S"] == "skB"
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_full_range_equality(table_name=None):
++    """Query with all range keys using equality."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk AND gsi_sk = :sk AND gsi_sk2 = :sk2",
++        ExpressionAttributeValues={
++            ":pk": {"S": "pk1"},
++            ":sk": {"S": "skA"},
++            ":sk2": {"N": "200"},
++        },
++    )
++
++    assert result["Count"] == 1
++    assert result["Items"][0]["gsi_sk2"]["N"] == "200"
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_full_range_comparison(table_name=None):
++    """Query with range operator on last range key."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk AND gsi_sk = :sk AND gsi_sk2 > :sk2",
++        ExpressionAttributeValues={
++            ":pk": {"S": "pk1"},
++            ":sk": {"S": "skA"},
++            ":sk2": {"N": "100"},
++        },
++    )
++
++    # Should return items with gsi_sk2 > 100 (i.e., 200 and 300)
++    assert result["Count"] == 2
++    values = sorted([int(item["gsi_sk2"]["N"]) for item in result["Items"]])
++    assert values == [200, 300]
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_between_last_key(table_name=None):
++    """BETWEEN operator on last range key in query."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk AND gsi_sk = :sk AND gsi_sk2 BETWEEN :lo AND :hi",
++        ExpressionAttributeValues={
++            ":pk": {"S": "pk1"},
++            ":sk": {"S": "skA"},
++            ":lo": {"N": "150"},
++            ":hi": {"N": "250"},
++        },
++    )
++
++    # Should return item with gsi_sk2 = 200
++    assert result["Count"] == 1
++    assert result["Items"][0]["gsi_sk2"]["N"] == "200"
++
++
++# === Error tests ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_error_skip_range_key(table_name=None):
++    """Error when skipping a range key."""
++    client = boto3.client("dynamodb", region_name="us-east-1")
++
++    with pytest.raises(ClientError) as exc:
++        client.query(
++            TableName=table_name,
++            IndexName="test_gsi",
++            KeyConditionExpression="gsi_pk = :pk AND gsi_sk2 > :sk2",
++            ExpressionAttributeValues={
++                ":pk": {"S": "pk1"},
++                ":sk2": {"N": "100"},
++            },
++        )
++
++    err = exc.value.response["Error"]
++    assert err["Code"] == "ValidationException"
++    assert "gsi_sk" in err["Message"]
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_query_error_range_on_non_last_in_query(table_name=None):
++    """Error when range operator used on non-last key in query."""
++    client = boto3.client("dynamodb", region_name="us-east-1")
++
++    with pytest.raises(ClientError) as exc:
++        client.query(
++            TableName=table_name,
++            IndexName="test_gsi",
++            KeyConditionExpression="gsi_pk = :pk AND gsi_sk > :sk AND gsi_sk2 = :sk2",
++            ExpressionAttributeValues={
++                ":pk": {"S": "pk1"},
++                ":sk": {"S": "skA"},
++                ":sk2": {"N": "100"},
++            },
++        )
++
++    err = exc.value.response["Error"]
++    assert err["Code"] == "ValidationException"
++
++
++# === Sorting tests ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_sorting_by_composite_key(table_name=None):
++    """Items are sorted by composite (gsi_sk, gsi_sk2) key."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk",
++        ExpressionAttributeValues={":pk": {"S": "pk1"}},
++        ScanIndexForward=True,
++    )
++
++    # Should be sorted by (gsi_sk, gsi_sk2)
++    # skA comes before skB
++    # Within skA: 100, 200, 300
++    items = result["Items"]
++    assert items[0]["gsi_sk"]["S"] == "skA"
++    assert items[0]["gsi_sk2"]["N"] == "100"
++    assert items[1]["gsi_sk"]["S"] == "skA"
++    assert items[1]["gsi_sk2"]["N"] == "200"
++    assert items[2]["gsi_sk"]["S"] == "skA"
++    assert items[2]["gsi_sk2"]["N"] == "300"
++    assert items[3]["gsi_sk"]["S"] == "skB"
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_sorting_by_second_range_key_not_pk(table_name=None):
++    """Verify sorting uses second range key (gsi_sk2), not pk.
++
++    This test ensures items are sorted by the composite range key
++    even when pk values would produce a different order.
++    """
++    dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
++    table = dynamodb.Table(table_name)
++
++    # Insert items where pk order differs from gsi_sk2 order
++    # pk=10 has gsi_sk2=300 (should be last)
++    # pk=20 has gsi_sk2=100 (should be first)
++    # pk=30 has gsi_sk2=200 (should be middle)
++    table.put_item(Item={"pk": "10", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 300})
++    table.put_item(Item={"pk": "20", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 100})
++    table.put_item(Item={"pk": "30", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 200})
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk",
++        ExpressionAttributeValues={":pk": {"S": "pk1"}},
++        ScanIndexForward=True,
++    )
++
++    # Should be sorted by gsi_sk2: 100, 200, 300
++    # NOT by pk: 10, 20, 30
++    items = result["Items"]
++    assert items[0]["gsi_sk2"]["N"] == "100"
++    assert items[0]["pk"]["S"] == "20"
++    assert items[1]["gsi_sk2"]["N"] == "200"
++    assert items[1]["pk"]["S"] == "30"
++    assert items[2]["gsi_sk2"]["N"] == "300"
++    assert items[2]["pk"]["S"] == "10"
++
++
++# === KeyConditions tests ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_key_conditions_hash_only(table_name=None):
++    """KeyConditions with hash key only works on multi-attribute GSI."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditions={
++            "gsi_pk": {
++                "ComparisonOperator": "EQ",
++                "AttributeValueList": [{"S": "pk1"}],
++            },
++        },
++    )
++
++    assert result["Count"] == 4
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_key_conditions_with_range_keys(table_name=None):
++    """KeyConditions with hash + range keys works on multi-attribute GSI."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditions={
++            "gsi_pk": {
++                "ComparisonOperator": "EQ",
++                "AttributeValueList": [{"S": "pk1"}],
++            },
++            "gsi_sk": {
++                "ComparisonOperator": "EQ",
++                "AttributeValueList": [{"S": "skA"}],
++            },
++            "gsi_sk2": {
++                "ComparisonOperator": "GT",
++                "AttributeValueList": [{"N": "100"}],
++            },
++        },
++    )
++
++    assert result["Count"] == 2
++    values = sorted([int(item["gsi_sk2"]["N"]) for item in result["Items"]])
++    assert values == [200, 300]
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_key_conditions_error_skip_range_key(table_name=None):
++    """KeyConditions error when skipping a range key on multi-attribute GSI."""
++    client = boto3.client("dynamodb", region_name="us-east-1")
++
++    with pytest.raises(ClientError) as exc:
++        client.query(
++            TableName=table_name,
++            IndexName="test_gsi",
++            KeyConditions={
++                "gsi_pk": {
++                    "ComparisonOperator": "EQ",
++                    "AttributeValueList": [{"S": "pk1"}],
++                },
++                "gsi_sk2": {
++                    "ComparisonOperator": "GT",
++                    "AttributeValueList": [{"N": "100"}],
++                },
++            },
++        )
++
++    err = exc.value.response["Error"]
++    assert err["Code"] == "ValidationException"
++    assert "gsi_sk" in err["Message"]
++
++
++# === Sparse GSI tests ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_items_missing_range_key_excluded(table_name=None):
++    """Items missing ANY range key attribute should be excluded from GSI.
++
++    DynamoDB only indexes items that have ALL key attributes present.
++    """
++    dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
++    table = dynamodb.Table(table_name)
++
++    # Complete - should be in GSI
++    table.put_item(Item={"pk": "1", "gsi_pk": "pk1", "gsi_sk": "skA", "gsi_sk2": 100})
++    # Missing gsi_sk2 - should NOT be in GSI
++    table.put_item(Item={"pk": "2", "gsi_pk": "pk1", "gsi_sk": "skB"})
++    # Missing gsi_sk - should NOT be in GSI
++    table.put_item(Item={"pk": "3", "gsi_pk": "pk1", "gsi_sk2": 200})
++    # Complete - should be in GSI
++    table.put_item(Item={"pk": "4", "gsi_pk": "pk1", "gsi_sk": "skC", "gsi_sk2": 300})
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++    result = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk",
++        ExpressionAttributeValues={":pk": {"S": "pk1"}},
++    )
++
++    # Only items with ALL key attributes should be returned
++    assert result["Count"] == 2
++    pks = {item["pk"]["S"] for item in result["Items"]}
++    assert pks == {"1", "4"}
++
++
++# === Pagination tests ===
++
++
++@pytest.mark.aws_verified
++@dynamodb_aws_verified(add_multi_attribute_gsi=True)
++def test_pagination_with_composite_key(table_name=None):
++    """Pagination works correctly with composite range key."""
++    _insert_test_items(table_name)
++
++    client = boto3.client("dynamodb", region_name="us-east-1")
++
++    # First page
++    page1 = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk",
++        ExpressionAttributeValues={":pk": {"S": "pk1"}},
++        Limit=2,
++    )
++
++    assert len(page1["Items"]) == 2
++    assert "LastEvaluatedKey" in page1
++
++    # LastEvaluatedKey should include all key attributes
++    lek = page1["LastEvaluatedKey"]
++    assert "gsi_pk" in lek
++    assert "gsi_sk" in lek
++    assert "gsi_sk2" in lek
++
++    # Second page
++    page2 = client.query(
++        TableName=table_name,
++        IndexName="test_gsi",
++        KeyConditionExpression="gsi_pk = :pk",
++        ExpressionAttributeValues={":pk": {"S": "pk1"}},
++        Limit=2,
++        ExclusiveStartKey=page1["LastEvaluatedKey"],
++    )
++
++    assert len(page2["Items"]) == 2
++
++    # Verify no duplicates
++    page1_pks = {item["pk"]["S"] for item in page1["Items"]}
++    page2_pks = {item["pk"]["S"] for item in page2["Items"]}
++    assert len(page1_pks & page2_pks) == 0
+diff --git a/tests/test_dynamodb/test_composite_cursor_v1.py b/tests/test_dynamodb/test_composite_cursor_v1.py
+new file mode 100644
+index 000000000..82c0a286c
+--- /dev/null
++++ b/tests/test_dynamodb/test_composite_cursor_v1.py
+@@ -0,0 +1,63 @@
++import copy
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++from moto import mock_aws
++
++
++def fixture():
++    c = boto3.client("dynamodb", region_name="us-east-1")
++    c.create_table(TableName="composite", BillingMode="PAY_PER_REQUEST",
++        KeySchema=[{"AttributeName":"pk","KeyType":"HASH"}],
++        AttributeDefinitions=[{"AttributeName":n,"AttributeType":t} for n,t in
++                              [("pk","S"),("g","S"),("r1","S"),("r2","N")]],
++        GlobalSecondaryIndexes=[{"IndexName":"composite-index",
++            "KeySchema":[{"AttributeName":"g","KeyType":"HASH"},
++                         {"AttributeName":"r1","KeyType":"RANGE"},{"AttributeName":"r2","KeyType":"RANGE"}],
++            "Projection":{"ProjectionType":"ALL"}}])
++    for i in range(4):
++        c.put_item(TableName="composite", Item={"pk":{"S":str(i)}, "g":{"S":"tenant"},
++            "r1":{"S":"group"}, "r2":{"N":str(i)}})
++    return c
++
++
++def query(c, **kwargs):
++    return c.query(TableName="composite",IndexName="composite-index",
++        KeyConditionExpression="g = :g",ExpressionAttributeValues={":g":{"S":"tenant"}}, **kwargs)
++
++
++@pytest.mark.parametrize("change", ["missing_index_key","missing_table_key","wrong_type","foreign_partition","extra_attribute"])
++@mock_aws
++def test_invalid_composite_start_key_is_validation_error(change):
++    c = fixture()
++    cursor = query(c,Limit=1)["LastEvaluatedKey"]
++    if change == "missing_index_key": cursor.pop("r2")
++    elif change == "missing_table_key": cursor.pop("pk")
++    elif change == "wrong_type": cursor["r2"] = {"S":"0"}
++    elif change == "foreign_partition": cursor["g"] = {"S":"elsewhere"}
++    else: cursor["not_a_key"] = {"S":"extra"}
++    with pytest.raises(ClientError) as caught:
++        query(c,ExclusiveStartKey=cursor)
++    assert caught.value.response["Error"]["Code"] == "ValidationException"
++
++
++@mock_aws
++def test_deleted_start_item_and_numeric_cursor_spelling_still_resume():
++    c = fixture()
++    first = query(c,Limit=2)
++    cursor = first["LastEvaluatedKey"]
++    saved = copy.deepcopy(cursor)
++    cursor["r2"] = {"N":"1.00"}
++    c.delete_item(TableName="composite",Key={"pk":cursor["pk"]})
++    result = query(c,ExclusiveStartKey=cursor)
++    assert [i["pk"]["S"] for i in result["Items"]] == ["2","3"]
++    assert saved["r2"] == {"N":"1"}
++    assert cursor["r2"] == {"N":"1.00"}
++
++
++@mock_aws
++def test_reverse_paging_visits_each_composite_key_once():
++    c = fixture()
++    first = query(c,Limit=2,ScanIndexForward=False)
++    second = query(c,ExclusiveStartKey=first["LastEvaluatedKey"],ScanIndexForward=False)
++    assert [i["pk"]["S"] for i in first["Items"]+second["Items"]] == ["3","2","1","0"]

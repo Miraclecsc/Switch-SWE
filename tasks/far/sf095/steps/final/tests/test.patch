@@ -1,0 +1,91 @@
+diff --git a/src/trio/_tests/test_timeouts.py b/src/trio/_tests/test_timeouts.py
+index ff62a0708f..13388022c3 100644
+--- a/src/trio/_tests/test_timeouts.py
++++ b/src/trio/_tests/test_timeouts.py
+@@ -243,29 +243,24 @@ async def test_timeout_deadline_on_entry(mock_clock: _core.MockClock) -> None:
+         assert rcs is cs
+ 
+ 
+-async def test_invalid_access_unentered(mock_clock: _core.MockClock) -> None:
++async def test_invalid_access_unentered() -> None:
+     cs = move_on_after(5)
+-    mock_clock.jump(3)
+-    start = _core.current_time()
+ 
+-    match_str = "^unentered relative cancel scope does not have an absolute deadline"
+-    with pytest.warns(DeprecationWarning, match=match_str):
+-        assert cs.deadline == start + 5
+-    mock_clock.jump(1)
+-    # this is hella sketchy, but they *have* been warned
+-    with pytest.warns(DeprecationWarning, match=match_str):
+-        assert cs.deadline == start + 6
++    match_str = "^Unentered relative cancel scope does not have an absolute deadline"
++    with pytest.raises(RuntimeError, match=match_str):
++        assert cs.deadline
+ 
+-    with pytest.warns(DeprecationWarning, match=match_str):
++    with pytest.raises(RuntimeError, match=match_str):
+         cs.deadline = 7
+-    # now transformed into absolute
+-    assert cs.deadline == 7
+-    assert not cs.is_relative
++
++    # nothing happened!
++    assert cs.relative_deadline == 5
++    assert cs.is_relative
+ 
+     cs = move_on_at(5)
+ 
+     match_str = (
+-        "^unentered non-relative cancel scope does not have a relative deadline$"
++        "^Unentered non-relative cancel scope does not have a relative deadline$"
+     )
+     with pytest.raises(RuntimeError, match=match_str):
+         assert cs.relative_deadline
+diff --git a/src/trio/_core/_tests/test_sf095_extension.py b/src/trio/_core/_tests/test_sf095_extension.py
+new file mode 100644
+--- /dev/null
++++ b/src/trio/_core/_tests/test_sf095_extension.py
+@@ -0,0 +1,42 @@
++import math
++import pytest
++import trio
++from trio.testing import MockClock
++
++def test_relative_clone_outside_run():
++    source=trio.CancelScope(relative_deadline=5,shield=True)
++    clone=source.clone()
++    assert clone is not source and clone.is_relative is True
++    assert clone.relative_deadline==5 and clone.shield is True
++    with pytest.raises(RuntimeError): source.deadline=10
++    assert source.relative_deadline==5
++
++def test_mode_override_is_new_object():
++    source=trio.CancelScope(relative_deadline=5)
++    absolute=source.clone(deadline=20,shield=True)
++    assert absolute.deadline==20 and absolute.is_relative is False
++    relative=absolute.clone(relative_deadline=3)
++    assert relative.relative_deadline==3 and relative.shield is True
++    assert source.relative_deadline==5 and source.shield is False
++
++@pytest.mark.parametrize("options",[{"deadline":1,"relative_deadline":2},{"deadline":math.nan},{"relative_deadline":-1}])
++def test_invalid_clone_preserves_source(options):
++    source=trio.CancelScope(relative_deadline=5)
++    with pytest.raises(ValueError):source.clone(**options)
++    assert source.relative_deadline==5
++
++def test_entered_and_cancelled_source_snapshot():
++    async def main():
++        with trio.CancelScope(relative_deadline=5) as source:
++            absolute=source.deadline
++            clone=source.clone()
++            assert clone.deadline==absolute and clone.is_relative is False
++            source.cancel()
++            await trio.lowlevel.checkpoint()
++        assert source.cancelled_caught
++        fresh=source.clone(relative_deadline=2)
++        assert not fresh.cancel_called and not fresh.cancelled_caught
++        with fresh:
++            await trio.sleep(1)
++        assert not fresh.cancelled_caught
++    trio.run(main,clock=MockClock(autojump_threshold=0))

@@ -1,0 +1,1 @@
+I have this in /work/w03: Allow `deep_iterable` member validator to accept a list of validators # Summary

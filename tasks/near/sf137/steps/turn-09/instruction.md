@@ -1,0 +1,1 @@
+Also, After investigating from my initial comment, it does look like we need to wrap the stream returned by `nullpager` instead of this. The wrapper should pass everything through, except override close to do nothing. Will work on this tonight or tomorrow.

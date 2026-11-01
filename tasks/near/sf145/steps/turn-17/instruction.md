@@ -1,0 +1,1 @@
+Also, Sorry I didn't spot this before it was merged, from the snapshot it looks like that type height is based on the full height of the prompt rather than the truncated version with `nowrap`. Is that expected?

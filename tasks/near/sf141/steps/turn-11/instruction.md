@@ -1,0 +1,1 @@
+Please check this too: I just did a quick check with a class that doesn't have the usual `__module__` / `__class__` attributes (which I cannot do in the tests since I haven't found any cryptic objects I could use for this using Rich's dependencies and the Python stdlib)... It seems to work: :slightly_smiling_face: ![Screenshot from 2022-07-01 12-52-27](

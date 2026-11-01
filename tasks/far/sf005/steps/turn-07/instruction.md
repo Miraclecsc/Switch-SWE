@@ -1,0 +1,1 @@
+I have this in /work/w03: Refs #15759 -- Fixed ModelAdmin.list_editable form submission for non-editable instances.

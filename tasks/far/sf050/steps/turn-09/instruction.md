@@ -1,0 +1,1 @@
+Also, I don't understand this comment. `str(x)` or `x.__str__()` or `type(x).__str__(x)` are all equivalent.

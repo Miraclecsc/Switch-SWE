@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Drop `LegacySpecifier` and `LegacyVersion` Follow up to #342. Closes #530 Let's do this. :)

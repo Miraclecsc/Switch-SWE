@@ -1,0 +1,1 @@
+Please check this too: Yeah `ExpectedExceptionGroup` by default checks that *exactly* the exceptions you specify get raised, no more, no less. A kwarg that changes that behaviour would make sense though

@@ -1,0 +1,95 @@
+diff --git a/tests/test_pytest_plugin.py b/tests/test_pytest_plugin.py
+index 2b7d9ca4a..1aa8911e6 100644
+--- a/tests/test_pytest_plugin.py
++++ b/tests/test_pytest_plugin.py
+@@ -441,3 +441,30 @@ async def test_debugger_exit():
+ 
+     result = testdir.runpytest(*pytest_args)
+     result.assert_outcomes()
++
++
++@pytest.mark.parametrize("anyio_backend", get_all_backends(), indirect=True)
++def test_keyboardinterrupt_during_test(
++    testdir: Pytester, anyio_backend_name: str
++) -> None:
++    testdir.makepyfile(
++        f"""
++        import pytest
++        from anyio import create_task_group, sleep
++
++        @pytest.fixture
++        def anyio_backend():
++            return {anyio_backend_name!r}
++
++        async def send_keyboardinterrupt():
++            raise KeyboardInterrupt
++
++        @pytest.mark.anyio
++        async def test_anyio_mark_first():
++            async with create_task_group() as tg:
++                tg.start_soon(send_keyboardinterrupt)
++                await sleep(10)
++        """
++    )
++
++    testdir.runpytest_subprocess(*pytest_args, timeout=3)
+diff --git a/tests/test_sf056_outcome_groups.py b/tests/test_sf056_outcome_groups.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf056_outcome_groups.py
+@@ -0,0 +1,55 @@
++
++import asyncio
++from contextvars import ContextVar
++import pytest
++from anyio._backends._asyncio import TestRunner as Runner
++
++@pytest.mark.parametrize("kind", ["skip", "xfail", "ordinary"])
++@pytest.mark.parametrize("entry", ["test", "fixture", "asyncgen"])
++def test_grouped_outcomes_preserve_runner_and_context(kind, entry):
++    marker = ContextVar("marker", default="unset")
++    outcome = {"skip": pytest.skip.Exception, "xfail": pytest.xfail.Exception,
++               "ordinary": ValueError}[kind]("outcome")
++    group = BaseExceptionGroup("outer", [ValueError("first"),
++        BaseExceptionGroup("nested", [outcome])])
++    async def broken():
++        marker.set("retained")
++        raise group
++    async def generator():
++        marker.set("retained")
++        yield "fixture"
++        raise group
++    async def healthy():
++        assert marker.get() == "retained"
++        return "next"
++    with Runner() as runner:
++        if entry == "asyncgen":
++            fixture = iter(runner.run_asyncgen_fixture(generator, {}))
++            assert next(fixture) == "fixture"
++            with pytest.raises(BaseExceptionGroup) as caught:
++                next(fixture)
++        else:
++            call = runner.run_test if entry == "test" else runner.run_fixture
++            with pytest.raises(BaseExceptionGroup) as caught:
++                call(broken, {})
++        assert caught.value is group
++        assert runner.run_fixture(healthy, {}) == "next"
++
++def test_cancel_message_survives():
++    async def cancelled():
++        raise asyncio.CancelledError("shutdown reason")
++    with Runner() as runner:
++        with pytest.raises(asyncio.CancelledError) as caught:
++            runner.run_test(cancelled, {})
++        assert caught.value.args == ("shutdown reason",)
++
++def test_grouped_fatal_error_propagates_unchanged():
++    class Fatal(BaseException):
++        pass
++    group = BaseExceptionGroup("fatal", [pytest.skip.Exception("skip"), Fatal("stop")])
++    async def fatal():
++        raise group
++    with Runner() as runner:
++        with pytest.raises(BaseExceptionGroup) as caught:
++            runner.run_test(fatal, {})
++        assert caught.value is group

@@ -1,0 +1,1 @@
+Please check this too: The dispatch CI test is failing because `apply_matplotlib_colors` creates tuples of numpy scalars, which gets checked (and raised) downstream by `get_edge_attributes`. **edit:** to fix this, update so that functions don't create outputs with numpy scalars.

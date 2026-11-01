@@ -1,0 +1,1 @@
+One more thing: Apply clear public Headers validation consistently to construction, item assignment and update. Names and values accept str or bytes; other types raise TypeError naming the offending role and type. Assignment must support bytes just as construction does, while retaining duplicate replacement and insertion order.

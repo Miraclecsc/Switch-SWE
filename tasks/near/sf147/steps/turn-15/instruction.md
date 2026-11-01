@@ -1,0 +1,1 @@
+Please check this too: I've removed the timer for now. In a future update, I'll implement the logic to highlight the first item.

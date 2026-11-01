@@ -1,0 +1,1 @@
+Please check this too: > Outside of the context of lock files, these two variables should result in an error like all other unknown variables. But other unknown markers are thrown as `InvalidMarker` errors during the parse phase. Should we, and can we keep consistent for `extras`? That may require a different version of parsing function, possibly with a flag

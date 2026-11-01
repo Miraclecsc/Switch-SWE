@@ -1,0 +1,1 @@
+Please check this too: Looks like if the future is cancelled result is not bound maybe?

@@ -1,0 +1,1 @@
+Also, Reject noninteger length bounds with TypeError, including integral floats, fractional floats, infinity and strings. Validate the bound before yielding any cycle, including a self-loop.

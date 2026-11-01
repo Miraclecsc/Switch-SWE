@@ -1,0 +1,1 @@
+And here, I wanted to have both in there to cover all of the changes in the .sty files (the colorrows and nocolorrows) in case someone rendered the output to PDF and would notice footer overruns. If noone inspects this PDF output, I can remove it.

@@ -1,0 +1,1 @@
+Also, Each of these is recursing down rebuilding the whole expression tree. It should be possible to do this in one pass rather than three.

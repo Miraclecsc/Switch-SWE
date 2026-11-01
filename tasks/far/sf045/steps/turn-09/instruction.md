@@ -1,0 +1,1 @@
+Also, Maybe test that the degree sequence is correct instead of len and sum? Seomthing like: `assert sorted(dict(G.degree).values()) == sorted(deg_seq)`

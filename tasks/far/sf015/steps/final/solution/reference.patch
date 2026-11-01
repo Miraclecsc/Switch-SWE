@@ -1,0 +1,1316 @@
+diff --git a/moto/backend_index.py b/moto/backend_index.py
+index 057192cc5..2cf3bbcfc 100644
+--- a/moto/backend_index.py
++++ b/moto/backend_index.py
+@@ -31,6 +31,10 @@ backend_url_patterns = [
+     ("batch", re.compile("https?://batch\\.(.+)\\.amazonaws.com")),
+     ("bedrock", re.compile("https?://bedrock\\.(.+)\\.amazonaws\\.com")),
+     ("bedrockagent", re.compile("https?://bedrock-agent\\.(.+)\\.amazonaws\\.com")),
++    (
++        "bedrockagentcorecontrol",
++        re.compile("https?://bedrock-agentcore-control\\.(.+)\\.amazonaws\\.com"),
++    ),
+     ("bedrockruntime", re.compile("https?://bedrock-runtime\\.(.+)\\.amazonaws\\.com")),
+     ("budgets", re.compile("https?://budgets\\.amazonaws\\.com")),
+     ("ce", re.compile("https?://ce\\.(.+)\\.amazonaws\\.com")),
+diff --git a/moto/backends.py b/moto/backends.py
+index 9df410dd1..16466db62 100644
+--- a/moto/backends.py
++++ b/moto/backends.py
+@@ -24,6 +24,7 @@ if TYPE_CHECKING:
+     from moto.batch.models import BatchBackend
+     from moto.bedrock.models import BedrockBackend
+     from moto.bedrockagent.models import AgentsforBedrockBackend
++    from moto.bedrockagentcorecontrol.models import BedrockAgentCoreControlBackend
+     from moto.bedrockruntime.models import BedrockRuntimeBackend
+     from moto.budgets.models import BudgetsBackend
+     from moto.ce.models import CostExplorerBackend
+@@ -218,6 +219,7 @@ SERVICE_NAMES = Union[
+     "Literal['batch']",
+     "Literal['bedrock']",
+     "Literal['bedrock-agent']",
++    "Literal['bedrock-agentcore-control']",
+     "Literal['bedrock-runtime']",
+     "Literal['budgets']",
+     "Literal['ce']",
+@@ -413,6 +415,10 @@ def get_backend(
+     name: "Literal['bedrock-agent']",
+ ) -> "BackendDict[AgentsforBedrockBackend]": ...
+ @overload
++def get_backend(
++    name: "Literal['bedrock-agentcore-control']",
++) -> "BackendDict[BedrockAgentCoreControlBackend]": ...
++@overload
+ def get_backend(
+     name: "Literal['bedrock-runtime']",
+ ) -> "BackendDict[BedrockRuntimeBackend]": ...
+diff --git a/moto/bedrockagentcorecontrol/__init__.py b/moto/bedrockagentcorecontrol/__init__.py
+new file mode 100644
+index 000000000..c2d39dac3
+--- /dev/null
++++ b/moto/bedrockagentcorecontrol/__init__.py
+@@ -0,0 +1 @@
++from .models import bedrockagentcorecontrol_backends  # noqa: F401
+diff --git a/moto/bedrockagentcorecontrol/exceptions.py b/moto/bedrockagentcorecontrol/exceptions.py
+new file mode 100644
+index 000000000..4dda9215e
+--- /dev/null
++++ b/moto/bedrockagentcorecontrol/exceptions.py
+@@ -0,0 +1,21 @@
++"""BedrockAgentCoreControl exceptions."""
++
++from moto.core.exceptions import JsonRESTError
++
++
++class BedrockAgentCoreControlClientError(JsonRESTError):
++    code = 400
++
++
++class ResourceNotFoundException(BedrockAgentCoreControlClientError):
++    code = 404
++
++    def __init__(self, message: str) -> None:
++        super().__init__("ResourceNotFoundException", message)
++
++
++class ConflictException(BedrockAgentCoreControlClientError):
++    code = 409
++
++    def __init__(self, message: str) -> None:
++        super().__init__("ConflictException", message)
+diff --git a/moto/bedrockagentcorecontrol/models.py b/moto/bedrockagentcorecontrol/models.py
+new file mode 100644
+index 000000000..2cefd18b4
+--- /dev/null
++++ b/moto/bedrockagentcorecontrol/models.py
+@@ -0,0 +1,775 @@
++"""BedrockAgentCoreControl models."""
++
++from collections import OrderedDict
++from typing import Any, Optional
++
++from moto.core.base_backend import BackendDict, BaseBackend
++from moto.core.common_models import BaseModel
++from moto.core.utils import utcnow
++from moto.moto_api._internal import mock_random
++from moto.moto_api._internal.managed_state_model import ManagedState
++from moto.utilities.tagging_service import TaggingService
++from moto.utilities.utils import get_partition
++
++from .exceptions import ConflictException, ResourceNotFoundException
++
++
++class AgentRuntime(BaseModel, ManagedState):
++    def __init__(
++        self,
++        region_name: str,
++        account_id: str,
++        agent_runtime_name: str,
++        agent_runtime_artifact: dict[str, Any],
++        role_arn: str,
++        network_configuration: dict[str, Any],
++        description: Optional[str],
++        authorizer_configuration: Optional[dict[str, Any]],
++        request_header_configuration: Optional[dict[str, Any]],
++        protocol_configuration: Optional[dict[str, Any]],
++        lifecycle_configuration: Optional[dict[str, Any]],
++        environment_variables: Optional[dict[str, str]],
++    ):
++        ManagedState.__init__(
++            self,
++            "bedrock-agentcore-control::agent_runtime",
++            transitions=[("CREATING", "READY")],
++        )
++        self.region_name = region_name
++        self.account_id = account_id
++        self.agent_runtime_id = (
++            f"a{mock_random.get_random_hex(9)}-{mock_random.get_random_hex(10)}"
++        )
++        self.agent_runtime_version = "1"
++        runtime_uuid = str(mock_random.uuid4())
++        self.agent_runtime_arn = f"arn:{get_partition(region_name)}:bedrock-agentcore:{region_name}:{account_id}:agent/{runtime_uuid}:{self.agent_runtime_version}"
++        self.agent_runtime_name = agent_runtime_name
++        self.agent_runtime_artifact = agent_runtime_artifact
++        self.role_arn = role_arn
++        self.network_configuration = network_configuration
++        self.description = description or ""
++        self.authorizer_configuration = authorizer_configuration
++        self.request_header_configuration = request_header_configuration
++        self.protocol_configuration = protocol_configuration
++        self.lifecycle_configuration = lifecycle_configuration or {}
++        self.environment_variables = environment_variables
++        now = utcnow()
++        self.created_at = now
++        self.last_updated_at = now
++        self.workload_identity_details = {
++            "workloadIdentityArn": f"arn:{get_partition(region_name)}:bedrock-agentcore:{region_name}:{account_id}:workload-identity-directory/default/workload-identity/{self.agent_runtime_id}"
++        }
++        # Store version snapshots for ListAgentRuntimeVersions
++        self.versions: list[dict[str, Any]] = []
++        self._snapshot_version()
++
++    def _snapshot_version(self) -> None:
++        self.versions.append(
++            {
++                "agentRuntimeArn": self.agent_runtime_arn,
++                "agentRuntimeId": self.agent_runtime_id,
++                "agentRuntimeVersion": self.agent_runtime_version,
++                "agentRuntimeName": self.agent_runtime_name,
++                "description": self.description,
++                "lastUpdatedAt": self.last_updated_at,
++                "status": self.status,
++            }
++        )
++
++    def update(
++        self,
++        agent_runtime_artifact: dict[str, Any],
++        role_arn: str,
++        network_configuration: dict[str, Any],
++        description: Optional[str],
++        authorizer_configuration: Optional[dict[str, Any]],
++        request_header_configuration: Optional[dict[str, Any]],
++        protocol_configuration: Optional[dict[str, Any]],
++        lifecycle_configuration: Optional[dict[str, Any]],
++        environment_variables: Optional[dict[str, str]],
++    ) -> None:
++        self.agent_runtime_artifact = agent_runtime_artifact
++        self.role_arn = role_arn
++        self.network_configuration = network_configuration
++        if description is not None:
++            self.description = description
++        if authorizer_configuration is not None:
++            self.authorizer_configuration = authorizer_configuration
++        if request_header_configuration is not None:
++            self.request_header_configuration = request_header_configuration
++        if protocol_configuration is not None:
++            self.protocol_configuration = protocol_configuration
++        if lifecycle_configuration is not None:
++            self.lifecycle_configuration = lifecycle_configuration
++        if environment_variables is not None:
++            self.environment_variables = environment_variables
++        new_version = str(int(self.agent_runtime_version) + 1)
++        self.agent_runtime_version = new_version
++        runtime_uuid = self.agent_runtime_arn.split("agent/")[1].split(":")[0]
++        self.agent_runtime_arn = f"arn:{get_partition(self.region_name)}:bedrock-agentcore:{self.region_name}:{self.account_id}:agent/{runtime_uuid}:{new_version}"
++        self.last_updated_at = utcnow()
++        self.status = "UPDATING"
++        self._snapshot_version()
++
++    def to_summary(self) -> dict[str, Any]:
++        return {
++            "agentRuntimeArn": self.agent_runtime_arn,
++            "agentRuntimeId": self.agent_runtime_id,
++            "agentRuntimeVersion": self.agent_runtime_version,
++            "agentRuntimeName": self.agent_runtime_name,
++            "description": self.description,
++            "lastUpdatedAt": self.last_updated_at,
++            "status": self.status,
++        }
++
++
++class AgentRuntimeEndpoint(BaseModel, ManagedState):
++    def __init__(
++        self,
++        region_name: str,
++        account_id: str,
++        agent_runtime: "AgentRuntime",
++        name: str,
++        agent_runtime_version: Optional[str],
++        description: Optional[str],
++    ):
++        ManagedState.__init__(
++            self,
++            "bedrock-agentcore-control::agent_runtime_endpoint",
++            transitions=[("CREATING", "READY")],
++        )
++        self.region_name = region_name
++        self.account_id = account_id
++        self.name = name
++        self.endpoint_id = (
++            f"e{mock_random.get_random_hex(9)}-{mock_random.get_random_hex(10)}"
++        )
++        endpoint_uuid = str(mock_random.uuid4())
++        self.agent_runtime_endpoint_arn = f"arn:{get_partition(region_name)}:bedrock-agentcore:{region_name}:{account_id}:agentEndpoint/{endpoint_uuid}"
++        self.agent_runtime_arn = agent_runtime.agent_runtime_arn
++        self.agent_runtime_id = agent_runtime.agent_runtime_id
++        self.target_version = (
++            agent_runtime_version or agent_runtime.agent_runtime_version
++        )
++        self.live_version = self.target_version
++        self.description = description or ""
++        now = utcnow()
++        self.created_at = now
++        self.last_updated_at = now
++
++    def update(
++        self,
++        agent_runtime_version: Optional[str],
++        description: Optional[str],
++    ) -> None:
++        if agent_runtime_version is not None:
++            self.target_version = agent_runtime_version
++        if description is not None:
++            self.description = description
++        self.last_updated_at = utcnow()
++        self.status = "UPDATING"
++
++    def to_summary(self) -> dict[str, Any]:
++        return {
++            "name": self.name,
++            "agentRuntimeEndpointArn": self.agent_runtime_endpoint_arn,
++            "agentRuntimeArn": self.agent_runtime_arn,
++            "status": self.status,
++            "id": self.endpoint_id,
++            "description": self.description,
++            "createdAt": self.created_at,
++            "lastUpdatedAt": self.last_updated_at,
++        }
++
++
++class Gateway(BaseModel, ManagedState):
++    def __init__(
++        self,
++        region_name: str,
++        account_id: str,
++        name: str,
++        role_arn: str,
++        protocol_type: str,
++        authorizer_type: str,
++        description: Optional[str],
++        protocol_configuration: Optional[dict[str, Any]],
++        authorizer_configuration: Optional[dict[str, Any]],
++        kms_key_arn: Optional[str],
++        interceptor_configurations: Optional[list[dict[str, Any]]],
++        policy_engine_configuration: Optional[dict[str, Any]],
++        exception_level: Optional[str],
++    ):
++        ManagedState.__init__(
++            self,
++            "bedrock-agentcore-control::gateway",
++            transitions=[("CREATING", "READY")],
++        )
++        self.region_name = region_name
++        self.account_id = account_id
++        self.name = name
++        self.gateway_id = mock_random.get_random_hex(10)
++        self.gateway_arn = f"arn:{get_partition(region_name)}:bedrock-agentcore:{region_name}:{account_id}:gateway/{self.gateway_id}"
++        self.gateway_url = f"https://{self.gateway_id}.gateway.bedrock-agentcore.{region_name}.amazonaws.com"
++        self.role_arn = role_arn
++        self.protocol_type = protocol_type
++        self.authorizer_type = authorizer_type
++        self.description = description or ""
++        self.protocol_configuration = protocol_configuration
++        self.authorizer_configuration = authorizer_configuration
++        self.kms_key_arn = kms_key_arn
++        self.interceptor_configurations = interceptor_configurations
++        self.policy_engine_configuration = policy_engine_configuration
++        self.exception_level = exception_level
++        now = utcnow()
++        self.created_at = now
++        self.updated_at = now
++        self.workload_identity_details = {
++            "workloadIdentityArn": f"arn:{get_partition(region_name)}:bedrock-agentcore:{region_name}:{account_id}:workload-identity-directory/default/workload-identity/{self.gateway_id}"
++        }
++
++    def update(
++        self,
++        name: str,
++        role_arn: str,
++        protocol_type: str,
++        authorizer_type: str,
++        description: Optional[str],
++        protocol_configuration: Optional[dict[str, Any]],
++        authorizer_configuration: Optional[dict[str, Any]],
++        kms_key_arn: Optional[str],
++        interceptor_configurations: Optional[list[dict[str, Any]]],
++        policy_engine_configuration: Optional[dict[str, Any]],
++        exception_level: Optional[str],
++    ) -> None:
++        self.name = name
++        self.role_arn = role_arn
++        self.protocol_type = protocol_type
++        self.authorizer_type = authorizer_type
++        if description is not None:
++            self.description = description
++        if protocol_configuration is not None:
++            self.protocol_configuration = protocol_configuration
++        if authorizer_configuration is not None:
++            self.authorizer_configuration = authorizer_configuration
++        if kms_key_arn is not None:
++            self.kms_key_arn = kms_key_arn
++        if interceptor_configurations is not None:
++            self.interceptor_configurations = interceptor_configurations
++        if policy_engine_configuration is not None:
++            self.policy_engine_configuration = policy_engine_configuration
++        if exception_level is not None:
++            self.exception_level = exception_level
++        self.updated_at = utcnow()
++        self.status = "UPDATING"
++
++    def to_dict(self) -> dict[str, Any]:
++        result: dict[str, Any] = {
++            "gatewayArn": self.gateway_arn,
++            "gatewayId": self.gateway_id,
++            "gatewayUrl": self.gateway_url,
++            "createdAt": self.created_at,
++            "updatedAt": self.updated_at,
++            "status": self.status,
++            "name": self.name,
++            "roleArn": self.role_arn,
++            "protocolType": self.protocol_type,
++            "authorizerType": self.authorizer_type,
++            "description": self.description,
++            "workloadIdentityDetails": self.workload_identity_details,
++        }
++        if self.protocol_configuration:
++            result["protocolConfiguration"] = self.protocol_configuration
++        if self.authorizer_configuration:
++            result["authorizerConfiguration"] = self.authorizer_configuration
++        if self.kms_key_arn:
++            result["kmsKeyArn"] = self.kms_key_arn
++        if self.interceptor_configurations:
++            result["interceptorConfigurations"] = self.interceptor_configurations
++        if self.policy_engine_configuration:
++            result["policyEngineConfiguration"] = self.policy_engine_configuration
++        if self.exception_level:
++            result["exceptionLevel"] = self.exception_level
++        return result
++
++    def to_summary(self) -> dict[str, Any]:
++        result: dict[str, Any] = {
++            "gatewayId": self.gateway_id,
++            "name": self.name,
++            "status": self.status,
++            "createdAt": self.created_at,
++            "updatedAt": self.updated_at,
++            "authorizerType": self.authorizer_type,
++            "protocolType": self.protocol_type,
++        }
++        if self.description:
++            result["description"] = self.description
++        return result
++
++
++class GatewayTarget(BaseModel, ManagedState):
++    def __init__(
++        self,
++        region_name: str,
++        account_id: str,
++        gateway: Gateway,
++        name: str,
++        target_configuration: dict[str, Any],
++        description: Optional[str],
++        credential_provider_configurations: Optional[list[dict[str, Any]]],
++        metadata_configuration: Optional[dict[str, Any]],
++    ):
++        ManagedState.__init__(
++            self,
++            "bedrock-agentcore-control::gateway_target",
++            transitions=[("CREATING", "READY")],
++        )
++        self.region_name = region_name
++        self.account_id = account_id
++        self.name = name
++        self.target_id = mock_random.get_random_hex(10)
++        self.gateway_arn = gateway.gateway_arn
++        self.gateway_id = gateway.gateway_id
++        self.target_configuration = target_configuration
++        self.description = description or ""
++        self.credential_provider_configurations = (
++            credential_provider_configurations or []
++        )
++        self.metadata_configuration = metadata_configuration
++        now = utcnow()
++        self.created_at = now
++        self.updated_at = now
++
++    def update(
++        self,
++        name: str,
++        target_configuration: dict[str, Any],
++        description: Optional[str],
++        credential_provider_configurations: Optional[list[dict[str, Any]]],
++        metadata_configuration: Optional[dict[str, Any]],
++    ) -> None:
++        self.name = name
++        self.target_configuration = target_configuration
++        if description is not None:
++            self.description = description
++        if credential_provider_configurations is not None:
++            self.credential_provider_configurations = credential_provider_configurations
++        if metadata_configuration is not None:
++            self.metadata_configuration = metadata_configuration
++        self.updated_at = utcnow()
++        self.status = "UPDATING"
++
++    def to_dict(self) -> dict[str, Any]:
++        result: dict[str, Any] = {
++            "gatewayArn": self.gateway_arn,
++            "targetId": self.target_id,
++            "createdAt": self.created_at,
++            "updatedAt": self.updated_at,
++            "status": self.status,
++            "name": self.name,
++            "targetConfiguration": self.target_configuration,
++            "credentialProviderConfigurations": self.credential_provider_configurations,
++        }
++        if self.description:
++            result["description"] = self.description
++        if self.metadata_configuration:
++            result["metadataConfiguration"] = self.metadata_configuration
++        return result
++
++    def to_summary(self) -> dict[str, Any]:
++        result: dict[str, Any] = {
++            "targetId": self.target_id,
++            "name": self.name,
++            "status": self.status,
++            "createdAt": self.created_at,
++            "updatedAt": self.updated_at,
++        }
++        if self.description:
++            result["description"] = self.description
++        return result
++
++
++class BedrockAgentCoreControlBackend(BaseBackend):
++    def __init__(self, region_name: str, account_id: str):
++        super().__init__(region_name, account_id)
++        self.agent_runtimes: dict[str, AgentRuntime] = OrderedDict()
++        # endpoints keyed by (agent_runtime_id, endpoint_name)
++        self.agent_runtime_endpoints: dict[tuple[str, str], AgentRuntimeEndpoint] = (
++            OrderedDict()
++        )
++        self.gateways: dict[str, Gateway] = OrderedDict()
++        self.gateway_targets: dict[tuple[str, str], GatewayTarget] = OrderedDict()
++        self.tagger = TaggingService()
++
++    def _get_runtime(self, agent_runtime_id: str) -> AgentRuntime:
++        if agent_runtime_id not in self.agent_runtimes:
++            raise ResourceNotFoundException(
++                f"Could not find Agent Runtime with ID {agent_runtime_id}"
++            )
++        return self.agent_runtimes[agent_runtime_id]
++
++    def create_agent_runtime(
++        self,
++        agent_runtime_name: str,
++        agent_runtime_artifact: dict[str, Any],
++        role_arn: str,
++        network_configuration: dict[str, Any],
++        description: Optional[str],
++        authorizer_configuration: Optional[dict[str, Any]],
++        request_header_configuration: Optional[dict[str, Any]],
++        protocol_configuration: Optional[dict[str, Any]],
++        lifecycle_configuration: Optional[dict[str, Any]],
++        environment_variables: Optional[dict[str, str]],
++        tags: Optional[dict[str, str]],
++    ) -> AgentRuntime:
++        runtime = AgentRuntime(
++            region_name=self.region_name,
++            account_id=self.account_id,
++            agent_runtime_name=agent_runtime_name,
++            agent_runtime_artifact=agent_runtime_artifact,
++            role_arn=role_arn,
++            network_configuration=network_configuration,
++            description=description,
++            authorizer_configuration=authorizer_configuration,
++            request_header_configuration=request_header_configuration,
++            protocol_configuration=protocol_configuration,
++            lifecycle_configuration=lifecycle_configuration,
++            environment_variables=environment_variables,
++        )
++        self.agent_runtimes[runtime.agent_runtime_id] = runtime
++        if tags:
++            self.tagger.tag_resource(
++                runtime.agent_runtime_arn,
++                [{"Key": k, "Value": v} for k, v in tags.items()],
++            )
++        return runtime
++
++    def get_agent_runtime(self, agent_runtime_id: str) -> AgentRuntime:
++        runtime = self._get_runtime(agent_runtime_id)
++        runtime.advance()
++        return runtime
++
++    def update_agent_runtime(
++        self,
++        agent_runtime_id: str,
++        agent_runtime_artifact: dict[str, Any],
++        role_arn: str,
++        network_configuration: dict[str, Any],
++        description: Optional[str],
++        authorizer_configuration: Optional[dict[str, Any]],
++        request_header_configuration: Optional[dict[str, Any]],
++        protocol_configuration: Optional[dict[str, Any]],
++        lifecycle_configuration: Optional[dict[str, Any]],
++        environment_variables: Optional[dict[str, str]],
++    ) -> AgentRuntime:
++        runtime = self._get_runtime(agent_runtime_id)
++        runtime.update(
++            agent_runtime_artifact=agent_runtime_artifact,
++            role_arn=role_arn,
++            network_configuration=network_configuration,
++            description=description,
++            authorizer_configuration=authorizer_configuration,
++            request_header_configuration=request_header_configuration,
++            protocol_configuration=protocol_configuration,
++            lifecycle_configuration=lifecycle_configuration,
++            environment_variables=environment_variables,
++        )
++        return runtime
++
++    def delete_agent_runtime(self, agent_runtime_id: str) -> AgentRuntime:
++        runtime = self._get_runtime(agent_runtime_id)
++        # Remove all endpoints for this runtime
++        keys_to_remove = [
++            k for k in self.agent_runtime_endpoints if k[0] == agent_runtime_id
++        ]
++        for key in keys_to_remove:
++            self.agent_runtime_endpoints.pop(key)
++        self.agent_runtimes.pop(agent_runtime_id)
++        return runtime
++
++    def list_agent_runtimes(self) -> list[AgentRuntime]:
++        return list(self.agent_runtimes.values())
++
++    def list_agent_runtime_versions(
++        self, agent_runtime_id: str
++    ) -> list[dict[str, Any]]:
++        runtime = self._get_runtime(agent_runtime_id)
++        return list(reversed(runtime.versions))
++
++    def create_agent_runtime_endpoint(
++        self,
++        agent_runtime_id: str,
++        name: str,
++        agent_runtime_version: Optional[str],
++        description: Optional[str],
++        tags: Optional[dict[str, str]],
++    ) -> AgentRuntimeEndpoint:
++        runtime = self._get_runtime(agent_runtime_id)
++        key = (agent_runtime_id, name)
++        if key in self.agent_runtime_endpoints:
++            raise ConflictException(
++                f"Endpoint {name} already exists for Agent Runtime {agent_runtime_id}"
++            )
++        endpoint = AgentRuntimeEndpoint(
++            region_name=self.region_name,
++            account_id=self.account_id,
++            agent_runtime=runtime,
++            name=name,
++            agent_runtime_version=agent_runtime_version,
++            description=description,
++        )
++        self.agent_runtime_endpoints[key] = endpoint
++        if tags:
++            self.tagger.tag_resource(
++                endpoint.agent_runtime_endpoint_arn,
++                [{"Key": k, "Value": v} for k, v in tags.items()],
++            )
++        return endpoint
++
++    def get_agent_runtime_endpoint(
++        self, agent_runtime_id: str, endpoint_name: str
++    ) -> AgentRuntimeEndpoint:
++        key = (agent_runtime_id, endpoint_name)
++        if key not in self.agent_runtime_endpoints:
++            raise ResourceNotFoundException(
++                f"Could not find endpoint {endpoint_name} for Agent Runtime {agent_runtime_id}"
++            )
++        endpoint = self.agent_runtime_endpoints[key]
++        endpoint.advance()
++        return endpoint
++
++    def update_agent_runtime_endpoint(
++        self,
++        agent_runtime_id: str,
++        endpoint_name: str,
++        agent_runtime_version: Optional[str],
++        description: Optional[str],
++    ) -> AgentRuntimeEndpoint:
++        endpoint = self.get_agent_runtime_endpoint(agent_runtime_id, endpoint_name)
++        endpoint.update(
++            agent_runtime_version=agent_runtime_version,
++            description=description,
++        )
++        return endpoint
++
++    def delete_agent_runtime_endpoint(
++        self, agent_runtime_id: str, endpoint_name: str
++    ) -> AgentRuntimeEndpoint:
++        endpoint = self.get_agent_runtime_endpoint(agent_runtime_id, endpoint_name)
++        key = (agent_runtime_id, endpoint_name)
++        self.agent_runtime_endpoints.pop(key)
++        return endpoint
++
++    def list_agent_runtime_endpoints(
++        self, agent_runtime_id: str
++    ) -> list[AgentRuntimeEndpoint]:
++        self._get_runtime(agent_runtime_id)
++        return [
++            ep
++            for (rid, _), ep in self.agent_runtime_endpoints.items()
++            if rid == agent_runtime_id
++        ]
++
++    def _get_gateway(self, gateway_identifier: str) -> Gateway:
++        if gateway_identifier not in self.gateways:
++            raise ResourceNotFoundException(
++                f"Could not find Gateway with ID {gateway_identifier}"
++            )
++        return self.gateways[gateway_identifier]
++
++    def create_gateway(
++        self,
++        name: str,
++        role_arn: str,
++        protocol_type: str,
++        authorizer_type: str,
++        description: Optional[str],
++        protocol_configuration: Optional[dict[str, Any]],
++        authorizer_configuration: Optional[dict[str, Any]],
++        kms_key_arn: Optional[str],
++        interceptor_configurations: Optional[list[dict[str, Any]]],
++        policy_engine_configuration: Optional[dict[str, Any]],
++        exception_level: Optional[str],
++        tags: Optional[dict[str, str]],
++    ) -> Gateway:
++        gateway = Gateway(
++            region_name=self.region_name,
++            account_id=self.account_id,
++            name=name,
++            role_arn=role_arn,
++            protocol_type=protocol_type,
++            authorizer_type=authorizer_type,
++            description=description,
++            protocol_configuration=protocol_configuration,
++            authorizer_configuration=authorizer_configuration,
++            kms_key_arn=kms_key_arn,
++            interceptor_configurations=interceptor_configurations,
++            policy_engine_configuration=policy_engine_configuration,
++            exception_level=exception_level,
++        )
++        self.gateways[gateway.gateway_id] = gateway
++        if tags:
++            self.tagger.tag_resource(
++                gateway.gateway_arn,
++                [{"Key": k, "Value": v} for k, v in tags.items()],
++            )
++        return gateway
++
++    def get_gateway(self, gateway_identifier: str) -> Gateway:
++        gateway = self._get_gateway(gateway_identifier)
++        gateway.advance()
++        return gateway
++
++    def update_gateway(
++        self,
++        gateway_identifier: str,
++        name: str,
++        role_arn: str,
++        protocol_type: str,
++        authorizer_type: str,
++        description: Optional[str],
++        protocol_configuration: Optional[dict[str, Any]],
++        authorizer_configuration: Optional[dict[str, Any]],
++        kms_key_arn: Optional[str],
++        interceptor_configurations: Optional[list[dict[str, Any]]],
++        policy_engine_configuration: Optional[dict[str, Any]],
++        exception_level: Optional[str],
++    ) -> Gateway:
++        gateway = self._get_gateway(gateway_identifier)
++        gateway.update(
++            name=name,
++            role_arn=role_arn,
++            protocol_type=protocol_type,
++            authorizer_type=authorizer_type,
++            description=description,
++            protocol_configuration=protocol_configuration,
++            authorizer_configuration=authorizer_configuration,
++            kms_key_arn=kms_key_arn,
++            interceptor_configurations=interceptor_configurations,
++            policy_engine_configuration=policy_engine_configuration,
++            exception_level=exception_level,
++        )
++        return gateway
++
++    def delete_gateway(self, gateway_identifier: str) -> Gateway:
++        gateway = self._get_gateway(gateway_identifier)
++        keys_to_remove = [k for k in self.gateway_targets if k[0] == gateway.gateway_id]
++        for key in keys_to_remove:
++            self.gateway_targets.pop(key)
++        self.gateways.pop(gateway.gateway_id)
++        return gateway
++
++    def list_gateways(self) -> list[Gateway]:
++        return list(self.gateways.values())
++
++    def _get_gateway_target(self, gateway_id: str, target_id: str) -> GatewayTarget:
++        key = (gateway_id, target_id)
++        if key not in self.gateway_targets:
++            raise ResourceNotFoundException(
++                f"Could not find Target {target_id} for Gateway {gateway_id}"
++            )
++        return self.gateway_targets[key]
++
++    def create_gateway_target(
++        self,
++        gateway_identifier: str,
++        name: str,
++        target_configuration: dict[str, Any],
++        description: Optional[str],
++        credential_provider_configurations: Optional[list[dict[str, Any]]],
++        metadata_configuration: Optional[dict[str, Any]],
++    ) -> GatewayTarget:
++        gateway = self._get_gateway(gateway_identifier)
++        target = GatewayTarget(
++            region_name=self.region_name,
++            account_id=self.account_id,
++            gateway=gateway,
++            name=name,
++            target_configuration=target_configuration,
++            description=description,
++            credential_provider_configurations=credential_provider_configurations,
++            metadata_configuration=metadata_configuration,
++        )
++        self.gateway_targets[(gateway.gateway_id, target.target_id)] = target
++        return target
++
++    def get_gateway_target(
++        self, gateway_identifier: str, target_id: str
++    ) -> GatewayTarget:
++        gateway = self._get_gateway(gateway_identifier)
++        target = self._get_gateway_target(gateway.gateway_id, target_id)
++        target.advance()
++        return target
++
++    def update_gateway_target(
++        self,
++        gateway_identifier: str,
++        target_id: str,
++        name: str,
++        target_configuration: dict[str, Any],
++        description: Optional[str],
++        credential_provider_configurations: Optional[list[dict[str, Any]]],
++        metadata_configuration: Optional[dict[str, Any]],
++    ) -> GatewayTarget:
++        gateway = self._get_gateway(gateway_identifier)
++        target = self._get_gateway_target(gateway.gateway_id, target_id)
++        target.update(
++            name=name,
++            target_configuration=target_configuration,
++            description=description,
++            credential_provider_configurations=credential_provider_configurations,
++            metadata_configuration=metadata_configuration,
++        )
++        return target
++
++    def delete_gateway_target(
++        self, gateway_identifier: str, target_id: str
++    ) -> GatewayTarget:
++        gateway = self._get_gateway(gateway_identifier)
++        target = self._get_gateway_target(gateway.gateway_id, target_id)
++        self.gateway_targets.pop((gateway.gateway_id, target_id))
++        return target
++
++    def list_gateway_targets(self, gateway_identifier: str) -> list[GatewayTarget]:
++        gateway = self._get_gateway(gateway_identifier)
++        return [
++            t
++            for (gid, _), t in self.gateway_targets.items()
++            if gid == gateway.gateway_id
++        ]
++
++    def tag_resource(self, resource_arn: str, tags: dict[str, str]) -> None:
++        self.tagger.tag_resource(
++            resource_arn, [{"Key": k, "Value": v} for k, v in tags.items()]
++        )
++
++    def untag_resource(self, resource_arn: str, tag_keys: list[str]) -> None:
++        self.tagger.untag_resource_using_names(resource_arn, tag_keys)
++
++    def list_tags_for_resource(self, resource_arn: str) -> dict[str, str]:
++        return self.tagger.get_tag_dict_for_resource(resource_arn)
++
++
++bedrockagentcorecontrol_backends = BackendDict(
++    BedrockAgentCoreControlBackend,
++    "bedrock-agentcore-control",
++    # botocore does not yet include endpoint data for this service
++    use_boto3_regions=False,
++    additional_regions=[
++        "us-east-1",
++        "us-east-2",
++        "us-west-1",
++        "us-west-2",
++        "ap-south-1",
++        "ap-northeast-1",
++        "ap-northeast-2",
++        "ap-southeast-1",
++        "ap-southeast-2",
++        "ca-central-1",
++        "eu-central-1",
++        "eu-west-1",
++        "eu-west-2",
++        "eu-west-3",
++        "eu-north-1",
++        "sa-east-1",
++    ],
++)
+diff --git a/moto/bedrockagentcorecontrol/responses.py b/moto/bedrockagentcorecontrol/responses.py
+new file mode 100644
+index 000000000..7146612e8
+--- /dev/null
++++ b/moto/bedrockagentcorecontrol/responses.py
+@@ -0,0 +1,411 @@
++"""BedrockAgentCoreControl responses."""
++
++import json
++from typing import Any
++from urllib.parse import parse_qs, unquote
++
++from moto.core.responses import ActionResult, BaseResponse
++
++from .models import BedrockAgentCoreControlBackend, bedrockagentcorecontrol_backends
++
++
++def _idempotent_gateway_create(method):
++    """Record successful creation results for explicit retry tokens."""
++    from functools import wraps
++    from copy import deepcopy
++    from .exceptions import ConflictException
++
++    @wraps(method)
++    def wrapped(self):
++        params = json.loads(self.body)
++        token = params.pop("clientToken", None)
++        if not token:
++            return method(self)
++        parent = self._get_path_param("gatewayIdentifier") if method.__name__ == "create_gateway_target" else ""
++        key = (method.__name__, parent, token)
++        payload = json.dumps(params, sort_keys=True, separators=(",", ":"))
++        receipts = self.backend.__dict__.setdefault("_gateway_create_receipts", {})
++        if key in receipts:
++            previous, response = receipts[key]
++            if previous != payload:
++                raise ConflictException("clientToken was already used with different creation parameters")
++            return deepcopy(response)
++        result = method(self)
++        receipts[key] = (payload, deepcopy(result))
++        return result
++    return wrapped
++
++
++class BedrockAgentCoreControlResponse(BaseResponse):
++    def __init__(self) -> None:
++        super().__init__(service_name="bedrock-agentcore-control")
++
++    @property
++    def backend(self) -> BedrockAgentCoreControlBackend:
++        return bedrockagentcorecontrol_backends[self.current_account][self.region]
++
++    def create_agent_runtime(self) -> ActionResult:
++        params = json.loads(self.body)
++        runtime = self.backend.create_agent_runtime(
++            agent_runtime_name=params["agentRuntimeName"],
++            agent_runtime_artifact=params["agentRuntimeArtifact"],
++            role_arn=params["roleArn"],
++            network_configuration=params["networkConfiguration"],
++            description=params.get("description"),
++            authorizer_configuration=params.get("authorizerConfiguration"),
++            request_header_configuration=params.get("requestHeaderConfiguration"),
++            protocol_configuration=params.get("protocolConfiguration"),
++            lifecycle_configuration=params.get("lifecycleConfiguration"),
++            environment_variables=params.get("environmentVariables"),
++            tags=params.get("tags"),
++        )
++        return ActionResult(
++            {
++                "agentRuntimeArn": runtime.agent_runtime_arn,
++                "workloadIdentityDetails": runtime.workload_identity_details,
++                "agentRuntimeId": runtime.agent_runtime_id,
++                "agentRuntimeVersion": runtime.agent_runtime_version,
++                "createdAt": runtime.created_at,
++                "status": "CREATING",
++            }
++        )
++
++    def get_agent_runtime(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        runtime = self.backend.get_agent_runtime(agent_runtime_id)
++        result: dict[str, Any] = {
++            "agentRuntimeArn": runtime.agent_runtime_arn,
++            "agentRuntimeName": runtime.agent_runtime_name,
++            "agentRuntimeId": runtime.agent_runtime_id,
++            "agentRuntimeVersion": runtime.agent_runtime_version,
++            "createdAt": runtime.created_at,
++            "lastUpdatedAt": runtime.last_updated_at,
++            "roleArn": runtime.role_arn,
++            "networkConfiguration": runtime.network_configuration,
++            "status": runtime.status,
++            "lifecycleConfiguration": runtime.lifecycle_configuration,
++            "description": runtime.description,
++            "workloadIdentityDetails": runtime.workload_identity_details,
++            "agentRuntimeArtifact": runtime.agent_runtime_artifact,
++        }
++        if runtime.protocol_configuration:
++            result["protocolConfiguration"] = runtime.protocol_configuration
++        if runtime.environment_variables:
++            result["environmentVariables"] = runtime.environment_variables
++        if runtime.authorizer_configuration:
++            result["authorizerConfiguration"] = runtime.authorizer_configuration
++        if runtime.request_header_configuration:
++            result["requestHeaderConfiguration"] = runtime.request_header_configuration
++        return ActionResult(result)
++
++    def update_agent_runtime(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        params = json.loads(self.body)
++        runtime = self.backend.update_agent_runtime(
++            agent_runtime_id=agent_runtime_id,
++            agent_runtime_artifact=params["agentRuntimeArtifact"],
++            role_arn=params["roleArn"],
++            network_configuration=params["networkConfiguration"],
++            description=params.get("description"),
++            authorizer_configuration=params.get("authorizerConfiguration"),
++            request_header_configuration=params.get("requestHeaderConfiguration"),
++            protocol_configuration=params.get("protocolConfiguration"),
++            lifecycle_configuration=params.get("lifecycleConfiguration"),
++            environment_variables=params.get("environmentVariables"),
++        )
++        return ActionResult(
++            {
++                "agentRuntimeArn": runtime.agent_runtime_arn,
++                "agentRuntimeId": runtime.agent_runtime_id,
++                "workloadIdentityDetails": runtime.workload_identity_details,
++                "agentRuntimeVersion": runtime.agent_runtime_version,
++                "createdAt": runtime.created_at,
++                "lastUpdatedAt": runtime.last_updated_at,
++                "status": "UPDATING",
++            }
++        )
++
++    def delete_agent_runtime(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        runtime = self.backend.delete_agent_runtime(agent_runtime_id)
++        return ActionResult(
++            {
++                "status": "DELETING",
++                "agentRuntimeId": runtime.agent_runtime_id,
++            }
++        )
++
++    def list_agent_runtimes(self) -> ActionResult:
++        runtimes = self.backend.list_agent_runtimes()
++        return ActionResult(
++            {
++                "agentRuntimes": [r.to_summary() for r in runtimes],
++            }
++        )
++
++    def list_agent_runtime_versions(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        versions = self.backend.list_agent_runtime_versions(agent_runtime_id)
++        return ActionResult(
++            {
++                "agentRuntimes": versions,
++            }
++        )
++
++    def create_agent_runtime_endpoint(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        params = json.loads(self.body)
++        endpoint = self.backend.create_agent_runtime_endpoint(
++            agent_runtime_id=agent_runtime_id,
++            name=params["name"],
++            agent_runtime_version=params.get("agentRuntimeVersion"),
++            description=params.get("description"),
++            tags=params.get("tags"),
++        )
++        return ActionResult(
++            {
++                "targetVersion": endpoint.target_version,
++                "agentRuntimeEndpointArn": endpoint.agent_runtime_endpoint_arn,
++                "agentRuntimeArn": endpoint.agent_runtime_arn,
++                "agentRuntimeId": endpoint.agent_runtime_id,
++                "endpointName": endpoint.name,
++                "status": "CREATING",
++                "createdAt": endpoint.created_at,
++            }
++        )
++
++    def get_agent_runtime_endpoint(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        endpoint_name = self._get_path_param("endpointName")
++        endpoint = self.backend.get_agent_runtime_endpoint(
++            agent_runtime_id, endpoint_name
++        )
++        result: dict[str, Any] = {
++            "agentRuntimeEndpointArn": endpoint.agent_runtime_endpoint_arn,
++            "agentRuntimeArn": endpoint.agent_runtime_arn,
++            "status": endpoint.status,
++            "createdAt": endpoint.created_at,
++            "lastUpdatedAt": endpoint.last_updated_at,
++            "name": endpoint.name,
++            "id": endpoint.endpoint_id,
++            "targetVersion": endpoint.target_version,
++            "liveVersion": endpoint.live_version,
++        }
++        if endpoint.description:
++            result["description"] = endpoint.description
++        return ActionResult(result)
++
++    def update_agent_runtime_endpoint(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        endpoint_name = self._get_path_param("endpointName")
++        params = json.loads(self.body)
++        endpoint = self.backend.update_agent_runtime_endpoint(
++            agent_runtime_id=agent_runtime_id,
++            endpoint_name=endpoint_name,
++            agent_runtime_version=params.get("agentRuntimeVersion"),
++            description=params.get("description"),
++        )
++        return ActionResult(
++            {
++                "agentRuntimeEndpointArn": endpoint.agent_runtime_endpoint_arn,
++                "agentRuntimeArn": endpoint.agent_runtime_arn,
++                "status": "UPDATING",
++                "createdAt": endpoint.created_at,
++                "lastUpdatedAt": endpoint.last_updated_at,
++                "liveVersion": endpoint.live_version,
++                "targetVersion": endpoint.target_version,
++            }
++        )
++
++    def delete_agent_runtime_endpoint(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        endpoint_name = self._get_path_param("endpointName")
++        endpoint = self.backend.delete_agent_runtime_endpoint(
++            agent_runtime_id, endpoint_name
++        )
++        return ActionResult(
++            {
++                "status": "DELETING",
++                "agentRuntimeId": endpoint.agent_runtime_id,
++                "endpointName": endpoint.name,
++            }
++        )
++
++    def list_agent_runtime_endpoints(self) -> ActionResult:
++        agent_runtime_id = self._get_path_param("agentRuntimeId")
++        endpoints = self.backend.list_agent_runtime_endpoints(agent_runtime_id)
++        return ActionResult(
++            {
++                "runtimeEndpoints": [ep.to_summary() for ep in endpoints],
++            }
++        )
++
++    @_idempotent_gateway_create
++    def create_gateway(self) -> ActionResult:
++        params = json.loads(self.body)
++        gateway = self.backend.create_gateway(
++            name=params["name"],
++            role_arn=params["roleArn"],
++            protocol_type=params["protocolType"],
++            authorizer_type=params["authorizerType"],
++            description=params.get("description"),
++            protocol_configuration=params.get("protocolConfiguration"),
++            authorizer_configuration=params.get("authorizerConfiguration"),
++            kms_key_arn=params.get("kmsKeyArn"),
++            interceptor_configurations=params.get("interceptorConfigurations"),
++            policy_engine_configuration=params.get("policyEngineConfiguration"),
++            exception_level=params.get("exceptionLevel"),
++            tags=params.get("tags"),
++        )
++        result = gateway.to_dict()
++        result["status"] = "CREATING"
++        return ActionResult(result)
++
++    def get_gateway(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        gateway = self.backend.get_gateway(gateway_identifier)
++        return ActionResult(gateway.to_dict())
++
++    def update_gateway(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        params = json.loads(self.body)
++        gateway = self.backend.update_gateway(
++            gateway_identifier=gateway_identifier,
++            name=params["name"],
++            role_arn=params["roleArn"],
++            protocol_type=params["protocolType"],
++            authorizer_type=params["authorizerType"],
++            description=params.get("description"),
++            protocol_configuration=params.get("protocolConfiguration"),
++            authorizer_configuration=params.get("authorizerConfiguration"),
++            kms_key_arn=params.get("kmsKeyArn"),
++            interceptor_configurations=params.get("interceptorConfigurations"),
++            policy_engine_configuration=params.get("policyEngineConfiguration"),
++            exception_level=params.get("exceptionLevel"),
++        )
++        result = gateway.to_dict()
++        result["status"] = "UPDATING"
++        return ActionResult(result)
++
++    def delete_gateway(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        gateway = self.backend.delete_gateway(gateway_identifier)
++        return ActionResult(
++            {
++                "gatewayId": gateway.gateway_id,
++                "status": "DELETING",
++            }
++        )
++
++    def list_gateways(self) -> ActionResult:
++        gateways = self.backend.list_gateways()
++        return ActionResult(
++            {
++                "items": [g.to_summary() for g in gateways],
++            }
++        )
++
++    @_idempotent_gateway_create
++    def create_gateway_target(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        params = json.loads(self.body)
++        target = self.backend.create_gateway_target(
++            gateway_identifier=gateway_identifier,
++            name=params["name"],
++            target_configuration=params["targetConfiguration"],
++            description=params.get("description"),
++            credential_provider_configurations=params.get(
++                "credentialProviderConfigurations"
++            ),
++            metadata_configuration=params.get("metadataConfiguration"),
++        )
++        result = target.to_dict()
++        result["status"] = "CREATING"
++        return ActionResult(result)
++
++    def get_gateway_target(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        target_id = self._get_path_param("targetId")
++        target = self.backend.get_gateway_target(gateway_identifier, target_id)
++        return ActionResult(target.to_dict())
++
++    def update_gateway_target(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        target_id = self._get_path_param("targetId")
++        params = json.loads(self.body)
++        target = self.backend.update_gateway_target(
++            gateway_identifier=gateway_identifier,
++            target_id=target_id,
++            name=params["name"],
++            target_configuration=params["targetConfiguration"],
++            description=params.get("description"),
++            credential_provider_configurations=params.get(
++                "credentialProviderConfigurations"
++            ),
++            metadata_configuration=params.get("metadataConfiguration"),
++        )
++        result = target.to_dict()
++        result["status"] = "UPDATING"
++        return ActionResult(result)
++
++    def delete_gateway_target(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        target_id = self._get_path_param("targetId")
++        target = self.backend.delete_gateway_target(gateway_identifier, target_id)
++        return ActionResult(
++            {
++                "gatewayArn": target.gateway_arn,
++                "targetId": target.target_id,
++                "status": "DELETING",
++            }
++        )
++
++    def list_gateway_targets(self) -> ActionResult:
++        gateway_identifier = self._get_path_param("gatewayIdentifier")
++        targets = self.backend.list_gateway_targets(gateway_identifier)
++        return ActionResult(
++            {
++                "items": [t.to_summary() for t in targets],
++            }
++        )
++
++    def tag_resource(self) -> ActionResult:
++        resource_arn = unquote(self._get_path_param("resourceArn"))
++        params = json.loads(self.body)
++        self.backend.tag_resource(resource_arn, params["tags"])
++        return ActionResult({})
++
++    def untag_resource(self) -> ActionResult:
++        resource_arn = unquote(self._get_path_param("resourceArn"))
++        qs = parse_qs(self.parsed_url.query)
++        tag_keys = qs.get("tagKeys", [])
++        self.backend.untag_resource(resource_arn, tag_keys)
++        return ActionResult({})
++
++    def list_tags_for_resource(self) -> ActionResult:
++        resource_arn = unquote(self._get_path_param("resourceArn"))
++        tags = self.backend.list_tags_for_resource(resource_arn)
++        return ActionResult({"tags": tags})
++
++    def _get_path_param(self, name: str) -> str:
++        parts = self.parsed_url.path.rstrip("/").split("/")
++        if name == "agentRuntimeId":
++            # /runtimes/{agentRuntimeId}
++            # /runtimes/{agentRuntimeId}/versions
++            # /runtimes/{agentRuntimeId}/runtime-endpoints
++            # /runtimes/{agentRuntimeId}/runtime-endpoints/{endpointName}
++            idx = parts.index("runtimes") + 1
++            return parts[idx]
++        elif name == "endpointName":
++            idx = parts.index("runtime-endpoints") + 1
++            return parts[idx]
++        elif name == "gatewayIdentifier":
++            idx = parts.index("gateways") + 1
++            return parts[idx]
++        elif name == "targetId":
++            idx = parts.index("targets") + 1
++            return parts[idx]
++        elif name == "resourceArn":
++            idx = parts.index("tags") + 1
++            return "/".join(parts[idx:])
++        raise ValueError(f"Unknown path parameter: {name}")
+diff --git a/moto/bedrockagentcorecontrol/urls.py b/moto/bedrockagentcorecontrol/urls.py
+new file mode 100644
+index 000000000..bc8bb306b
+--- /dev/null
++++ b/moto/bedrockagentcorecontrol/urls.py
+@@ -0,0 +1,20 @@
++"""BedrockAgentCoreControl URLs."""
++
++from .responses import BedrockAgentCoreControlResponse
++
++url_bases = [
++    r"https?://bedrock-agentcore-control\.(.+)\.amazonaws\.com",
++]
++
++url_paths = {
++    "{0}/runtimes/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/runtimes/(?P<agentRuntimeId>[^/]+)/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/runtimes/(?P<agentRuntimeId>[^/]+)/versions/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/runtimes/(?P<agentRuntimeId>[^/]+)/runtime-endpoints/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/runtimes/(?P<agentRuntimeId>[^/]+)/runtime-endpoints/(?P<endpointName>[^/]+)/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/gateways/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/gateways/(?P<gatewayIdentifier>[^/]+)/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/gateways/(?P<gatewayIdentifier>[^/]+)/targets/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/gateways/(?P<gatewayIdentifier>[^/]+)/targets/(?P<targetId>[^/]+)/$": BedrockAgentCoreControlResponse.dispatch,
++    "{0}/tags/(?P<resourceArn>.+)$": BedrockAgentCoreControlResponse.dispatch,
++}
+diff --git a/moto/moto_server/werkzeug_app.py b/moto/moto_server/werkzeug_app.py
+index eaf726caa..ddb5e4df1 100644
+--- a/moto/moto_server/werkzeug_app.py
++++ b/moto/moto_server/werkzeug_app.py
+@@ -44,6 +44,7 @@ UNSIGNED_ACTIONS = {
+ 
+ # Some services have v4 signing names that differ from the backend service name/id.
+ SIGNING_ALIASES = {
++    "bedrock-agentcore": "bedrock-agentcore-control",
+     "eventbridge": "events",
+     "execute-api": "iot",
+     "iotdata": "data.iot",

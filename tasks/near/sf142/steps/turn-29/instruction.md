@@ -1,0 +1,1 @@
+Also, As discussed with @willmcgugan : - The feature should not be part of the constructor, but exposed as a dedicated `stylize_ranges` method - We should try to get better performance by avoiding the loop that goes through every character, by applying the ranges after the code has been split into several lines instead

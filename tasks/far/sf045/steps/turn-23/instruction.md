@@ -1,0 +1,3 @@
+Please check this too: Ideally the test condition admits all correct answers but not any incorrect ones. The problem with the `len` check is that something like `{2, 3}` would pass, even though it's not a dominating set. So, if the *only* valid mds-es are `{4, 6}` and `{5, something from range(0, 5)}` then a correct test captures this concisely.
+
+Test the constrained greedy result by domination, required/forbidden membership and cost-effectiveness on examples with already covered neighborhoods, zero-weight candidates, isolated nodes and mixed node labels. Ties may return any valid greedy choice. Do not claim exact global optimization or carry the unconstrained approximation bound over to forced constraints.

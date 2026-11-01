@@ -1,0 +1,84 @@
+{
+  "case_id": "sf191_switched",
+  "task_id": "ssb_v4_python-attrs__attrs_681",
+  "repo": "python-attrs/attrs",
+  "base_commit": "bfd7bb49b467e7ab586deb475c23974a91df4dab",
+  "derived_fail_to_pass": [
+    "tests.test_setattr.TestSetAttr::test_setattr_reset_if_no_custom_setattr[False]",
+    "tests.test_setattr.TestSetAttr::test_setattr_reset_if_no_custom_setattr[True]",
+    "tests.test_setattr.TestSetAttr::test_slotted_class_can_have_custom_setattr",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_auto_detect_if_no_custom_setattr[False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_auto_detect_if_no_custom_setattr[True]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[False-False-False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[False-False-True]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[False-True-False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[False-True-True]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[True-False-False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[True-False-True]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[True-True-False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_inherited_do_not_reset_intermediate[True-True-True]",
+    "tests.test_sf191_staged::test_disable_generated_hooks_through_plain_bridge",
+    "tests.test_sf191_staged::test_nearer_custom_setter_is_preserved_for_both_storage_modes"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_setattr.TestSetAttr::test_change",
+    "tests.test_setattr.TestSetAttr::test_frozen_attribute",
+    "tests.test_setattr.TestSetAttr::test_frozen_on_setattr_attribute_is_caught",
+    "tests.test_setattr.TestSetAttr::test_frozen_on_setattr_class_is_caught",
+    "tests.test_setattr.TestSetAttr::test_make_class",
+    "tests.test_setattr.TestSetAttr::test_no_validator_no_converter",
+    "tests.test_setattr.TestSetAttr::test_pickling_retains_attrs_own[False]",
+    "tests.test_setattr.TestSetAttr::test_pickling_retains_attrs_own[True]",
+    "tests.test_setattr.TestSetAttr::test_pipe",
+    "tests.test_setattr.TestSetAttr::test_setattr_inherited_do_not_reset[False]",
+    "tests.test_setattr.TestSetAttr::test_setattr_inherited_do_not_reset[True]",
+    "tests.test_setattr.TestSetAttr::test_validate_respects_run_validators_config",
+    "tests.test_setattr.TestSetAttr::test_validator[on_setattr1]",
+    "tests.test_setattr.TestSetAttr::test_validator[validate]",
+    "tests.test_setattr.TestSetAttr::test_validator[wrapped_pipe]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_docstring",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_auto_detect_frozen[False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_auto_detect_frozen[True]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_auto_detect_on_setattr[False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_auto_detect_on_setattr[True]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_restore_respects_auto_detect[False]",
+    "tests.test_setattr.TestSetAttrNoPy2::test_setattr_restore_respects_auto_detect[True]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_setattr.py",
+    "tests/test_sf191_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_setattr.py",
+    "tests/test_sf191_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "8f0f340c4ec4d6d5cec2e60e8337101806c8131d5d8bd0e84117cfd824076cef",
+    "config/recipes.json": "f8b65b02facb170774c5755e86486f4c167b7fadb6eb2dc072656ef880371c75"
+  }
+}

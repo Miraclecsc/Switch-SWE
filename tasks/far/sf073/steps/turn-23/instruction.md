@@ -1,0 +1,1 @@
+Please check this too: Add stop_nodes=None, a finite iterable of absorbing stop vertices consumed once. Tolerate duplicates, reject unknown stops with NodeNotFound, and terminate immediately after yielding the first visited stop. Combine stop_nodes with max_steps, stopping at whichever limit occurs first.

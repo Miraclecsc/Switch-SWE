@@ -1,0 +1,2 @@
+I have this in /work/w04: I think this bug is just a symptom of code being hard to maintain. This line could break if we add extra methods in the future. I think it will be easier if we replace method=auto by its resolved value right at the start of the call. Is that something we could do?
+Resolve method='auto' to force or energy before selecting a numerical solver.

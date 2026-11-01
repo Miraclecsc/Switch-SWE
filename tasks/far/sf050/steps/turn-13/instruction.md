@@ -1,0 +1,1 @@
+Also, The `test_ragged_eofs`, `test_eof_during_handshake` and `test_handshake_fail` tests all enter that branch.

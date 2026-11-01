@@ -1,0 +1,1 @@
+One more thing: Wouldn't classes that use `__slots__` define members before `__init__` as well? It's just that they wouldn't have any values.

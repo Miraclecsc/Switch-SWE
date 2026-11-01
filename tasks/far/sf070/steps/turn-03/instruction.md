@@ -1,0 +1,1 @@
+Please check this too: Extend draw_networkx_edge_labels label_pos to accept an edge-keyed mapping as well as its existing scalar/sequence forms. Use exactly the same pair or multigraph triple keys as edge_labels; missing entries default to 0.5 and unrendered entries are ignored. Associate positions by key independently of mapping insertion order.

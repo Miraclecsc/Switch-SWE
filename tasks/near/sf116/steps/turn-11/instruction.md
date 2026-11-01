@@ -1,0 +1,1 @@
+Please check this too: > How does this interact with pytest's capturing modes? Addressed in . Added a double `@parametrized` test to check all combinations of Pytest and Click modes.

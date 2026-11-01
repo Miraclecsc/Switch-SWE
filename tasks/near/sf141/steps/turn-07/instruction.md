@@ -1,0 +1,1 @@
+Please check this too: Anything with `__getattribute__` defined. Which happens more than you might think. Usually from ORMs or other magic classes. You're absolutely correct that `__module__` may not exist. You can't assume anything about objects, you will probably have to resort to `getattr`

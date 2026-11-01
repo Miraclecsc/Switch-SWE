@@ -1,0 +1,1 @@
+One more thing: Review the final patch and the public requirements already supplied. Make sure the patch is standalone against this workspace's original snapshot and includes any regression tests or documentation you choose to add. Preserve normal use of the existing API.

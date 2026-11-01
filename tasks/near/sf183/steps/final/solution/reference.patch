@@ -1,0 +1,45 @@
+diff --git a/packaging/specifiers.py b/packaging/specifiers.py
+index 9f7dd27..8e56f95 100644
+--- a/packaging/specifiers.py
++++ b/packaging/specifiers.py
+@@ -516,12 +516,20 @@ class Specifier(_IndividualSpecifier):
+     @_require_version_compare
+     def _compare_less_than_equal(self, prospective, spec):
+         # type: (ParsedVersion, str) -> bool
+-        return prospective <= Version(spec)
++
++        # NB: Local version identifiers are NOT permitted in the version
++        # specifier, so local version labels can be universally removed from
++        # the prospective version.
++        return Version(prospective.public) <= Version(spec)
+ 
+     @_require_version_compare
+     def _compare_greater_than_equal(self, prospective, spec):
+         # type: (ParsedVersion, str) -> bool
+-        return prospective >= Version(spec)
++
++        # NB: Local version identifiers are NOT permitted in the version
++        # specifier, so local version labels can be universally removed from
++        # the prospective version.
++        return Version(prospective.public) >= Version(spec)
+ 
+     @_require_version_compare
+     def _compare_less_than(self, prospective, spec_str):
+@@ -808,6 +816,17 @@ class SpecifierSet(BaseSpecifier):
+     ):
+         # type: (...) -> Iterable[Union[ParsedVersion, str]]
+ 
++        if prereleases is None and self._prereleases is None and not self.prereleases:
++            finals = []
++            previews = []
++            for item in iterable:
++                parsed = item if isinstance(item, (Version, LegacyVersion)) else parse(item)
++                if not self._specs and isinstance(parsed, LegacyVersion):
++                    continue
++                if self.contains(parsed, prereleases=True):
++                    (previews if parsed.is_prerelease else finals).append(item)
++            return finals if finals else previews
++
+         # Determine if we're forcing a prerelease or not, if we're not forcing
+         # one for this particular filter call, then we'll use whatever the
+         # SpecifierSet thinks for whether or not we should support prereleases.

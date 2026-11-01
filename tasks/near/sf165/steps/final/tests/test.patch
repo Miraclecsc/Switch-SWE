@@ -1,0 +1,213 @@
+diff --git a/tests/middleware/test_base.py b/tests/middleware/test_base.py
+index e2375a7b9..041cc7ce2 100644
+--- a/tests/middleware/test_base.py
++++ b/tests/middleware/test_base.py
+@@ -2,12 +2,7 @@
+ 
+ import contextvars
+ from contextlib import AsyncExitStack
+-from typing import (
+-    Any,
+-    AsyncGenerator,
+-    AsyncIterator,
+-    Generator,
+-)
++from typing import Any, AsyncGenerator, AsyncIterator, Generator
+ 
+ import anyio
+ import pytest
+diff --git a/tests/test_requests.py b/tests/test_requests.py
+index 2f173713e..f0494e751 100644
+--- a/tests/test_requests.py
++++ b/tests/test_requests.py
+@@ -6,7 +6,7 @@
+ import anyio
+ import pytest
+ 
+-from starlette.datastructures import Address, State
++from starlette.datastructures import URL, Address, State
+ from starlette.requests import ClientDisconnect, Request
+ from starlette.responses import JSONResponse, PlainTextResponse, Response
+ from starlette.types import Message, Receive, Scope, Send
+@@ -592,3 +592,44 @@ async def rcv() -> Message:
+         assert await s2.__anext__()
+     with pytest.raises(StopAsyncIteration):
+         await s1.__anext__()
++
++
++def test_request_url_outside_starlette_context(test_client_factory: TestClientFactory) -> None:
++    async def app(scope: Scope, receive: Receive, send: Send) -> None:
++        request = Request(scope, receive)
++        request.url_for("index")
++
++    client = test_client_factory(app)
++    with pytest.raises(
++        RuntimeError,
++        match="The `url_for` method can only be used inside a Starlette application or with a router.",
++    ):
++        client.get("/")
++
++
++def test_request_url_starlette_context(test_client_factory: TestClientFactory) -> None:
++    from starlette.applications import Starlette
++    from starlette.middleware import Middleware
++    from starlette.routing import Route
++    from starlette.types import ASGIApp
++
++    url_for = None
++
++    async def homepage(request: Request) -> Response:
++        return PlainTextResponse("Hello, world!")
++
++    class CustomMiddleware:
++        def __init__(self, app: ASGIApp) -> None:
++            self.app = app
++
++        async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
++            nonlocal url_for
++            request = Request(scope, receive)
++            url_for = request.url_for("homepage")
++            await self.app(scope, receive, send)
++
++    app = Starlette(routes=[Route("/home", homepage)], middleware=[Middleware(CustomMiddleware)])
++
++    client = test_client_factory(app)
++    client.get("/home")
++    assert url_for == URL("http://testserver/home")
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,132 @@
++import pytest
++
++from starlette.applications import Starlette
++from starlette.requests import Request
++from starlette.responses import Response
++from starlette.routing import Mount, NoMatchFound, Route, Router
++from starlette.websockets import WebSocket
++
++
++async def endpoint(request):
++    return Response()
++
++
++def scope(**providers):
++    return dict(type="http", path="/prefix/current", root_path="/prefix",
++                app_root_path="/prefix", scheme="https", server=("example.test", 443),
++                headers=[], **providers)
++
++
++class FalseyRouter(Router):
++    def __bool__(self):
++        return False
++
++
++class Wrapper:
++    def __init__(self, app):
++        self.app = app
++
++
++def test_falsey_router_still_has_precedence():
++    router = FalseyRouter([Route("/local/{item:int}", endpoint, name="detail")])
++    app = Starlette(routes=[Route("/global/{item:int}", endpoint, name="detail")])
++    assert str(Request(scope(router=router, app=app)).url_for("detail", item=7)) == "https://example.test/prefix/local/7"
++
++
++def test_router_miss_falls_back_to_app_namespaced_mount():
++    local = Router([Route("/local", endpoint, name="local")])
++    app = Starlette(routes=[
++        Mount("/account", routes=[Route("/users/{item:int}", endpoint, name="detail")], name="account")])
++    req = Request(scope(router=local, app=app))
++    assert str(req.url_for("account:detail", item=17)) == "https://example.test/prefix/account/users/17"
++    assert str(req.url_for("local")) == "https://example.test/prefix/local"
++
++
++def test_router_error_is_not_hidden_by_app_fallback():
++    error = RuntimeError("provider is broken")
++    class Broken:
++        def url_path_for(self, name, **params):
++            raise error
++    app = Starlette(routes=[Route("/available", endpoint, name="detail")])
++    with pytest.raises(RuntimeError) as caught:
++        Request(scope(router=Broken(), app=app)).url_for("detail")
++    assert caught.value is error
++
++
++def test_first_nomatch_error_is_preserved_if_all_providers_miss():
++    first = NoMatchFound("missing", {"id": 9})
++    class Missing:
++        def __init__(self, error):
++            self.error = error
++            self.calls = 0
++        def url_path_for(self, name, **params):
++            self.calls += 1
++            raise self.error
++    router = Missing(first)
++    app = Missing(NoMatchFound("other", {}))
++    with pytest.raises(NoMatchFound) as caught:
++        Request(scope(router=router, app=app)).url_for("missing", id=9)
++    assert caught.value is first
++    assert router.calls == app.calls == 1
++
++
++def test_same_provider_is_not_retried_as_app():
++    class Missing:
++        calls = 0
++        def url_path_for(self, name, **params):
++            self.calls += 1
++            raise NoMatchFound(name, params)
++    provider = Missing()
++    with pytest.raises(NoMatchFound):
++        Request(scope(router=provider, app=provider)).url_for("absent")
++    assert provider.calls == 1
++
++
++def test_app_wrappers_are_unwrapped_without_invoking_asgi():
++    app = Starlette(routes=[Route("/users/{item:int}", endpoint, name="detail")])
++    req = Request(scope(app=Wrapper(Wrapper(app))))
++    assert str(req.url_for("detail", item=23)) == "https://example.test/prefix/users/23"
++
++
++def test_wrapper_chain_after_router_miss_and_noncallable_attribute():
++    app = Starlette(routes=[Route("/global", endpoint, name="global")])
++    wrapper = Wrapper(app)
++    wrapper.url_path_for = None
++    req = Request(scope(router=Router([]), app=Wrapper(wrapper)))
++    assert str(req.url_for("global")) == "https://example.test/prefix/global"
++
++
++def test_wrapper_cycle_without_provider_has_clear_runtime_error():
++    wrapper = Wrapper(None)
++    wrapper.app = Wrapper(wrapper)
++    with pytest.raises(RuntimeError, match="only be used inside a Starlette application or with a router"):
++        Request(scope(app=wrapper)).url_for("missing")
++
++
++def test_selected_provider_is_not_unwrapped_on_nomatch():
++    inner = Starlette(routes=[Route("/hidden", endpoint, name="hidden")])
++    class Provider(Wrapper):
++        def url_path_for(self, name, **params):
++            raise NoMatchFound(name, params)
++    with pytest.raises(NoMatchFound):
++        Request(scope(app=Provider(inner))).url_for("hidden")
++
++
++def test_changed_scope_provider_is_resolved_on_each_call():
++    first = Starlette(routes=[Route("/first", endpoint, name="page")])
++    second = Starlette(routes=[Route("/second", endpoint, name="page")])
++    req = Request(scope(app=first))
++    assert str(req.url_for("page")).endswith("/first")
++    req.scope["app"] = second
++    assert str(req.url_for("page")).endswith("/second")
++
++
++def test_websocket_connection_uses_the_same_app_wrapper_resolution():
++    from starlette.routing import WebSocketRoute
++    async def websocket_endpoint(ws):
++        pass
++    app = Starlette(routes=[WebSocketRoute("/ws/{room}", websocket_endpoint, name="socket")])
++    ws_scope = scope(app=Wrapper(app))
++    ws_scope.update(type="websocket", scheme="wss")
++    socket = WebSocket(ws_scope, None, None)
++    assert str(socket.url_for("socket", room="team")) == "wss://example.test/prefix/ws/team"

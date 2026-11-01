@@ -1,0 +1,172 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+  ],
+  "case_id": "sf107_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": ".:/work/test-deps/00"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e",
+      "python": "3.12.12",
+      "requirements": "requirements/241e3b2e3913784b-3.12.12-d164db9e.txt",
+      "source": "dependency-source/241e3b2e3913784b-3.12.12-d164db9e.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "04bcc9913319e50b376a27c29cf9aa4e7b8247bf",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/db/models/fields/json.py",
+          "sha256": "d32444100b4b02c13aefa18425a13fd1da7495454e5d573d261e7ab5651cd2ad"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/releases/6.1.txt",
+          "sha256": "ef6dd54c76619fa6b751e97ea64cbfcfeb9faf729229f516dde2906a63b6992c"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/model_fields/test_jsonfield.py",
+          "sha256": "bb62a3dc08ac17909e796bdeb85235b756f099e099a01518a34cfb2770014cc4"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "3180ddb3f532ef246d318d64225886b7c0593676",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/db/models/fields/json.py",
+          "sha256": "e4b47a35984a3661778be9a6f177dde22ff0de23f4328a9134d9aa89cb583694"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/releases/6.1.txt",
+          "sha256": "19bd3b91f9e4db38c7cfa08a0d86405fe2aa0ef4b8943bb86d6dc9e5fb8d4c97"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/model_fields/test_jsonfield.py",
+          "sha256": "deb462bd25dd548b273051ee7d123f48ab1f05bb03da46207104c04ee88f1cfa"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "50bbf71bbd51616e2ce48785336ca3746fbe5f24",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/db/models/fields/json.py",
+          "sha256": "d32444100b4b02c13aefa18425a13fd1da7495454e5d573d261e7ab5651cd2ad"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/releases/6.1.txt",
+          "sha256": "80033ec53cebadfcdd52dbd0fd05ca4ac98e74ba4e0e18993103c3e66036c4bd"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/model_fields/test_jsonfield.py",
+          "sha256": "bb62a3dc08ac17909e796bdeb85235b756f099e099a01518a34cfb2770014cc4"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "3483bfc0920b0ef0b28563aabe8ff546699b6ece",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/db/models/fields/json.py",
+          "sha256": "e4b47a35984a3661778be9a6f177dde22ff0de23f4328a9134d9aa89cb583694"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/releases/6.1.txt",
+          "sha256": "19bd3b91f9e4db38c7cfa08a0d86405fe2aa0ef4b8943bb86d6dc9e5fb8d4c97"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/model_fields/test_jsonfield.py",
+          "sha256": "deb462bd25dd548b273051ee7d123f48ab1f05bb03da46207104c04ee88f1cfa"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "e49e14fd9032feb7a8cf254658ac4e74a4ffb712",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w04"
+    }
+  ]
+}

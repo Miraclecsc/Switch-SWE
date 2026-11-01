@@ -1,0 +1,1 @@
+Also, Simon also mentioned in the issue that it might be possible to just set the `self.is_hidden` flag based on this parameter as well, rather than adding another attribute for it. If that works, let's use `hidden` as the parameter name.

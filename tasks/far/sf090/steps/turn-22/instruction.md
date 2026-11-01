@@ -1,0 +1,1 @@
+One more thing: After looking at this for a bit I agree with @CoolCat467 that the increment/decrement does seem unreliable. if `await msg_from_thread.run()` or `msg_from_thread.run_sync` raises exceptions it won't decrement. So either a contextmanager, or wrapping all the involved lines in `to_thread_run_sync` in a try/finally, would probably be good.

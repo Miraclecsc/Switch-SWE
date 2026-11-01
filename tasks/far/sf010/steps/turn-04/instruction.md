@@ -1,0 +1,1 @@
+And here, Consider if we should also mark the `remote_user` for the `RemoteUserBackend` further down the page too. Or, someone more familiar with the remote user middleware can comment..

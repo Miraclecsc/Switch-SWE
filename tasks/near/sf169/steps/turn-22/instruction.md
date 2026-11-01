@@ -1,0 +1,1 @@
+One more thing: You are right, it is a more standard style to use `::` and indentation. I saw some unindented examples elsewhere so I mistook that for a standard. Now the first two examples are restored as they were.

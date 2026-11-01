@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: REF: remove freq parameter from DTA/TDA _simple_new (GH#24566) _simple_new no longer accepts freq; callers that need to set freq do so explicitly via result._freq = freq. This makes _simple_new a pure values+dtype constructor.

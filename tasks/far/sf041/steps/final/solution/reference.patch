@@ -1,0 +1,218 @@
+diff --git a/moto/moto_api/__init__.py b/moto/moto_api/__init__.py
+--- a/moto/moto_api/__init__.py
++++ b/moto/moto_api/__init__.py
+@@ -12,6 +12,11 @@
+ state_manager.register_default_transition(
+     model_name="athena::execution", transition={"progression": "immediate"}
+ )
++
++state_manager.register_default_transition(
++    model_name="pipes::pipe", transition={"progression": "manual", "times": 1}
++)
++
+ state_manager.register_default_transition(
+     "batch::job", transition={"progression": "manual", "times": 1}
+ )
+diff --git a/moto/pipes/models.py b/moto/pipes/models.py
+--- a/moto/pipes/models.py
++++ b/moto/pipes/models.py
+@@ -1,10 +1,12 @@
+ """EventBridgePipesBackend class with methods for supported APIs."""
+ 
++from enum import Enum
+ from typing import Any, Optional
+ 
+ from moto.core.base_backend import BackendDict, BaseBackend
+ from moto.core.common_models import BaseModel
+ from moto.core.utils import utcnow
++from moto.moto_api._internal.managed_state_model import ManagedState
+ from moto.utilities.paginator import paginate
+ from moto.utilities.utils import get_partition
+ 
+@@ -20,7 +22,26 @@
+ }
+ 
+ 
+-class Pipe(BaseModel):
++class PipeStatus(str, Enum):
++    CREATING = "CREATING"
++    RUNNING = "RUNNING"
++    STARTING = "STARTING"
++    STOPPING = "STOPPING"
++    STOPPED = "STOPPED"
++    DELETING = "DELETING"
++    DELETED = "DELETED"
++
++    @classmethod
++    def status_transitions(self) -> list[tuple[Optional[str], str]]:
++        return [
++            (PipeStatus.CREATING.value, PipeStatus.RUNNING.value),
++            (PipeStatus.STARTING.value, PipeStatus.RUNNING.value),
++            (PipeStatus.STOPPING.value, PipeStatus.STOPPED),
++            (PipeStatus.DELETING.value, PipeStatus.DELETED.value),
++        ]
++
++
++class Pipe(BaseModel, ManagedState):
+     """Represents an EventBridge Pipe."""
+ 
+     def __init__(
+@@ -41,12 +62,17 @@
+         log_configuration: Optional[dict[str, Any]] = None,
+         kms_key_identifier: Optional[str] = None,
+     ):
++        transitions = PipeStatus.status_transitions()
++        if desired_state == PipeStatus.STOPPED.value:
++            transitions[0] = (PipeStatus.CREATING.value, PipeStatus.STOPPED.value)
++        ManagedState.__init__(self, "pipes::pipe", transitions=transitions)
++
+         self.name = name
+         self.account_id = account_id
+         self.region_name = region_name
+         self.description = description
+-        self.desired_state = desired_state or "RUNNING"
+-        self.current_state = "RUNNING"
++        self.desired_state = desired_state or PipeStatus.RUNNING.value
++        self.status = PipeStatus.CREATING.value
+         self.source = source
+         self.source_parameters = source_parameters
+         self.enrichment = enrichment
+@@ -60,6 +86,10 @@
+         self.creation_time = utcnow()
+         self.last_modified_time = utcnow()
+         self.state_reason = None
++
++    @property
++    def current_state(self) -> Optional[str]:
++        return self.status
+ 
+     @property
+     def arn(self) -> str:
+@@ -115,14 +145,16 @@
+     def describe_pipe(self, name: str) -> Pipe:
+         if name not in self.pipes:
+             raise NotFoundException(f"Pipe {name} not found")
+-        return self.pipes[name]
++        pipe = self.pipes[name]
++        pipe.advance()
++        return pipe
+ 
+     def delete_pipe(self, name: str) -> Pipe:
+         if name not in self.pipes:
+             raise NotFoundException(f"Pipe {name} not found")
+         pipe = self.pipes.pop(name)
+-        pipe.desired_state = "DELETED"
+-        pipe.current_state = "DELETING"
++        pipe.desired_state = PipeStatus.DELETED.value
++        pipe.status = PipeStatus.DELETING.value
+         return pipe
+ 
+     def tag_resource(self, resource_arn: str, tags: dict[str, str]) -> None:
+@@ -173,6 +205,13 @@
+     ) -> list[dict[str, Any]]:
+         """List pipes with optional filtering and pagination."""
+         filtered_pipes = list(self.pipes.values())
++
++        for p in filtered_pipes:
++            # Change if needed their status to a terminal node
++            # for example RUNNING or STOPPED
++            # TODO: Here we're assumming that UPDATING/CREATING are short enough
++            # to exclude them for queries, is that True?
++            p.advance()
+ 
+         if name_prefix:
+             filtered_pipes = [
+@@ -223,5 +262,27 @@
+ 
+         return pipe_summaries
+ 
++    def start_pipe(self, name: str) -> Pipe:
++        if name not in self.pipes:
++            raise NotFoundException(f"Pipe {name} not found")
++        pipe: Pipe = self.pipes[name]
++        pipe.advance()
++        pipe.desired_state = PipeStatus.RUNNING.value
++        if pipe.status in (PipeStatus.STOPPED.value, PipeStatus.STOPPING.value):
++            pipe.status = PipeStatus.STARTING.value
++        pipe.last_modified_time = utcnow()
++        return pipe
++
++    def stop_pipe(self, name: str) -> Pipe:
++        if name not in self.pipes:
++            raise NotFoundException(f"Pipe {name} not found")
++        pipe: Pipe = self.pipes[name]
++        pipe.advance()
++        pipe.desired_state = PipeStatus.STOPPED.value
++        if pipe.status in (PipeStatus.RUNNING.value, PipeStatus.STARTING.value, PipeStatus.CREATING.value):
++            pipe.status = PipeStatus.STOPPING.value
++        pipe.last_modified_time = utcnow()
++        return pipe
++
+ 
+ pipes_backends = BackendDict(EventBridgePipesBackend, "pipes")
+diff --git a/moto/pipes/responses.py b/moto/pipes/responses.py
+--- a/moto/pipes/responses.py
++++ b/moto/pipes/responses.py
+@@ -5,7 +5,6 @@
+ from urllib.parse import unquote
+ 
+ from moto.core.responses import ActionResult, BaseResponse, EmptyResult
+-from moto.core.utils import iso_8601_datetime_without_milliseconds
+ 
+ from .exceptions import ValidationException
+ from .models import EventBridgePipesBackend, pipes_backends
+@@ -81,10 +80,8 @@
+             "Name": pipe.name,
+             "DesiredState": pipe.desired_state,
+             "CurrentState": pipe.current_state,
+-            "CreationTime": iso_8601_datetime_without_milliseconds(pipe.creation_time),
+-            "LastModifiedTime": iso_8601_datetime_without_milliseconds(
+-                pipe.last_modified_time
+-            ),
++            "CreationTime": pipe.creation_time,
++            "LastModifiedTime": pipe.last_modified_time,
+         }
+         if pipe.description is not None:
+             response_dict["Description"] = pipe.description
+@@ -192,3 +189,29 @@
+             response_dict["NextToken"] = next_token
+ 
+         return ActionResult(response_dict)
++
++    def start_pipe(self) -> ActionResult:
++        name = self.uri.split("?")[0].split("/")[-2]
++        pipe = self.pipes_backend.start_pipe(name=name)
++        response_dict: dict[str, Any] = {
++            "Arn": pipe.arn,
++            "Name": pipe.name,
++            "DesiredState": pipe.desired_state,
++            "CurrentState": pipe.current_state,
++            "CreationTime": pipe.creation_time,
++            "LastModifiedTime": pipe.last_modified_time,
++        }
++        return ActionResult(response_dict)
++
++    def stop_pipe(self) -> ActionResult:
++        name = self.uri.split("?")[0].split("/")[-2]
++        pipe = self.pipes_backend.stop_pipe(name=name)
++        response_dict: dict[str, Any] = {
++            "Arn": pipe.arn,
++            "Name": pipe.name,
++            "DesiredState": pipe.desired_state,
++            "CurrentState": pipe.current_state,
++            "CreationTime": pipe.creation_time,
++            "LastModifiedTime": pipe.last_modified_time,
++        }
++        return ActionResult(response_dict)
+diff --git a/moto/pipes/urls.py b/moto/pipes/urls.py
+--- a/moto/pipes/urls.py
++++ b/moto/pipes/urls.py
+@@ -8,6 +8,8 @@
+ 
+ url_paths = {
+     "{0}/v1/pipes/(?P<Name>[^/]+)$": EventBridgePipesResponse.dispatch,
++    "{0}/v1/pipes/(?P<Name>[^/]+)/start$": EventBridgePipesResponse.dispatch,
++    "{0}/v1/pipes/(?P<Name>[^/]+)/stop$": EventBridgePipesResponse.dispatch,
+     "{0}/tags/(?P<resourceArn>.+)$": EventBridgePipesResponse.dispatch,
+     "{0}/v1/pipes$": EventBridgePipesResponse.dispatch,
+ }

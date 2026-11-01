@@ -1,0 +1,1 @@
+One more thing: For compatibility it's probably a good idea but In theory that name really feels just like an implementation detail to allow loading it before moving it to the `__main__` identifier again (although I since it's not removed from `sys.modules` I fully expect a lot of code depends on it.

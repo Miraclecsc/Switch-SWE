@@ -1,0 +1,1 @@
+Please check this too: > I suppose that suggests that we may only want to normalize spaces in `_generic_platforms` or maybe `platform_tags` Not necessarily. It's something we can discuss as to what's best to do.

@@ -1,0 +1,185 @@
+diff --git a/tests/test_formparsers.py b/tests/test_formparsers.py
+index f12b43b..d2db3c5 100644
+--- a/tests/test_formparsers.py
++++ b/tests/test_formparsers.py
+@@ -465,6 +465,130 @@ def test_multipart_multi_field_app_reads_body(tmpdir: Path, test_client_factory:
+     assert response.json() == {"some": "data", "second": "key pair"}
+ 
+ 
++@pytest.mark.parametrize(
++    "app,expectation",
++    [
++        (app, pytest.raises(MultiPartException)),
++        (Starlette(routes=[Mount("/", app=app)]), does_not_raise()),
++    ],
++)
++def test_urlencoded_too_many_fields_raise(
++    app: ASGIApp,
++    expectation: AbstractContextManager[Exception],
++    test_client_factory: TestClientFactory,
++) -> None:
++    client = test_client_factory(app)
++    data = "&".join(f"N{i}=" for i in range(1001))
++    with expectation:
++        res = client.post(
++            "/",
++            content=data,
++            headers={"Content-Type": "application/x-www-form-urlencoded"},
++        )
++        assert res.status_code == 400
++        assert res.text == "Too many fields. Maximum number of fields is 1000."
++
++
++@pytest.mark.parametrize(
++    "app,expectation",
++    [
++        (app, pytest.raises(MultiPartException)),
++        (Starlette(routes=[Mount("/", app=app)]), does_not_raise()),
++    ],
++)
++def test_urlencoded_field_exceeds_max_part_size_raise(
++    app: ASGIApp,
++    expectation: AbstractContextManager[Exception],
++    test_client_factory: TestClientFactory,
++) -> None:
++    client = test_client_factory(app)
++    data = "field=" + "x" * (1024 * 1024 + 1)
++    with expectation:
++        res = client.post(
++            "/",
++            content=data,
++            headers={"Content-Type": "application/x-www-form-urlencoded"},
++        )
++        assert res.status_code == 400
++        assert res.text == "Field exceeded maximum size of 1024KB."
++
++
++@pytest.mark.parametrize(
++    "app,expectation",
++    [
++        (app, pytest.raises(MultiPartException)),
++        (Starlette(routes=[Mount("/", app=app)]), does_not_raise()),
++    ],
++)
++def test_urlencoded_field_name_exceeds_max_part_size_raise(
++    app: ASGIApp,
++    expectation: AbstractContextManager[Exception],
++    test_client_factory: TestClientFactory,
++) -> None:
++    client = test_client_factory(app)
++    data = "x" * (1024 * 1024 + 1) + "=value"
++    with expectation:
++        res = client.post(
++            "/",
++            content=data,
++            headers={"Content-Type": "application/x-www-form-urlencoded"},
++        )
++        assert res.status_code == 400
++        assert res.text == "Field exceeded maximum size of 1024KB."
++
++
++@pytest.mark.parametrize(
++    "app,expectation",
++    [
++        (make_app_max_parts(max_fields=1), pytest.raises(MultiPartException)),
++        (
++            Starlette(routes=[Mount("/", app=make_app_max_parts(max_fields=1))]),
++            does_not_raise(),
++        ),
++    ],
++)
++def test_urlencoded_max_fields_is_customizable(
++    app: ASGIApp,
++    expectation: AbstractContextManager[Exception],
++    test_client_factory: TestClientFactory,
++) -> None:
++    client = test_client_factory(app)
++    with expectation:
++        res = client.post(
++            "/",
++            content="a=1&b=2",
++            headers={"Content-Type": "application/x-www-form-urlencoded"},
++        )
++        assert res.status_code == 400
++        assert res.text == "Too many fields. Maximum number of fields is 1."
++
++
++@pytest.mark.parametrize(
++    "app,expectation",
++    [
++        (make_app_max_parts(max_part_size=1024 * 10), pytest.raises(MultiPartException)),
++        (
++            Starlette(routes=[Mount("/", app=make_app_max_parts(max_part_size=1024 * 10))]),
++            does_not_raise(),
++        ),
++    ],
++)
++def test_urlencoded_max_part_size_is_customizable(
++    app: ASGIApp,
++    expectation: AbstractContextManager[Exception],
++    test_client_factory: TestClientFactory,
++) -> None:
++    client = test_client_factory(app)
++    with expectation:
++        res = client.post(
++            "/",
++            content="field=" + "x" * (1024 * 10 + 1),
++            headers={"Content-Type": "application/x-www-form-urlencoded"},
++        )
++        assert res.status_code == 400
++        assert res.text == "Field exceeded maximum size of 10KB."
++
++
+ def test_user_safe_decode_helper() -> None:
+     result = _user_safe_decode(b"\xc4\x99\xc5\xbc\xc4\x87", "utf-8")
+     assert result == "ężć"
+diff --git a/tests/test_sf038_callback_limits.py b/tests/test_sf038_callback_limits.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf038_callback_limits.py
+@@ -0,0 +1,45 @@
++import pytest
++from starlette.datastructures import Headers
++from starlette.formparsers import FormParser,MultiPartException
++
++class Tracking(FormParser):
++    started=0
++    completed=0
++    def on_field_start(self):
++        self.started+=1
++        return super().on_field_start()
++    def on_field_end(self):
++        self.completed+=1
++        return super().on_field_end()
++
++async def stream(chunks):
++    for chunk in chunks:yield chunk
++    yield b''
++
++@pytest.mark.anyio
++async def test_one_chunk_field_limit_stops_callbacks():
++    parser=Tracking(Headers(),stream([b'a=1&b=2&c=3&d=4']),max_fields=1)
++    with pytest.raises(MultiPartException,match='Too many fields'):await parser.parse()
++    assert parser.started==2 and parser.completed==1
++
++@pytest.mark.anyio
++@pytest.mark.parametrize('body',[b'abcdef=1&z=2',b'a=123456&z=2'])
++async def test_oversized_field_aborts_before_end(body):
++    parser=Tracking(Headers(),stream([body]),max_part_size=3)
++    with pytest.raises(MultiPartException,match='Field exceeded'):await parser.parse()
++    assert parser.completed==0 and parser.started==1
++
++@pytest.mark.anyio
++async def test_split_budget_rejects_without_reading_rest():
++    consumed=[]
++    async def chunks():
++        for chunk in [b'ab=',b'12',b'345',b'&must=not-read']:
++            consumed.append(chunk);yield chunk
++    parser=Tracking(Headers(),chunks(),max_part_size=4)
++    with pytest.raises(MultiPartException):await parser.parse()
++    assert consumed==[b'ab=',b'12',b'345'] and parser.completed==0
++
++@pytest.mark.anyio
++async def test_exact_boundary_decoding_duplicates_and_infinite_count():
++    result=await FormParser(Headers(),stream([b'a=%',b'32&a=',b'3']),max_fields=float('inf'),max_part_size=4).parse()
++    assert result.multi_items()==[('a','2'),('a','3')]

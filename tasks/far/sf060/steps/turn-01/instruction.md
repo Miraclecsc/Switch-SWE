@@ -1,0 +1,1 @@
+I have this in /work/w00: fix(tempfile): correct SpooledTemporaryFile rollover boundary ## Changes - Change `_check` condition from `< self._max_size` to `<= self._max_size` so that rollover only occurs when size > max_size - Add `test_exact_boundary_no_rollover` to verify no rollover at the exact boundary and rollover on overflow

@@ -1,0 +1,1 @@
+One more thing: What seems to be happening is that the task is cancelled by a cancel scope, but the cancellation is only delivered to the task _after_ a new scope has been entered. The new scope is exited with `CancelledError`, and sees that it didn't cancel the task, so it lets the exception escape.

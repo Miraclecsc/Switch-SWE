@@ -1,0 +1,88 @@
+{
+  "case_id": "sf062_switched",
+  "task_id": "ssb_v4_encode__httpx_3312",
+  "repo": "encode/httpx",
+  "base_commit": "2e01aa0075327c5c30632207e8b7a1961dda5303",
+  "derived_fail_to_pass": [
+    "tests.client.test_headers::test_header_with_incorrect_value",
+    "tests.test_sf062_header_validation::test_assignment_accepts_bytes_and_preserves_duplicate_replacement_order",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign--ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-Bad Name-ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-None-ok-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-X-42-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-X-None-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-X-a\\nb-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-X-a\\r\\nb-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-X-a\\x00b-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[assign-X:-ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct--ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-Bad Name-ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-None-ok-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-X-a\\nb-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-X-a\\r\\nb-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-X-a\\x00b-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-X:-ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update--ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-Bad Name-ok-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-None-ok-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-X-a\\nb-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-X-a\\r\\nb-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-X-a\\x00b-ValueError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-X:-ok-ValueError]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.client.test_headers::test_client_header",
+    "tests.client.test_headers::test_header_does_not_exist",
+    "tests.client.test_headers::test_header_merge",
+    "tests.client.test_headers::test_header_merge_conflicting_headers",
+    "tests.client.test_headers::test_header_repeated_items",
+    "tests.client.test_headers::test_header_repeated_multi_items",
+    "tests.client.test_headers::test_header_update",
+    "tests.client.test_headers::test_host_with_auth_and_port_in_url",
+    "tests.client.test_headers::test_host_with_non_default_port_in_url",
+    "tests.client.test_headers::test_remove_default_header",
+    "tests.client.test_headers::test_request_auto_headers",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-X-42-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[construct-X-None-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-X-42-TypeError]",
+    "tests.test_sf062_header_validation::test_public_header_validation_is_consistent_and_atomic[update-X-None-TypeError]",
+    "tests.test_sf062_header_validation::test_valid_empty_value_tab_and_explicit_encoding"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/client/test_headers.py",
+    "tests/test_sf062_header_validation.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/client/test_headers.py",
+    "tests/test_sf062_header_validation.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "d43e984aca1b9aa2282c58d018f62b5862eb2555dbbaa4af3a274fae8bf37c6a",
+    "config/recipes.json": "122f05d1ec51d299ec75be1aa0967229813562f004d13bd631637ea8ed21a756"
+  }
+}

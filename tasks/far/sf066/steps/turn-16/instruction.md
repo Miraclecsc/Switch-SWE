@@ -1,0 +1,1 @@
+And here, My understanding is that `np.array` converts the input to an array with a copy and `np.asarray` converts without a copy if it can. Here we input a list so they both create a new array. So the preferred form is `np.array`.

@@ -1,0 +1,1 @@
+Also, This makes it seem like you have to use that type if you have an aggregation function, which is not the case. I'd suggest just leaving that type off here.

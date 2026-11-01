@@ -1,0 +1,3 @@
+Please check this too: For the cases where it's worth keeping the logic it should probably be broken out into its own test function. Although honestly unless the test is specifically for formatting and thus has hard-coded expectations I say just call `_version_nodot()` directly.
+
+Add the same version_separator option to compatible_tags. It governs every generated py interpreter name, including older minor versions and any-platform fallbacks. Keep a caller-supplied interpreter string unchanged and preserve tag order. The default behavior of all existing APIs must remain unchanged; formatting a foreign explicit version must not substitute the host version.

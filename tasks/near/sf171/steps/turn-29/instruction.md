@@ -1,0 +1,1 @@
+Also, The period-reporting mode must leave nodes, edges and attributes unchanged.

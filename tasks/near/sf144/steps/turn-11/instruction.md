@@ -1,0 +1,1 @@
+Please check this too: I'm assuming `cell_offset` is keeping track of how much space is already occupied in the line we're currently filling, right? I _personally_ don't love the name but maybe that could be mitigated with a short comment next to it?

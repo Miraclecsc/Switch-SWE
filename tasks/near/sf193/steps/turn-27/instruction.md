@@ -1,0 +1,1 @@
+Please check this too: > Oh. You shouldn't run mypy on attrs source code. At least we haven't made it pass type checking. The only file that passes type checking is typing_example.py I’m not! 🙈 I’m just adding a `from ._version import VersionInfo` And it seem to follow the imports into _make?

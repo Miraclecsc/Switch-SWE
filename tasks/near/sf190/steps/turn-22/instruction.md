@@ -1,0 +1,1 @@
+One more thing: Apply class-cell rebinding to every property accessor, including setters and deleters, without changing descriptor semantics. Empty unrelated closure cells must not crash class creation, and non-class captured values must remain unchanged. Keep ordinary method closure repair working.

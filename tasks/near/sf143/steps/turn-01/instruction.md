@@ -1,0 +1,1 @@
+I have this in /work/w01: [traceback] Add traceback frame opt-out via a `_rich_traceback_omit = True` machinery

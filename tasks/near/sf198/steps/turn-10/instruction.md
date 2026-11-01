@@ -1,0 +1,1 @@
+One more thing: When the active that type changes its autojump threshold in guest mode, publish the new threshold before requesting a guest tick so the scheduling callback observes the new value. Preserve threshold synchronization for non-guest runs without scheduling guest work, and allow clock construction outside a run.

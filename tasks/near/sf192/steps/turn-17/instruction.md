@@ -1,0 +1,1 @@
+Also, Callable cmp and eq keys are active because they are callable, regardless of their truth value. A callable object with an empty-container truth value must still transform both operands during equality and inequality. Do not invoke a key object's truth-value method as part of class construction or comparison; preserve type-mismatch NotImplemented behavior.

@@ -1,0 +1,1 @@
+And here, Namespaces should use `__setitem__` and `__getitem__` rather than real attributes. Otherwise we run at risk of letting users set special attributes which can cause security issues.

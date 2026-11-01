@@ -1,0 +1,1 @@
+And here, No, it should just be an AttributeError from `__getattr__()`.

@@ -1,0 +1,3 @@
+Also, Why? Borrowers can be any type, but this would mean only `object()` instances can go to `borrowers`.
+
+Extend the memory-object-stream statistics work with MemoryObjectSendStream.set_max_buffer_size(size), a synchronous capacity adjustment shared by all send/receive clones. Existing statistics() snapshots stay immutable; new snapshots immediately report the new capacity. Accept nonnegative integers and positive infinity, raising ValueError for other sizes.

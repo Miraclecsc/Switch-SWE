@@ -1,0 +1,1 @@
+I have this in /work/w04: Fixed #36696 -- Resolved NameError with PY314 when DEBUG=True

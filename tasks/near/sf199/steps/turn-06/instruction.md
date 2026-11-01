@@ -1,0 +1,1 @@
+One more thing: Handle real/imaginary decomposition of unevaluated zero-base powers consistently for finite rational exponents, not only negative integers. Positive exponents yield (0, 0), zero yields (1, 0), and negative exponents yield (NaN, NaN). Avoid introducing an undefined polar angle at a zero base.

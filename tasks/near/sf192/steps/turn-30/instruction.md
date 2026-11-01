@@ -1,0 +1,1 @@
+One more thing: I really like the guidelines in that link you provided -- especially dropping the do-nothing words like "check this" or "test that" along those lines though, the word "Tests" and "Verify" each occur 9x in docstrings in test_validators.py should I follow the pattern, or not add any more instances of "tests" or "verify" in docstrings?

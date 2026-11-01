@@ -1,0 +1,1 @@
+One more thing: Would it be worth documenting what these functions don't check compared to the PEPs? That way anyone using them who wants to be strict know what more they would need to do on top of what the functions return?

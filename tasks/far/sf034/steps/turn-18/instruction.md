@@ -1,0 +1,3 @@
+One more thing: Evaluate whether to close this and Or, open an issue. It seems to me that at least the docstring should be clarified th.at `rank(A) == Q.cols` is expected but not guaranteed.
+
+Add keyword-only pivoting=False. With pivoting=True return (Q,R,permutation), where permutation contains each original column index exactly once and Q*R equals A[:, permutation]. Put a maximal independent set first and dependent columns after it. Require economical shapes and upper-trapezoidal R; the choice among valid independent sets is unrestricted. Compose this with normalize=False and normalized mode.

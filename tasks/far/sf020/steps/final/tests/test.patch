@@ -1,0 +1,196 @@
+diff --git a/tests/test_dms/test_dms.py b/tests/test_dms/test_dms.py
+index 470aeb19ddbc..758d36737988 100644
+--- a/tests/test_dms/test_dms.py
++++ b/tests/test_dms/test_dms.py
+@@ -217,6 +217,32 @@ def test_delete_replication_task_throws_resource_not_found_error():
+     )
+ 
+ 
++@mock_aws
++def test_describe_replication_tasks_no_filters():
++    client = boto3.client("dms", region_name="us-east-1")
++
++    client.create_replication_task(
++        ReplicationTaskIdentifier="test-1",
++        SourceEndpointArn="source-endpoint-1-arn",
++        TargetEndpointArn="target-endpoint-1-arn",
++        ReplicationInstanceArn="replication-instance-1-arn",
++        MigrationType="full-load",
++        TableMappings='{"rules":[]}',
++    )
++    client.create_replication_task(
++        ReplicationTaskIdentifier="test-2",
++        SourceEndpointArn="source-endpoint-2-arn",
++        TargetEndpointArn="target-endpoint-2-arn",
++        ReplicationInstanceArn="replication-instance-2-arn",
++        MigrationType="full-load",
++        TableMappings='{"rules":[]}',
++    )
++
++    tasks = client.describe_replication_tasks()
++
++    assert len(tasks["ReplicationTasks"]) == 2
++
++
+ @mock_aws
+ def test_create_replication_instance():
+     client = boto3.client("dms", region_name="us-east-1")
+diff --git a/tests/test_dms/test_query_continuation_v1.py b/tests/test_dms/test_query_continuation_v1.py
+new file mode 100644
+index 000000000..642416c13
+--- /dev/null
++++ b/tests/test_dms/test_query_continuation_v1.py
+@@ -0,0 +1,153 @@
++"""Public sf020 DMS query-continuation v1 behavioral contract."""
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++from moto import mock_aws
++from unittest.mock import patch
++
++
++def client(region='us-east-1'):
++    return boto3.client('dms', region_name=region)
++
++
++def create(c, name, migration='full-load'):
++    return c.create_replication_task(
++        ReplicationTaskIdentifier=name, SourceEndpointArn='source',
++        TargetEndpointArn='target', ReplicationInstanceArn='instance',
++        MigrationType=migration, TableMappings='{"rules":[]}',
++        ReplicationTaskSettings='{"Logging":{"EnableLogging":true}}',
++    )['ReplicationTask']['ReplicationTaskArn']
++
++
++def populate(c, n=45):
++    return [create(c, 'task-%03d' % i) for i in range(n)]
++
++
++def ids(response):
++    return [t['ReplicationTaskIdentifier'] for t in response['ReplicationTasks']]
++
++
++def validation(c, **kwargs):
++    with pytest.raises(ClientError) as exc:
++        c.describe_replication_tasks(**kwargs)
++    assert exc.value.response['Error']['Code'] == 'ValidationError'
++
++
++@mock_aws
++def test_walk_replay_and_change_page_size():
++    c = client(); populate(c, 65)
++    first = c.describe_replication_tasks(MaxRecords=20)
++    assert ids(first) == ['task-%03d' % i for i in range(20)]
++    marker = first.get('Marker'); assert marker
++    second = c.describe_replication_tasks(Marker=marker, MaxRecords=20)
++    assert ids(second) == ['task-%03d' % i for i in range(20, 40)]
++    replay = c.describe_replication_tasks(Marker=marker, MaxRecords=30)
++    assert ids(replay) == ['task-%03d' % i for i in range(20, 50)]
++    last = c.describe_replication_tasks(Marker=second['Marker'], MaxRecords=30)
++    assert ids(last) == ['task-%03d' % i for i in range(40, 65)]
++    assert not last.get('Marker')
++
++
++@mock_aws
++def test_filter_before_paging_and_equivalent_filter_order():
++    c = client(); populate(c, 45)
++    for i in range(25): create(c, 'cdc-%03d' % i, 'cdc')
++    f = [{'Name':'migration-type','Values':['full-load']},
++         {'Name':'endpoint-arn','Values':['source','target']}]
++    first = c.describe_replication_tasks(Filters=f, MaxRecords=20)
++    assert len(first['ReplicationTasks']) == 20
++    assert first.get('Marker')
++    g = [{'Name':'endpoint-arn','Values':['target','source','source']}, f[0]]
++    second = c.describe_replication_tasks(Filters=g, MaxRecords=100, Marker=first['Marker'])
++    assert ids(second) == ['task-%03d' % i for i in range(20,45)]
++    assert not second.get('Marker')
++    validation(c, Marker=first['Marker'], Filters=[{'Name':'migration-type','Values':['cdc']}])
++    validation(c, Marker=first['Marker'])
++
++
++@mock_aws
++def test_snapshot_skips_deleted_and_excludes_new_incarnations():
++    c = client(); arns = populate(c)
++    first = c.describe_replication_tasks(MaxRecords=20)
++    assert first.get('Marker')
++    # Delete both an already-returned task and pending tasks; an offset in the
++    # current dictionary would skip unrelated tasks or include replacements.
++    for i in [0, 20, 21]: c.delete_replication_task(ReplicationTaskArn=arns[i])
++    create(c, 'task-020'); create(c, 'new-task')
++    second = c.describe_replication_tasks(Marker=first['Marker'], MaxRecords=20)
++    assert ids(second) == ['task-%03d' % i for i in range(22,42)]
++    last = c.describe_replication_tasks(Marker=second['Marker'])
++    assert ids(last) == ['task-042','task-043','task-044']
++    assert not last.get('Marker')
++    assert 'new-task' in ids(c.describe_replication_tasks())
++
++
++@mock_aws
++def test_independent_cursors_and_exhausted_deleted_tail():
++    c = client(); arns = populate(c)
++    a = c.describe_replication_tasks(MaxRecords=20)
++    b = c.describe_replication_tasks(MaxRecords=30)
++    assert a.get('Marker') and b.get('Marker')
++    assert ids(c.describe_replication_tasks(Marker=b['Marker'])) == ['task-%03d' % i for i in range(30,45)]
++    assert ids(c.describe_replication_tasks(Marker=a['Marker'])) == ['task-%03d' % i for i in range(20,45)]
++    for arn in arns[20:]: c.delete_replication_task(ReplicationTaskArn=arn)
++    empty = c.describe_replication_tasks(Marker=a['Marker'])
++    assert empty['ReplicationTasks'] == [] and not empty.get('Marker')
++
++
++@mock_aws
++def test_markers_are_backend_scoped():
++    c = client(); populate(c, 21)
++    marker = c.describe_replication_tasks(MaxRecords=20).get('Marker'); assert marker
++    validation(client('us-west-2'), Marker=marker)
++    with patch.dict('os.environ', {'MOTO_ACCOUNT_ID':'222222222222'}):
++        other = client()
++        assert other.describe_replication_tasks()['ReplicationTasks'] == []
++        validation(other, Marker=marker)
++    assert len(c.describe_replication_tasks(Marker=marker)['ReplicationTasks']) == 1
++
++
++@mock_aws
++@pytest.mark.parametrize('marker', ['unknown-token', '{"offset":20}', '!!!'])
++def test_invalid_marker(marker):
++    validation(client(), Marker=marker)
++
++
++@mock_aws
++@pytest.mark.parametrize('size', [0, -1, 19, 101])
++def test_invalid_page_size(size):
++    validation(client(), MaxRecords=size)
++
++
++@mock_aws
++def test_settings_projection_is_nonmutating_and_can_change_on_resume():
++    c = client(); populate(c, 21)
++    first = c.describe_replication_tasks(MaxRecords=20, WithoutSettings=True)
++    assert all('ReplicationTaskSettings' not in t for t in first['ReplicationTasks'])
++    assert all(t['TableMappings']=='{"rules":[]}' for t in first['ReplicationTasks'])
++    assert first.get('Marker')
++    last = c.describe_replication_tasks(Marker=first['Marker'], WithoutSettings=False)
++    assert last['ReplicationTasks'][0]['ReplicationTaskSettings']=='{"Logging":{"EnableLogging":true}}'
++    assert all('ReplicationTaskSettings' in t for t in c.describe_replication_tasks()['ReplicationTasks'])
++
++
++@mock_aws
++def test_default_limit_produces_continuation():
++    c = client(); populate(c, 101)
++    first = c.describe_replication_tasks()
++    assert len(first['ReplicationTasks']) == 100 and first.get('Marker')
++    assert ids(c.describe_replication_tasks(Marker=first['Marker'])) == ['task-100']
++
++
++@mock_aws
++def test_no_filters_and_empty_filters_are_equivalent():
++    c = client(); populate(c, 2)
++    assert ids(c.describe_replication_tasks()) == ids(c.describe_replication_tasks(Filters=[])) == ['task-000','task-001']
++
++
++@mock_aws
++def test_filter_intersection_and_empty_result_legacy():
++    c = client(); create(c,'full'); create(c,'cdc','cdc')
++    assert ids(c.describe_replication_tasks(Filters=[{'Name':'migration-type','Values':['cdc']}])) == ['cdc']
++    empty = c.describe_replication_tasks(Filters=[{'Name':'migration-type','Values':['cdc']},{'Name':'replication-task-id','Values':['full']}])
++    assert empty['ReplicationTasks'] == [] and not empty.get('Marker')

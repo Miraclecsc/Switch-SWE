@@ -1,0 +1,1 @@
+And here, this is making me think there should be a lint rule that checks for `pytest.raises([Base]ExceptionGroup)` - created

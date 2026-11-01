@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: WIP: Fixed anyio.lru_cache not working with instance methods Fixes #1042. # Conflicts: # docs/versionhistory.rst

@@ -1,0 +1,147 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+  ],
+  "case_id": "sf139_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f",
+      "python": "3.12.12",
+      "requirements": "requirements/5f83db8323a0bf87-3.12.12-de98864f.txt",
+      "source": "dependency-source/5f83db8323a0bf87-3.12.12-de98864f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/42e98545c0757d05-3.12.12-e3867d78",
+      "python": "3.12.12",
+      "requirements": "requirements/42e98545c0757d05-3.12.12-e3867d78.txt",
+      "source": "dependency-source/42e98545c0757d05-3.12.12-e3867d78.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [
+    "/opt/ssb/deps/42e98545c0757d05-3.12.12-e3867d78"
+  ],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5f83db8323a0bf87-3.12.12-de98864f"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "3d52407132956f43cc8a03e7e257d2ec75cec397",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/source/whatsnew/v3.1.0.rst",
+          "sha256": "686fe0811f1194b9277b7be3721be250ea06d6a6d396818897ba8763811319dc"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/core/generic.py",
+          "sha256": "5ddc81680fbf4edd2f372de1113f717075af4756edcaf4f0f9866236a42c768f"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/frame/test_query_eval.py",
+          "sha256": "cefc6ecb59c630b1ef6ecf9dd11729bd8f77f269547258dde2e3cce4d1719c3f"
+        }
+      ],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "c79d638e27a10fd2359491bbf7ac1effe8a8b3ff",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "18068988802273a4a9eb2b43c737313cdde5c36b",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/source/whatsnew/v3.1.0.rst",
+          "sha256": "18217c15ffc684d6ec6899158754f72d296715bc88667c98a082f069f90df4c4"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/core/generic.py",
+          "sha256": "5724501896bcd8c8b9533c3ad0684422f70d1ce44fda61be7cc121a38f82872f"
+        },
+        {
+          "mode": "100644",
+          "path": "pandas/tests/frame/test_query_eval.py",
+          "sha256": "e20f03b28757b9447a29a32372af580e6d9d73c876dc17e57595407ce7115c3a"
+        }
+      ],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "fcf19f012314812359ae2f879c54b28ade09ac8f",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "20bd243b5df8d5a499fb0c01d04b9c8326b6fc30",
+      "overlays": [],
+      "repo": "pandas-dev/pandas",
+      "url": "https://github.com/pandas-dev/pandas.git",
+      "workspace": "w04"
+    }
+  ]
+}

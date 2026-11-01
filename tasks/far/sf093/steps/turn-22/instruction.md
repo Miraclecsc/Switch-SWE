@@ -1,0 +1,1 @@
+One more thing: Personally I would keep is annotated as Generator, since it is a generator, I feel like Iterator is best used to describe the return type for `__iter__` on classes

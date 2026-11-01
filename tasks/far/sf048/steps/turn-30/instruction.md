@@ -1,0 +1,1 @@
+One more thing: That would also avoid the conversion of boolean / datetime data you have above, which is essentially duplicating some logic from `_ensure_data`. (I think the cleanest logic might be to do something similar to `algorithms.rank()`, so that the `_ensure_data` can stay private to that module)

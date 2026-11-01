@@ -1,0 +1,1 @@
+Also, I'd vote to parametrize this on "sentinel" if for no other reason than `np.nan` is kind of "special" (i.e. has the nan != nan property) and forces the weights to floating point. Maybe something like: Doing the same for the round-trip test would also be worthwhile IMO!

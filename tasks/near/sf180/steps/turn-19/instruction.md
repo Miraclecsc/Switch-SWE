@@ -1,0 +1,1 @@
+Please check this too: I suspected that would be the case. Dependencies are tough in core tools like these. The approach in #799 only loads the SPDX list, but doesn't implement a parser. and its only direct dependency are pure python and a great candidate for vendoring if the licensing is compatible.

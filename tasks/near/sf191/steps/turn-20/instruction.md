@@ -1,0 +1,1 @@
+And here, Because `__attrs_own_setattr__` is a computed attribute. Take this for instance: A has `__attrs_own_setattr__ = True` but B doesn't. If I walk the whole MRO, it would turn up True. IIUC, my only option would be to walk the MRO and apply the full resolution logic myself – whose avoidance's the whole reason behind `__attrs_own_setattr__`?

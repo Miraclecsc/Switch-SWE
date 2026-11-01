@@ -1,0 +1,1 @@
+I have this in /work/w02: More compatibility with pep425tags This PR adds logging around `get_config_var` as mentioned here: It also fixes #171. (cc @pradyunsg @cjerdonek)

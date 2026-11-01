@@ -1,0 +1,79 @@
+diff --git a/tests/modeladmin/test_checks.py b/tests/modeladmin/test_checks.py
+index e4ad0636a6f3..85f2eda69ebb 100644
+--- a/tests/modeladmin/test_checks.py
++++ b/tests/modeladmin/test_checks.py
+@@ -537,7 +537,20 @@ class TestModelAdmin(ModelAdmin):
+         self.assertIsInvalid(
+             TestModelAdmin,
+             ValidationTestModel,
+-            "The value of 'list_display[0]' must not be a ManyToManyField.",
++            "The value of 'list_display[0]' must not be a many-to-many field or a "
++            "reverse foreign key.",
++            "admin.E109",
++        )
++
++    def test_invalid_reverse_related_field(self):
++        class TestModelAdmin(ModelAdmin):
++            list_display = ["song_set"]
++
++        self.assertIsInvalid(
++            TestModelAdmin,
++            Band,
++            "The value of 'list_display[0]' must not be a many-to-many field or a "
++            "reverse foreign key.",
+             "admin.E109",
+         )
+ 
+diff --git a/tests/modeladmin/test_staged_contract.py b/tests/modeladmin/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/modeladmin/test_staged_contract.py
+@@ -0,0 +1,48 @@
++from django.contrib import admin
++from django.test import SimpleTestCase
++from .models import Band, Song, ValidationTestModel
++
++
++class ListDisplayContractTests(SimpleTestCase):
++    def errors(self, model, entries, **attrs):
++        cls = type("ContractAdmin", (admin.ModelAdmin,), dict(list_display=entries, **attrs))
++        try:
++            errors = cls(model, admin.AdminSite()).check()
++        except Exception as exc:
++            self.fail("System checks raised instead of returning diagnostics: %r" % (exc,))
++        return [error for error in errors if error.id in ("admin.E108", "admin.E109")]
++
++    def test_reverse_metadata_relations(self):
++        errors = self.errors(Band, ["song", "song_set", "featured"])
++        self.assertEqual([e.id for e in errors], ["admin.E109"] * 3)
++        for index, error in enumerate(errors):
++            self.assertIn("list_display[%d]" % index, error.msg)
++
++    def test_forward_single_valued_relations(self):
++        self.assertEqual(self.errors(Song, ["band"]), [])
++        self.assertEqual(self.errors(ValidationTestModel, ["best_friend", "band"]), [])
++
++    def test_model_descriptor_not_executed(self):
++        accesses = []
++        class Computed:
++            def __get__(self, instance, owner):
++                accesses.append(instance)
++                raise AttributeError("only available on instances")
++        descriptor = Computed()
++        setattr(Band, "contract_display", descriptor)
++        try:
++            self.assertEqual(self.errors(Band, ["contract_display"]), [])
++            self.assertEqual(accesses, [])
++        finally:
++            delattr(Band, "contract_display")
++
++    def test_admin_property_not_executed(self):
++        def forbidden(self):
++            raise RuntimeError("checking must not execute display code")
++        self.assertEqual(self.errors(Band, ["song_set"], song_set=property(forbidden)), [])
++
++    def test_invalid_entries_report_and_continue(self):
++        errors = self.errors(Band, [None, 123, [], "song_set", "no_such_name"])
++        self.assertEqual([e.id for e in errors], ["admin.E108", "admin.E108", "admin.E108", "admin.E109", "admin.E108"])
++        for index, error in enumerate(errors):
++            self.assertIn("list_display[%d]" % index, error.msg)

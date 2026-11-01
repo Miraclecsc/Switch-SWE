@@ -1,0 +1,1 @@
+One more thing: Properly support WebP in the image converter Subject: Fix mime type detection in image converter and add webp->png conversion. ### Feature or Bugfix Bugfix ### Purpose Although `_image_type_from_file` function is able to detect a WEBP Also, add tests. I'd like to see an example where it fails and succeeds.

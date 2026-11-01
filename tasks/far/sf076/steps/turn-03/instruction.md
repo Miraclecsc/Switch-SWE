@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: Propagate int-max-str-digits ValueError Fixes #1154 Let the CPython int-max-str-digits `ValueError` propagate from `Version()` instead of converting it to `InvalidVersion`.

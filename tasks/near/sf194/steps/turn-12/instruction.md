@@ -1,0 +1,1 @@
+And here, I don’t mind. I don't want runtime deps to check for PY3 but reimplementing metaclass magic just for tests seems like a bridge too far.

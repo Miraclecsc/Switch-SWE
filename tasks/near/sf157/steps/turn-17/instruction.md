@@ -1,0 +1,1 @@
+Also, > they both reacts with a RuntimeError raise but the message is different, Could you make that error message uniform, and test for it, please?

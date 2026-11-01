@@ -1,0 +1,1 @@
+I have this in /work/w04: Add start_new_session: bool = False to run_process() and open_process(), forwarding it through both supported backends and shell/exec branches. On POSIX, True creates a new session before exec; the default retains the parent's session. Keep existing process I/O, cwd, env, checking and cleanup behavior.

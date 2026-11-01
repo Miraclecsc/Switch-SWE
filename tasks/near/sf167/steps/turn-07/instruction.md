@@ -1,0 +1,1 @@
+Please check this too: Personal preference - I don't like the `\` and startup performance hit from `.strip()` is minimal. ;) There's also argument that avoiding `\` means one less thing to remember when I'll be copypasting updated playground's html over in future.

@@ -1,0 +1,1 @@
+One more thing: Extend backend selection with per-call ordered priorities: backend may also be a list or tuple of backend names. Try them in order, skip uninstalled names and implementations that decline with NotImplementedError, and return the first success. For backend-only functions, naming networkx must never execute the stub.

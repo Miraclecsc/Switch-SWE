@@ -1,0 +1,1 @@
+I have this in /work/w01: Use degree() instead of has() to check for constants in risch At some point, has() stopped working properly on Poly. degree is a better way to check that a poly is constant anyways.

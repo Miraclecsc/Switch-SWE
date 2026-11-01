@@ -1,0 +1,1 @@
+And here, while working on this I noticed that creating a Python script with a name starting ending with `test_` anywhere in the project's repo was collected by Pytest: I think we'd better tell Pytest to stick with the contents of our `tests/` folder - which should also make the tests collection faster as a side effect

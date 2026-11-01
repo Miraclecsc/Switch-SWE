@@ -1,0 +1,128 @@
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+index 26640ed7d3..eef1ec1a22 100644
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -1197,44 +1197,45 @@ class FilePathField(ChoiceField):
+         self.path, self.match, self.recursive = path, match, recursive
+         self.allow_files, self.allow_folders = allow_files, allow_folders
+         super().__init__(choices=(), **kwargs)
++        self.set_choices()
+ 
+-        if self.required:
+-            self.choices = []
+-        else:
+-            self.choices = [("", get_blank_choice_label())]
++    def set_choices(self):
++        # Resolve a request-dependent path once and publish only a complete scan.
++        path = os.fspath(self.path() if callable(self.path) else self.path)
++        match_re = re.compile(self.match) if self.match is not None else None
++        choices = [] if self.required else [("", get_blank_choice_label())]
+ 
+-        if self.match is not None:
+-            self.match_re = re.compile(self.match)
++        def onerror(error):
++            raise error
+ 
+-        if recursive:
+-            for root, dirs, files in sorted(os.walk(self.path)):
++        if self.recursive:
++            for root, dirs, files in sorted(os.walk(path, onerror=onerror)):
+                 if self.allow_files:
+-                    for f in sorted(files):
+-                        if self.match is None or self.match_re.search(f):
+-                            f = os.path.join(root, f)
+-                            self.choices.append((f, f.replace(path, "", 1)))
++                    for name in sorted(files):
++                        if match_re is None or match_re.search(name):
++                            full = os.path.join(root, name)
++                            choices.append((full, full.replace(path, "", 1)))
+                 if self.allow_folders:
+-                    for f in sorted(dirs):
+-                        if f == "__pycache__":
++                    for name in sorted(dirs):
++                        if name == "__pycache__":
+                             continue
+-                        if self.match is None or self.match_re.search(f):
+-                            f = os.path.join(root, f)
+-                            self.choices.append((f, f.replace(path, "", 1)))
++                        if match_re is None or match_re.search(name):
++                            full = os.path.join(root, name)
++                            choices.append((full, full.replace(path, "", 1)))
+         else:
+-            choices = []
+-            with os.scandir(self.path) as entries:
+-                for f in entries:
+-                    if f.name == "__pycache__":
++            entries_choices = []
++            with os.scandir(path) as entries:
++                for entry in entries:
++                    if entry.name == "__pycache__":
+                         continue
+-                    if (
+-                        (self.allow_files and f.is_file())
+-                        or (self.allow_folders and f.is_dir())
+-                    ) and (self.match is None or self.match_re.search(f.name)):
+-                        choices.append((f.path, f.name))
+-            choices.sort(key=operator.itemgetter(1))
+-            self.choices.extend(choices)
+-
+-        self.widget.choices = self.choices
++                    if ((self.allow_files and entry.is_file()) or
++                        (self.allow_folders and entry.is_dir())) and (
++                        match_re is None or match_re.search(entry.name)
++                    ):
++                        entries_choices.append((entry.path, entry.name))
++            choices.extend(sorted(entries_choices, key=operator.itemgetter(1)))
++        self.choices = choices
++        self.match_re = match_re
+ 
+ 
+ class SplitDateTimeField(MultiValueField):
+diff --git a/docs/ref/forms/fields.txt b/docs/ref/forms/fields.txt
+index 085b36a0e5..8ddc5b9d79 100644
+--- a/docs/ref/forms/fields.txt
++++ b/docs/ref/forms/fields.txt
+@@ -724,6 +724,26 @@ For each field, we describe the default widget used if you don't specify
+         whether folders in the specified location should be included. Either
+         this or :attr:`allow_files` must be ``True``.
+ 
++    ``FilePathField`` has the following method:
++
++    .. method:: set_choices()
++
++        .. versionadded:: 6.1
++
++        Scans the directory at :attr:`path` and refreshes the field's
++        choices. This is called automatically during ``__init__()``, but it can
++        also be called explicitly to pick up files added to the directory
++        after the field was first instantiated (usually at server startup). For
++        example, call it in a form's ``__init__()`` to get fresh choices per
++        request::
++
++            class MyForm(forms.Form):
++                my_file = forms.FilePathField(path="/path/to/dir")
++
++                def __init__(self, *args, **kwargs):
++                    super().__init__(*args, **kwargs)
++                    self.fields["my_file"].set_choices()
++
+ ``FloatField``
+ --------------
+ 
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index b4b4e60082..3da0c6546f 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -258,6 +258,12 @@ Forms
+   :setting:`USE_BLANK_CHOICE_DASH` allows you to revert back to the old
+   default label.
+ 
++* :class:`~django.forms.FilePathField` now provides a
++  :meth:`~django.forms.FilePathField.set_choices` method to scan the
++  directory at :attr:`~django.forms.FilePathField.path` and refresh the
++  field's choices. This allows per-request refreshing when called in a form's
++  ``__init__()``.
++
+ Generic Views
+ ~~~~~~~~~~~~~
+ 

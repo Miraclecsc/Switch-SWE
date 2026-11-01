@@ -1,0 +1,1 @@
+One more thing: Yes, I usually start the tuple with an "format version" integer. But I don't think this will be likely to change much, and simply adding a value is safe. Longer term, we could probably use pattern matching here if it's not too much slower.

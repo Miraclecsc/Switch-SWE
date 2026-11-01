@@ -1,0 +1,58 @@
+{
+  "case_id": "sf114_switched",
+  "task_id": "ssb_v2_task_0225",
+  "repo": "networkx/networkx",
+  "base_commit": "a7247a70534d34769b04d8de83b5f94772d111f9",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.tests.test_perfect_graph::test_chordal_graph",
+    "networkx.algorithms.tests.test_perfect_graph::test_complement_of_odd_cycle",
+    "networkx.algorithms.tests.test_perfect_graph::test_disconnected_union_of_cliques",
+    "networkx.algorithms.tests.test_perfect_graph::test_even_cycle",
+    "networkx.algorithms.tests.test_perfect_graph::test_odd_cycle",
+    "networkx.algorithms.tests.test_perfect_certificates_v1::test_global_shortest_witness_and_kind_tie_break",
+    "networkx.algorithms.tests.test_perfect_certificates_v1::test_hole_and_antihole_certificates_are_verifiable",
+    "networkx.algorithms.tests.test_perfect_certificates_v1::test_mixed_labels_use_insertion_order_and_preserve_graph",
+    "networkx.algorithms.tests.test_perfect_certificates_v1::test_perfect_certificate_has_no_witness",
+    "networkx.algorithms.tests.test_perfect_certificates_v1::test_small_graphs_agree_with_independent_induced_subset_oracle"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.tests.test_perfect_certificates_v1::test_original_boolean_api_and_graph_type_restrictions"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/tests/test_perfect_graph.py",
+    "networkx/algorithms/tests/test_perfect_certificates_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/tests/test_perfect_certificates_v1.py",
+    "networkx/algorithms/tests/test_perfect_graph.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "57fe5f981dd25b0aadfcb005985bbb634236245ccdd7b51299ddb130f23ea993",
+    "config/recipes.json": "6d6acfe37bb7df84dcf73fae25eca17732df555088556ad758087dfebd859f38"
+  }
+}

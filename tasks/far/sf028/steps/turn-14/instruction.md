@@ -1,0 +1,1 @@
+One more thing: I'm a bit late, I would recommend also adding a test in `test_parser_mathematica_tokenizer()`, testing that the S-expression equivalent is correctly parsed before converting to a SymPy expression.

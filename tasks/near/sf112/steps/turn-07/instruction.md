@@ -1,0 +1,1 @@
+Please check this too: We can drop `and i > 0` here because it doubles for initial `i` check.

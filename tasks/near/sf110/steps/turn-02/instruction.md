@@ -1,0 +1,1 @@
+For the checkout at /work/w01, Add sync_to_async handling to the dummy password hasher path so inactive or nonexistent users follow the same async boundary as the existing user password-check path.

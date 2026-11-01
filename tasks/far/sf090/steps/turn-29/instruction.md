@@ -1,0 +1,1 @@
+Also, Yeah I don't think we have to care about thread safety here. Rather, the only times `_active_threads_local` can be changed (that we worry about) is at an `await` point. After all `to_thread_run_sync` can be only run from the main thread (that has your `trio` event loop).

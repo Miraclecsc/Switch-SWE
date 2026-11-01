@@ -1,0 +1,1 @@
+Please check this too: Could we compile filters to something like this at the beginning of the template? Then the code where the filter is actually used just uses `filter_tmp_0` which will either call the filter or raise an exception - without adding extra runtime overhead every time the filter is actually invoked.

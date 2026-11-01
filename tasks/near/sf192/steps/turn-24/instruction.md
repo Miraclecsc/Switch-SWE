@@ -1,0 +1,1 @@
+And here, > Would we keep it in Attribute's init? You mean the deprecation? Yes. I would like to remove cmp from Attribute for good eventually. I want it only to be a syntactic sugar, nothing more.

@@ -1,0 +1,86 @@
+diff --git a/tests/test_make.py b/tests/test_make.py
+index 6cc4f059f..cdca30d08 100644
+--- a/tests/test_make.py
++++ b/tests/test_make.py
+@@ -2057,6 +2057,27 @@ def __repr__(self):
+ 
+         assert "hi" == repr(C(42))
+ 
++    @pytest.mark.parametrize("slots", [True, False])
++    @pytest.mark.parametrize("frozen", [True, False])
++    def test_hash_uses_eq(self, slots, frozen):
++        """
++        If eq is passed in, then __hash__ should use the eq callable
++        to generate the hash code.
++        """
++
++        @attr.s(slots=slots, frozen=frozen, hash=True)
++        class C(object):
++            x = attr.ib(eq=str)
++
++        @attr.s(slots=slots, frozen=frozen, hash=True)
++        class D(object):
++            x = attr.ib()
++
++        # These hashes should be the same because 1 is turned into
++        # string before hashing.
++        assert hash(C("1")) == hash(C(1))
++        assert hash(D("1")) != hash(D(1))
++
+     @pytest.mark.parametrize("slots", [True, False])
+     @pytest.mark.parametrize("frozen", [True, False])
+     def test_detect_auto_hash(self, slots, frozen):
+diff --git a/tests/test_sf193_staged.py b/tests/test_sf193_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf193_staged.py
+@@ -0,0 +1,49 @@
++
++import attr
++import pytest
++
++class EmptyKey:
++    def __len__(self):
++        return 0
++    def __call__(self, value):
++        return tuple(value)
++
++def test_falsey_key_hashes_unhashable_values_consistently():
++    for slots in (False, True):
++        for cache in (False, True):
++            @attr.s(frozen=True, slots=slots, cache_hash=cache)
++            class Example:
++                value = attr.ib(eq=EmptyKey())
++            left, right = Example([1,2]), Example((1,2))
++            assert left == right
++            assert hash(left) == hash(right)
++            assert {left:'yes'}[right] == 'yes'
++
++def test_key_truth_value_is_never_used():
++    class Key:
++        def __bool__(self):
++            raise AssertionError('key truth value queried')
++        def __call__(self, value):
++            return value.lower()
++    @attr.s(frozen=True)
++    class Example:
++        value = attr.ib(eq=Key())
++        ignored = attr.ib(hash=False, eq=False)
++    a, b = Example('A', []), Example('a', {})
++    assert a == b and hash(a) == hash(b)
++
++def test_failed_cached_hash_is_retried():
++    calls = []
++    def key(value):
++        calls.append(value)
++        if len(calls) == 1:
++            raise ValueError('temporary key failure')
++        return tuple(value)
++    @attr.s(frozen=True, cache_hash=True)
++    class Example:
++        value = attr.ib(eq=key)
++    example = Example([1])
++    with pytest.raises(ValueError, match='temporary'):
++        hash(example)
++    result = hash(example)
++    assert hash(example) == result and len(calls) == 2

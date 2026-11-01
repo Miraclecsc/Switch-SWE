@@ -1,0 +1,1 @@
+Please check this too: One issue I noticed on py3.11 is that when this happens, the cancel scope doesn't uncancel the host task since that is currently only triggered when a `CancelledError` is caught by the CM. I think I'll at least fix that before merging.

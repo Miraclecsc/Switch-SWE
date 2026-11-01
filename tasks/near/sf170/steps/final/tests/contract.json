@@ -1,0 +1,59 @@
+{
+  "case_id": "sf170_switched",
+  "task_id": "ssb_v4_networkx__networkx_7945",
+  "repo": "networkx/networkx",
+  "base_commit": "1af2820e3710526248c64d981488f83c3c32e056",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_long_paths_graphs",
+    "tests.test_sf170_staged::test_directed_wrong_root_rejected",
+    "tests.test_sf170_staged::test_mixed_orientation_rejected_without_mutation",
+    "tests.test_sf170_staged::test_valid_deep_directed_mapping_is_complete"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_hardcoded",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_input_not_tree",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_negative",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_positive",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_tree_isomorphism_raises_on_directed_and_multigraphs[DiGraph]",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_tree_isomorphism_raises_on_directed_and_multigraphs[MultiGraph]",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_trivial",
+    "networkx.algorithms.isomorphism.tests.test_tree_isomorphism::test_trivial_2"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/isomorphism/tests/test_tree_isomorphism.py",
+    "tests/test_sf170_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/isomorphism/tests/test_tree_isomorphism.py",
+    "tests/test_sf170_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "421333b05529a9be16de1b672efbe0e65e03af418a36755c760812c4ecc03ef2",
+    "config/recipes.json": "5b232af5ac3df463bc7532d8446ed2b1d3d12bb6dd419395e367e0963fba463b"
+  }
+}

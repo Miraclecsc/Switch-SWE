@@ -1,0 +1,1 @@
+Also, I think it's also good to mention in particular that this led to double-wrapped exceptions if used together with that method with `strict_exception_groups` set to `True` or `None`.

@@ -1,0 +1,1 @@
+For the checkout at /work/w04, Added asynchronous Path class Fixes #296.

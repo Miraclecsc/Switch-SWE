@@ -1,0 +1,1 @@
+And here, i dont think this is quite the right condition. it'll miss e.g. BusinessHour, DateOffset(minute=1). I'd save the check for after doing the DatetimeArray operation and then do:

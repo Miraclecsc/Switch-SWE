@@ -1,0 +1,3 @@
+Also, Replaces. In the case of init we could consider special-case it to optionally create a `__attrs_init__` that the user can call whenever to fix the “how can I call super()” problem forever.
+
+> There is really only one controversial open question: if a method is detected, should it just prevent the one method or all of the related ones? E.g. if I define `__eq__`, what about `__ne__`? As a user, I would expect it to work like `functools.total_ordering`.

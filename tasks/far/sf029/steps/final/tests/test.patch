@@ -1,0 +1,83 @@
+diff --git a/sympy/parsing/tests/test_mathematica.py b/sympy/parsing/tests/test_mathematica.py
+index 65703da29109..4113166b8a27 100644
+--- a/sympy/parsing/tests/test_mathematica.py
++++ b/sympy/parsing/tests/test_mathematica.py
+@@ -1,8 +1,9 @@
+-from sympy import sin, Function, symbols, Dummy, Lambda, cos
++from sympy import sin, Function, symbols, Dummy, Lambda, cos, Symbol, factorial, S
+ from sympy.parsing.mathematica import parse_mathematica, MathematicaParser
+ from sympy.core.sympify import sympify
+ from sympy.abc import n, w, x, y, z
+ from sympy.testing.pytest import raises
++from sympy.logic.boolalg import And, Or, Not
+ 
+ 
+ def test_mathematica():
+@@ -335,3 +336,21 @@ def test_Mathematica_literal_regex():
+                 assert literal_regex.fullmatch(c)
+             if f"x{c}".isidentifier():
+                 assert literal_regex.fullmatch(f"x{c}")
++
++
++def test_mathematica_not_operator():
++    # Basic tests
++    x = Symbol('x')
++    assert parse_mathematica("!x") == Not(x)
++
++    # And / Or combinations
++    x1, x2 = Symbol('x1'), Symbol('x2')
++    assert parse_mathematica("x1 && !x2") == And(x1, Not(x2))
++    assert parse_mathematica("!x1 || !x2") == Or(Not(x1), Not(x2))
++
++    # Constants
++    assert parse_mathematica("!True") == S.false
++    assert parse_mathematica("!False") == S.true
++
++    # Factorial distinction
++    assert parse_mathematica("x!") == factorial(x)
+diff --git a/sympy/parsing/tests/test_sf029_bang_context.py b/sympy/parsing/tests/test_sf029_bang_context.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/parsing/tests/test_sf029_bang_context.py
+@@ -0,0 +1,41 @@
++import pytest
++from sympy import S, Symbol, factorial, factorial2
++from sympy.logic.boolalg import And, Or, Not
++from sympy.parsing.mathematica import MathematicaParser, parse_mathematica
++
++def tree(text):
++    parser=MathematicaParser()
++    return parser._from_tokens_to_fullformlist(parser._from_mathematica_to_tokens(text))
++
++@pytest.mark.parametrize('text,count',[('!!x',2),('!!!x',3),('! ! ! !x',4),('!!!!!x',5)])
++def test_prefix_run_tree(text,count):
++    expected='x'
++    for _ in range(count): expected=['Not',expected]
++    assert tree(text)==expected
++    assert parse_mathematica(text)==(Symbol('x') if count%2==0 else Not(Symbol('x')))
++
++def test_boolean_composition_and_brackets():
++    x,y=Symbol('x'),Symbol('y')
++    assert parse_mathematica('!!x && !!!y') == And(x,Not(y))
++    assert parse_mathematica('!(!x || !!y)') == Not(Or(Not(x),y))
++    assert tree('f[!!x, {!!!y}]') == ['f',['Not',['Not','x']],['List',['Not',['Not',['Not','y']]]]]
++
++def test_postfix_double_factorial_numeric_and_symbolic():
++    assert parse_mathematica('7!!')==105
++    assert parse_mathematica('x!!')==factorial2(Symbol('x'))
++    assert parse_mathematica('5!')==120
++    assert parse_mathematica('x ! !')==factorial(factorial(Symbol('x')))
++
++def test_mixed_prefix_postfix_relation():
++    assert tree('!!(7!! > 10)') == ['Not',['Not',['Greater',['Factorial2','7'],'10']]]
++    assert parse_mathematica('!!(7!! > 10)') == S.true
++    assert tree('!(x != y)') == ['Not',['Unequal','x','y']]
++
++@pytest.mark.parametrize('text',['!','!!','!!!','x && !!','x || !','f[!]','{!}'])
++def test_missing_operand_is_syntax_error(text):
++    with pytest.raises(SyntaxError):parse_mathematica(text)
++
++def test_original_single_not_and_factorial_regressions():
++    assert parse_mathematica('!False')==S.true
++    assert parse_mathematica('!True')==S.false
++    assert parse_mathematica('x!')==factorial(Symbol('x'))

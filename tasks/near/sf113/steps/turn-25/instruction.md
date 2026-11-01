@@ -1,0 +1,1 @@
+Also, I see. We could duplicate the check for whether `G` is the null graph (you mention `nx.is_empty` but in my opinion the issue only concerns the null graph) and have a more appropriate error message to indicate that centrality* is undefined for the null graph.

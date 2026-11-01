@@ -1,0 +1,3 @@
+And here, OK, test coverage is as good as I can get it without writing tests for `fspath()` just for this PR.
+
+There's also a missing branch at line 336 that coverage is shouting about. Regarding the glibc version extraction logic, I think `packaging.utils.get_glibc_version_string` (or similar) should be a reasonable place for it. (I know you said that you don't want to hold up this PR for figuring out the location for publicly exposing the glibc version extraction, just noting my thoughts)

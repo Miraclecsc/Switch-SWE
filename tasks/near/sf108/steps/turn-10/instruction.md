@@ -1,0 +1,3 @@
+One more thing: This should be defined on `BaseCache` and not `BaseDatabaseCache`. As pointed out in the ticket the memcached and redis backend are also affected. Also, This should not add anything if the subclass has its own specialized `aget_many`
+
+A synchronous optimized override may return an awaitable. In that case the async wrapper must await that returned value and return its final result, rather than leaking a coroutine object to its caller. Propagate backend exceptions and cancellation. Keep the original cache tests.

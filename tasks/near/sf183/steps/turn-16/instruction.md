@@ -1,0 +1,1 @@
+And here, I meant: The question is whether it would ever make sense for this triple to come after anything that has the ABI set to something other than `none`. I think we agree it shouldn't, but to help guarantee that is the case, I was asking for the `break` trigger to be more explicit.

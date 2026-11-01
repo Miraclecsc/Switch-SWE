@@ -1,0 +1,1 @@
+For the checkout at /work/w00, Allow converter.optional to take a Converter such as converter.pipe as its argument # Summary

@@ -1,0 +1,1 @@
+And here, Hm, how about implementing this alias with `__getattribute__()` to emit a deprecation warning when the old name is accessed?

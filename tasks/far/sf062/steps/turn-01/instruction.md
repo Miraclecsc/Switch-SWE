@@ -1,0 +1,1 @@
+I have this in /work/w02: Clarified error when header value is None Previously, when the header value was None, a misleading error was thrown: "AttributeError: Object 'NoneType' does not have attribute 'encode'." Now it looks better. ![image](

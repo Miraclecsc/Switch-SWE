@@ -1,0 +1,3 @@
+And here, We can drop `and i > 0` here because it doubles for initial `i` check.
+
+Carry the same acronym-preserving name conversion through convert_kwargs_to_snake_case for arbitrary nested GraphQL input lists and dictionaries, including lists of lists. Build new container values without mutating caller input; preserve leaf/custom-scalar objects and positional arguments. Keep both sync and async resolver support and decorator metadata. Do not change the required grouping of testWithUPPERPart or interfaceMACs.

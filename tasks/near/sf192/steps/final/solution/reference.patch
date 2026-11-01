@@ -1,0 +1,114 @@
+diff --git a/changelog.d/773.deprecation.rst b/changelog.d/773.deprecation.rst
+new file mode 100644
+index 0000000..2b694d3
+--- /dev/null
++++ b/changelog.d/773.deprecation.rst
+@@ -0,0 +1 @@
++``cmp`` has been undeprecated and will continue to be supported as syntactic sugar to set ``eq`` and ``order`` in one go.
+diff --git a/docs/api.rst b/docs/api.rst
+index 08067d5..cfda7ba 100644
+--- a/docs/api.rst
++++ b/docs/api.rst
+@@ -653,6 +653,4 @@ It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
+ The serious business aliases used to be called ``attr.attributes`` and ``attr.attr``.
+ There are no plans to remove them but they shouldn't be used in new code.
+ 
+-The ``cmp`` argument to both `attr.s` and `attr.ib` has been deprecated in 19.2 and shouldn't be used.
+-
+ .. autofunction:: assoc
+diff --git a/src/attr/_make.py b/src/attr/_make.py
+index ee70160..1501817 100644
+--- a/src/attr/_make.py
++++ b/src/attr/_make.py
+@@ -196,7 +196,6 @@ def attrib(
+ 
+     :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
+         order=True``. Can also be set to a ``callable``.
+-        Deprecated in favor of *eq* and *order*.
+     :type cmp: a `bool` or a `callable`.
+ 
+     :param Optional[bool] hash: Include this attribute in the generated
+@@ -252,7 +251,8 @@ def attrib(
+     .. versionadded:: 19.2.0 *eq* and *order*
+     .. versionadded:: 20.1.0 *on_setattr*
+     .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
+-    .. versionchanged:: 21.1.0 *eq* and *order* also accept a custom callable.
++    .. versionchanged:: 21.1.0 *eq* and *order* also accept a custom callable
++    .. versionchanged:: 21.1.0 *cmp* undeprecated
+     """
+     eq, eq_key, order, order_key = _determine_attrib_eq_order(
+         cmp, eq, order, True
+@@ -1083,8 +1083,6 @@ def _determine_attrs_eq_order(cmp, eq, order, default_eq):
+ 
+     # cmp takes precedence due to bw-compatibility.
+     if cmp is not None:
+-        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=3)
+-
+         return cmp, cmp
+ 
+     # If left None, equality is set to the specified default and ordering
+@@ -1121,8 +1119,6 @@ def _determine_attrib_eq_order(cmp, eq, order, default_eq):
+ 
+     # cmp takes precedence due to bw-compatibility.
+     if cmp is not None:
+-        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=3)
+-
+         cmp, cmp_key = decide_callable_or_boolean(cmp)
+         return cmp, cmp_key, cmp, cmp_key
+ 
+@@ -1263,9 +1259,7 @@ def attrs(
+         allow instances to be ordered. If ``None`` (default) mirror value of
+         *eq*.
+     :param Optional[bool] cmp: Setting to ``True`` is equivalent to setting
+-        ``eq=True, order=True``. Deprecated in favor of *eq* and *order*, has
+-        precedence over them for backward-compatibility though. Must not be
+-        mixed with *eq* or *order*.
++        ``eq=True, order=True``. Must not be mixed with *eq* or *order*.
+     :param Optional[bool] hash: If ``None`` (default), the ``__hash__`` method
+         is generated according how *eq* and *frozen* are set.
+ 
+@@ -1438,7 +1432,7 @@ def attrs(
+     .. versionchanged:: 21.1.0
+        ``init=False`` injects ``__attrs_init__``
+     .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
+-
++    .. versionchanged:: 21.1.0 *cmp* undeprecated
+     """
+     if auto_detect and PY2:
+         raise PythonTooOldError(
+@@ -1739,7 +1733,7 @@ def _make_eq(cls, attrs):
+         lines.append("    return  (")
+         others = ["    ) == ("]
+         for a in attrs:
+-            if a.eq_key:
++            if a.eq_key is not None:
+                 cmp_name = "_%s_key" % (a.name,)
+                 # Add the key function to the global namespace
+                 # of the evaluated function.
+@@ -1782,7 +1776,7 @@ def _make_order(cls, attrs):
+         Save us some typing.
+         """
+         return tuple(
+-            key(value) if key else value
++            key(value) if key is not None else value
+             for value, key in (
+                 (getattr(obj, a.name), a.order_key) for a in attrs
+             )
+@@ -2536,7 +2530,7 @@ class Attribute(object):
+         on_setattr=None,
+     ):
+         eq, eq_key, order, order_key = _determine_attrib_eq_order(
+-            cmp, eq_key or eq, order_key or order, True
++            cmp, eq_key if eq_key is not None else eq, order_key if order_key is not None else order, True
+         )
+ 
+         # Cache this descriptor here to speed things up later.
+@@ -2762,7 +2756,7 @@ class _CountingAttr(object):
+         default,
+         validator,
+         repr,
+-        cmp,  # XXX: unused, remove along with cmp
++        cmp,
+         hash,
+         init,
+         converter,

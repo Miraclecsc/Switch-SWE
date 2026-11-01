@@ -1,0 +1,1 @@
+One more thing: Preserve AttributeError in slotted classes with cached_property In slotted classes' generated that method, we try that method before that method, if available, and eventually let AttributeError propagate. This matches better with the behaviour described in Python's documentation "Customizing attribute access": Fix

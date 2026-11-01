@@ -1,0 +1,1 @@
+I have this in /work/w01: Adding optional sp arg to closeness_centrality This code will add the sp argument to nx.centrality.closeness_centrality. It is similar to how nx.eccentricity can use pre-computed shortest path lengths. I added 8 unit tests to cover graphs, digraphs and weighted graphs. Here's an example

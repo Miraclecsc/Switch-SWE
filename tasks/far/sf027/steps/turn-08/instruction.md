@@ -1,0 +1,1 @@
+And here, intersphinx: Handle string interpolation failures in ``_fetch_inventory_group()`` ## Purpose Fix issue [14029]( ) See discussion there for more details ## Problematic line ``` File Also, Consider this doesn't work if failures has several elements without '%'

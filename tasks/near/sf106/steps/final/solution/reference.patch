@@ -1,0 +1,53 @@
+diff --git a/django/db/models/sql/query.py b/django/db/models/sql/query.py
+index e3e6100f24..cf53bbd053 100644
+--- a/django/db/models/sql/query.py
++++ b/django/db/models/sql/query.py
+@@ -318,6 +318,7 @@ class Query(BaseExpression):
+         self.where = WhereNode()
+         # Maps alias -> Annotation Expression.
+         self.annotations = {}
++        self._selected_annotation_origins = set()
+         # These are for extensions. The contents are more or less appended
+         # verbatim to the appropriate clause.
+         self.extra = {}  # Maps col_alias -> (col_sql, params).
+@@ -395,6 +396,7 @@ class Query(BaseExpression):
+         obj.table_map = self.table_map.copy()
+         obj.where = self.where.clone()
+         obj.annotations = self.annotations.copy()
++        obj._selected_annotation_origins = self._selected_annotation_origins.copy()
+         if self.annotation_select_mask is not None:
+             obj.annotation_select_mask = self.annotation_select_mask.copy()
+         if self.combined_queries:
+@@ -1240,6 +1242,10 @@ class Query(BaseExpression):
+         else:
+             self.set_annotation_mask(set(self.annotation_select).difference({alias}))
+         self.annotations[alias] = annotation
++        if select:
++            self._selected_annotation_origins.add(alias)
++        else:
++            self._selected_annotation_origins.discard(alias)
+         if select and self.selected:
+             self.selected[alias] = alias
+ 
+@@ -2585,10 +2591,17 @@ class Query(BaseExpression):
+                         annotation_names.append(f)
+                         selected[f] = f
+                     elif f in self.annotations:
+-                        raise FieldError(
+-                            f"Cannot select the '{f}' alias. Use annotate() to "
+-                            "promote it."
+-                        )
++                        if f in self._selected_annotation_origins:
++                            raise FieldError(
++                                f"Cannot select the '{f}' alias. It was excluded "
++                                f"by a previous values() or values_list() call. "
++                                f"Include '{f}' in that call to select it."
++                            )
++                        else:
++                            raise FieldError(
++                                f"Cannot select the '{f}' alias. Use annotate() "
++                                f"to promote it."
++                            )
+                     else:
+                         # Call `names_to_path` to ensure a FieldError including
+                         # annotations about to be masked as valid choices if

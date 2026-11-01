@@ -1,0 +1,1 @@
+Also, The release notes are supposed to be pretty brief. Consider this would be better: "Added refine support for Heaviside."

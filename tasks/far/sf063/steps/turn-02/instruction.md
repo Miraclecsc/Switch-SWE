@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Do not pollute exception context in Middleware # Summary Avoid passing `anyio.EndOfStream` as exception context when reraising the exception in `BaseHTTPMiddleware`. Instead try to preserve the original context.

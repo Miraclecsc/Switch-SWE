@@ -1,0 +1,156 @@
+diff --git a/tests/test_utils.py b/tests/test_utils.py
+index f5da596..ec68d30 100644
+--- a/tests/test_utils.py
++++ b/tests/test_utils.py
+@@ -225,7 +225,38 @@ def test_prompts_abort(monkeypatch, capsys):
+         click.echo("interrupted")
+ 
+     out, err = capsys.readouterr()
+-    assert out == "Password:\ninterrupted\n"
++    # On non-Windows, prompt is passed directly to getpass, not echoed separately
++    assert out == "\ninterrupted\n"
++
++
++@pytest.mark.skipif(WIN, reason="Different behavior on windows.")
++@pytest.mark.parametrize(
++    ("call", "expected_prompt"),
++    [
++        (lambda: click.prompt("Name"), "Name: "),
++        (lambda: click.prompt("Pw", hide_input=True), "Pw: "),
++        (lambda: click.prompt("IP", prompt_suffix="."), "IP."),
++        (lambda: click.confirm("OK"), "OK [y/N]: "),
++    ],
++    ids=["prompt", "prompt-hidden", "prompt-custom-suffix", "confirm"],
++)
++def test_full_prompt_passed_to_readline(monkeypatch, call, expected_prompt):
++    """On non-Windows, prompt and confirm pass the full prompt text to the
++    underlying prompt function so readline handles editing correctly.
++
++    https://github.com/pallets/click/issues/2968
++    https://github.com/pallets/click/pull/2969
++    """
++    received = []
++
++    def capture(text):
++        received.append(text)
++        return "y"
++
++    monkeypatch.setattr("click.termui.visible_prompt_func", capture)
++    monkeypatch.setattr("click.termui.hidden_prompt_func", capture)
++    call()
++    assert received == [expected_prompt]
+ 
+ 
+ def test_prompts_eof(runner):
+@@ -484,17 +515,21 @@ def test_echo_writing_to_standard_error(capfd, monkeypatch):
+     assert out == "Prompt to stdin with no suffix"
+     assert err == ""
+ 
++    # On non-Windows the full prompt goes through redirect_stdout so
++    # nothing leaks to stdout when err=True.
++    # https://github.com/pallets/click/issues/2968
+     emulate_input("asdlkj\n")
+     click.prompt("Prompt to stderr", err=True)
+     out, err = capfd.readouterr()
+-    assert out == " "
+-    assert err == "Prompt to stderr:"
++    assert out == ""
++    assert err == "Prompt to stderr: "
+ 
++    # https://github.com/pallets/click/issues/3019
+     emulate_input("asdlkj\n")
+     click.prompt("Prompt to stderr with no suffix", prompt_suffix="", err=True)
+     out, err = capfd.readouterr()
+-    assert out == "x"
+-    assert err == "Prompt to stderr with no suffi"
++    assert out == ""
++    assert err == "Prompt to stderr with no suffix"
+ 
+     emulate_input("y\n")
+     click.confirm("Prompt to stdin")
+@@ -508,17 +543,19 @@ def test_echo_writing_to_standard_error(capfd, monkeypatch):
+     assert out == "Prompt to stdin with no suffix [y/N]"
+     assert err == ""
+ 
++    # https://github.com/pallets/click/issues/2968
+     emulate_input("y\n")
+     click.confirm("Prompt to stderr", err=True)
+     out, err = capfd.readouterr()
+-    assert out == " "
+-    assert err == "Prompt to stderr [y/N]:"
++    assert out == ""
++    assert err == "Prompt to stderr [y/N]: "
+ 
++    # https://github.com/pallets/click/issues/3019
+     emulate_input("y\n")
+     click.confirm("Prompt to stderr with no suffix", prompt_suffix="", err=True)
+     out, err = capfd.readouterr()
+-    assert out == "]"
+-    assert err == "Prompt to stderr with no suffix [y/N"
++    assert out == ""
++    assert err == "Prompt to stderr with no suffix [y/N]"
+ 
+     monkeypatch.setattr(click.termui, "isatty", lambda x: True)
+     monkeypatch.setattr(click.termui, "getchar", lambda: " ")
+diff --git a/tests/test_sf136_readline.py b/tests/test_sf136_readline.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf136_readline.py
+@@ -0,0 +1,57 @@
++import sys
++import click
++import pytest
++from click import termui
++
++@pytest.mark.parametrize("confirm", [False, True])
++@pytest.mark.parametrize("err", [False, True])
++def test_color_terminal_and_redirect(monkeypatch, confirm, err):
++    seen=[]
++    monkeypatch.setattr(termui,"WIN",False)
++    monkeypatch.setattr(termui,"isatty",lambda stream: stream is (sys.stderr if err else sys.stdout))
++    monkeypatch.setattr(termui,"visible_prompt_func",lambda text: seen.append(text) or "y")
++    name="\x1b[31mName\x1b[0m"
++    (click.confirm if confirm else click.prompt)(name,err=err)
++    assert seen == ["\x01\x1b[31m\x02Name\x01\x1b[0m\x02" + (" [y/N]: " if confirm else ": ")]
++
++def test_piped_and_preannotated(monkeypatch):
++    seen=[]
++    monkeypatch.setattr(termui,"WIN",False)
++    monkeypatch.setattr(termui,"visible_prompt_func",lambda text:seen.append(text) or "ok")
++    monkeypatch.setattr(termui,"isatty",lambda stream:False)
++    click.prompt("\x01\x1b[32m\x02Name\x01\x1b[0m\x02")
++    assert seen == ["Name: "]
++    monkeypatch.setattr(termui,"isatty",lambda stream:True)
++    click.prompt("\x01\x1b[32m\x02Name\x01\x1b[0m\x02")
++    assert seen[-1] == "\x01\x1b[32m\x02Name\x01\x1b[0m\x02: "
++
++@pytest.mark.parametrize("confirm", [False,True])
++@pytest.mark.parametrize("suffix", ["",": "])
++def test_windows_complete_stderr(monkeypatch,capsys,confirm,suffix):
++    monkeypatch.setattr(termui,"WIN",True)
++    def read(text):
++        print(text,end="")
++        return "y"
++    monkeypatch.setattr(termui,"visible_prompt_func",read)
++    before=sys.stdout
++    (click.confirm if confirm else click.prompt)("Name",err=True,prompt_suffix=suffix)
++    assert sys.stdout is before
++    out,err=capsys.readouterr()
++    assert out == ""
++    assert err == "Name" + (" [y/N]" if confirm else "") + suffix
++
++def test_windows_abort_restores_stream(monkeypatch,capsys):
++    monkeypatch.setattr(termui,"WIN",True)
++    def abort(text): raise EOFError()
++    monkeypatch.setattr(termui,"visible_prompt_func",abort)
++    before=sys.stdout
++    with pytest.raises(click.Abort): click.prompt("Name",err=True)
++    assert sys.stdout is before
++
++def test_hidden_full_unannotated(monkeypatch):
++    seen=[]
++    monkeypatch.setattr(termui,"WIN",False)
++    monkeypatch.setattr(termui,"isatty",lambda stream:True)
++    monkeypatch.setattr(termui,"hidden_prompt_func",lambda text:seen.append(text) or "secret")
++    click.prompt("Password",hide_input=True)
++    assert seen == ["Password: "]

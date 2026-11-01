@@ -1,0 +1,1 @@
+One more thing: If `_ask_recursive` is intended to be a private function, as indicated by the leading underscore, do we really need to perform type checking here? The caller could validate the input instead, and this function could assume that it always receives a valid type.

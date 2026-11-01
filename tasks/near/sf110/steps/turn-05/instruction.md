@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Both `fetch_mode` and `select_related('content_type')` handle the N+1 issue here. Consider the docs should mention both.

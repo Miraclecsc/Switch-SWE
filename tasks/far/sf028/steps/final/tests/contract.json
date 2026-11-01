@@ -1,0 +1,86 @@
+{
+  "case_id": "sf028_switched",
+  "task_id": "ssb_v2_task_0320",
+  "repo": "sympy/sympy",
+  "base_commit": "7c29689e928313a31af2e525c2f76f33b62576f0",
+  "derived_fail_to_pass": [
+    "sympy.printing.tests.test_pycode::test_piecewise_assign_to",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_branch_local_reduction_and_offset[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_branch_local_reduction_and_offset[SymPyPrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_free_index_mismatch_rejected[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_free_index_mismatch_rejected[SymPyPrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_free_index_offsets_and_lazy_branch[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_free_index_offsets_and_lazy_branch[SymPyPrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_scalar_double_reduction_and_inactive_array[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_scalar_double_reduction_and_inactive_array[SymPyPrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_two_free_dimensions_and_broadcast[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_two_free_dimensions_and_broadcast[SymPyPrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_unbounded_indices_rejected[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_unbounded_indices_rejected[SymPyPrinter]"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.printing.tests.test_pycode::test_CmathPrinter",
+    "sympy.printing.tests.test_pycode::test_Integral",
+    "sympy.printing.tests.test_pycode::test_MpmathPrinter",
+    "sympy.printing.tests.test_pycode::test_NumPyPrinter",
+    "sympy.printing.tests.test_pycode::test_NumPyPrinter_print_seq",
+    "sympy.printing.tests.test_pycode::test_PythonCodePrinter",
+    "sympy.printing.tests.test_pycode::test_PythonCodePrinter_print_Indexed",
+    "sympy.printing.tests.test_pycode::test_PythonCodePrinter_standard",
+    "sympy.printing.tests.test_pycode::test_SciPyPrinter",
+    "sympy.printing.tests.test_pycode::test_airy",
+    "sympy.printing.tests.test_pycode::test_airy_prime",
+    "sympy.printing.tests.test_pycode::test_array_printer",
+    "sympy.printing.tests.test_pycode::test_beta",
+    "sympy.printing.tests.test_pycode::test_codegen_ast_nodes",
+    "sympy.printing.tests.test_pycode::test_custom_Derivative_methods",
+    "sympy.printing.tests.test_pycode::test_frac",
+    "sympy.printing.tests.test_pycode::test_fresnel_integrals",
+    "sympy.printing.tests.test_pycode::test_issue_14283",
+    "sympy.printing.tests.test_pycode::test_issue_16535_16536",
+    "sympy.printing.tests.test_pycode::test_issue_20762",
+    "sympy.printing.tests.test_pycode::test_numerical_accuracy_functions",
+    "sympy.printing.tests.test_pycode::test_printmethod",
+    "sympy.printing.tests.test_pycode::test_pycode_reserved_words",
+    "sympy.printing.tests.test_pycode::test_sqrt",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_scalar_default_and_nested_lazy_regressions[PythonCodePrinter]",
+    "sympy.printing.tests.test_sf028_piecewise_loops::test_scalar_default_and_nested_lazy_regressions[SymPyPrinter]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/printing/tests/test_pycode.py",
+    "sympy/printing/tests/test_sf028_piecewise_loops.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/printing/tests/test_pycode.py",
+    "sympy/printing/tests/test_sf028_piecewise_loops.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "96d8ca6b90fadde092b060264da795a924a6b5a4d565da258ff87251212aa3dd",
+    "config/recipes.json": "629291bb4617fb4316fcfd858c967a0ce2048209b13abd3cbd93cc7a4611b8a0"
+  }
+}

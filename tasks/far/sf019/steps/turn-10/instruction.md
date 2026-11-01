@@ -1,0 +1,1 @@
+One more thing: Tighten RAM principal regex and add missing test coverage Restrict service principal pattern from [\w.-]+ to [a-z0-9-]+ to reject uppercase and underscore characters that are not valid service names Support aws-cn and aws-us-gov partitions in IAM principal ARN matching Add tests for IAM user ARN, root principal, and invalid principal rejection

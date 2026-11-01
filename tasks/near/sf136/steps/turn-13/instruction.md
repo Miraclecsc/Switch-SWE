@@ -1,0 +1,1 @@
+Also, I confirm this issue and the patch, which has been hinted at in and I noticed there the coupling of both `prompt()` / `confirm()` but could not make sense of their behavior. Until I saw this PR. This is the right fix but need to also apply to `confirm()`. I will amend this PR to fix both.

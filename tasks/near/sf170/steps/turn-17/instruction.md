@@ -1,0 +1,1 @@
+Also, Wow this is syntax I've never seen before! At face value I couldn't understand why this wasn't raising for attempting to assign to an empty slice, but apparently this unpacks the object on the RHS into the the location at `part_idx`.

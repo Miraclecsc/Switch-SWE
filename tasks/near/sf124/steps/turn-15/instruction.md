@@ -1,0 +1,1 @@
+Please check this too: I've updated ``tests/queries/test_totally_ordered.py`` to include a nullable unique field and verified that ``totally_ordered`` correctly returns ``False`` for it (unless a tie-breaker is added). This matches the behavior of the old admin test

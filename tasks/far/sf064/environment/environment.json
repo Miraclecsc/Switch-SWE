@@ -1,0 +1,118 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+  ],
+  "case_id": "sf064_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1",
+      "python": "3.12.12",
+      "requirements": "requirements/269fc27ee576cae3-3.12.12-cb13f3e1.txt",
+      "source": "dependency-source/269fc27ee576cae3-3.12.12-cb13f3e1.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "7ebc504ec05608946dd5a0603bf6dc57eda983b6",
+      "overlays": [],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "542ab94f5e56ee46fe89cea6f021ee1ce5086998",
+      "overlays": [],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "9474c8f59ed9a0fc8f46822ae7b0131e632a0427",
+      "overlays": [],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "150c1ed23fc93bc8f041347ce2c73ef52d633391",
+      "overlays": [],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "32e56294853b4110fb735a948143ce4afcc3e7bf",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "2f3d2fe6c2b76642bd24a9b506c42f0c5a31568f6f104514f9c34ba0eda458e6"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/federation/test_utils.py",
+          "sha256": "4232a261ce145214bf0c1324d1ecee3b9f0cade46909ff3375a134343f356085"
+        }
+      ],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w04"
+    }
+  ]
+}

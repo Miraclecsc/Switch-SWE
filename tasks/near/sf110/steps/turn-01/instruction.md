@@ -1,0 +1,1 @@
+I have this in /work/w04: Refs #689 -- Made RemoteUserMiddleware ImproperlyConfigured error message handle subclasses.

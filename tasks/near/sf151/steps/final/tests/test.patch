@@ -1,0 +1,248 @@
+diff --git a/tests/test_pytest_plugin.py b/tests/test_pytest_plugin.py
+index 928916af6..ad8098a48 100644
+--- a/tests/test_pytest_plugin.py
++++ b/tests/test_pytest_plugin.py
+@@ -9,31 +9,35 @@
+ def test_plugin(testdir):
+     testdir.makeconftest(
+         """
+-        import anyio
+         import sniffio
+         import pytest
+ 
++        from anyio import sleep
++
+ 
+         @pytest.fixture
+         async def async_fixture():
+-            await anyio.sleep(0)
++            await sleep(0)
+             return sniffio.current_async_library()
++
++
++        @pytest.fixture
++        async def some_feature():
++            yield None
++            await sleep(0)
+         """
+     )
+ 
+     testdir.makepyfile(
+         """
+-        import pytest
++        import asyncio
+ 
++        import pytest
+         import sniffio
+-        from anyio import get_all_backends, sleep
+         from hypothesis import strategies, given
+ 
++        from anyio import get_all_backends, sleep
+ 
+-        @pytest.fixture
+-        async def some_feature():
+-            yield None
+-            await sleep(0)
+ 
+         @pytest.mark.anyio
+         async def test_marked_test():
+@@ -49,26 +53,88 @@ def test_async_fixture_from_sync_test(anyio_backend_name, async_fixture):
+             # Test that regular functions can use async fixtures too
+             assert async_fixture == anyio_backend_name
+ 
+-        @pytest.mark.parametrize('anyio_backend', ['asyncio'], scope='class')
++        @pytest.mark.anyio
++        async def test_skip_inline(some_feature):
++            # Test for github #214
++            pytest.skip("Test that skipping works")
++        """
++    )
++
++    result = testdir.runpytest('-v')
++    result.assert_outcomes(passed=3 * len(get_all_backends()), skipped=len(get_all_backends()))
++
++
++def test_asyncio(testdir):
++    testdir.makeconftest(
++        """
++        import asyncio
++        import pytest
++
++
++        @pytest.fixture(scope='class')
++        def anyio_backend():
++            return 'asyncio'
++
++        @pytest.fixture
++        async def setup_fail_fixture():
++            def callback():
++                raise RuntimeError('failing fixture setup')
++
++            asyncio.get_event_loop().call_soon(callback)
++            await asyncio.sleep(0)
++            yield None
++
++        @pytest.fixture
++        async def teardown_fail_fixture():
++            def callback():
++                raise RuntimeError('failing fixture teardown')
++
++            yield None
++            asyncio.get_event_loop().call_soon(callback)
++            await asyncio.sleep(0)
++        """
++    )
++
++    testdir.makepyfile(
++        """
++        import asyncio
++
++        import pytest
++
++        pytestmark = pytest.mark.anyio
++
++
+         class TestClassFixtures:
+             @pytest.fixture(scope='class')
+             async def async_class_fixture(self, anyio_backend):
+-                await sleep(0)
++                await asyncio.sleep(0)
+                 return anyio_backend
+ 
+             def test_class_fixture_in_test_method(self, async_class_fixture, anyio_backend_name):
+                 assert anyio_backend_name == 'asyncio'
+                 assert async_class_fixture == 'asyncio'
+ 
+-        @pytest.mark.anyio
+-        async def test_skip_inline(some_feature):
+-            # Test for github #214
+-            pytest.skip("Test that skipping works")
++        async def test_callback_exception_during_test():
++            def callback():
++                nonlocal started
++                started = True
++                raise Exception('foo')
++
++            started = False
++            asyncio.get_event_loop().call_soon(callback)
++            await asyncio.sleep(0)
++            assert started
++
++        async def test_callback_exception_during_setup(setup_fail_fixture):
++            pass
++
++        async def test_callback_exception_during_teardown(teardown_fail_fixture):
++            pass
+         """
+     )
+ 
+     result = testdir.runpytest('-v')
+-    result.assert_outcomes(passed=3 * len(get_all_backends()) + 1, skipped=len(get_all_backends()))
++    result.assert_outcomes(passed=2, failed=1, errors=2)
+ 
+ 
+ def test_autouse_async_fixture(testdir):
+diff --git a/tests/test_sockets.py b/tests/test_sockets.py
+index 746f9c7cb..7c38b832c 100644
+--- a/tests/test_sockets.py
++++ b/tests/test_sockets.py
+@@ -372,6 +372,13 @@ async def test_accept(self, family):
+                 client.close()
+                 await stream.aclose()
+ 
++    async def test_accept_after_close(self, family):
++        async with await create_tcp_listener(local_host='localhost', family=family) as multi:
++            for listener in multi.listeners:
++                await listener.aclose()
++                with pytest.raises(ClosedResourceError):
++                    await listener.accept()
++
+     async def test_socket_options(self, family):
+         async with await create_tcp_listener(local_host='localhost', family=family) as multi:
+             for listener in multi.listeners:
+diff --git a/tests/test_threads.py b/tests/test_threads.py
+index 54df8a0c3..9d07ed7c0 100644
+--- a/tests/test_threads.py
++++ b/tests/test_threads.py
+@@ -9,11 +9,10 @@
+ 
+ from anyio import (
+     create_blocking_portal, create_capacity_limiter, create_event, create_task_group,
+-    get_cancelled_exc_class, get_current_task, run_async_from_thread, run_sync_in_worker_thread,
+-    sleep, start_blocking_portal, wait_all_tasks_blocked)
+-from anyio._core._threads import run_sync_from_thread
++    get_cancelled_exc_class, get_current_task, run_async_from_thread, run_sync_from_thread,
++    run_sync_in_worker_thread, sleep, start_blocking_portal, wait_all_tasks_blocked)
+ 
+-if sys.version_info < (3, 9):
++if sys.version_info < (3, 7):
+     current_task = asyncio.Task.current_task
+ else:
+     current_task = asyncio.current_task
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,62 @@
++import asyncio
++import pytest
++from anyio._backends._asyncio import TestRunner as Runner
++
++def test_restore_handler_success():
++    runner = Runner(use_uvloop=False)
++    handler = lambda loop, context: None
++    runner._loop.set_exception_handler(handler)
++    async def call():
++        return 17
++    try:
++        assert runner.call(call) == 17
++        assert runner._loop.get_exception_handler() is handler
++    finally:
++        runner.close()
++
++def test_delegate_message_context():
++    runner = Runner(use_uvloop=False)
++    seen = []
++    handler = lambda loop, context: seen.append(context)
++    runner._loop.set_exception_handler(handler)
++    context = {'message': 'diagnostic without exception', 'detail': object()}
++    async def call():
++        asyncio.get_running_loop().call_exception_handler(context)
++        return 3
++    try:
++        assert runner.call(call) == 3
++        assert seen == [context]
++        assert seen[0] is context
++    finally:
++        runner.close()
++
++def test_delegate_default_handler():
++    runner = Runner(use_uvloop=False)
++    seen = []
++    runner._loop.default_exception_handler = seen.append
++    context = {'message': 'diagnostic'}
++    async def call():
++        asyncio.get_running_loop().call_exception_handler(context)
++    try:
++        runner.call(call)
++        assert seen == [context]
++    finally:
++        runner.close()
++
++def test_restore_sync_failure_and_reuse():
++    runner = Runner(use_uvloop=False)
++    handler = lambda loop, context: None
++    runner._loop.set_exception_handler(handler)
++    error = ValueError('sync')
++    def fail():
++        raise error
++    async def ok():
++        return 'fresh'
++    try:
++        with pytest.raises(ValueError) as caught:
++            runner.call(fail)
++        assert caught.value is error
++        assert runner._loop.get_exception_handler() is handler
++        assert runner.call(ok) == 'fresh'
++    finally:
++        runner.close()

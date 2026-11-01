@@ -1,0 +1,101 @@
+diff --git a/networkx/algorithms/approximation/dominating_set.py b/networkx/algorithms/approximation/dominating_set.py
+--- a/networkx/algorithms/approximation/dominating_set.py
++++ b/networkx/algorithms/approximation/dominating_set.py
+@@ -1,7 +1,7 @@
+ """Functions for finding node and edge dominating sets.
+ 
+-A `dominating set`_ for an undirected graph *G* with vertex set *V*
+-and edge set *E* is a subset *D* of *V* such that every vertex not in
++A `dominating set`_ for an undirected graph *G* with node set *V*
++and edge set *E* is a subset *D* of *V* such that every node not in
+ *D* is adjacent to at least one member of *D*. An `edge dominating set`_
+ is a subset *F* of *E* such that every edge not in *F* is
+ incident to an endpoint of at least one edge in *F*.
+@@ -22,7 +22,7 @@
+ # TODO Why doesn't this algorithm work for directed graphs?
+ @not_implemented_for("directed")
+ @nx._dispatchable(node_attrs="weight")
+-def min_weighted_dominating_set(G, weight=None):
++def min_weighted_dominating_set(G, weight=None, *, start_with=None, forbidden=None):
+     r"""Returns a dominating set that approximates the minimum weight node
+     dominating set.
+ 
+@@ -48,7 +48,7 @@
+     --------
+     >>> G = nx.Graph([(0, 1), (0, 4), (1, 4), (1, 2), (2, 3), (3, 4), (2, 5)])
+     >>> nx.approximation.min_weighted_dominating_set(G)
+-    {1, 2, 4}
++    {1, 2}
+ 
+     Raises
+     ------
+@@ -73,12 +73,14 @@
+            Springer Science & Business Media, 2001.
+ 
+     """
+-    # The unique dominating set for the null graph is the empty set.
++    dom_set = set(() if start_with is None else start_with)
++    forbidden = set(() if forbidden is None else forbidden)
++    if not dom_set <= set(G) or not forbidden <= set(G):
++        raise nx.NetworkXError("constraint contains a node outside the graph")
++    if dom_set & forbidden:
++        raise nx.NetworkXError("a required node is also forbidden")
+     if len(G) == 0:
+         return set()
+-
+-    # This is the dominating set that will eventually be returned.
+-    dom_set = set()
+ 
+     def _cost(node_and_neighborhood):
+         """Returns the cost-effectiveness of greedily choosing the given
+@@ -89,26 +91,37 @@
+ 
+         """
+         v, neighborhood = node_and_neighborhood
+-        return G.nodes[v].get(weight, 1) / len(neighborhood - dom_set)
++        # Use the intersection with uncovered nodes, not just the
++        # difference with the dominating set.  A node's neighbors may
++        # already be dominated (covered by an adjacent dom_set member)
++        # without being in dom_set themselves.  See #8523.
++        uncovered = len(neighborhood & uncovered_nodes)
++        if uncovered == 0:
++            return float("inf")
++        return G.nodes[v].get(weight, 1) / uncovered
+ 
+-    # This is a set of all vertices not already covered by the
++    # A set of all nodes not yet covered by the dominating set.
++    uncovered_nodes = set(G)
++    # A dict mapping each node to its closed neighborhood.
++    neighborhoods = {v: {v} | set(G[v]) for v in G if v not in forbidden and v not in dom_set}
++    for node in dom_set:
++        uncovered_nodes.difference_update({node} | set(G[node]))
++
++    # Continue until all nodes are adjacent to some node in the
+     # dominating set.
+-    vertices = set(G)
+-    # This is a dictionary mapping each node to the closed neighborhood
+-    # of that node.
+-    neighborhoods = {v: {v} | set(G[v]) for v in G}
+-
+-    # Continue until all vertices are adjacent to some node in the
+-    # dominating set.
+-    while vertices:
++    while uncovered_nodes:
+         # Find the most cost-effective node to add, along with its
+         # closed neighborhood.
++        if not neighborhoods:
++            raise nx.NetworkXUnfeasible("allowed nodes cannot dominate the graph")
+         dom_node, min_set = min(neighborhoods.items(), key=_cost)
+-        # Add the node to the dominating set and reduce the remaining
+-        # set of nodes to cover.
++        if not min_set & uncovered_nodes:
++            raise nx.NetworkXUnfeasible("allowed nodes cannot dominate the graph")
++        # Add the node to the dominating set and reduce the
++        # remaining set of nodes to cover.
+         dom_set.add(dom_node)
+         del neighborhoods[dom_node]
+-        vertices -= min_set
++        uncovered_nodes -= min_set
+ 
+     return dom_set
+ 

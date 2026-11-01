@@ -1,0 +1,56 @@
+{
+  "case_id": "sf098_switched",
+  "task_id": "ssb_v4_sympy__sympy_29172",
+  "repo": "sympy/sympy",
+  "base_commit": "323113390a3ac123cff13448ed83a715c2c912ba",
+  "derived_fail_to_pass": [
+    "sympy.geometry.tests.test_plane::test_plane_equation_symbol_clash",
+    "sympy.geometry.tests.test_sf098_extension::test_clash_by_name_with_different_assumptions",
+    "sympy.geometry.tests.test_sf098_extension::test_default_names_and_repeatability",
+    "sympy.geometry.tests.test_sf098_extension::test_explicit_binding_reserves_names",
+    "sympy.geometry.tests.test_sf098_extension::test_safe_symbols_preserve_parameters"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.geometry.tests.test_plane::test_dimension_normalization",
+    "sympy.geometry.tests.test_plane::test_parameter_value",
+    "sympy.geometry.tests.test_plane::test_plane",
+    "sympy.geometry.tests.test_sf098_extension::test_original_clash_still_rejected"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/geometry/tests/test_plane.py",
+    "sympy/geometry/tests/test_sf098_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/geometry/tests/test_plane.py",
+    "sympy/geometry/tests/test_sf098_extension.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "e5d5fbdcc392158e25a503e54db36947cbe267843b96bccc69b8f4cdfd5ed4a8",
+    "config/recipes.json": "e39df771d54b328d357b99570134abbaf44b54b622d64af5355ece9c1487ed48"
+  }
+}

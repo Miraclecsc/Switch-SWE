@@ -1,0 +1,145 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18",
+    "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87"
+  ],
+  "case_id": "sf154_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w00",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87",
+      "python": "3.12.12",
+      "requirements": "requirements/f26b7cb4bb775644-3.12.12-f022bd87.txt",
+      "source": "dependency-source/f26b7cb4bb775644-3.12.12-f022bd87.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18",
+      "python": "3.12.12",
+      "requirements": "requirements/f4593af98e6c1c07-3.12.12-80734f18.txt",
+      "source": "dependency-source/f4593af98e6c1c07-3.12.12-80734f18.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {
+        "PYTEST_PLUGINS": "anyio.pytest_plugin"
+      },
+      "paths": [
+        "/opt/ssb/deps/f26b7cb4bb775644-3.12.12-f022bd87",
+        "/opt/ssb/deps/f4593af98e6c1c07-3.12.12-80734f18"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "1af2601829eba5feffb3af7fd527473800c2ba6f",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "59ae37602bf0b26f069bc9b7e997af3574ee877a",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "9a464bf68a2e7cc9aed1db8ee50c6aad47fa4fe6",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "88007775d73ca446b45d3582bd58d1af68064195",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/versionhistory.rst",
+          "sha256": "8f1d2e4e4344f68377330217cfcc63acb5081733749452f974f72e34da0238e4"
+        },
+        {
+          "mode": "100644",
+          "path": "src/anyio/_core/_fileio.py",
+          "sha256": "99e3a5b16497b27d3f15b913f39252363945c9b56f85715ec110bc4226ca99ca"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_fileio.py",
+          "sha256": "59a75c81933cf98f0a99bda923ca2db839124e644eaf480691af554d07092304"
+        }
+      ],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "44ca5eab5499afd567c5cf1f840346326e07de1d",
+      "overlays": [],
+      "repo": "agronholm/anyio",
+      "url": "https://github.com/agronholm/anyio.git",
+      "workspace": "w04"
+    }
+  ]
+}

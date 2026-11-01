@@ -1,0 +1,1 @@
+I have this in /work/w03: Fall back to `sys.__stderr__` on non-Windows OS to get size This fixes the "pipe" bug, where we could not determine the available size correctly when the output of Rich is piped to another process

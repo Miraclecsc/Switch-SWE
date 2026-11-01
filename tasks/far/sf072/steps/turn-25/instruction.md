@@ -1,0 +1,1 @@
+Also, This avoids having to use `seen`, especially since we already have `nit_list`. Not necessarily better, your call!

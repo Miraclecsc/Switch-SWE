@@ -1,0 +1,1 @@
+And here, For some reason it seems that isort doesn't use the `--profile black` we give to it in the pre-commit config file :thinking: Well, having it here makes sure that isort _always_ uses the Black profile, whatever the context of its execution :slightly_smiling_face:

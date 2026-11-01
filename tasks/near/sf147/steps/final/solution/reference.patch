@@ -1,0 +1,349 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f8d213334..bd4f2b132 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -9,10 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
+ 
+ ### Added
+ 
+-- Added support for Kitty key protocl "Report all keys as escape codes" which enabled alt+backspace on Warp
++- Added support for Kitty key protocol "Report all keys as escape codes" which enabled alt+backspace on Warp
+ - Added support for detecting separate modifier keys for terminals that support the Kitty key protocol
+ - Added `TEXTUAL_DISABLE_KITTY_KEY` env var to disable Kitty key protocol support (debug aid).
+ 
++### Changed
++
++- Undo/redo/copy/cut/paste in TextArea will now work with cmd+ on supported terminals
++- In TextArea, ctrl+u will now delete a newline if the cursor is at the start
++- in TextArea alt+delete is now bound to delete word right
++
+ ## [8.2.6] - 2026-04-13
+ 
+ ### Fixed
+diff --git a/src/textual/widgets/_input.py b/src/textual/widgets/_input.py
+index 77b77906c..3aa2a945b 100644
+--- a/src/textual/widgets/_input.py
++++ b/src/textual/widgets/_input.py
+@@ -124,7 +124,10 @@ class Input(ScrollView):
+         ),
+         Binding("ctrl+u", "delete_left_all", "Delete all to the left", show=False),
+         Binding(
+-            "ctrl+f", "delete_right_word", "Delete right to start of word", show=False
++            "ctrl+backspace",
++            "delete_right_word",
++            "Delete right to start of word",
++            show=False,
+         ),
+         Binding("ctrl+k", "delete_right_all", "Delete all to the right", show=False),
+         Binding("ctrl+x", "cut", "Cut selected text", show=False),
+diff --git a/src/textual/widgets/_text_area.py b/src/textual/widgets/_text_area.py
+index 87a0bb10e..5e952f178 100644
+--- a/src/textual/widgets/_text_area.py
++++ b/src/textual/widgets/_text_area.py
+@@ -102,7 +102,7 @@ class TextAreaLanguage:
+     name: str
+     """The name of the language"""
+ 
+-    language: "Language" | None
++    language: "Language | None"
+     """The tree-sitter language object if that has been overridden, or None if it is a built-in language."""
+ 
+     highlight_query: str
+@@ -221,18 +221,71 @@ TextArea {
+     | `text-area--placeholder` | Target the placeholder text. |
+     """
+ 
++    selection_deletion: bool = False
++    """Prefer selected ranges in line-deletion actions when enabled."""
++
+     BINDINGS = [
+         # Cursor movement
+-        Binding("up", "cursor_up", "Cursor up", show=False),
+-        Binding("down", "cursor_down", "Cursor down", show=False),
+-        Binding("left", "cursor_left", "Cursor left", show=False),
+-        Binding("right", "cursor_right", "Cursor right", show=False),
+-        Binding("ctrl+left", "cursor_word_left", "Cursor word left", show=False),
+-        Binding("ctrl+right", "cursor_word_right", "Cursor word right", show=False),
+-        Binding("home,ctrl+a", "cursor_line_start", "Cursor line start", show=False),
+-        Binding("end,ctrl+e", "cursor_line_end", "Cursor line end", show=False),
+-        Binding("pageup", "cursor_page_up", "Cursor page up", show=False),
+-        Binding("pagedown", "cursor_page_down", "Cursor page down", show=False),
++        Binding(
++            "up",
++            "cursor_up",
++            "Cursor up",
++            show=False,
++        ),
++        Binding(
++            "down",
++            "cursor_down",
++            "Cursor down",
++            show=False,
++        ),
++        Binding(
++            "left",
++            "cursor_left",
++            "Cursor left",
++            show=False,
++        ),
++        Binding(
++            "right",
++            "cursor_right",
++            "Cursor right",
++            show=False,
++        ),
++        Binding(
++            "ctrl+left",
++            "cursor_word_left",
++            "Cursor word left",
++            show=False,
++        ),
++        Binding(
++            "ctrl+right",
++            "cursor_word_right",
++            "Cursor word right",
++            show=False,
++        ),
++        Binding(
++            "home,ctrl+a",
++            "cursor_line_start",
++            "Cursor line start",
++            show=False,
++        ),
++        Binding(
++            "end,ctrl+e",
++            "cursor_line_end",
++            "Cursor line end",
++            show=False,
++        ),
++        Binding(
++            "pageup",
++            "cursor_page_up",
++            "Cursor page up",
++            show=False,
++        ),
++        Binding(
++            "pagedown",
++            "cursor_page_down",
++            "Cursor page down",
++            show=False,
++        ),
+         # Making selections (generally holding the shift key and moving cursor)
+         Binding(
+             "ctrl+shift+left",
+@@ -253,30 +306,97 @@ TextArea {
+             show=False,
+         ),
+         Binding(
+-            "shift+end", "cursor_line_end(True)", "Cursor line end select", show=False
++            "shift+end",
++            "cursor_line_end(True)",
++            "Cursor line end select",
++            show=False,
++        ),
++        Binding(
++            "shift+up",
++            "cursor_up(True)",
++            "Cursor up select",
++            show=False,
++        ),
++        Binding(
++            "shift+down",
++            "cursor_down(True)",
++            "Cursor down select",
++            show=False,
++        ),
++        Binding(
++            "shift+left",
++            "cursor_left(True)",
++            "Cursor left select",
++            show=False,
++        ),
++        Binding(
++            "shift+right",
++            "cursor_right(True)",
++            "Cursor right select",
++            show=False,
+         ),
+-        Binding("shift+up", "cursor_up(True)", "Cursor up select", show=False),
+-        Binding("shift+down", "cursor_down(True)", "Cursor down select", show=False),
+-        Binding("shift+left", "cursor_left(True)", "Cursor left select", show=False),
+-        Binding("shift+right", "cursor_right(True)", "Cursor right select", show=False),
+         # Shortcut ways of making selections
+         # Binding("f5", "select_word", "select word", show=False),
+-        Binding("f6", "select_line", "Select line", show=False),
+-        Binding("f7", "select_all", "Select all", show=False),
++        Binding(
++            "f6",
++            "select_line",
++            "Select line",
++            show=False,
++        ),
++        Binding(
++            "f7",
++            "select_all",
++            "Select all",
++            show=False,
++        ),
+         # Deletion
+-        Binding("backspace", "delete_left", "Delete character left", show=False),
+         Binding(
+-            "ctrl+w", "delete_word_left", "Delete left to start of word", show=False
++            "backspace",
++            "delete_left",
++            "Delete character left",
++            show=False,
++        ),
++        Binding(
++            "ctrl+w,ctrl+backspace",
++            "delete_word_left",
++            "Delete left to start of word",
++            show=False,
++        ),
++        Binding(
++            "delete,ctrl+d",
++            "delete_right",
++            "Delete character right",
++            show=False,
++        ),
++        Binding(
++            "alt+delete",
++            "delete_word_right",
++            "Delete right to start of word",
++            show=False,
++        ),
++        Binding(
++            "ctrl+x,super+x",
++            "cut",
++            "Cut",
++            show=False,
++        ),
++        Binding(
++            "ctrl+c,super+c",
++            "copy",
++            "Copy",
++            show=False,
+         ),
+-        Binding("delete,ctrl+d", "delete_right", "Delete character right", show=False),
+         Binding(
+-            "ctrl+f", "delete_word_right", "Delete right to start of word", show=False
++            "ctrl+v",
++            "paste",
++            "Paste",
++            show=False,
+         ),
+-        Binding("ctrl+x", "cut", "Cut", show=False),
+-        Binding("ctrl+c,super+c", "copy", "Copy", show=False),
+-        Binding("ctrl+v", "paste", "Paste", show=False),
+         Binding(
+-            "ctrl+u", "delete_to_start_of_line", "Delete to line start", show=False
++            "ctrl+u",
++            "delete_to_start_of_line",
++            "Delete to line start",
++            show=False,
+         ),
+         Binding(
+             "ctrl+k",
+@@ -290,8 +410,18 @@ TextArea {
+             "Delete line",
+             show=False,
+         ),
+-        Binding("ctrl+z", "undo", "Undo", show=False),
+-        Binding("ctrl+y", "redo", "Redo", show=False),
++        Binding(
++            "ctrl+z,super+z",
++            "undo",
++            "Undo",
++            show=False,
++        ),
++        Binding(
++            "ctrl+y,super+y",
++            "redo",
++            "Redo",
++            show=False,
++        ),
+     ]
+     """
+     | Key(s)                 | Description                                  |
+@@ -315,19 +445,19 @@ TextArea {
+     | shift+left             | Select while moving the cursor left.         |
+     | shift+right            | Select while moving the cursor right.        |
+     | backspace              | Delete character to the left of cursor.      |
+-    | ctrl+w                 | Delete from cursor to start of the word.     |
++    | ctrl+w,ctrl+backspace  | Delete from cursor to start of the word.     |
+     | delete,ctrl+d          | Delete character to the right of cursor.     |
+-    | ctrl+f                 | Delete from cursor to end of the word.       |
++    | alt+delete             | Delete from cursor to end of the word.       |
+     | ctrl+shift+k           | Delete the current line.                     |
+     | ctrl+u                 | Delete from cursor to the start of the line. |
+     | ctrl+k                 | Delete from cursor to the end of the line.   |
+     | f6                     | Select the current line.                     |
+     | f7                     | Select all text in the document.             |
+-    | ctrl+z                 | Undo.                                        |
+-    | ctrl+y                 | Redo.                                        |
+-    | ctrl+x                 | Cut selection or line if no selection.       |
+-    | ctrl+c                 | Copy selection to clipboard.                 |
+-    | ctrl+v                 | Paste from clipboard.                        |
++    | ctrl+z,super+z         | Undo.                                        |
++    | ctrl+y,super+y         | Redo.                                        |
++    | ctrl+x,super+x         | Cut selection or line if no selection.       |
++    | ctrl+c,super+c         | Copy selection to clipboard.                 |
++    | ctrl+v,super+v         | Paste from clipboard.                        |
+     """
+ 
+     language: Reactive[str | None] = reactive(None, always_update=True, init=False)
+@@ -2541,12 +2671,30 @@ TextArea {
+ 
+     def action_delete_to_start_of_line(self) -> None:
+         """Deletes from the cursor location to the start of the line."""
+-        from_location = self.selection.end
+-        to_location = self.get_cursor_line_start_location()
+-        self._delete_via_keyboard(from_location, to_location)
++        if self.read_only:
++            return
++
++        if self.selection_deletion and not self.selection.is_empty:
++            self._delete_via_keyboard(*self.selection)
++            return
++        if self.cursor_at_start_of_line:
++            selection = self.selection
++            start, end = selection
++            if selection.is_empty:
++                end = self.get_cursor_left_location()
++            self._delete_via_keyboard(start, end)
++        else:
++            from_location = self.selection.end
++            to_location = self.get_cursor_line_start_location()
++            self._delete_via_keyboard(from_location, to_location)
+ 
+     def action_delete_to_end_of_line(self) -> None:
+         """Deletes from the cursor location to the end of the line."""
++        if self.read_only:
++            return
++        if self.selection_deletion and not self.selection.is_empty:
++            self._delete_via_keyboard(*self.selection)
++            return
+         from_location = self.selection.end
+         to_location = self.get_cursor_line_end_location()
+         self._delete_via_keyboard(from_location, to_location)
+@@ -2556,6 +2704,11 @@ TextArea {
+ 
+         The line will be deleted if the line is empty.
+         """
++        if self.read_only:
++            return
++        if self.selection_deletion and not self.selection.is_empty:
++            self._delete_via_keyboard(*self.selection)
++            return
+         # Assume we're just going to delete to the end of the line.
+         action = "delete_to_end_of_line"
+         if self.get_cursor_line_start_location() == self.get_cursor_line_end_location():
+@@ -2605,7 +2758,7 @@ TextArea {
+ 
+         # Check the current line for a word boundary
+         line = self.document[cursor_row][cursor_column:]
+-        matches = list(re.finditer(self._word_pattern, line))
++        matches = list(re.finditer(r"\s*(?:\w+|[^\w\s]+)", line))
+ 
+         current_row_length = len(self.document[cursor_row])
+         if matches:

@@ -1,0 +1,147 @@
+diff --git a/docs/api.rst b/docs/api.rst
+index d0a7f33..3a83042 100644
+--- a/docs/api.rst
++++ b/docs/api.rst
+@@ -226,7 +226,7 @@ Exceptions
+ ----------
+ 
+ .. autoexception:: anyio.BrokenResourceError
+-.. autoexception:: anyio.BrokenWorkerIntepreter
++.. autoexception:: anyio.BrokenWorkerInterpreter
+ .. autoexception:: anyio.BrokenWorkerProcess
+ .. autoexception:: anyio.BusyResourceError
+ .. autoexception:: anyio.ClosedResourceError
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 61f2ed0..8e4b690 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -19,7 +19,7 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ - Added context manager mix-in classes (``anyio.ContextManagerMixin`` and
+   ``anyio.AsyncContextManagerMixin``) to help write classes that embed other context
+   managers, particularly cancel scopes or task groups
+-  (`#905 <https://github.com/agronholm/anyio/pull/905>`_; PR by by @agronholm and
++  (`#905 <https://github.com/agronholm/anyio/pull/905>`_; PR by @agronholm and
+   @tapetersen)
+ - Added the ability to specify the thread name in ``start_blocking_portal()``
+   (`#818 <https://github.com/agronholm/anyio/issues/818>`_; PR by @davidbrochart)
+@@ -41,6 +41,9 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+   (`#816 <https://github.com/agronholm/anyio/issues/816>`_)
+ - Fixed RunVar name conflicts. RunVar instances with the same name should not share storage.
+   (`#880 <https://github.com/agronholm/anyio/issues/880>`_; PR by @vimfu)
++- Renamed the ``BrokenWorkerIntepreter`` exception to ``BrokenWorkerInterpreter``.
++  The old name is available as a deprecated alias.
++  (`#938 <https://github.com/agronholm/anyio/pull/938>`_; PR by @ayussh-verma)
+ 
+ **4.9.0**
+ 
+diff --git a/src/anyio/__init__.py b/src/anyio/__init__.py
+index cbaea68..47996c0 100644
+--- a/src/anyio/__init__.py
++++ b/src/anyio/__init__.py
+@@ -10,7 +10,7 @@ from ._core._eventloop import sleep as sleep
+ from ._core._eventloop import sleep_forever as sleep_forever
+ from ._core._eventloop import sleep_until as sleep_until
+ from ._core._exceptions import BrokenResourceError as BrokenResourceError
+-from ._core._exceptions import BrokenWorkerIntepreter as BrokenWorkerIntepreter
++from ._core._exceptions import BrokenWorkerInterpreter as BrokenWorkerInterpreter
+ from ._core._exceptions import BrokenWorkerProcess as BrokenWorkerProcess
+ from ._core._exceptions import BusyResourceError as BusyResourceError
+ from ._core._exceptions import ClosedResourceError as ClosedResourceError
+@@ -89,4 +89,24 @@ for __value in list(locals().values()):
+     if getattr(__value, "__module__", "").startswith("anyio."):
+         __value.__module__ = __name__
+ 
++
+ del __value
++
++
++def __getattr__(attr: str) -> type[BrokenWorkerInterpreter]:
++    """Support deprecated aliases."""
++    if attr == "BrokenWorkerIntepreter":
++        import warnings
++
++        warnings.warn(
++            "The 'BrokenWorkerIntepreter' alias is deprecated, use 'BrokenWorkerInterpreter' instead.",
++            DeprecationWarning,
++            stacklevel=2,
++        )
++        return BrokenWorkerInterpreter
++
++    raise AttributeError(f"module {__name__!r} has no attribute {attr!r}")
++
++
++def __dir__():
++    return sorted(set(globals()) | {"BrokenWorkerIntepreter"})
+diff --git a/src/anyio/_core/_exceptions.py b/src/anyio/_core/_exceptions.py
+index 40b656e..9d08695 100644
+--- a/src/anyio/_core/_exceptions.py
++++ b/src/anyio/_core/_exceptions.py
+@@ -23,7 +23,7 @@ class BrokenWorkerProcess(Exception):
+     """
+ 
+ 
+-class BrokenWorkerIntepreter(Exception):
++class BrokenWorkerInterpreter(Exception):
+     """
+     Raised by :meth:`~anyio.to_interpreter.run_sync` if an unexpected exception is
+     raised in the subinterpreter.
+@@ -41,6 +41,9 @@ class BrokenWorkerIntepreter(Exception):
+         super().__init__(msg)
+         self.excinfo = excinfo
+ 
++    def __reduce__(self):
++        return type(self), (self.excinfo,), self.__dict__
++
+     def __str__(self) -> str:
+         try:
+             formatted = self.excinfo.errdisplay
+@@ -132,3 +135,18 @@ class TypedAttributeLookupError(LookupError):
+ 
+ class WouldBlock(Exception):
+     """Raised by ``X_nowait`` functions if ``X()`` would block."""
++
++
++def __getattr__(name: str):
++    if name == "BrokenWorkerIntepreter":
++        import warnings
++        warnings.warn(
++            "The 'BrokenWorkerIntepreter' alias is deprecated, use 'BrokenWorkerInterpreter' instead.",
++            DeprecationWarning, stacklevel=2,
++        )
++        return BrokenWorkerInterpreter
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
++
++
++def __dir__():
++    return sorted(set(globals()) | {"BrokenWorkerIntepreter"})
+diff --git a/src/anyio/to_interpreter.py b/src/anyio/to_interpreter.py
+index a6b344a..977a6cf 100644
+--- a/src/anyio/to_interpreter.py
++++ b/src/anyio/to_interpreter.py
+@@ -10,7 +10,7 @@ from textwrap import dedent
+ from typing import Any, Final, TypeVar
+ 
+ from . import current_time, to_thread
+-from ._core._exceptions import BrokenWorkerIntepreter
++from ._core._exceptions import BrokenWorkerInterpreter
+ from ._core._synchronization import CapacityLimiter
+ from .lowlevel import RunVar
+ 
+@@ -116,7 +116,7 @@ class Worker:
+         res: Any
+         is_exception: bool
+         if exc_info := interpreters.exec(self._interpreter_id, self._run_func):
+-            raise BrokenWorkerIntepreter(exc_info)
++            raise BrokenWorkerInterpreter(exc_info)
+ 
+         (res, is_exception), fmt = queues.get(self._queue_id)[:2]
+         if fmt == FMT_PICKLED:
+@@ -170,7 +170,7 @@ async def run_sync(
+     :param limiter: capacity limiter to use to limit the total amount of subinterpreters
+         running (if omitted, the default limiter is used)
+     :return: the result of the call
+-    :raises BrokenWorkerIntepreter: if there's an internal error in a subinterpreter
++    :raises BrokenWorkerInterpreter: if there's an internal error in a subinterpreter
+ 
+     """
+     if sys.version_info <= (3, 13):

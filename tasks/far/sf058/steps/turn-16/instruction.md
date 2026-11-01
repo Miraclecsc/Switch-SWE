@@ -1,0 +1,1 @@
+And here, If resolution returns no usable IP candidates, raise socket.gaierror with EAI_NONAME without attempting a connection and without the literal-parser ValueError as context. Resolver-raised errors must keep their identity and context semantics. Literal IP connections still bypass remote-name resolution.

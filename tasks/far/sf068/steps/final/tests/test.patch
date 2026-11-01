@@ -1,0 +1,88 @@
+diff --git a/networkx/drawing/tests/test_layout.py b/networkx/drawing/tests/test_layout.py
+index 4b2bca44985..8e314af9508 100644
+--- a/networkx/drawing/tests/test_layout.py
++++ b/networkx/drawing/tests/test_layout.py
+@@ -566,3 +566,30 @@ def test_bipartite_layout_default_nodes():
+     for nodeset in nx.bipartite.sets(G):
+         xs = [pos[k][0] for k in nodeset]
+         assert all(x == pytest.approx(xs[0]) for x in xs)
++
++
++@pytest.mark.parametrize(
++    ("num_nodes", "expected_method"), [(100, "force"), (501, "energy")]
++)
++@pytest.mark.parametrize(
++    "extra_layout_kwargs",
++    [
++        {},  # No extra kwargs
++        {"pos": {0: (0, 0)}, "fixed": [0]},  # Fixed node position
++        {"dim": 3},  # 3D layout
++    ],
++)
++def test_spring_layout_graph_size_heuristic(
++    num_nodes, expected_method, extra_layout_kwargs
++):
++    """Expect 'force' layout for n < 500 and 'energy' for n >= 500"""
++    G = nx.cycle_graph(num_nodes)
++    # Seeded layout to compare explicit method to one determined by "auto"
++    seed = 163674319
++
++    # Compare explicit method to auto method
++    expected = nx.spring_layout(
++        G, method=expected_method, seed=seed, **extra_layout_kwargs
++    )
++    actual = nx.spring_layout(G, method="auto", seed=seed, **extra_layout_kwargs)
++    assert np.allclose(list(expected.values()), list(actual.values()), atol=1e-5)
+diff --git a/networkx/drawing/tests/test_sf068_auto_threshold.py b/networkx/drawing/tests/test_sf068_auto_threshold.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/drawing/tests/test_sf068_auto_threshold.py
+@@ -0,0 +1,48 @@
++
++import numpy as np
++import pytest
++import networkx as nx
++import networkx.drawing.layout as layout
++
++@pytest.mark.parametrize("size,cutoff,method,expected", [
++    (6, 7, "auto", "dense-force"), (6, 6, "auto", "sparse-energy"),
++    (6, 1, "force", "dense-force"), (6, 100, "energy", "sparse-energy"),
++    (500, 501, "auto", "sparse-force"), (500, 500, "auto", "sparse-energy"),
++])
++def test_resolved_method_reaches_correct_solver(monkeypatch, size, cutoff, method, expected):
++    calls = []
++    def dense(*args, **kwargs):
++        calls.append("dense-force")
++        return np.zeros((args[0].shape[0], 2))
++    def sparse(*args, **kwargs):
++        calls.append("sparse-" + args[8])
++        return np.zeros((args[0].shape[0], 2))
++    monkeypatch.setattr(layout, "_fruchterman_reingold", dense)
++    monkeypatch.setattr(layout, "_sparse_fruchterman_reingold", sparse)
++    result = nx.spring_layout(nx.path_graph(size), method=method, auto_threshold=cutoff)
++    assert calls == [expected]
++    assert set(result) == set(range(size))
++
++@pytest.mark.parametrize("cutoff,exc", [(0, ValueError), (-2, ValueError),
++                                     (True, TypeError), (2.5, TypeError)])
++def test_auto_cutoff_validation_also_for_empty_graph(cutoff, exc):
++    with pytest.raises(exc):
++        nx.spring_layout(nx.Graph(), auto_threshold=cutoff)
++
++def test_auto_numerically_matches_explicit_energy_with_fixed_positions_and_storage():
++    graph = nx.path_graph(6)
++    pos = {node: np.array([float(node), 1.]) for node in graph}
++    expected = nx.spring_layout(graph, pos=pos, fixed=[0], method="energy", seed=8, iterations=3)
++    actual = nx.spring_layout(graph, pos=pos, fixed=[0], method="auto",
++                              auto_threshold=6, seed=8, iterations=3, store_pos_as="layout")
++    for node in graph:
++        np.testing.assert_allclose(actual[node], expected[node])
++        np.testing.assert_array_equal(graph.nodes[node]["layout"], actual[node])
++    np.testing.assert_array_equal(actual[0], pos[0])
++
++def test_explicit_method_ignores_cutoff_and_default_is_unchanged():
++    graph = nx.path_graph(6)
++    first = nx.spring_layout(graph, method="force", auto_threshold=None, seed=2)
++    second = nx.spring_layout(graph, method="auto", seed=2)
++    for node in graph:
++        np.testing.assert_array_equal(first[node], second[node])

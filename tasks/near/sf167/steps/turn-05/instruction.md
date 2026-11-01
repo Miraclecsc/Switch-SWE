@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Await callable context value in ASGI This PR awaits custom callable `context_value`, if its coroutine. Fixes #227

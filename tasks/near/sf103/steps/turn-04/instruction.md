@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Apply the bracket fix from issue 471 only for use_parentheses=True Closes #2154 1. Moved the fix for Issue 471 under the use_parentheses=True condition as it fixes the situation where we added a closing bracket after the comment at line 131. Added tests for the issue #2154 3. Renamed `_comment` to `noqa_comment`

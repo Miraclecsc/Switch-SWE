@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Catch `OSError` alongside `MultiPartException` when closing temp files Improvements found during code review: added type annotations, improved error handling, fixed edge cases. All existing tests pass.

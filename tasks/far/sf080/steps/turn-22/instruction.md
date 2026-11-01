@@ -1,0 +1,1 @@
+One more thing: But calls to isinstance are significantly more expeensive, if we never hit this code path so the solution is only for hypotheticals I'd prefer we raise NotImplemented.

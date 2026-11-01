@@ -1,0 +1,1 @@
+Also, The spec does not seem to say the wheel name must be valid. Is it ok to enforce it on parsing?

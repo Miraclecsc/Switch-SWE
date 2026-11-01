@@ -1,0 +1,1 @@
+Also, That's ok. `break` closes the iterator just like if there are no more data.

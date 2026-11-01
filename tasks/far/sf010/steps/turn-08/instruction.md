@@ -1,0 +1,1 @@
+And here, I see `KeyTransformExact` doesn't have it (at least not until Django 7.) I also see this logic that doesn't treat `exact` and `iexact` equivalently:

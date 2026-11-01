@@ -1,0 +1,191 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92",
+    "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f"
+  ],
+  "case_id": "sf146_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+      "python": "3.12.12",
+      "requirements": "requirements/07001f250a6c7059-3.12.12-701a407f.txt",
+      "source": "dependency-source/07001f250a6c7059-3.12.12-701a407f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92",
+      "python": "3.12.12",
+      "requirements": "requirements/cbddd0015727d688-3.12.12-49da5d92.txt",
+      "source": "dependency-source/cbddd0015727d688-3.12.12-49da5d92.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "adf6d1ce1a71cdc7002c4f9730ed2eb0e12d81f8",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "662e7ab1e261738499bc12f57adccabc84c5ceed49f783f7a7d7f52b57415417"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/examples/guide/screens/screen01.py",
+          "sha256": "12a90daf2ad185bf9d1cd8fdfdd18bd86a49571493fdbfd65f29bd5240746a59"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/app.py",
+          "sha256": "f85c50941a51eae7e23847bda6874c8b49ebff514652be4e867de17bd25176d2"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/css/test_screen_css.py",
+          "sha256": "faeda7c00c6e0d143076ef8e4ff0259485fd6645ae8033b0f7659e6065eaf68c"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/snapshot_tests/snapshot_apps/notification_through_modes.py",
+          "sha256": "bd15928a52a75143f11ca67c7aa94d91dd29206535f136a3994bde57ff6f2825"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_screen_modes.py",
+          "sha256": "d38d3d22c48042b1ad581901097aa814822c059c53354d39188bc534e5c1145e"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_screens.py",
+          "sha256": "998f93a09c01c88dcc9450f8c646c95aeb6d0494046b9df159911d36de06d0b4"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "15c3d5755df093822b2ed9543d1961aa6f5ec6d9",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "c5f872695b8950439ff7c14e7d3ab5410a080ec2",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "df17ec0222a3697da8aeab9a5fb25f626ee36e76680dc5c545da5ca967c28cbe"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/examples/guide/screens/screen01.py",
+          "sha256": "12a90daf2ad185bf9d1cd8fdfdd18bd86a49571493fdbfd65f29bd5240746a59"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/app.py",
+          "sha256": "b1cfc4edf472eaab57fe9247cd1ce0d89b0e371b90bc727789f35867e0beb52b"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/css/test_screen_css.py",
+          "sha256": "faeda7c00c6e0d143076ef8e4ff0259485fd6645ae8033b0f7659e6065eaf68c"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/snapshot_tests/snapshot_apps/notification_through_modes.py",
+          "sha256": "bd15928a52a75143f11ca67c7aa94d91dd29206535f136a3994bde57ff6f2825"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_screen_modes.py",
+          "sha256": "d38d3d22c48042b1ad581901097aa814822c059c53354d39188bc534e5c1145e"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_screens.py",
+          "sha256": "998f93a09c01c88dcc9450f8c646c95aeb6d0494046b9df159911d36de06d0b4"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "13ec4c3298e3993b4a87159adece0116dfb603cb",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "fb6fc06a23a9629b0d527cf42921f433642a89f1",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w04"
+    }
+  ]
+}

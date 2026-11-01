@@ -1,0 +1,151 @@
+diff --git a/tests/test_taskgroups.py b/tests/test_taskgroups.py
+index 039247783..2022b32eb 100644
+--- a/tests/test_taskgroups.py
++++ b/tests/test_taskgroups.py
+@@ -459,6 +459,7 @@ async def test_fail_after(delay: float) -> None:
+             await sleep(1)
+ 
+     assert scope.cancel_called
++    assert scope.cancelled_caught
+ 
+ 
+ async def test_fail_after_no_timeout() -> None:
+@@ -467,6 +468,7 @@ async def test_fail_after_no_timeout() -> None:
+         await sleep(0.1)
+ 
+     assert not scope.cancel_called
++    assert not scope.cancelled_caught
+ 
+ 
+ async def test_fail_after_after_cancellation() -> None:
+@@ -484,6 +486,28 @@ async def test_fail_after_after_cancellation() -> None:
+     assert not block_complete
+ 
+ 
++async def test_fail_after_cancelled_before_deadline() -> None:
++    """
++    Test that fail_after() won't raise TimeoutError if its scope is cancelled before the
++    deadline.
++
++    """
++    with fail_after(1) as scope:
++        scope.cancel()
++        await checkpoint()
++
++
++@pytest.mark.xfail(
++    reason="There is currently no way to tell if cancellation happened due to timeout "
++    "explicitly if the deadline has been exceeded"
++)
++async def test_fail_after_scope_camcelled_before_timeout() -> None:
++    with fail_after(0.1) as scope:
++        scope.cancel()
++        time.sleep(0.11)
++        await sleep(0)
++
++
+ @pytest.mark.parametrize("delay", [0, 0.1], ids=["instant", "delayed"])
+ async def test_move_on_after(delay: float) -> None:
+     result = False
+@@ -493,6 +517,7 @@ async def test_move_on_after(delay: float) -> None:
+ 
+     assert not result
+     assert scope.cancel_called
++    assert scope.cancelled_caught
+ 
+ 
+ async def test_move_on_after_no_timeout() -> None:
+@@ -520,7 +545,9 @@ async def test_nested_move_on_after() -> None:
+     assert not sleep_completed
+     assert not inner_scope_completed
+     assert outer_scope.cancel_called
++    assert outer_scope.cancelled_caught
+     assert not inner_scope.cancel_called
++    assert not inner_scope.cancelled_caught
+ 
+ 
+ async def test_shielding() -> None:
+@@ -571,6 +598,14 @@ async def test_cancel_shielded_scope() -> None:
+             await sleep(0)
+ 
+ 
++async def test_cancelled_not_caught() -> None:
++    with CancelScope() as scope:
++        scope.cancel()
++
++    assert scope.cancel_called
++    assert not scope.cancelled_caught
++
++
+ @pytest.mark.parametrize("anyio_backend", ["asyncio"])
+ async def test_cancel_host_asyncgen() -> None:
+     done = False
+diff --git a/tests/test_sf052_timeout_notification.py b/tests/test_sf052_timeout_notification.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf052_timeout_notification.py
+@@ -0,0 +1,64 @@
++
++import math
++import pytest
++from anyio import CancelScope, current_effective_deadline, fail_after, sleep
++pytestmark = pytest.mark.anyio
++
++async def test_callback_after_scope_exit_once_with_actual_deadline():
++    calls = []
++    with fail_after(100) as parent:
++        def notify(deadline):
++            calls.append((deadline, current_effective_deadline()))
++        with pytest.raises(TimeoutError):
++            with fail_after(0, on_timeout=notify) as scope:
++                await sleep(0)
++        assert calls == [(scope.deadline, parent.deadline)]
++
++async def test_no_callback_for_success_disabled_or_early_explicit_cancel():
++    calls = []
++    with fail_after(None, on_timeout=calls.append):
++        await sleep(0)
++    with fail_after(100, on_timeout=calls.append):
++        await sleep(0)
++    with fail_after(100, on_timeout=calls.append) as scope:
++        scope.cancel()
++        await sleep(0)
++    assert calls == []
++
++async def test_external_cancellation_is_not_a_timeout_notification():
++    calls = []
++    with CancelScope() as outer:
++        with fail_after(None, on_timeout=calls.append):
++            outer.cancel()
++            await sleep(0)
++    assert calls == []
++
++async def test_body_timeout_error_is_not_helper_timeout():
++    calls = []
++    error = TimeoutError("body")
++    with pytest.raises(TimeoutError) as caught:
++        with fail_after(None, on_timeout=calls.append):
++            raise error
++    assert caught.value is error and calls == []
++
++async def test_callback_error_chains_under_timeout():
++    cause = ValueError("notification failed")
++    def notify(deadline):
++        raise cause
++    with pytest.raises(TimeoutError) as caught:
++        with fail_after(0, on_timeout=notify):
++            await sleep(0)
++    assert caught.value.__cause__ is cause
++
++@pytest.mark.parametrize("value", [False, 3, "callback"])
++async def test_noncallable_rejected_before_body(value):
++    reached = False
++    with pytest.raises(TypeError):
++        with fail_after(1, on_timeout=value):
++            reached = True
++    assert not reached
++
++async def test_callback_return_does_not_swallow_timeout():
++    with pytest.raises(TimeoutError):
++        with fail_after(0, on_timeout=lambda deadline: True):
++            await sleep(0)

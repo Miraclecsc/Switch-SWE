@@ -1,0 +1,275 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-2035a958",
+    "/opt/ssb/deps/31017cf037b1fecb-3.10.20-d37b42d4",
+    "/opt/ssb/deps/ee202af858882255-3.10.20-a2fd158b",
+    "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-31579c15",
+    "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-aafa62b6"
+  ],
+  "case_id": "sf062_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-aafa62b6",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-aafa62b6.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-aafa62b6.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-31579c15",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-31579c15.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-31579c15.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-a2fd158b",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-a2fd158b.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-a2fd158b.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/31017cf037b1fecb-3.10.20-d37b42d4",
+      "python": "3.10.20",
+      "requirements": "requirements/31017cf037b1fecb-3.10.20-d37b42d4.txt",
+      "source": "dependency-source/31017cf037b1fecb-3.10.20-d37b42d4.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-2035a958",
+      "python": "3.10.20",
+      "requirements": "requirements/e13bf23f019a3f4c-3.10.20-2035a958.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.10.20-2035a958.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-6da4bdc2",
+      "python": "3.10.20",
+      "requirements": "requirements/0972bfcd89d0a8db-3.10.20-6da4bdc2.txt",
+      "source": "dependency-source/0972bfcd89d0a8db-3.10.20-6da4bdc2.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-4882e3ac",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-4882e3ac.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-4882e3ac.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-599da027",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-599da027.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-599da027.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-d9ab9e92",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-d9ab9e92.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-d9ab9e92.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/31017cf037b1fecb-3.10.20-08c35ce9",
+      "python": "3.10.20",
+      "requirements": "requirements/31017cf037b1fecb-3.10.20-08c35ce9.txt",
+      "source": "dependency-source/31017cf037b1fecb-3.10.20-08c35ce9.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-4707cbf2",
+      "python": "3.10.20",
+      "requirements": "requirements/e13bf23f019a3f4c-3.10.20-4707cbf2.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.10.20-4707cbf2.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+      "python": "3.10.20",
+      "requirements": "requirements/31017cf037b1fecb-3.10.20-99aa8d22.txt",
+      "source": "dependency-source/31017cf037b1fecb-3.10.20-99aa8d22.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-381a4c97",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-381a4c97.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-381a4c97.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-a3d03caf",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-a3d03caf.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-a3d03caf.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-659b4ad8",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-659b4ad8.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-659b4ad8.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/31017cf037b1fecb-3.10.20-14004b44",
+      "python": "3.10.20",
+      "requirements": "requirements/31017cf037b1fecb-3.10.20-14004b44.txt",
+      "source": "dependency-source/31017cf037b1fecb-3.10.20-14004b44.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8da0142d328773cf-3.10.20-61009064",
+      "python": "3.10.20",
+      "requirements": "requirements/8da0142d328773cf-3.10.20-61009064.txt",
+      "source": "dependency-source/8da0142d328773cf-3.10.20-61009064.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/65bbbdf7cfc505d1-3.10.20-9d2b1f21",
+      "python": "3.10.20",
+      "requirements": "requirements/65bbbdf7cfc505d1-3.10.20-9d2b1f21.txt",
+      "source": "dependency-source/65bbbdf7cfc505d1-3.10.20-9d2b1f21.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-eb331e27",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-eb331e27.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-eb331e27.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-35489e6b",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-35489e6b.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-35489e6b.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-47a765f7",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-47a765f7.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-47a765f7.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/31017cf037b1fecb-3.10.20-c4f35503",
+      "python": "3.10.20",
+      "requirements": "requirements/31017cf037b1fecb-3.10.20-c4f35503.txt",
+      "source": "dependency-source/31017cf037b1fecb-3.10.20-c4f35503.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-cdcabdfd",
+      "python": "3.10.20",
+      "requirements": "requirements/e13bf23f019a3f4c-3.10.20-cdcabdfd.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.10.20-cdcabdfd.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-6da4bdc2",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-4882e3ac",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-599da027",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-d9ab9e92",
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-08c35ce9",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-4707cbf2"
+      ],
+      "python": "3.10.20"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-381a4c97",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-a3d03caf",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-659b4ad8",
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-14004b44",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-2035a958"
+      ],
+      "python": "3.10.20"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-381a4c97",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-a3d03caf",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-659b4ad8",
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-14004b44",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-2035a958"
+      ],
+      "python": "3.10.20"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8da0142d328773cf-3.10.20-61009064",
+        "/opt/ssb/deps/65bbbdf7cfc505d1-3.10.20-9d2b1f21",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-eb331e27",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-35489e6b",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-47a765f7",
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-c4f35503",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-cdcabdfd"
+      ],
+      "python": "3.10.20"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-6da4bdc2",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-4882e3ac",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-599da027",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-d9ab9e92",
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-08c35ce9",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-4707cbf2"
+      ],
+      "python": "3.10.20"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "f9abbbbb4898cac96420e5c5b9d34036a94d46bf",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "0cb7e5a2e736628e2f506d259fcf0d48cd2bde82",
+      "overlays": [
+        {
+          "mode": "100755",
+          "path": "tests/client/test_headers.py",
+          "sha256": "0181d5227de866c5773a46333c2cf17cc6114bb7b23536b50c15ae457abf4167"
+        }
+      ],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "2e01aa0075327c5c30632207e8b7a1961dda5303",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "c24bbb85a6efd83beb2ed6aab37913e4e0d44418",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "fcf1bc73dbe13bc61d18a6e998237a5021d3341c",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w04"
+    }
+  ]
+}

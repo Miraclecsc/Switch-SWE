@@ -1,0 +1,1 @@
+Please check this too: Pinging and based on being the only significant discussion of arbitrary equality I could find, to check if anyone has any objections to this PR.

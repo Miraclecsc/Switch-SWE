@@ -1,0 +1,149 @@
+diff --git a/src/anyio/streams/memory.py b/src/anyio/streams/memory.py
+--- a/src/anyio/streams/memory.py
++++ b/src/anyio/streams/memory.py
+@@ -8,6 +8,14 @@
+ from ..exceptions import ClosedResourceError, BrokenResourceError, WouldBlock, EndOfStream
+ 
+ T_Item = TypeVar('T_Item')
++
++
++@dataclass(eq=False)
++class _Delivery(Generic[T_Item]):
++    item: T_Item
++    event: Event
++    received: bool = False
++    cancelled: bool = False
+ 
+ 
+ @dataclass
+@@ -19,6 +27,21 @@
+     waiting_receivers: 'OrderedDict[Event, List[T_Item]]' = field(init=False,
+                                                                   default_factory=OrderedDict)
+     waiting_senders: 'OrderedDict[Event, T_Item]' = field(init=False, default_factory=OrderedDict)
++    receipts: 'OrderedDict[Event, _Delivery]' = field(init=False, default_factory=OrderedDict)
++
++    async def refill_buffer(self) -> None:
++        """Use newly freed capacity to admit queued senders in FIFO order."""
++        while self.waiting_senders and len(self.buffer) < self.max_buffer_size:
++            event, item = self.waiting_senders.popitem(last=False)
++            self.buffer.append(item)
++            await event.set()
++
++    async def consume(self, item):
++        if isinstance(item, _Delivery):
++            item.received = True
++            await item.event.set()
++            return item.item
++        return item
+ 
+ 
+ @dataclass
+@@ -43,15 +66,16 @@
+         if self._closed:
+             raise ClosedResourceError
+ 
++        if self._state.waiting_senders:
++            # Get the item from the next sender
++            send_event, item = self._state.waiting_senders.popitem(last=False)
++            self._state.buffer.append(item)
++            await send_event.set()
++
+         if self._state.buffer:
+-            return self._state.buffer.popleft()
++            return await self._state.consume(self._state.buffer.popleft())
+         elif not self._state.open_send_channels:
+             raise EndOfStream
+-        elif self._state.waiting_senders:
+-            # Get the item from the next sender
+-            send_event, item = self._state.waiting_senders.popitem(last=False)
+-            await send_event.set()
+-            return item
+ 
+         raise WouldBlock
+ 
+@@ -69,10 +93,26 @@
+                 await receive_event.wait()
+             except BaseException:
+                 self._state.waiting_receivers.pop(receive_event, None)
++                if (container and isinstance(container[0], _Delivery)
++                        and not container[0].cancelled
++                        and self._state.open_receive_channels):
++                    # A cancelled consumer has not acknowledged this delivery.
++                    # Transfer it to another waiter or retain it for a retry.
++                    delivery = container[0]
++                    if self._state.waiting_receivers:
++                        event, target = self._state.waiting_receivers.popitem(last=False)
++                        target.append(delivery)
++                        async with anyio.open_cancel_scope(shield=True):
++                            await event.set()
++                    else:
++                        self._state.buffer.appendleft(delivery)
+                 raise
+ 
+             if container:
+-                return container[0]
++                item = container[0]
++                if isinstance(item, _Delivery) and item.cancelled:
++                    return await self.receive()
++                return await self._state.consume(item)
+             else:
+                 raise EndOfStream
+ 
+@@ -100,6 +140,8 @@
+                 self._state.waiting_senders.clear()
+                 for event in send_events:
+                     await event.set()
++                for receipt in list(self._state.receipts.values()):
++                    await receipt.event.set()
+ 
+ 
+ @dataclass
+@@ -151,6 +193,48 @@
+             if not self._state.open_receive_channels:
+                 raise BrokenResourceError
+ 
++    async def send_and_wait(self, item: T_Item) -> None:
++        """
++        Send an item and wait until a receiver consumes it.
++
++        Buffer admission alone does not complete this operation. Cancellation
++        before consumption retracts this particular item; consumption wins a
++        race with cancellation or closing the last receive channel.
++
++        :raises ClosedResourceError: if this sending handle was already closed
++        :raises BrokenResourceError: if all receive handles close before consumption
++        """
++        if self._closed:
++            raise ClosedResourceError
++        if not self._state.open_receive_channels:
++            raise BrokenResourceError
++
++        delivery = _Delivery(item, anyio.create_event())
++        self._state.receipts[delivery.event] = delivery
++        try:
++            try:
++                await self.send(delivery)
++                if not delivery.received:
++                    await delivery.event.wait()
++            except (anyio.get_cancelled_exc_class(), BrokenResourceError):
++                if not delivery.received:
++                    raise
++
++            if not delivery.received:
++                raise BrokenResourceError
++        finally:
++            self._state.receipts.pop(delivery.event, None)
++            if not delivery.received:
++                delivery.cancelled = True
++                # Compare by identity: user payload equality may be effectful.
++                for index, buffered in enumerate(self._state.buffer):
++                    if buffered is delivery:
++                        del self._state.buffer[index]
++                        async with anyio.open_cancel_scope(shield=True):
++                            if self._state.open_receive_channels:
++                                await self._state.refill_buffer()
++                        break
++
+     def clone(self) -> 'MemoryObjectSendStream':
+         """
+         Create a clone of this send stream.

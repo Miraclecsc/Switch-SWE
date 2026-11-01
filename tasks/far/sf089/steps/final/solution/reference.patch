@@ -1,0 +1,38 @@
+diff --git a/trio/_core/_multierror.py b/trio/_core/_multierror.py
+index a9778fd2..7ae9c125 100644
+--- a/trio/_core/_multierror.py
++++ b/trio/_core/_multierror.py
+@@ -213,6 +213,20 @@ class MultiError(BaseExceptionGroup):
+ 
+             return super().__new__(cls, "multiple tasks failed", exceptions)
+ 
++    def __reduce__(self):
++        return (
++            _restore_multierror,
++            (self.__class__, list(self.exceptions)),
++            (dict(self.__dict__), self.__cause__, self.__context__, self.__suppress_context__),
++        )
++
++    def __setstate__(self, state):
++        attributes, cause, context, suppressed = state
++        self.__dict__.update(attributes)
++        self.__cause__ = cause
++        self.__context__ = context
++        self.__suppress_context__ = suppressed
++
+     def __str__(self):
+         return ", ".join(repr(exc) for exc in self.exceptions)
+ 
+@@ -269,6 +283,12 @@ class MultiError(BaseExceptionGroup):
+         return MultiErrorCatcher(handler)
+ 
+ 
++def _restore_multierror(cls, exceptions):
++    # Construct the stored tree shape even when the original collapse policy
++    # would collapse a singleton during a fresh call.
++    return cls(exceptions, _collapse=False)
++
++
+ class NonBaseMultiError(MultiError, ExceptionGroup):
+     pass
+ 

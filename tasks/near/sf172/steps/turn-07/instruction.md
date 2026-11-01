@@ -1,0 +1,1 @@
+I have this in /work/w02: Instead of monkeypatching `_pager_contextmanager` everytwhere, you can just feed `get_pager_file` with `PAGER=`. That way you can check with `PAGER` being set to `cat`, `PAGER` left unset, `PAGER` set to a missing binary etc to test even more edge-cases.

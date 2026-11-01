@@ -1,0 +1,92 @@
+diff --git a/moto/dms/models.py b/moto/dms/models.py
+index 5d913b590..cbdf53dcc 100644
+--- a/moto/dms/models.py
++++ b/moto/dms/models.py
+@@ -1,6 +1,7 @@
+ from collections.abc import Iterable
+ from datetime import datetime
+ from typing import Any, Optional
++from uuid import uuid4
+ 
+ from moto.core.base_backend import BackendDict, BaseBackend
+ from moto.core.common_models import BaseModel
+@@ -22,6 +23,7 @@ class DatabaseMigrationServiceBackend(BaseBackend):
+     def __init__(self, region_name: str, account_id: str):
+         super().__init__(region_name, account_id)
+         self.replication_tasks: dict[str, FakeReplicationTask] = {}
++        self._task_continuations: dict[str, tuple[Any, list[FakeReplicationTask]]] = {}
+         self.replication_instances: dict[str, FakeReplicationInstance] = {}
+         self.endpoints: dict[str, Endpoint] = {}
+         self.replication_subnet_groups: dict[str, FakeReplicationSubnetGroup] = {}
+@@ -110,6 +112,43 @@ class DatabaseMigrationServiceBackend(BaseBackend):
+ 
+         return replication_tasks
+ 
++    def describe_replication_tasks_page(
++        self,
++        filters: list[dict[str, Any]],
++        max_records: int,
++        marker: Optional[str] = None,
++        without_settings: bool = False,
++    ) -> dict[str, Any]:
++        # Continuations keep membership, not an offset into a mutable registry.
++        # Object identity also distinguishes deletion/recreation of the same ARN.
++        from .utils import task_filter_functions
++
++        if not 20 <= max_records <= 100:
++            raise ValidationError("MaxRecords must be between 20 and 100")
++        query = tuple(sorted({
++            (f["Name"], tuple(sorted(set(f["Values"]))))
++            for f in filters if f["Name"] in task_filter_functions
++        }))
++        if marker is not None:
++            continuation = self._task_continuations.get(marker)
++            if continuation is None or continuation[0] != query:
++                raise ValidationError("Marker does not belong to this query")
++            members = continuation[1]
++        else:
++            members = list(filter_tasks(list(self.replication_tasks.values()), filters))
++        remaining = [t for t in members if self.replication_tasks.get(t.arn) is t]
++        page, tail = remaining[:max_records], remaining[max_records:]
++        records = [task.to_dict() for task in page]
++        if without_settings:
++            for record in records:
++                record.pop("ReplicationTaskSettings", None)
++        result: dict[str, Any] = {"ReplicationTasks": records}
++        if tail:
++            next_marker = str(uuid4())
++            self._task_continuations[next_marker] = (query, tail)
++            result["Marker"] = next_marker
++        return result
++
+     def create_replication_instance(
+         self,
+         replication_instance_identifier: str,
+diff --git a/moto/dms/responses.py b/moto/dms/responses.py
+index 33b7dab7e..bfe77fefd 100644
+--- a/moto/dms/responses.py
++++ b/moto/dms/responses.py
+@@ -60,15 +60,15 @@ class DatabaseMigrationServiceResponse(BaseResponse):
+         return json.dumps({"ReplicationTask": replication_task.to_dict()})
+ 
+     def describe_replication_tasks(self) -> str:
+-        filters = self._get_param("Filters")
+-        max_records = self._get_int_param("MaxRecords")
+-        replication_tasks = self.dms_backend.describe_replication_tasks(
+-            filters=filters, max_records=max_records
+-        )
+-
+-        return json.dumps(
+-            {"ReplicationTasks": [t.to_dict() for t in replication_tasks]}
++        filters = self._get_param("Filters", [])
++        max_records = self._get_int_param("MaxRecords", 100)
++        result = self.dms_backend.describe_replication_tasks_page(
++            filters=filters,
++            max_records=max_records,
++            marker=self._get_param("Marker"),
++            without_settings=self._get_bool_param("WithoutSettings", False),
+         )
++        return json.dumps(result)
+ 
+     def create_replication_instance(self) -> str:
+         params = json.loads(self.body)

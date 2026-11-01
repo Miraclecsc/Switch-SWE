@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Move exception handling logic to Route Fixes #493, partially resolves resolves By moving handling of exceptions to the `Route` level we can use the same `Request`/`WebSocket` object for the endpoint and exception handlers. See #2020 for some more background

@@ -1,0 +1,67 @@
+{
+  "case_id": "sf029_switched",
+  "task_id": "ssb_v2_task_0328",
+  "repo": "sympy/sympy",
+  "base_commit": "55782a9d802d6e9d4275b1ff1e878c21be10a87c",
+  "derived_fail_to_pass": [
+    "sympy.parsing.tests.test_mathematica::test_mathematica_not_operator",
+    "sympy.parsing.tests.test_sf029_bang_context::test_boolean_composition_and_brackets",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[!!!]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[!!]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[!]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[f[!]]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[x && !!]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[x || !]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_missing_operand_is_syntax_error[{!}]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_mixed_prefix_postfix_relation",
+    "sympy.parsing.tests.test_sf029_bang_context::test_prefix_run_tree[! ! ! !x-4]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_prefix_run_tree[!!!!!x-5]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_prefix_run_tree[!!!x-3]",
+    "sympy.parsing.tests.test_sf029_bang_context::test_prefix_run_tree[!!x-2]"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.parsing.tests.test_mathematica::test_Mathematica_literal_regex",
+    "sympy.parsing.tests.test_mathematica::test_mathematica",
+    "sympy.parsing.tests.test_mathematica::test_parser_mathematica_exp_alt",
+    "sympy.parsing.tests.test_mathematica::test_parser_mathematica_tokenizer",
+    "sympy.parsing.tests.test_sf029_bang_context::test_original_single_not_and_factorial_regressions",
+    "sympy.parsing.tests.test_sf029_bang_context::test_postfix_double_factorial_numeric_and_symbolic"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/parsing/tests/test_mathematica.py",
+    "sympy/parsing/tests/test_sf029_bang_context.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/parsing/tests/test_mathematica.py",
+    "sympy/parsing/tests/test_sf029_bang_context.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "cefe28edba6e3486fd9afa3616c31d73b0f3ff63582bf43aa95bfb6bac4e6497",
+    "config/recipes.json": "5adae3210a5b8d18f677dcc37ff1c7b663dd61ff944c6b15a0dc0652d21981e3"
+  }
+}

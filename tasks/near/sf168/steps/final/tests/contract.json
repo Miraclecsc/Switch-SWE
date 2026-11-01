@@ -1,0 +1,65 @@
+{
+  "case_id": "sf168_switched",
+  "task_id": "ssb_v4_networkx__networkx_7549",
+  "repo": "networkx/networkx",
+  "base_commit": "24d3fe74230e5ed49d5ac8b723895493d5aafb0a",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_disconnected_numpy[G0]",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_disconnected_numpy[G1]",
+    "tests.test_sf168_staged::test_singleton_centrality",
+    "tests.test_sf168_staged::test_two_node_undirected",
+    "tests.test_sf168_staged::test_two_node_directed_left_eigenvector"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentrality::test_K5",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentrality::test_P3",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentrality::test_P3_unweighted",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentrality::test_maxiter",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityDirected::test_eigenvector_centrality_unweighted",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityDirected::test_eigenvector_centrality_unweighted_numpy",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityDirected::test_eigenvector_centrality_weighted",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityDirected::test_eigenvector_centrality_weighted_numpy",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_multigraph",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_multigraph_numpy",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_null",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_null_numpy",
+    "networkx.algorithms.centrality.tests.test_eigenvector_centrality.TestEigenvectorCentralityExceptions::test_zero_nstart"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/centrality/tests/test_eigenvector_centrality.py",
+    "tests/test_sf168_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/centrality/tests/test_eigenvector_centrality.py",
+    "tests/test_sf168_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "d45acd748df613c23afd3986e741203e9867af87513592a8ea7bf6ae7b63b5d7",
+    "config/recipes.json": "1e21b2888a5114d84e3512fda96e3552f51cdb6797d74f8cab569398ddf3f9d5"
+  }
+}

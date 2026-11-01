@@ -1,0 +1,1 @@
+In the checkout at /work/w04, type _io_epoll and _io_kqueue Also generates a type guard in `_generated_io_*` so they don't raise errors if checked in other ways than `mypy -m trio`

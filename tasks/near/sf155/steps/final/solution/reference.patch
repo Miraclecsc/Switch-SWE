@@ -1,0 +1,51 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 5f6500b..5d39e45 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -7,6 +7,9 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ 
+ - Added support for the Python 3.12 ``walk_up`` keyword argument in
+   ``anyio.Path.relative_to()`` (PR by Colin Taylor)
++- Fixed passing ``total_tokens`` to ``anyio.CapacityLimiter()`` as a keyword argument
++  not working on the ``trio`` backend
++  (`#515 <https://github.com/agronholm/anyio/issues/515>`_)
+ 
+ **4.2.0**
+ 
+diff --git a/src/anyio/_backends/_trio.py b/src/anyio/_backends/_trio.py
+index a0d14c7..c748c59 100644
+--- a/src/anyio/_backends/_trio.py
++++ b/src/anyio/_backends/_trio.py
+@@ -631,14 +631,29 @@ class Event(BaseEvent):
+ 
+ class CapacityLimiter(BaseCapacityLimiter):
+     def __new__(
+-        cls, *args: Any, original: trio.CapacityLimiter | None = None
++        cls,
++        total_tokens: float | None = None,
++        *,
++        original: trio.CapacityLimiter | None = None,
+     ) -> CapacityLimiter:
+         return object.__new__(cls)
+ 
+     def __init__(
+-        self, *args: Any, original: trio.CapacityLimiter | None = None
++        self,
++        total_tokens: float | None = None,
++        *,
++        original: trio.CapacityLimiter | None = None,
+     ) -> None:
+-        self.__original = original or trio.CapacityLimiter(*args)
++        if original is not None:
++            if total_tokens is not None:
++                raise TypeError("total_tokens and original are mutually exclusive")
++            if not isinstance(original, trio.CapacityLimiter):
++                raise TypeError("original must be a trio.CapacityLimiter")
++            self.__original = original
++        else:
++            if total_tokens is None:
++                raise TypeError("total_tokens is required without original")
++            self.__original = trio.CapacityLimiter(total_tokens)
+ 
+     async def __aenter__(self) -> None:
+         return await self.__original.__aenter__()

@@ -1,0 +1,1 @@
+And here, Feel free to do that, but if you do, start with `if addr_obj is None`, as it's the cheapest check. And finish with `else: ... # process for ipv4`.

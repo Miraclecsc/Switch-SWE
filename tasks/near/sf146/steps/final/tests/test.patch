@@ -1,0 +1,240 @@
+diff --git a/tests/css/test_screen_css.py b/tests/css/test_screen_css.py
+index 61d26a6a38..9e6668f6ac 100644
+--- a/tests/css/test_screen_css.py
++++ b/tests/css/test_screen_css.py
+@@ -126,7 +126,7 @@ async def test_screen_css_push_screen_instance_by_name():
+     """Check that screen CSS is loaded and applied when pushing a screen name that points to a screen instance."""
+ 
+     class MyApp(BaseApp):
+-        SCREENS = {"screenwithcss": ScreenWithCSS()}
++        SCREENS = {"screenwithcss": ScreenWithCSS}
+ 
+         def key_p(self):
+             self.push_screen("screenwithcss")
+@@ -187,7 +187,7 @@ async def test_screen_css_switch_screen_instance_by_name():
+     """Check that screen CSS is loaded and applied when switching a screen name that points to a screen instance."""
+ 
+     class MyApp(SwitchBaseApp):
+-        SCREENS = {"screenwithcss": ScreenWithCSS()}
++        SCREENS = {"screenwithcss": ScreenWithCSS}
+ 
+         def key_p(self):
+             self.switch_screen("screenwithcss")
+@@ -230,8 +230,8 @@ async def test_screen_css_switch_mode_screen_instance():
+ 
+     class MyApp(BaseApp):
+         MODES = {
+-            "base": BaseScreen(),
+-            "mode": ScreenWithCSS(),
++            "base": BaseScreen,
++            "mode": ScreenWithCSS,
+         }
+ 
+         def key_p(self):
+@@ -255,11 +255,11 @@ async def test_screen_css_switch_mode_screen_instance_by_name():
+ 
+     class MyApp(BaseApp):
+         SCREENS = {
+-            "screenwithcss": ScreenWithCSS(),
++            "screenwithcss": ScreenWithCSS,
+         }
+ 
+         MODES = {
+-            "base": BaseScreen(),
++            "base": BaseScreen,
+             "mode": "screenwithcss",
+         }
+ 
+@@ -288,7 +288,7 @@ class MyApp(BaseApp):
+         }
+ 
+         MODES = {
+-            "base": BaseScreen(),
++            "base": BaseScreen,
+             "mode": "screenwithcss",
+         }
+ 
+diff --git a/tests/snapshot_tests/snapshot_apps/notification_through_modes.py b/tests/snapshot_tests/snapshot_apps/notification_through_modes.py
+index 5c0e0ee3e8..e739de44a1 100644
+--- a/tests/snapshot_tests/snapshot_apps/notification_through_modes.py
++++ b/tests/snapshot_tests/snapshot_apps/notification_through_modes.py
+@@ -11,7 +11,7 @@ def compose(self) -> ComposeResult:
+ class NotifyThroughModesApp(App[None]):
+ 
+     MODES = {
+-        "test": Mode()
++        "test": Mode
+     }
+ 
+     def compose(self) -> ComposeResult:
+diff --git a/tests/test_screen_modes.py b/tests/test_screen_modes.py
+index 85d1a8b358..35576c3915 100644
+--- a/tests/test_screen_modes.py
++++ b/tests/test_screen_modes.py
+@@ -117,7 +117,7 @@ async def test_remove_mode(ModesApp: Type[App]):
+         await pilot.pause()
+         assert str(app.screen.query_one(Label).renderable) == "two"
+         app.remove_mode("one")
+-        assert "one" not in app.MODES
++        assert "one" not in app._modes
+ 
+ 
+ async def test_remove_active_mode(ModesApp: Type[App]):
+@@ -130,7 +130,7 @@ async def test_remove_active_mode(ModesApp: Type[App]):
+ async def test_add_mode(ModesApp: Type[App]):
+     app = ModesApp()
+     async with app.run_test() as pilot:
+-        app.add_mode("three", BaseScreen("three"))
++        app.add_mode("three", lambda: BaseScreen("three"))
+         await app.switch_mode("three")
+         await pilot.pause()
+         assert str(app.screen.query_one(Label).renderable) == "three"
+@@ -140,7 +140,7 @@ async def test_add_mode_duplicated(ModesApp: Type[App]):
+     app = ModesApp()
+     async with app.run_test():
+         with pytest.raises(InvalidModeError):
+-            app.add_mode("one", BaseScreen("one"))
++            app.add_mode("one", lambda: BaseScreen("one"))
+ 
+ 
+ async def test_screen_stack_preserved(ModesApp: Type[App]):
+diff --git a/tests/test_screens.py b/tests/test_screens.py
+index 044ca86555..00f3504361 100644
+--- a/tests/test_screens.py
++++ b/tests/test_screens.py
+@@ -40,7 +40,7 @@ async def test_installed_screens():
+     class ScreensApp(App):
+         SCREENS = {
+             "home": Screen,  # Screen type
+-            "one": Screen(),  # Screen instance
++            "one": Screen,  # Screen instance, disallowed as of #4893
+             "two": Screen,  # Callable[[], Screen]
+         }
+ 
+@@ -354,7 +354,7 @@ class MyScreen(Screen):
+         pass
+ 
+     class MyApp(App[None]):
+-        SCREENS = {"screen": MyScreen()}
++        SCREENS = {"screen": MyScreen}
+ 
+         def on_mount(self):
+             self.push_screen("screen")
+@@ -379,8 +379,8 @@ class ScreenB(Screen):
+ 
+     class MyApp(App[None]):
+         SCREENS = {
+-            "a": ScreenA(),
+-            "b": ScreenB(),
++            "a": ScreenA,
++            "b": ScreenB,
+         }
+ 
+         def callback(self, _):
+@@ -407,7 +407,7 @@ def on_mouse_move(self, event: MouseMove) -> None:
+             MouseMoveRecordingScreen.mouse_events.append(event)
+ 
+     class SimpleApp(App[None]):
+-        SCREENS = {"a": MouseMoveRecordingScreen()}
++        SCREENS = {"a": MouseMoveRecordingScreen}
+ 
+         def on_mount(self):
+             self.push_screen("a")
+@@ -439,7 +439,7 @@ def on_mouse_move(self, event: MouseMove) -> None:
+             MouseMoveRecordingScreen.mouse_events.append(event)
+ 
+     class SimpleApp(App[None]):
+-        SCREENS = {"a": MouseMoveRecordingScreen()}
++        SCREENS = {"a": MouseMoveRecordingScreen}
+ 
+         def on_mount(self):
+             self.push_screen("a")
+@@ -539,6 +539,35 @@ def get_default_screen(self) -> Screen:
+         assert app.screen is app.screen_stack[0]
+ 
+ 
++async def test_disallow_screen_instances() -> None:
++    """Test that screen instances are disallowed."""
++
++    class CustomScreen(Screen):
++        pass
++
++    with pytest.raises(ValueError):
++
++        class Bad(App):
++            SCREENS = {"a": CustomScreen()}  # type: ignore
++
++    with pytest.raises(ValueError):
++
++        class Worse(App):
++            MODES = {"a": CustomScreen()}  # type: ignore
++
++    # While we're here, let's make sure that other types
++    # are disallowed.
++    with pytest.raises(TypeError):
++
++        class Terrible(App):
++            MODES = {"a": 42, "b": CustomScreen}  # type: ignore
++
++    with pytest.raises(TypeError):
++
++        class Worst(App):
++            MODES = {"OK": CustomScreen, 1: 2}  # type: ignore
++
++
+ async def test_worker_cancellation():
+     """Regression test for https://github.com/Textualize/textual/issues/4884
+ 
+diff --git a/tests/test_sf146_aliases.py b/tests/test_sf146_aliases.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf146_aliases.py
+@@ -0,0 +1,48 @@
++import pytest
++from textual.app import App
++from textual.screen import Screen
++from textual.app import ScreenError
++
++def test_aliases_factory_cache_and_app_isolation():
++    calls=[]
++    def factory():calls.append(True);return Screen()
++    class Demo(App):SCREENS={"first":"second","second":"target","target":factory}
++    assert calls==[]
++    a,b=Demo(),Demo()
++    screen=a.get_screen("first")
++    assert a.get_screen("second") is screen and a.get_screen("target") is screen
++    assert b.get_screen("first") is not screen and len(calls)==2
++    a.uninstall_screen("target")
++    replacement=Screen();a.install_screen(replacement,"target")
++    assert a.get_screen("first") is replacement
++    assert Demo.SCREENS["first"]=="second"
++
++def test_cycle_missing_and_bad_factory_retry():
++    count=[]
++    def factory():count.append(True);return object() if len(count)==1 else Screen()
++    class Demo(App):SCREENS={"a":"b","b":"a","missing":"absent","retry":factory}
++    app=Demo()
++    with pytest.raises(ScreenError):app.get_screen("a")
++    with pytest.raises(KeyError):app.get_screen("missing")
++    with pytest.raises(TypeError):app.get_screen("retry")
++    assert isinstance(app.get_screen("retry"),Screen)
++    with pytest.raises(ScreenError):app.get_screen("b")
++
++async def test_failed_mode_switch_does_not_suspend_current():
++    suspends=[]
++    class Main(Screen):
++        def on_screen_suspend(self):suspends.append(True)
++    class Demo(App):
++        SCREENS={"main":Main,"alias":"main"}
++        MODES={"good":"alias","bad":lambda:object()}
++    app=Demo()
++    async with app.run_test() as pilot:
++        await app.switch_mode("good");await pilot.pause();suspends.clear()
++        current=app.screen
++        with pytest.raises(TypeError):app.switch_mode("bad")
++        await pilot.pause()
++        assert app.screen is current and suspends==[]
++        with pytest.raises(TypeError):app.add_mode("invalid",17)
++        app.add_mode("invalid","alias")
++        await app.switch_mode("invalid")
++        assert app.screen is current

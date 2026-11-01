@@ -1,0 +1,1 @@
+Please check this too: This seems a bit brittle if you're only going to check for "t" somehow existing in the ABI tag (and anywhere in the tag on top of it). Why not pass in a boolean for some argument named e.g. `threading` which automatically makes `abi3` not work since it's for a threaded/no-GIL build?

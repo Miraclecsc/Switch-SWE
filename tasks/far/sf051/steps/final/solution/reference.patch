@@ -1,0 +1,121 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index df01fcf..afc4b92 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -5,6 +5,7 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ 
+ **UNRELEASED**
+ 
++- Added ``start_new_session`` keyword argument to ``run_process()`` and ``open_process()``.
+ - Fixed deadlock in synchronization primitives on asyncio which can happen if a task acquiring a
+   primitive is hit with a native (not AnyIO) cancellation with just the right timing, leaving the
+   next acquiring task waiting forever (`#398 <https://github.com/agronholm/anyio/issues/398>`_)
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index 4cb5f3b..5161365 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -946,16 +946,18 @@ class Process(abc.Process):
+ async def open_process(command: Union[str, Sequence[str]], *, shell: bool,
+                        stdin: int, stdout: int, stderr: int,
+                        cwd: Union[str, bytes, PathLike, None] = None,
+-                       env: Optional[Mapping[str, str]] = None) -> Process:
++                       env: Optional[Mapping[str, str]] = None,
++                       start_new_session: bool = False, pass_fds=()) -> Process:
+     await checkpoint()
+     if shell:
+         process = await asyncio.create_subprocess_shell(
+             command, stdin=stdin, stdout=stdout,  # type: ignore[arg-type]
+-            stderr=stderr, cwd=cwd, env=env,
++            stderr=stderr, cwd=cwd, env=env, start_new_session=start_new_session, pass_fds=pass_fds,
+         )
+     else:
+         process = await asyncio.create_subprocess_exec(*command, stdin=stdin, stdout=stdout,
+-                                                       stderr=stderr, cwd=cwd, env=env)
++                                                       stderr=stderr, cwd=cwd, env=env,
++                                                       start_new_session=start_new_session, pass_fds=pass_fds)
+ 
+     stdin_stream = StreamWriterWrapper(process.stdin) if process.stdin else None
+     stdout_stream = StreamReaderWrapper(process.stdout) if process.stdout else None
+diff --git a/src/anyio/_backends/_trio.py b/src/anyio/_backends/_trio.py
+index 34c65a5..ad91df9 100644
+--- a/src/anyio/_backends/_trio.py
++++ b/src/anyio/_backends/_trio.py
+@@ -318,9 +318,11 @@ class Process(abc.Process):
+ async def open_process(command: Union[str, Sequence[str]], *, shell: bool,
+                        stdin: int, stdout: int, stderr: int,
+                        cwd: Union[str, bytes, PathLike, None] = None,
+-                       env: Optional[Mapping[str, str]] = None) -> Process:
++                       env: Optional[Mapping[str, str]] = None,
++                       start_new_session: bool = False, pass_fds=()) -> Process:
+     process = await trio_open_process(command, stdin=stdin, stdout=stdout, stderr=stderr,
+-                                      shell=shell, cwd=cwd, env=env)
++                                      shell=shell, cwd=cwd, env=env,
++                                      start_new_session=start_new_session, pass_fds=pass_fds)
+     stdin_stream = SendStreamWrapper(process.stdin) if process.stdin else None
+     stdout_stream = ReceiveStreamWrapper(process.stdout) if process.stdout else None
+     stderr_stream = ReceiveStreamWrapper(process.stderr) if process.stderr else None
+diff --git a/src/anyio/_core/_subprocesses.py b/src/anyio/_core/_subprocesses.py
+index 832184f..3286e95 100644
+--- a/src/anyio/_core/_subprocesses.py
++++ b/src/anyio/_core/_subprocesses.py
+@@ -11,7 +11,9 @@ from ._tasks import create_task_group
+ async def run_process(command: Union[str, Sequence[str]], *, input: Optional[bytes] = None,
+                       stdout: int = PIPE, stderr: int = PIPE, check: bool = True,
+                       cwd: Union[str, bytes, 'PathLike[str]', None] = None,
+-                      env: Optional[Mapping[str, str]] = None) -> 'CompletedProcess[bytes]':
++                      env: Optional[Mapping[str, str]] = None, start_new_session: bool = False,
++                      pass_fds=(),
++                      ) -> 'CompletedProcess[bytes]':
+     """
+     Run an external command in a subprocess and wait until it completes.
+ 
+@@ -28,6 +30,8 @@ async def run_process(command: Union[str, Sequence[str]], *, input: Optional[byt
+     :param cwd: If not ``None``, change the working directory to this before running the command
+     :param env: if not ``None``, this mapping replaces the inherited environment variables from the
+         parent process
++    :param start_new_session: if ``true`` the setsid() system call will be made in the child
++        process prior to the execution of the subprocess. (POSIX only)
+     :return: an object representing the completed process
+     :raises ~subprocess.CalledProcessError: if ``check`` is ``True`` and the process exits with a
+         nonzero return code
+@@ -41,7 +45,8 @@ async def run_process(command: Union[str, Sequence[str]], *, input: Optional[byt
+         stream_contents[index] = buffer.getvalue()
+ 
+     async with await open_process(command, stdin=PIPE if input else DEVNULL, stdout=stdout,
+-                                  stderr=stderr, cwd=cwd, env=env) as process:
++                                  stderr=stderr, cwd=cwd, env=env,
++                                  start_new_session=start_new_session, pass_fds=pass_fds) as process:
+         stream_contents: List[Optional[bytes]] = [None, None]
+         try:
+             async with create_task_group() as tg:
+@@ -68,7 +73,8 @@ async def run_process(command: Union[str, Sequence[str]], *, input: Optional[byt
+ async def open_process(command: Union[str, Sequence[str]], *, stdin: int = PIPE,
+                        stdout: int = PIPE, stderr: int = PIPE,
+                        cwd: Union[str, bytes, 'PathLike[str]', None] = None,
+-                       env: Optional[Mapping[str, str]] = None) -> Process:
++                       env: Optional[Mapping[str, str]] = None,
++                       start_new_session: bool = False, pass_fds=()) -> Process:
+     """
+     Start an external command in a subprocess.
+ 
+@@ -83,9 +89,19 @@ async def open_process(command: Union[str, Sequence[str]], *, stdin: int = PIPE,
+     :param cwd: If not ``None``, the working directory is changed before executing
+     :param env: If env is not ``None``, it must be a mapping that defines the environment
+         variables for the new process
++    :param start_new_session: if ``true`` the setsid() system call will be made in the child
++        process prior to the execution of the subprocess. (POSIX only)
+     :return: an asynchronous process object
+ 
+     """
++    descriptors = tuple(pass_fds)
++    for fd in descriptors:
++        if isinstance(fd, bool) or not isinstance(fd, int):
++            raise TypeError("pass_fds must contain integer file descriptors")
++        if fd < 0:
++            raise ValueError("pass_fds must contain nonnegative descriptors")
++    pass_fds = tuple(dict.fromkeys(descriptors))
+     shell = isinstance(command, str)
+     return await get_asynclib().open_process(command, shell=shell, stdin=stdin, stdout=stdout,
+-                                             stderr=stderr, cwd=cwd, env=env)
++                                             stderr=stderr, cwd=cwd, env=env,
++                                             start_new_session=start_new_session, pass_fds=pass_fds)

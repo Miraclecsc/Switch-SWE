@@ -1,0 +1,1 @@
+And here, I'd just as soon "require" (though not explicitly, only in the docstring) that `nonedge` be a numerical scalar - we already disallow object arrays, so the only use-case you'd hit this would be it was a string array (i.e. in the above example, `A` has dtype `U`!).

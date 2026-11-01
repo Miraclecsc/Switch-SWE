@@ -1,0 +1,1 @@
+And here, CapacityLimiter.total_tokens is mutable so I'd rather users update that than update the limiter

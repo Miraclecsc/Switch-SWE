@@ -1,0 +1,134 @@
+diff --git a/tests/test_builders/test_build_linkcheck.py b/tests/test_builders/test_build_linkcheck.py
+index 82baa62f3ef..bdd8dea54c1 100644
+--- a/tests/test_builders/test_build_linkcheck.py
++++ b/tests/test_builders/test_build_linkcheck.py
+@@ -10,6 +10,7 @@
+ import wsgiref.handlers
+ from base64 import b64encode
+ from http.server import BaseHTTPRequestHandler
++from io import StringIO
+ from queue import Queue
+ from typing import TYPE_CHECKING
+ from unittest import mock
+@@ -27,6 +28,7 @@
+     RateLimit,
+     compile_linkcheck_allowed_redirects,
+ )
++from sphinx.errors import ConfigError
+ from sphinx.testing.util import SphinxTestApp
+ from sphinx.util import requests
+ from sphinx.util._pathlib import _StrPath
+@@ -37,6 +39,7 @@
+ 
+ if TYPE_CHECKING:
+     from collections.abc import Callable, Iterable
++    from pathlib import Path
+     from typing import Any
+ 
+     from urllib3 import HTTPConnectionPool
+@@ -752,6 +755,34 @@ def test_follows_redirects_on_GET(app, capsys):
+     assert app.warning.getvalue() == ''
+ 
+ 
++def test_linkcheck_allowed_redirects_config(
++    make_app: Callable[..., SphinxTestApp], tmp_path: Path
++) -> None:
++    tmp_path.joinpath('conf.py').touch()
++    tmp_path.joinpath('index.rst').touch()
++
++    # ``linkcheck_allowed_redirects = None`` is rejected
++    warning_stream = StringIO()
++    with pytest.raises(ConfigError):
++        make_app(
++            'linkcheck',
++            srcdir=tmp_path,
++            confoverrides={'linkcheck_allowed_redirects': None},
++            warning=warning_stream,
++        )
++    assert strip_escape_sequences(warning_stream.getvalue()).splitlines() == [
++        "WARNING: The config value `linkcheck_allowed_redirects' has type `NoneType'; expected `dict'."
++    ]
++
++    # ``linkcheck_allowed_redirects = {}`` is permitted
++    app = make_app(
++        'linkcheck',
++        srcdir=tmp_path,
++        confoverrides={'linkcheck_allowed_redirects': {}},
++    )
++    assert strip_escape_sequences(app.warning.getvalue()) == ''
++
++
+ @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
+ def test_linkcheck_allowed_redirects(app: SphinxTestApp) -> None:
+     with serve_application(app, make_redirect_handler(support_head=False)) as address:
+diff --git a/tests/test_builders/test_redirect_policy_v1.py b/tests/test_builders/test_redirect_policy_v1.py
+new file mode 100644
+index 000000000..44465b484
+--- /dev/null
++++ b/tests/test_builders/test_redirect_policy_v1.py
+@@ -0,0 +1,65 @@
++import re
++from types import SimpleNamespace
++from unittest.mock import patch
++import pytest
++from sphinx.builders import linkcheck
++from sphinx.errors import ConfigError
++
++
++def compile_rules(raw):
++    config = SimpleNamespace(linkcheck_allowed_redirects=raw)
++    linkcheck.compile_linkcheck_allowed_redirects(SimpleNamespace(config=config), config)
++    return config
++
++
++def test_multiple_destinations_and_overlapping_sources():
++    config = compile_rules({r"https://old/": [r"https://primary/", r"https://mirror/"],
++                            r"https://old/special": r"https://special/"})
++    rules = config.linkcheck_allowed_redirects
++    assert linkcheck._allowed_redirect("https://old/a", "https://primary/a", rules)
++    assert linkcheck._allowed_redirect("https://old/a", "https://mirror/a", rules)
++    assert linkcheck._allowed_redirect("https://old/special", "https://special/a", rules)
++    assert not linkcheck._allowed_redirect("https://old/a", "https://unlisted/a", rules)
++    assert not linkcheck._allowed_redirect("https://unmatched/a", "https://mirror/a", rules)
++
++
++def test_invalid_regex_in_sequence_does_not_discard_valid_destinations():
++    with patch.object(linkcheck.logger, "warning") as warning:
++        config = compile_rules({"old": ["[", "valid"]})
++    assert warning.call_count == 1
++    assert linkcheck._allowed_redirect("old", "valid", config.linkcheck_allowed_redirects)
++    assert not linkcheck._allowed_redirect("old", "other", config.linkcheck_allowed_redirects)
++
++
++def test_compile_is_repeatable_and_does_not_modify_caller_container():
++    values = ["target", re.compile("mirror")]
++    raw = {"source": values}
++    config = compile_rules(raw)
++    linkcheck.compile_linkcheck_allowed_redirects(SimpleNamespace(config=config), config)
++    values.append("new")
++    assert raw["source"] is values
++    assert linkcheck._allowed_redirect("source","mirror",config.linkcheck_allowed_redirects)
++    assert not linkcheck._allowed_redirect("source","new",config.linkcheck_allowed_redirects)
++
++
++def test_invalid_member_type_is_config_error_without_partial_rewrite():
++    raw = {"first":"ok", "second":["valid", 123]}
++    config = SimpleNamespace(linkcheck_allowed_redirects=raw)
++    with pytest.raises(ConfigError):
++        linkcheck.compile_linkcheck_allowed_redirects(SimpleNamespace(config=config),config)
++    assert config.linkcheck_allowed_redirects is raw
++    assert raw["first"] == "ok"
++
++
++def test_explicit_none_retains_original_config_error():
++    with pytest.raises(ConfigError):
++        compile_rules(None)
++    assert compile_rules({}).linkcheck_allowed_redirects == {}
++
++
++def test_scalar_pattern_and_empty_destination_list():
++    scalar = compile_rules({"old":"new"}).linkcheck_allowed_redirects
++    assert linkcheck._allowed_redirect("old/path","new/path",scalar)
++    assert not linkcheck._allowed_redirect("old","other",scalar)
++    empty = compile_rules({"old":[]}).linkcheck_allowed_redirects
++    assert not linkcheck._allowed_redirect("old","anything",empty)

@@ -1,0 +1,1 @@
+One more thing: PEP 517 backends have a huge restriction in terms of dependencies (no cycles) and a very popular approach is to vendor `packaging`. Therefore, if possible I would like to ask to please not add dependencies to `packaging`... Probably some work based on the download and local cache like proposed on (with no dependency) would be ideal.

@@ -1,0 +1,1 @@
+Also, The existing `_STD_STREAMS` module-scoped variable is used only for a Windows-specific check; in doubt I've left it as in, without adding `stdin` to it, and just renamed it to `_STD_STREAMS_OUTPUT` to mark the difference with the one I added, which contains `stdin`. As it's explicitly a private variable, we shouldn't have anyone using it in their own code?

@@ -1,0 +1,107 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c"
+  ],
+  "case_id": "sf074_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c",
+      "python": "3.9.23",
+      "requirements": "requirements/bd52d27182a7d202-3.9.23-e61ea17c.txt",
+      "source": "dependency-source/bd52d27182a7d202-3.9.23-e61ea17c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c"
+      ],
+      "python": "3.9.23"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c"
+      ],
+      "python": "3.9.23"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c"
+      ],
+      "python": "3.9.23"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c"
+      ],
+      "python": "3.9.23"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/bd52d27182a7d202-3.9.23-e61ea17c"
+      ],
+      "python": "3.9.23"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "ebed13eb2b0995d015ddcaacca72fadc829b09e6",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "b73cb489c57cfe0c713699c6f7c153406cb28269",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "30685be0896119b3d6cd0f3d5baa8a616cfb8e14",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "f76c3edf2b2bf9021877893e065c91c2504f756d",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "9b718ed3d26fc2f80ab58f3249b517a65db9cc7b",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w04"
+    }
+  ]
+}

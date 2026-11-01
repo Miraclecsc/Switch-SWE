@@ -1,0 +1,1 @@
+Please check this too: Evaluate whether to add a phrase/sentence that gamma=1 (the default) gives Barbar's original definition.

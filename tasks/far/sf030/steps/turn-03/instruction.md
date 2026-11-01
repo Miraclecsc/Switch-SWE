@@ -1,0 +1,1 @@
+Please check this too: Implement and test this repository change: Use explicit scope types for websocket denial responses

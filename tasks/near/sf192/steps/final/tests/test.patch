@@ -1,0 +1,156 @@
+diff --git a/tests/test_functional.py b/tests/test_functional.py
+index 3878d6868..a17023ffc 100644
+--- a/tests/test_functional.py
++++ b/tests/test_functional.py
+@@ -680,10 +680,6 @@ class C(object):
+ 
+             assert rv == attr.fields(C).x.cmp
+ 
+-        if cmp is not None:
+-            # Remove warning from creating the attribute if cmp is not None.
+-            dc.pop()
+-
+         (w,) = dc.list
+ 
+         assert (
+diff --git a/tests/test_make.py b/tests/test_make.py
+index 9486cfe98..486f53f55 100644
+--- a/tests/test_make.py
++++ b/tests/test_make.py
+@@ -1862,24 +1862,6 @@ def test_mix(self, cmp, eq, order):
+         ):
+             _determine_attrs_eq_order(cmp, eq, order, True)
+ 
+-    def test_cmp_deprecated(self):
+-        """
+-        Passing a cmp that is not None raises a DeprecationWarning.
+-        """
+-        with pytest.deprecated_call() as dc:
+-
+-            @attr.s(cmp=True)
+-            class C(object):
+-                pass
+-
+-        (w,) = dc.list
+-
+-        assert (
+-            "The usage of `cmp` is deprecated and will be removed on or after "
+-            "2021-06-01.  Please use `eq` and `order` instead."
+-            == w.message.args[0]
+-        )
+-
+ 
+ class TestDetermineAttribEqOrder(object):
+     def test_default(self):
+@@ -1968,45 +1950,6 @@ def test_mix(self, cmp, eq, order):
+         ):
+             _determine_attrib_eq_order(cmp, eq, order, True)
+ 
+-    def test_boolean_cmp_deprecated(self):
+-        """
+-        Passing a cmp that is not None raises a DeprecationWarning.
+-        """
+-        with pytest.deprecated_call() as dc:
+-
+-            assert (True, None, True, None) == _determine_attrib_eq_order(
+-                True, None, None, True
+-            )
+-
+-        (w,) = dc.list
+-
+-        assert (
+-            "The usage of `cmp` is deprecated and will be removed on or after "
+-            "2021-06-01.  Please use `eq` and `order` instead."
+-            == w.message.args[0]
+-        )
+-
+-    def test_callable_cmp_deprecated(self):
+-        """
+-        Passing a cmp that is not None raises a DeprecationWarning.
+-        """
+-        with pytest.deprecated_call() as dc:
+-
+-            assert (
+-                True,
+-                str.lower,
+-                True,
+-                str.lower,
+-            ) == _determine_attrib_eq_order(str.lower, None, None, True)
+-
+-        (w,) = dc.list
+-
+-        assert (
+-            "The usage of `cmp` is deprecated and will be removed on or after "
+-            "2021-06-01.  Please use `eq` and `order` instead."
+-            == w.message.args[0]
+-        )
+-
+ 
+ class TestDocs:
+     @pytest.mark.parametrize(
+@@ -2301,7 +2244,7 @@ def __ne__(self, o):
+             (None, None, True),
+         ],
+     )
+-    def test_override_order(self, slots, frozen, eq, order, cmp, recwarn):
++    def test_override_order(self, slots, frozen, eq, order, cmp):
+         """
+         If order=True is passed, ignore __le__, __lt__, __gt__, __ge__.
+ 
+@@ -2328,11 +2271,6 @@ class C(object):
+         assert C(2) > C(1)
+         assert C(2) >= C(1)
+ 
+-        if cmp:
+-            assert 1 == len(recwarn.list)
+-        else:
+-            assert 0 == len(recwarn.list)
+-
+     @pytest.mark.parametrize("slots", [True, False])
+     @pytest.mark.parametrize("first", [True, False])
+     def test_total_ordering(self, slots, first):
+diff --git a/tests/test_sf192_staged.py b/tests/test_sf192_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf192_staged.py
+@@ -0,0 +1,40 @@
++
++import warnings
++import attr
++
++class EmptyLookupKey:
++    def __len__(self):
++        return 0
++    def __call__(self, value):
++        return value.lower()
++
++def test_falsey_cmp_key_controls_equality_without_warnings():
++    with warnings.catch_warnings(record=True) as caught:
++        warnings.simplefilter('always')
++        @attr.s
++        class Example:
++            value = attr.ib(cmp=EmptyLookupKey())
++        assert Example('A') == Example('a')
++        assert not (Example('A') != Example('a'))
++    assert not [w for w in caught if issubclass(w.category, DeprecationWarning)]
++    assert Example('x').__eq__(object()) is NotImplemented
++
++def test_falsey_keys_control_all_ordering_operators():
++    @attr.s
++    class Example:
++        value = attr.ib(cmp=EmptyLookupKey())
++    a, b = Example('a'), Example('B')
++    assert a < b and a <= b and b > a and b >= a
++    assert Example('b') <= b and Example('b') >= b
++
++def test_comparison_never_calls_key_truth_value():
++    class Key:
++        def __bool__(self):
++            raise AssertionError('callable truth-value queried')
++        def __call__(self, value):
++            return len(value)
++    @attr.s
++    class Example:
++        value = attr.ib(eq=Key(), order=Key())
++    assert Example('aa') == Example('bb')
++    assert Example('a') < Example('cc')

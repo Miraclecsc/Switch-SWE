@@ -1,0 +1,1 @@
+One more thing: huh, why is `pyright --verifytypes` not complaining about missing docstrings. Neither `Matcher` nor that type has ~any

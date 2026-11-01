@@ -1,0 +1,1 @@
+Also, just an FYI, pre-commit still fails with an SSL failure trying to fetch black from github Errors: fatal: unable to access ' error:1407742E:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1 alert protocol version I've checked the code is flake8 clean, hopefully I'm not missing anything else format wise

@@ -1,0 +1,1 @@
+Also, I don't like having a test file with just a single test in it. Why don't we have a test_ask.py. That's where I would expect the tests for the functions in ask.py to be.

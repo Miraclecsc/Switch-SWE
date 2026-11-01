@@ -1,0 +1,1 @@
+Please check this too: > please consider my PR again Sure thing. (thanks) * Are we crediting the `urllib3` team sufficiently/appropriately here, perhaps a code comment in places where we're drawing from their work? * Could you provide an example URL in this thread to test against? * Let's get a `CHANGELOG.md` entry added.

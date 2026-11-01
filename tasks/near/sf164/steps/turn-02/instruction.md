@@ -1,0 +1,3 @@
+One more thing: Seems like the issue now is coverage _in tests_ (all of the tests still pass). There are several pieces of _test_ code that are not not being hit but I'm not sure if they were essential or just an implementation detail, some more careful evaluation is needed.
+
+Preserve Response background-hook compatibility in the response returned by BaseHTTPMiddleware.call_next: background is initially None, middleware may assign a background callable/task, and it runs once after a normally completed response. Keep the replacement streaming implementation free of receive/disconnect polling.

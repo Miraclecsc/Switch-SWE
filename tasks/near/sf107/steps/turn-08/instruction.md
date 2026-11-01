@@ -1,0 +1,1 @@
+I have this in /work/w00: Fixed #36973 -- Made fields.E348 detect accessor and manager name clashes for relationships across different models. ticket-36973 ticket-22977 Previously the check only identified the clash if it happened in a self-referential relationship. Trying to make it work across different models made it easier to identify the issue reported in ticket-36973.

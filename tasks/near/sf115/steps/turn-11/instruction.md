@@ -1,0 +1,1 @@
+Please check this too: I ended up having issues for the test related to this feature and had to separate the logic for self.hidden and self._is_hidden. It's probably easier to follow anyway. Should be good to go.

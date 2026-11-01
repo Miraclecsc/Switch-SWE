@@ -1,0 +1,1 @@
+I have this in /work/w00: Fix how QR decomposition handles rank of matrix with symbols

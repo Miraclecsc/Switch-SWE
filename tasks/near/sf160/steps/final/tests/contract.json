@@ -1,0 +1,88 @@
+{
+  "case_id": "sf160_switched",
+  "task_id": "ssb_v4_encode__httpx_2998",
+  "repo": "encode/httpx",
+  "base_commit": "90538a3b4610ba49ce16c997bcfdb9101f9503be",
+  "derived_fail_to_pass": [
+    "tests.test_decoders::test_streaming_text_decoder[data0-expected0]",
+    "tests.test_staged_contract::test_sync_line_endings_across_byte_boundaries",
+    "tests.test_staged_contract::test_async_line_endings_across_byte_boundaries",
+    "tests.test_staged_contract::test_empty_and_unterminated"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_decoders::test_brotli",
+    "tests.test_decoders::test_decoders_empty_cases[br]",
+    "tests.test_decoders::test_decoders_empty_cases[deflate]",
+    "tests.test_decoders::test_decoders_empty_cases[gzip]",
+    "tests.test_decoders::test_decoders_empty_cases[identity]",
+    "tests.test_decoders::test_decoding_errors[br]",
+    "tests.test_decoders::test_decoding_errors[deflate]",
+    "tests.test_decoders::test_decoding_errors[gzip]",
+    "tests.test_decoders::test_deflate",
+    "tests.test_decoders::test_empty_content[br]",
+    "tests.test_decoders::test_empty_content[deflate]",
+    "tests.test_decoders::test_empty_content[gzip]",
+    "tests.test_decoders::test_empty_content[identity]",
+    "tests.test_decoders::test_gzip",
+    "tests.test_decoders::test_invalid_content_encoding_header",
+    "tests.test_decoders::test_line_decoder_cr",
+    "tests.test_decoders::test_line_decoder_crnl",
+    "tests.test_decoders::test_line_decoder_nl",
+    "tests.test_decoders::test_multi",
+    "tests.test_decoders::test_multi_with_identity",
+    "tests.test_decoders::test_streaming[asyncio]",
+    "tests.test_decoders::test_streaming[trio]",
+    "tests.test_decoders::test_text_decoder_empty_cases",
+    "tests.test_decoders::test_text_decoder_known_encoding[asyncio]",
+    "tests.test_decoders::test_text_decoder_known_encoding[trio]",
+    "tests.test_decoders::test_text_decoder_with_autodetect[asyncio-data0-ascii]",
+    "tests.test_decoders::test_text_decoder_with_autodetect[asyncio-data1-utf-8]",
+    "tests.test_decoders::test_text_decoder_with_autodetect[asyncio-data3-iso-8859-1]",
+    "tests.test_decoders::test_text_decoder_with_autodetect[trio-data0-ascii]",
+    "tests.test_decoders::test_text_decoder_with_autodetect[trio-data1-utf-8]",
+    "tests.test_decoders::test_text_decoder_with_autodetect[trio-data3-iso-8859-1]",
+    "tests.test_decoders::test_zlib",
+    "tests.test_staged_contract::test_default_line_behavior_unchanged",
+    "tests.test_incremental_contract_v2::test_sync_complete_lines_are_yielded_before_more_input",
+    "tests.test_incremental_contract_v2::test_async_complete_lines_are_yielded_before_more_input"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_decoders.py",
+    "tests/test_staged_contract.py",
+    "tests/test_incremental_contract_v2.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_decoders.py",
+    "tests/test_incremental_contract_v2.py",
+    "tests/test_staged_contract.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "9341770016a67e631e48838c33e1f1f7f1a1e81b23581f053389d02af47f8cab",
+    "config/recipes.json": "cf48682c5429c70cdc3e50414811ccca375205c40cf88e3785db74eedce95f91"
+  }
+}

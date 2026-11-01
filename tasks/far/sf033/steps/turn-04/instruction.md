@@ -1,0 +1,1 @@
+And here, add tests for Matrix as well. Specifically there should be testes for `M*zoo`, `M*oo`, `oo*M`, `M/0` etc. There will already be some tests related to this. The same bug exists for so other DomainMatrix and Matrix methods should be checked as well.

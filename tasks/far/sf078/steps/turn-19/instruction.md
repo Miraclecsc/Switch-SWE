@@ -1,0 +1,1 @@
+Please check this too: I wouldn't say using `cast()` is a trick as it's a standard typing construct. I think it's better than using `ignore` because `ignore` sweeps the problem under the rug, whereas `cast()` makes the intention explicit.

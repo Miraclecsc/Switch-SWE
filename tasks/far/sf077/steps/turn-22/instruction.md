@@ -1,0 +1,1 @@
+One more thing: > Since these names are not the same as SemVer Well, any reason not to add `patch` as an equivalent of `micro` and make them support SemVer?

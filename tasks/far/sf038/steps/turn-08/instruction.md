@@ -1,0 +1,1 @@
+And here, fix(gzip): Make sure Vary header is always added if a response can be compressed Fixes #2863 # Summary Since the presense or absense of the `Accept-Encoding` header can change the response body, `Vary` should always be added whether the Also, Unfortunately, it also needs to be added when the accept-encoding header is *not* gzip.

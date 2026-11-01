@@ -1,0 +1,1 @@
+Also, Also just to check - if width == 0, then max_width will be -1 and we'll go into the loop which I don't think is intentional? (Should this be `max_width <= 0`?)

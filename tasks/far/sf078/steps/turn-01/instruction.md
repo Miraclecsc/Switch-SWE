@@ -1,0 +1,1 @@
+I have this in /work/w00: Does annotating the first declaration of `string_types` and `# mypy: ignore` other help here? This would result in change of type on Python 2 (unicode -> str).

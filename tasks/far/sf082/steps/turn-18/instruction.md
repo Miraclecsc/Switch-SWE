@@ -1,0 +1,1 @@
+One more thing: I say it can wait for #1113 as this protection is for being extra cautious and not something that is a critical concern, but if @facutuesca wants to add a keyword argument I'm also okay with taking that change.

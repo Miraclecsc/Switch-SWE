@@ -1,0 +1,1 @@
+Please check this too: That if you returned something else odd (like a single value? I dunno) you 'd end up with that wrapped in a tuple. Either way it's going to behave oddly or give you an error. Happy to just make it a tuple unconditionally. Perhaps worht an `if not isinstance(attrs, (list,tuple))` check too?

@@ -1,0 +1,1 @@
+Also, right, but if we're explicitly testing `__getattr__()` I kinda like the test using `getattr()`. Can add a comment either way

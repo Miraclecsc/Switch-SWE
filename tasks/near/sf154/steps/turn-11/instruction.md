@@ -1,0 +1,1 @@
+I have this in /work/w01: Add start_new_session keyword argument to run_process() and open_process Fixes #401

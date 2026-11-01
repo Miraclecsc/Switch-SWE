@@ -1,0 +1,1 @@
+And here, I asked the author of the [NO_COLOR]( spec, and he confirmed that `NO_COLOR` wasn't intended as a strip all escape sequences switch. i.e. bold / italic etc isn't considered color.

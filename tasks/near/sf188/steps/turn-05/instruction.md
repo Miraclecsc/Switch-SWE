@@ -1,0 +1,1 @@
+In the checkout at /work/w02, I added type hints to some internal functions. This was to make dev easier for me, not to type-check formally.

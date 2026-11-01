@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Add type annotations for windows_pipes and its test This PR adds type annotations for `_windows_pipes.py` and `_tests/test_windows_pipes.py`.

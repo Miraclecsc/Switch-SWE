@@ -1,0 +1,1 @@
+Please check this too: That would be cleaner. I was slightly worried about misinterpreting when the sentence starts with "Use as a context manager...", but Consider that's a stretch.

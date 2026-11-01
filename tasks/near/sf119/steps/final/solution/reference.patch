@@ -1,0 +1,123 @@
+diff --git a/CHANGELOG.rst b/CHANGELOG.rst
+index 1e08562..78330d2 100644
+--- a/CHANGELOG.rst
++++ b/CHANGELOG.rst
+@@ -19,6 +19,7 @@ Behavior adaptations:
+ * Adjust arbitrary equality intersection preservation in ``SpecifierSet`` (:pull:`951`)
+ * Return ``False`` instead of raising for ``.contains`` with invalid version (:pull:`932`)
+ * Support arbitrary equality on arbitrary strings for ``Specifier`` and ``SpecifierSet``'s ``filter`` and ``contains`` method. (:pull:`954`)
++* Only try to parse as ``Version`` on certain marker keys, return ``False`` on unequal ordered comparisons (:pull:`939`)
+ 
+ Fixes:
+ 
+diff --git a/src/packaging/markers.py b/src/packaging/markers.py
+index 2ae5335..bddc7b2 100644
+--- a/src/packaging/markers.py
++++ b/src/packaging/markers.py
+@@ -29,6 +29,12 @@ __all__ = [
+ Operator = Callable[[str, Union[str, AbstractSet[str]]], bool]
+ EvaluateContext = Literal["metadata", "lock_file", "requirement"]
+ MARKERS_ALLOWING_SET = {"extras", "dependency_groups"}
++MARKERS_REQUIRING_VERSION = {
++    "implementation_version",
++    "platform_release",
++    "python_full_version",
++    "python_version",
++}
+ 
+ 
+ class InvalidMarker(ValueError):
+@@ -177,25 +183,26 @@ def _format_marker(
+ _operators: dict[str, Operator] = {
+     "in": lambda lhs, rhs: lhs in rhs,
+     "not in": lambda lhs, rhs: lhs not in rhs,
+-    "<": operator.lt,
+-    "<=": operator.le,
++    "<": lambda _lhs, _rhs: False,
++    "<=": operator.eq,
+     "==": operator.eq,
+     "!=": operator.ne,
+-    ">=": operator.ge,
+-    ">": operator.gt,
++    ">=": operator.eq,
++    ">": lambda _lhs, _rhs: False,
+ }
+ 
+ 
+-def _eval_op(lhs: str, op: Op, rhs: str | AbstractSet[str]) -> bool:
+-    if isinstance(rhs, str):
++def _eval_op(lhs: str, op: Op, rhs: str | AbstractSet[str], *, key: str) -> bool:
++    op_str = op.serialize()
++    if key in MARKERS_REQUIRING_VERSION:
+         try:
+-            spec = Specifier(f"{op.serialize()}{rhs}")
++            spec = Specifier(f"{op_str}{rhs}")
+         except InvalidSpecifier:
+             pass
+         else:
+             return spec.contains(lhs, prereleases=True)
+ 
+-    oper: Operator | None = _operators.get(op.serialize())
++    oper: Operator | None = _operators.get(op_str)
+     if oper is None:
+         raise UndefinedComparison(f"Undefined {op!r} on {lhs!r} and {rhs!r}.")
+ 
+@@ -226,33 +233,33 @@ def _normalize(
+ def _evaluate_markers(
+     markers: MarkerList, environment: dict[str, str | AbstractSet[str]]
+ ) -> bool:
+-    groups: list[list[bool]] = [[]]
+-
+-    for marker in markers:
++    def evaluate(marker) -> bool:
+         if isinstance(marker, list):
+-            groups[-1].append(_evaluate_markers(marker, environment))
+-        elif isinstance(marker, tuple):
+-            lhs, op, rhs = marker
+-
+-            if isinstance(lhs, Variable):
+-                environment_key = lhs.value
+-                lhs_value = environment[environment_key]
+-                rhs_value = rhs.value
+-            else:
+-                lhs_value = lhs.value
+-                environment_key = rhs.value
+-                rhs_value = environment[environment_key]
+-            assert isinstance(lhs_value, str), "lhs must be a string"
+-            lhs_value, rhs_value = _normalize(lhs_value, rhs_value, key=environment_key)
+-            groups[-1].append(_eval_op(lhs_value, op, rhs_value))
+-        elif marker == "or":
+-            groups.append([])
+-        elif marker == "and":
+-            pass
+-        else:  # pragma: nocover
++            return _evaluate_markers(marker, environment)
++        if not isinstance(marker, tuple):
+             raise TypeError(f"Unexpected marker {marker!r}")
+-
+-    return any(all(item) for item in groups)
++        lhs, op, rhs = marker
++        if isinstance(lhs, Variable):
++            environment_key = lhs.value
++            lhs_value = environment[environment_key]
++            rhs_value = rhs.value
++        else:
++            lhs_value = lhs.value
++            environment_key = rhs.value
++            rhs_value = environment[environment_key]
++        assert isinstance(lhs_value, str), "lhs must be a string"
++        lhs_value, rhs_value = _normalize(lhs_value, rhs_value, key=environment_key)
++        return _eval_op(lhs_value, op, rhs_value, key=environment_key)
++
++    # Split syntax into OR alternatives without evaluating any comparisons.
++    # all()/any() then implement left-to-right short circuiting at each level.
++    groups = [[]]
++    for marker in markers:
++        if marker == "or":
++            groups.append([])
++        elif marker != "and":
++            groups[-1].append(marker)
++    return any(all(evaluate(marker) for marker in group) for group in groups)
+ 
+ 
+ def format_full_version(info: sys._version_info) -> str:

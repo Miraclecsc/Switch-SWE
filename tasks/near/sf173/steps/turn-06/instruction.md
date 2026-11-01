@@ -1,0 +1,1 @@
+I have this in /work/w01: Add functionality to hide the progress bar Issue #2609 Added "hidden" argument to click.progressbar to allow users to hide the progressbar output Added env to gitignore to match up with the CONTRIBUTING.rst directions Added test to verify "hidden" argument is behaving fixes #2609

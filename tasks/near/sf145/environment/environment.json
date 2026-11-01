@@ -1,0 +1,203 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92",
+    "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f"
+  ],
+  "case_id": "sf145_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+      "python": "3.12.12",
+      "requirements": "requirements/07001f250a6c7059-3.12.12-701a407f.txt",
+      "source": "dependency-source/07001f250a6c7059-3.12.12-701a407f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92",
+      "python": "3.12.12",
+      "requirements": "requirements/cbddd0015727d688-3.12.12-49da5d92.txt",
+      "source": "dependency-source/cbddd0015727d688-3.12.12-49da5d92.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-49da5d92"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "5f7355c6501427c0b5b2709fb7e41296544b43bd",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/guide/reactivity.md",
+          "sha256": "b4df46cb7604e17a5c98c4af2281c511838ababbb507deeedea0a48ad94b9b12"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/dom.py",
+          "sha256": "c2dfd2a764225a9529ecb7413ab38cf3a8c2d097a349ab20c88cdb474ed2a94e"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/reactive.py",
+          "sha256": "608d9d024de4852ee6a5650643dabc958e8cf9f92946f8a0c84f89ab64e48779"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_reactive.py",
+          "sha256": "f3cf582ccea5014f11b861a6b4b1a365f60f2dd98f71c573c9cad8d142e8c8a6"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "13ec4c3298e3993b4a87159adece0116dfb603cb",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "ccfcc7f15205278c1718188e4bc751187b73e605",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/guide/reactivity.md",
+          "sha256": "33980d734a461aee18c8d23ef9397df7dae41f81e9b296beedebd8e65b6fa569"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/dom.py",
+          "sha256": "c4ab33438040ec30416959025c76b2f0eaf47ff4ef6b0ea691ef5dee77923678"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/reactive.py",
+          "sha256": "de8a66912d5df246f52383d2e6e184cccd19c4a0c2535cfdbe9c86fd62b0bc94"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_reactive.py",
+          "sha256": "a7f913dbb4ef912071816bd246a91167890258962dfc49034af0c7563fca6d77"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "8a1c6036888a2183bc66132d3ebd443e09011a06",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/guide/reactivity.md",
+          "sha256": "76594f9a8dc509e43bc4de010652ba6913406e1d477a729810c563859f6d9db6"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/dom.py",
+          "sha256": "053dad64c718f356d030bd6b902c9f11dde3d52d2b8a076492fd931a0be5b2fe"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/reactive.py",
+          "sha256": "a71079850cc4162afd5e13e7e640e0ad02adf6cb1235cbe5bc2b1eda35f1f0bd"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_reactive.py",
+          "sha256": "f3cf582ccea5014f11b861a6b4b1a365f60f2dd98f71c573c9cad8d142e8c8a6"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "146eab085de8c9ea658f18483f3dfeaf28cb273b",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/guide/reactivity.md",
+          "sha256": "dc11bfce34b41f73bb641710a68decfac9e49083f0b5209133ccb7ee831ac887"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/dom.py",
+          "sha256": "c5543b18b994b9181d8b91a69f2ee6f7965602a231deca4b990ab1e38f892d5c"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/reactive.py",
+          "sha256": "608d9d024de4852ee6a5650643dabc958e8cf9f92946f8a0c84f89ab64e48779"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_reactive.py",
+          "sha256": "f3cf582ccea5014f11b861a6b4b1a365f60f2dd98f71c573c9cad8d142e8c8a6"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w04"
+    }
+  ]
+}

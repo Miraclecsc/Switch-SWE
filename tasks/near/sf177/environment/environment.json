@@ -1,0 +1,128 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12"
+  ],
+  "case_id": "sf177_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12",
+      "python": "3.12.12",
+      "requirements": "requirements/e13f19a3e0b217d5-3.12.12-aeac3f12.txt",
+      "source": "dependency-source/e13f19a3e0b217d5-3.12.12-aeac3f12.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/e13f19a3e0b217d5-3.12.12-aeac3f12"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "fbc3a696c729d177340cc089531de7e2e5b6f065",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGES.rst",
+          "sha256": "145d5c814e6e12466aac4bde7253713c35b7079e62dcd1f9c64b9bab6ae18f92"
+        },
+        {
+          "mode": "100644",
+          "path": "src/jinja2/compiler.py",
+          "sha256": "51b4fcb71c6bac72c7f82cdb342852f20a41c7233924b9666612743b1b901164"
+        },
+        {
+          "mode": "100644",
+          "path": "src/jinja2/runtime.py",
+          "sha256": "e9b50bd0af10cc241c520d3358c92285250fe8672fb3087869456df5c903c349"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_filters.py",
+          "sha256": "8a5a6e7d9883fde56477b7e94a30d9961fbce76490a5891ecfe307e65dfca603"
+        }
+      ],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "0a370316c6a4f0d034da5f90df5a671a32a8e376",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "5f95471a68b527cf47fb8391c661f72171b63cc3",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "4a70cd480f46da7004cc58b14be3b9966652954a",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "1c863d0447efb7e68e2593e7de3fec87670521cb",
+      "overlays": [],
+      "repo": "pallets/jinja",
+      "url": "https://github.com/pallets/jinja.git",
+      "workspace": "w04"
+    }
+  ]
+}

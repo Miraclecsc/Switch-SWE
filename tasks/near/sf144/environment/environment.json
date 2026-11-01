@@ -1,0 +1,138 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998"
+  ],
+  "case_id": "sf144_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998",
+      "python": "3.12.12",
+      "requirements": "requirements/d8f0ef55b75f2b9c-3.12.12-291d3998.txt",
+      "source": "dependency-source/d8f0ef55b75f2b9c-3.12.12-291d3998.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/d8f0ef55b75f2b9c-3.12.12-291d3998"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "49117ced6648a432d85951f72dce777038f6ce09",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": ".gitignore",
+          "sha256": "089e9c2c7156e17f6ce5b4943ed2ed5be8ac0f2b64890263008785c52384ef7f"
+        },
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "0f39050d49dfff145c6d11587bbfde5725970145145453acf0fdd4db89cc936e"
+        },
+        {
+          "mode": "100644",
+          "path": "rich/_wrap.py",
+          "sha256": "c5f57ff6dd1283aaf38a69ab0ebbbc7c25665256a56007072c37eb2599db6f04"
+        },
+        {
+          "mode": "100644",
+          "path": "rich/cells.py",
+          "sha256": "2168b68dcee6a5c6b5ba8d00b1029d0e8a90b33f52018749667341cd13cf5703"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_cells.py",
+          "sha256": "aac1edb3a8163ed9696e9d740dfbe98046f53870f43d6c13b5b3dadeb2861594"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_text.py",
+          "sha256": "adf131d5df0f67678bc021d0df581a4a00d190c20eb25de2cf3675e4f03f9e17"
+        }
+      ],
+      "repo": "Textualize/rich",
+      "url": "https://github.com/Textualize/rich.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "41bf6372c5daf3a887a79c77db0aeb1d240a150a",
+      "overlays": [],
+      "repo": "Textualize/rich",
+      "url": "https://github.com/Textualize/rich.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "5d3f600f43796393a2c3e4cb20d807c5cf147f44",
+      "overlays": [],
+      "repo": "Textualize/rich",
+      "url": "https://github.com/Textualize/rich.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "e76f3c3ea78481342e21a7b3328075462ab69c2b",
+      "overlays": [],
+      "repo": "Textualize/rich",
+      "url": "https://github.com/Textualize/rich.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "8c6d1cdcc9d00b3f0ae8faacdc5979b0d11f56b6",
+      "overlays": [],
+      "repo": "Textualize/rich",
+      "url": "https://github.com/Textualize/rich.git",
+      "workspace": "w04"
+    }
+  ]
+}

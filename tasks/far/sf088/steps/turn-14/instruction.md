@@ -1,0 +1,1 @@
+One more thing: Any reason not to use attrs? Saying "I already put in all this work" is fair, but it seems like with the dataclass callout that attrs would also be a really good fit here.

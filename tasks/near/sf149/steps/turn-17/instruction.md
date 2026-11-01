@@ -1,0 +1,1 @@
+Also, Hmm. Tricky, sounds like "defer adding a deprecation warning to `spawn` until anyio 3.1" is the best (or at least easiest-to-implement) idea here.

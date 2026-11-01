@@ -1,0 +1,1 @@
+I have this in /work/w02: TensMul.doit: flatten args after doit This handles cases where a non-TensMul object becomes a TensMul after doit (when deep=True). Without this change,

@@ -1,0 +1,1 @@
+Please check this too: wouldn't it be easier to just make it optional and only add pgettext if it's set?

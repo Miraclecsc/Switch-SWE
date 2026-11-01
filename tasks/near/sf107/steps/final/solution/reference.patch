@@ -1,0 +1,72 @@
+diff --git a/django/db/models/fields/json.py b/django/db/models/fields/json.py
+index 71c3f4d335..5d3d93884f 100644
+--- a/django/db/models/fields/json.py
++++ b/django/db/models/fields/json.py
+@@ -662,10 +662,50 @@ class KeyTransformExact(JSONExact):
+         return super().as_sql(compiler, connection)
+ 
+ 
++    def as_sqlite(self, compiler, connection):
++        lhs, lhs_params, keys = self.lhs.preprocess_lhs(compiler, connection)
++        path = connection.ops.compile_json_path(keys)
++        if self.rhs is None or (
++            isinstance(self.rhs, expressions.Value)
++            and self.rhs.value is None
++            and isinstance(self.rhs.output_field, JSONField)
++        ):
++            return "JSON_TYPE(%s, %%s) = 'null'" % lhs, tuple(lhs_params) + (path,)
++        sql, params = super().as_sql(compiler, connection)
++        if isinstance(self.rhs, str):
++            return "(JSON_TYPE(%s, %%s) = 'text' AND (%s))" % (lhs, sql), tuple(lhs_params) + (path,) + tuple(params)
++        return sql, params
++
++
+ class KeyTransformIExact(
+     CaseInsensitiveMixin, KeyTransformTextLookupMixin, lookups.IExact
+ ):
+-    pass
++    can_use_none_as_rhs = True
++
++    def as_sql(self, compiler, connection):
++        if self.rhs is None or (
++            isinstance(self.rhs, expressions.Value)
++            and self.rhs.value is None
++            and isinstance(self.rhs.output_field, JSONField)
++        ):
++            # Interpret __iexact=None on KeyTextTransform as __exact=None on
++            # KeyTransform.
++            keytransform = KeyTransform(self.lhs.key_name, self.lhs.lhs)
++            exact_lookup = keytransform.get_lookup("exact")(keytransform, self.rhs)
++            # Delegate to the backend vendor method, if it exists.
++            vendor = connection.vendor
++            as_vendor = getattr(exact_lookup, f"as_{vendor}", exact_lookup.as_sql)
++            return as_vendor(compiler, connection)
++        return super().as_sql(compiler, connection)
++
++
++    def as_sqlite(self, compiler, connection):
++        sql, params = self.as_sql(compiler, connection)
++        if isinstance(self.rhs, str):
++            lhs, lhs_params, keys = self.lhs.preprocess_lhs(compiler, connection)
++            path = connection.ops.compile_json_path(keys)
++            return "(JSON_TYPE(%s, %%s) = 'text' AND (%s))" % (lhs, sql), tuple(lhs_params) + (path,) + tuple(params)
++        return sql, params
+ 
+ 
+ class KeyTransformIContains(
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index 2e6e7235d7..c4ecefc08a 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -400,6 +400,11 @@ Miscellaneous
+ 
+ * The minimum supported version of SQLite is increased from 3.31.0 to 3.37.0.
+ 
++* The :lookup:`iexact=None <iexact>` lookup on
++  :class:`~django.db.models.JSONField` key transforms now matches JSON
++  ``null``, to match the behavior of :lookup:`exact=None <exact>` on key
++  transforms. Previously, it was interpreted as an :lookup:`isnull` lookup.
++
+ .. _deprecated-features-6.1:
+ 
+ Features deprecated in 6.1

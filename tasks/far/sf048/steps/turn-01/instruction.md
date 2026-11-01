@@ -1,0 +1,1 @@
+I have this in /work/w01: PERF: Use is_monotonic in ExtensionArray._monotonic_check Ref: Since `_rank` already uses `_values_for_argsort`, this has the same requirements for third party EAs.

@@ -1,0 +1,1 @@
+And here, Is this to test hashing? If so then couldn't you construct two separate instances from the same string and then compare their `hash()` value?

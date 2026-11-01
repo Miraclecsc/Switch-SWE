@@ -1,0 +1,1 @@
+Also, Currently `mypy` seems to be struggling with that. By running `nox -s lint`, I have the following error back: If that is fine, I can silence this mypy error with an inline `# type: ignore`. Please let me know if that solution would work for the `packaging` project (some projects don't like to silence linters)

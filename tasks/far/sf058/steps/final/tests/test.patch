@@ -1,0 +1,94 @@
+diff --git a/tests/test_sockets.py b/tests/test_sockets.py
+index 42937a363..0920f6ef5 100644
+--- a/tests/test_sockets.py
++++ b/tests/test_sockets.py
+@@ -1838,3 +1838,14 @@ async def test_getnameinfo() -> None:
+     expected_result = socket.getnameinfo(("127.0.0.1", 6666), 0)
+     result = await getnameinfo(("127.0.0.1", 6666))
+     assert result == expected_result
++
++
++async def test_connect_tcp_getaddrinfo_context() -> None:
++    """
++    See https://github.com/agronholm/anyio/issues/815
++    """
++    with pytest.raises(socket.gaierror) as exc_info:
++        async with await connect_tcp("anyio.invalid", 6666):
++            pass
++
++    assert exc_info.value.__context__ is None
+diff --git a/tests/test_sf058_resolver_candidates.py b/tests/test_sf058_resolver_candidates.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf058_resolver_candidates.py
+@@ -0,0 +1,70 @@
++
++import socket
++import pytest
++import anyio
++from anyio._core import _sockets as sockets
++
++pytestmark = pytest.mark.anyio
++
++def row(family, address):
++    return (family, socket.SOCK_STREAM, 6, "", (address, 443))
++
++async def test_duplicate_answers_attempted_once_in_stable_family_order(monkeypatch):
++    rows = [row(socket.AF_INET, "192.0.2.1"), row(socket.AF_INET6, "2001:db8::1"),
++            row(socket.AF_INET, "192.0.2.2"), row(socket.AF_INET, "192.0.2.1"),
++            row(socket.AF_INET6, "2001:db8::1"), row(socket.AF_INET6, "2001:db8::2")]
++    calls = []
++    errors = []
++    async def resolve(*args, **kwargs):
++        return rows
++    class Backend:
++        async def connect_tcp(self, host, port, local):
++            calls.append(host)
++            error = OSError(host)
++            errors.append(error)
++            raise error
++    monkeypatch.setattr(sockets, "getaddrinfo", resolve)
++    monkeypatch.setattr(sockets, "get_async_backend", lambda: Backend())
++    with pytest.raises(OSError) as caught:
++        await sockets.connect_tcp("service.example", 443)
++    assert calls == ["2001:db8::1", "192.0.2.1", "192.0.2.2", "2001:db8::2"]
++    assert caught.value.__cause__.exceptions == tuple(errors)
++
++@pytest.mark.parametrize("rows", [[], [row(socket.AF_UNIX, "ignored")]])
++async def test_no_usable_address_is_dns_error_without_parse_context(monkeypatch, rows):
++    calls = []
++    async def resolve(*args, **kwargs):
++        return rows
++    class Backend:
++        async def connect_tcp(self, *args):
++            calls.append(args)
++            raise AssertionError("no usable address")
++    monkeypatch.setattr(sockets, "getaddrinfo", resolve)
++    monkeypatch.setattr(sockets, "get_async_backend", lambda: Backend())
++    with pytest.raises(socket.gaierror) as caught:
++        await sockets.connect_tcp("service.example", 443)
++    assert caught.value.errno == socket.EAI_NONAME
++    assert caught.value.__context__ is None
++    assert calls == []
++
++async def test_resolver_failure_identity_and_context(monkeypatch):
++    error = socket.gaierror(socket.EAI_AGAIN, "retry")
++    async def resolve(*args, **kwargs):
++        raise error
++    monkeypatch.setattr(sockets, "getaddrinfo", resolve)
++    with pytest.raises(socket.gaierror) as caught:
++        await sockets.connect_tcp("service.example", 443)
++    assert caught.value is error
++    assert caught.value.__context__ is None
++
++async def test_literal_address_bypasses_resolver(monkeypatch):
++    result = object()
++    async def resolve(*args, **kwargs):
++        pytest.fail("literal address was resolved")
++    class Backend:
++        async def connect_tcp(self, host, port, local):
++            assert (host, port, local) == ("127.0.0.1", 443, None)
++            return result
++    monkeypatch.setattr(sockets, "getaddrinfo", resolve)
++    monkeypatch.setattr(sockets, "get_async_backend", lambda: Backend())
++    assert await sockets.connect_tcp("127.0.0.1", 443) is result

@@ -1,0 +1,1 @@
+And here, How do we feel about using `importlib_resources` for Python < 3.9? Its `files` API is exactly what's needed here and is compatible with all supported Python versions. (I'm assuming @jaraco will get the new API into 3.9, it's not in the docs yet though.)

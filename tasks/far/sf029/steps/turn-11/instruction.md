@@ -1,0 +1,1 @@
+Please check this too: that method: calculate free, dummy data again after replacing indices They can change due to the replacement in some edge cases.

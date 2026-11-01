@@ -1,0 +1,1 @@
+Please check this too: `data: bytes | bytearray` and maybe also `memoryview`

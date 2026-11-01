@@ -1,0 +1,1 @@
+One more thing: Refine deadline handling before invoking the child: accept int/float, excluding bool; reject other types with TypeError and NaN with ValueError. An already-expired deadline (including negative infinity) raises TimeoutError without invoking the callable. Positive infinity means no timeout. Preserve the existing inactive-group RuntimeError.

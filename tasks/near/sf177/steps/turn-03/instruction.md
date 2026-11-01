@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Fix unintended lstrip_blocks behavior Introduced in #858. Closes #1138

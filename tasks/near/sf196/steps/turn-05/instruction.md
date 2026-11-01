@@ -1,0 +1,1 @@
+I have this in /work/w02: This isn't correct, the code is testing that the autojump clock is able to skip a large (but finite) amount of sleeping.

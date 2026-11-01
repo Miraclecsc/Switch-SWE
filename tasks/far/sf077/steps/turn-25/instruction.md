@@ -1,0 +1,1 @@
+Also, > @fridex Could you please revert [1988d11]( I have some reservations toward that and I don't want that to block the rest of the changes here. > > Let's do a separate follow up PR for adding the `patch` property, where we can have a dedicated discussion on that. :) Sure, I've just opened a separate PR which depends on this one in #229. PTAL

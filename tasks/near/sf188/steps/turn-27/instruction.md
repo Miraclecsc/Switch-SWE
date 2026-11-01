@@ -1,0 +1,1 @@
+Please check this too: > do you think it would be a lot of work to make the code base pass in lenient mode? I.e. if there's hints, they must not contradict otherwise YOLO? Not sure, but it might be worth it. Should be a different PR of course.

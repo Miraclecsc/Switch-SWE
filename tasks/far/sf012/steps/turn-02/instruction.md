@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Fixed #34481 -- Added system check for reverse related fields in ModelAdmin.list_display. Fixed [ticket #34481]( Add reverse related fields checking in admin module.

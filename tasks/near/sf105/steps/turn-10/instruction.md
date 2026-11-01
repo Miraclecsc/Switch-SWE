@@ -1,0 +1,3 @@
+One more thing: I'm not entirely sure this change belongs in this branch, since for `fields` there are currently no checks for M2M either. And the referenced ticket is only about the `list_display`.
+
+For a list_display entry that is neither a string nor callable, return admin.E108 associated with that entry's list_display index instead of crashing. Continue validating subsequent entries and retain original error behavior for missing string names and to-many relations.

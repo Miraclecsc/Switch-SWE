@@ -1,0 +1,1 @@
+I have this in /work/w01: Add namespace objects that support attribute assignment This solves more complex cases affected by #641 where #676 is not sufficient. Somewhat dumb example showing how it works:

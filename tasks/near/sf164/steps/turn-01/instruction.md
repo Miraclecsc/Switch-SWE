@@ -1,0 +1,1 @@
+I have this in /work/w01: > I do still recommend you avoid `BaseHTTPMiddleware` Maybe we should consider to add a section to: emphasising this. I do not know the exact technicalities for this, however, it might help future users to avoid it.

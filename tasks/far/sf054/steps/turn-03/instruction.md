@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: The `process` variable isn't used anymore by the time it's overridden. Also, a basic requirement for any fix is at least one accompanying test that proves that it fixes an existing problem.

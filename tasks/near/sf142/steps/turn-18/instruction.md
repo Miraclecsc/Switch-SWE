@@ -1,0 +1,1 @@
+One more thing: Is this function strictly necessary? The call to `getattr` pretty much negates any benefit from typing. I'd be tempted to fold this function in to the function below.

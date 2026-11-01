@@ -1,0 +1,66 @@
+{
+  "case_id": "sf090_switched",
+  "task_id": "ssb_v4_python-trio__trio_2696",
+  "repo": "python-trio/trio",
+  "base_commit": "d3255a0bd29d4d1adfafff21aeeaa60d0b4aba9a",
+  "derived_fail_to_pass": [
+    "trio._core._tests.test_guest_mode::test_guest_is_initialized_when_start_returns",
+    "trio._core._tests.test_sf090_extension::test_active_context_can_be_supplied",
+    "trio._core._tests.test_sf090_extension::test_context_snapshot_main_and_system",
+    "trio._core._tests.test_sf090_extension::test_error_delivery_and_next_run"
+  ],
+  "derived_pass_to_pass": [
+    "trio._core._tests.test_guest_mode::test_guest_can_do_io",
+    "trio._core._tests.test_guest_mode::test_guest_mode_asyncgens",
+    "trio._core._tests.test_guest_mode::test_guest_mode_autojump_clock_threshold_changing",
+    "trio._core._tests.test_guest_mode::test_guest_mode_internal_errors",
+    "trio._core._tests.test_guest_mode::test_guest_mode_ki",
+    "trio._core._tests.test_guest_mode::test_guest_mode_on_asyncio",
+    "trio._core._tests.test_guest_mode::test_guest_trivial",
+    "trio._core._tests.test_guest_mode::test_guest_warns_if_abandoned",
+    "trio._core._tests.test_guest_mode::test_host_altering_deadlines_wakes_trio_up",
+    "trio._core._tests.test_guest_mode::test_host_can_directly_wake_trio_task",
+    "trio._core._tests.test_guest_mode::test_host_wakeup_doesnt_trigger_wait_all_tasks_blocked",
+    "trio._core._tests.test_guest_mode::test_warn_set_wakeup_fd_overwrite",
+    "trio._core._tests.test_sf090_extension::test_invalid_context_does_not_install_runner"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "PYTEST_PLUGINS": "pytest_timeout",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "trio/_core/_tests/test_guest_mode.py",
+    "trio/_core/_tests/test_sf090_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "trio/_core/_tests/test_guest_mode.py",
+    "trio/_core/_tests/test_sf090_extension.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "919747afb89c573eef0f1dc96bd97462762f99e51b4a41e6adc7c9897bf2ef9f",
+    "config/recipes.json": "b31acaabc05c271db953d0915e277bf337f71cca2dcd92692e45295cea60f915"
+  }
+}

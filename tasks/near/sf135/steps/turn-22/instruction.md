@@ -1,0 +1,1 @@
+One more thing: Does the paper specify why these 0.8 default? Would be good to add that to the docs

@@ -1,0 +1,1 @@
+Please check this too: Yeah, I'd definitely put it in Then we can just do `self.thread.name = thread_name` before `result = outcome.capture(fn)` and reset afterwards. It also doesn't look like this interface shares the 15-character limit?

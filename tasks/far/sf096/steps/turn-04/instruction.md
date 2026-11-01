@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Because none of this code has type annotations it is a bit hard for me to tell sometimes exactly what all the types are. If the word is long then is it the case that it would be more efficient to have a `prod` function that can efficiently multiply many words.

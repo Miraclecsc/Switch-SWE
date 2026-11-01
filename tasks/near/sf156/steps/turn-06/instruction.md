@@ -1,0 +1,1 @@
+One more thing: Keep that type traceback-suppression fix narrowly scoped: generated grouping exceptions suppress redundant implicit display, while user leaf exceptions retain identity, explicit causes, contexts, notes and tracebacks. Preserve user-supplied exception group topology. Do not erase user diagnostic links to achieve shorter formatting.

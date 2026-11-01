@@ -1,0 +1,1 @@
+Also, this might be fragile. L1655 does `kwargs.pop("axis", None)`. Might be more robust to add axis to the signature directly and not rely on mutation?

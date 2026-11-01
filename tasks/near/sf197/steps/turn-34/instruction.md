@@ -1,0 +1,1 @@
+One more thing: We just want to test that calling it works - it exists and doesn't raise an exception.

@@ -1,0 +1,46 @@
+diff --git a/packaging/version.py b/packaging/version.py
+index b1aff65..3f9a2b3 100644
+--- a/packaging/version.py
++++ b/packaging/version.py
+@@ -401,6 +401,41 @@ class Version(_BaseVersion):
+         # type: () -> bool
+         return self.dev is not None
+ 
++    @property
++    def major(self):
++        # type: () -> int
++        return self.release[0] if len(self.release) >= 1 else 0
++
++    @property
++    def minor(self):
++        # type: () -> int
++        return self.release[1] if len(self.release) >= 2 else 0
++
++    @property
++    def micro(self):
++        # type: () -> int
++        return self.release[2] if len(self.release) >= 3 else 0
++
++
++    def replace_release(self, major=None, minor=None, micro=None, reset_lower=False):
++        """Return a new version with selected release components replaced."""
++        edits = [(i, value) for i, value in enumerate((major, minor, micro))
++                 if value is not None]
++        release = list(self.release)
++        for i, value in edits:
++            if isinstance(value, bool) or not isinstance(value, int):
++                raise TypeError("release components must be integers")
++            if value < 0:
++                raise ValueError("release components must be nonnegative")
++            release.extend([0] * max(0, i + 1 - len(release)))
++            release[i] = value
++        if reset_lower and edits:
++            for i in range(edits[-1][0] + 1, len(release)):
++                release[i] = 0
++        suffix = str(self)[len(self.base_version):]
++        epoch = "{0}!".format(self.epoch) if self.epoch else ""
++        return type(self)(epoch + ".".join(map(str, release)) + suffix)
++
+ 
+ def _parse_letter_version(
+     letter,  # type: str

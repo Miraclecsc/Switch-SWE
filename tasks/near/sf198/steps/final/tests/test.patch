@@ -1,0 +1,69 @@
+diff --git a/src/trio/_core/_tests/test_mock_clock.py b/src/trio/_core/_tests/test_mock_clock.py
+index 31b68b2758..6131e7ba3f 100644
+--- a/src/trio/_core/_tests/test_mock_clock.py
++++ b/src/trio/_core/_tests/test_mock_clock.py
+@@ -8,6 +8,7 @@
+ from ... import _core
+ from .. import wait_all_tasks_blocked
+ from .._mock_clock import MockClock
++from .._run import GLOBAL_RUN_CONTEXT
+ from .tutil import slow
+ 
+ 
+@@ -175,3 +176,18 @@ async def waiter() -> None:
+         nursery.start_soon(waiter)
+ 
+     assert record == ["waiter done", "yawn"]
++
++
++async def test_initialization_doesnt_mutate_runner() -> None:
++    before = (
++        GLOBAL_RUN_CONTEXT.runner.clock,
++        GLOBAL_RUN_CONTEXT.runner.clock_autojump_threshold,
++    )
++
++    MockClock(autojump_threshold=2, rate=3)
++
++    after = (
++        GLOBAL_RUN_CONTEXT.runner.clock,
++        GLOBAL_RUN_CONTEXT.runner.clock_autojump_threshold,
++    )
++    assert before == after
+diff --git a/tests/test_sf198_staged.py b/tests/test_sf198_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf198_staged.py
+@@ -0,0 +1,33 @@
++
++from types import SimpleNamespace
++from trio.testing import MockClock
++from trio._core import _mock_clock
++
++def test_inactive_clock_does_not_schedule_guest_work(monkeypatch):
++    active = MockClock(autojump_threshold=10)
++    notifications = []
++    runner = SimpleNamespace(clock=active, is_guest=True, clock_autojump_threshold=10, force_guest_tick_asap=lambda: notifications.append(True))
++    monkeypatch.setattr(_mock_clock.GLOBAL_RUN_CONTEXT, 'runner', runner, raising=False)
++    inactive = MockClock(autojump_threshold=0)
++    inactive.autojump_threshold = 2
++    inactive.start_clock()
++    assert notifications == []
++    assert runner.clock_autojump_threshold == 10
++
++def test_active_clock_publishes_before_guest_notification(monkeypatch):
++    active = MockClock(autojump_threshold=10)
++    notifications = []
++    runner = SimpleNamespace(clock=active, is_guest=True, clock_autojump_threshold=10)
++    runner.force_guest_tick_asap = lambda: notifications.append(runner.clock_autojump_threshold)
++    monkeypatch.setattr(_mock_clock.GLOBAL_RUN_CONTEXT, 'runner', runner, raising=False)
++    active.autojump_threshold = 3
++    assert notifications == [3]
++    assert runner.clock_autojump_threshold == 3
++
++def test_active_nonguest_updates_without_guest_tick(monkeypatch):
++    active = MockClock(autojump_threshold=5)
++    notifications = []
++    runner = SimpleNamespace(clock=active, is_guest=False, clock_autojump_threshold=5, force_guest_tick_asap=lambda: notifications.append(True))
++    monkeypatch.setattr(_mock_clock.GLOBAL_RUN_CONTEXT, 'runner', runner, raising=False)
++    active.autojump_threshold = 0
++    assert runner.clock_autojump_threshold == 0 and notifications == []

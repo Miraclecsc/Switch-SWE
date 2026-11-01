@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Fixed #36542 -- Marked authenticate() with () decorator.

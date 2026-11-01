@@ -1,0 +1,1 @@
+One more thing: I believe that would pass in the current (broken) master, since the second `receive_nowait` works just fine. I think we need to test that the `send` is unblocked after the first `receive_nowait`. I understand if you don't want to use internal state. Any other ideas?

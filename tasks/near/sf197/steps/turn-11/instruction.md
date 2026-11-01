@@ -1,0 +1,1 @@
+Please check this too: > B007: Loop control variable not used within the loop body. If this is intended, start the name with an underscore. can rename it instead of silencing the warning. Though I'm used to underscore-variables meaning they're unused so I'm not loving the convention, but /shrug

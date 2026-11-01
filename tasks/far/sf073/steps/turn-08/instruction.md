@@ -1,0 +1,1 @@
+And here, Is there a more explicit way to check this? How about: I think that will work with all the different `nan`'s (`math.nan`, `float("nan")`, etc.) and is at least easier to understand IMO.

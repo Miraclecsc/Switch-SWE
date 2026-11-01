@@ -1,0 +1,53 @@
+diff --git a/networkx/tests/test_removed_functions_exception_messages.py b/networkx/tests/test_removed_functions_exception_messages.py
+new file mode 100644
+index 00000000000..47463456276
+--- /dev/null
++++ b/networkx/tests/test_removed_functions_exception_messages.py
+@@ -0,0 +1,8 @@
++import pytest
++
++import networkx as nx
++
++
++def test_random_tree():
++    with pytest.raises(AttributeError, match=".*Use `nx.random_labeled_tree` instead"):
++        nx.random_tree(3)
+diff --git a/networkx/tests/test_sf069_removal_paths.py b/networkx/tests/test_sf069_removal_paths.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/tests/test_sf069_removal_paths.py
+@@ -0,0 +1,34 @@
++
++import pytest
++import networkx as nx
++import networkx.generators.trees as trees
++
++@pytest.mark.parametrize("module", [nx, trees])
++def test_removed_api_metadata_and_guidance(module):
++    with pytest.raises(AttributeError) as caught:
++        module.__getattr__("random_tree")
++    error = caught.value
++    assert "random_tree" in str(error)
++    assert "3.4" in str(error)
++    assert "nx.random_labeled_tree" in str(error)
++    assert error.name == "random_tree"
++    assert error.obj is module
++    assert getattr(module, "random_tree", "fallback") == "fallback"
++    assert not hasattr(module, "random_tree")
++    assert "random_tree" not in dir(module)
++
++@pytest.mark.parametrize("module", [nx, trees])
++def test_unrelated_missing_name_retains_standard_behavior(module):
++    with pytest.raises(AttributeError) as caught:
++        module.__getattr__("_missing_sf069")
++    assert caught.value.name == "_missing_sf069"
++    assert caught.value.obj is module
++    assert "random_labeled_tree" not in str(caught.value)
++    assert getattr(module, "_missing_sf069", None) is None
++
++def test_replacement_is_identical_through_both_modules():
++    assert trees.random_labeled_tree is nx.random_labeled_tree
++    first = nx.random_labeled_tree(8, seed=2)
++    second = trees.random_labeled_tree(8, seed=2)
++    assert set(first.edges) == set(second.edges)
++    assert nx.is_tree(first)

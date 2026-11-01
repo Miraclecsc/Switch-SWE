@@ -1,0 +1,1 @@
+Also, Retain rejection of disconnected inputs. The connected-graph contract includes singleton graphs, with or without a self-loop: eigenvector_centrality_numpy must return the sole node with centrality 1.0. Empty graphs retain their original error.

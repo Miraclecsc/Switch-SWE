@@ -1,0 +1,1 @@
+I have this in /work/w03: Is this a micro optimisation to bring `cell_len` into the current scope?

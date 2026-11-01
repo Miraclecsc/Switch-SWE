@@ -1,0 +1,245 @@
+diff --git a/IMPLEMENTATION_COVERAGE.md b/IMPLEMENTATION_COVERAGE.md
+index 4dda920c4..ff699f055 100644
+--- a/IMPLEMENTATION_COVERAGE.md
++++ b/IMPLEMENTATION_COVERAGE.md
+@@ -566,7 +566,7 @@
+ 
+ ## athena
+ <details>
+-<summary>35% implemented</summary>
++<summary>38% implemented</summary>
+ 
+ - [ ] batch_get_named_query
+ - [ ] batch_get_prepared_statement
+@@ -592,7 +592,7 @@
+ - [ ] get_capacity_assignment_configuration
+ - [X] get_capacity_reservation
+ - [X] get_data_catalog
+-- [ ] get_database
++- [X] get_database
+ - [X] get_named_query
+ - [ ] get_notebook_metadata
+ - [X] get_prepared_statement
+@@ -610,7 +610,7 @@
+ - [ ] list_calculation_executions
+ - [X] list_capacity_reservations
+ - [X] list_data_catalogs
+-- [ ] list_databases
++- [X] list_databases
+ - [ ] list_engine_versions
+ - [ ] list_executors
+ - [X] list_named_queries
+diff --git a/moto/athena/exceptions.py b/moto/athena/exceptions.py
+index 94e0ce558..0e2229188 100644
+--- a/moto/athena/exceptions.py
++++ b/moto/athena/exceptions.py
+@@ -28,6 +28,13 @@ class InvalidArgumentException(JsonRESTError):
+         super().__init__("InvalidArgumentException", message)
+ 
+ 
++class MetadataException(JsonRESTError):
++    code = 400
++
++    def __init__(self, message: str):
++        super().__init__("MetadataException", message)
++
++
+ class QueryStillRunning(JsonRESTError):
+     def __init__(self, current_status: Optional[str]):
+         msg = f"Query has not yet finished. Current state: {current_status}"
+diff --git a/moto/athena/models.py b/moto/athena/models.py
+index b98ebfe78..a9fa71ec3 100644
+--- a/moto/athena/models.py
++++ b/moto/athena/models.py
+@@ -1,8 +1,13 @@
++import re
+ import time
+ from datetime import datetime
+ from typing import Any, Optional
+ 
+-from moto.athena.exceptions import InvalidArgumentException, QueryStillRunning
++from moto.athena.exceptions import (
++    InvalidArgumentException,
++    MetadataException,
++    QueryStillRunning,
++)
+ from moto.core.base_backend import BackendDict, BaseBackend
+ from moto.core.common_models import BaseModel
+ from moto.moto_api._internal import mock_random
+@@ -169,6 +174,20 @@ class CapacityReservation(TaggableResourceMixin, BaseModel):
+         self.tags = tags
+ 
+ 
++class Database(BaseModel):
++    def __init__(
++        self,
++        catalog_name: str,
++        database_name: str,
++        description: str = "",
++        parameters: Optional[dict[str, str]] = None,
++    ):
++        self.catalog_name = catalog_name
++        self.name = database_name
++        self.description = description
++        self.parameters = parameters or {}
++
++
+ class NamedQuery(BaseModel):
+     def __init__(
+         self,
+@@ -208,7 +227,13 @@ class AthenaBackend(BaseBackend):
+             "limit_key": "max_results",
+             "limit_default": 50,
+             "unique_attribute": "id",
+-        }
++        },
++        "list_databases": {
++            "input_token": "next_token",
++            "limit_key": "max_results",
++            "limit_default": 50,
++            "unique_attribute": "name",
++        },
+     }
+ 
+     def __init__(self, region_name: str, account_id: str):
+@@ -222,6 +247,14 @@ class AthenaBackend(BaseBackend):
+         self.query_results_queue: list[QueryResults] = []
+         self.prepared_statements: dict[str, PreparedStatement] = {}
+         self.tagger = TaggingService()
++        # databases keyed by (catalog_name, database_name)
++        self.databases: dict[tuple[str, str], Database] = {}
++
++        # AWS pre-creates a "default" database under AwsDataCatalog
++        self.databases[("AwsDataCatalog", "default")] = Database(
++            catalog_name="AwsDataCatalog",
++            database_name="default",
++        )
+ 
+         # Initialise with the primary workgroup
+         self.create_work_group(
+@@ -291,10 +324,80 @@ class AthenaBackend(BaseBackend):
+         )
+         self.executions[execution.id] = execution
+ 
++        self._process_ddl(query, context)
+         self._store_predefined_query_results(execution.id)
+ 
+         return execution.id
+ 
++    _DDL_IDENTIFIER = r"(?:`(?:``|[^`])+`|[A-Za-z_][A-Za-z0-9_]*)"
++    _DDL_STRING = r"'(?:''|[^'])*'"
++    _CREATE_DB_PATTERN = re.compile(
++        rf"\s*CREATE\s+(?:DATABASE|SCHEMA)\s+(?:IF\s+NOT\s+EXISTS\s+)?"
++        rf"(?P<name>{_DDL_IDENTIFIER})"
++        rf"(?:\s+COMMENT\s+(?P<comment>{_DDL_STRING}))?"
++        rf"(?:\s+WITH\s+DBPROPERTIES\s*\((?P<properties>.*)\))?\s*;?\s*",
++        re.IGNORECASE | re.DOTALL,
++    )
++    _DROP_DB_PATTERN = re.compile(
++        rf"\s*DROP\s+(?:DATABASE|SCHEMA)\s+(?:IF\s+EXISTS\s+)?"
++        rf"(?P<name>{_DDL_IDENTIFIER})(?:\s+(?:RESTRICT|CASCADE))?\s*;?\s*",
++        re.IGNORECASE,
++    )
++
++    def _process_ddl(self, query: str, context: Optional[str]) -> None:
++        catalog_name = context.get("Catalog", "AwsDataCatalog") if isinstance(context, dict) else "AwsDataCatalog"
++        create = self._CREATE_DB_PATTERN.fullmatch(query)
++        drop = self._DROP_DB_PATTERN.fullmatch(query)
++        match = create or drop
++        if not match:
++            return
++        name = match.group("name")
++        name = (name[1:-1].replace("``", "`") if name.startswith("`") else name).lower()
++        key = (catalog_name, name)
++        if drop:
++            self.databases.pop(key, None)
++            return
++        properties = {}
++        raw = create.group("properties")
++        if raw is not None:
++            pair = rf"({self._DDL_STRING})\s*=\s*({self._DDL_STRING})"
++            if not re.fullmatch(rf"\s*(?:{pair}(?:\s*,\s*{pair})*)?\s*", raw, re.DOTALL):
++                return
++            properties = {k[1:-1].replace("''", "'"): v[1:-1].replace("''", "'")
++                          for k, v in re.findall(pair, raw, re.DOTALL)}
++        comment = create.group("comment")
++        if key not in self.databases:
++            self.databases[key] = Database(
++                catalog_name=catalog_name, database_name=name,
++                description=comment[1:-1].replace("''", "'") if comment else "",
++                parameters=properties,
++            )
++
++
++    def get_database(self, catalog_name: str, database_name: str) -> dict[str, Any]:
++        key = (catalog_name, database_name.lower())
++        if key not in self.databases:
++            raise MetadataException(
++                f"An error occurred (EntityNotFoundException) when calling the "
++                f"GetDatabase operation: Database {database_name} not found. "
++                f"(Service: AmazonDataCatalog; Status Code: 400; "
++                f"Error Code: EntityNotFoundException)"
++            )
++        db = self.databases[key]
++        return {
++            "Name": db.name,
++            "Description": db.description,
++            "Parameters": db.parameters,
++        }
++
++    @paginate(pagination_model=PAGINATION_MODEL)
++    def list_databases(self, catalog_name: str) -> list[Database]:
++        all_dbs = [
++            db for db in self.databases.values() if db.catalog_name == catalog_name
++        ]
++        all_dbs.sort(key=lambda d: d.name)
++        return all_dbs
++
+     def _store_predefined_query_results(self, exec_id: str) -> None:
+         if exec_id not in self.query_results and self.query_results_queue:
+             self.query_results[exec_id] = self.query_results_queue.pop(0)
+diff --git a/moto/athena/responses.py b/moto/athena/responses.py
+index d5c8d86e5..d2008e64b 100644
+--- a/moto/athena/responses.py
++++ b/moto/athena/responses.py
+@@ -1,5 +1,5 @@
+ import json
+-from typing import Union
++from typing import Any, Union
+ 
+ from moto.core.responses import BaseResponse
+ 
+@@ -216,6 +216,33 @@ class AthenaResponse(BaseResponse):
+         name = self._get_param("Name")
+         return json.dumps({"DataCatalog": self.athena_backend.get_data_catalog(name)})
+ 
++    def get_database(self) -> str:
++        catalog_name = self._get_param("CatalogName")
++        database_name = self._get_param("DatabaseName")
++        database = self.athena_backend.get_database(catalog_name, database_name)
++        return json.dumps({"Database": database})
++
++    def list_databases(self) -> str:
++        catalog_name = self._get_param("CatalogName")
++        max_results = self._get_param("MaxResults")
++        next_token = self._get_param("NextToken")
++        databases, new_next_token = self.athena_backend.list_databases(
++            catalog_name, max_results=max_results, next_token=next_token
++        )
++        result: dict[str, Any] = {
++            "DatabaseList": [
++                {
++                    "Name": db.name,
++                    "Description": db.description,
++                    "Parameters": db.parameters,
++                }
++                for db in databases
++            ]
++        }
++        if new_next_token:
++            result["NextToken"] = new_next_token
++        return json.dumps(result)
++
+     def create_data_catalog(self) -> Union[tuple[str, dict[str, int]], str]:
+         name = self._get_param("Name")
+         catalog_type = self._get_param("Type")

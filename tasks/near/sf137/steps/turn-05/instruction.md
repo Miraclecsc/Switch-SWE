@@ -1,0 +1,1 @@
+In the checkout at /work/w00, fix I/O operation on closed file error with CliRunner and echo_via_pager Fixes #3449 by adding a thinner version of `MaybeStripAnsi` that is not subclassed from `io.TextIOWrapper` when handling `sys.stdout` and `sys.stderr` streams.

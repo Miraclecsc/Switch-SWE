@@ -1,0 +1,1 @@
+Please check this too: Oh yeah, can probably just do a search+replace for `# noqa: B018\n` -> `# noqa: B018 # "useless expression"`

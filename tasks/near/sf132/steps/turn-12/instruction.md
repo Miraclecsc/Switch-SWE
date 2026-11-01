@@ -1,0 +1,1 @@
+And here, Doesn't this assume that `G` is strongly connected? What happens when the path from u -> v is shorter than the path from v -> u? Either way, this added complexity strikes me as a net negative. I'd be more inclined to document the requirements for the input to `sp` (including additonal constraints for directed graphs)

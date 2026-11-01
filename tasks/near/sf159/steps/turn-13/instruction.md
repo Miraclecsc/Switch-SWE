@@ -1,0 +1,1 @@
+Also, I also noticed `NON_ESCAPED_CHARS` name in `is_safe` function has different value than it is in `percent_encoded`.

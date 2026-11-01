@@ -1,0 +1,1 @@
+Please check this too: Purity wise you could even argue that you shoulnd't throw the exception from the task to an outside waiter at all (what if it's a leaked `StopIteration` ...) and instead wrap it in a `TaskErrored` like the aborted/cancelled cases with the caller responsible for unwrapping it but I would definitely say that's too far.

@@ -1,0 +1,1 @@
+One more thing: The slotted-class replacement must also preserve zero-argument super() and __class__ references inside classmethod and staticmethod functions. These descriptors must continue binding normally and refer to the replacement class.

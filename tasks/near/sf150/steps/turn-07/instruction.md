@@ -1,0 +1,1 @@
+Please check this too: Well, the pieces which do return meaningful results are mostly-easily-greppable, so while that wouldn't be a 100% solution it'd get me personally most-if-not-all of the way there. Still not ideal; I'm far from the last person to acknowledge that.

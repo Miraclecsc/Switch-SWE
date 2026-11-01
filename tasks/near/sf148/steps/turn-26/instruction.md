@@ -1,0 +1,1 @@
+One more thing: I updated this part because ruff raised ASYNC230, which restricts the use of blocking I/O (open(), read(), write()) inside async functions. To resolve this, I wrapped the file operations inside to_thread.run_sync(), ensuring that synchronous operations run safely in a separate thread. Let me know if you'd like a different approach!

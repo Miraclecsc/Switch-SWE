@@ -1,0 +1,1 @@
+Please check this too: What's the reason for duplicating these exceptions. The Error/Fault naming thing is a holdover from long ago, but the error codes for the existing exception classes should be correct.

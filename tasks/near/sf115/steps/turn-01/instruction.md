@@ -1,0 +1,1 @@
+I have this in /work/w00: zsh completion still misbehaving in the presence of `:` Given `foo` containing:

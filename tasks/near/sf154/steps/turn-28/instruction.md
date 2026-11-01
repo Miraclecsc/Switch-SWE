@@ -1,0 +1,1 @@
+And here, In that case, the annotation should be `float`, as that already includes integers according to the PEP 484 numeric tower.

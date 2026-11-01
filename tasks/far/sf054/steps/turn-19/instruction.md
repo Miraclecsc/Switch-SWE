@@ -1,0 +1,1 @@
+Please check this too: Preserve cancellation provenance in the deadline path: cancellation from a caller's enclosing scope must remain cancellation, never be relabeled TimeoutError. Before returning control, join the cancelled startup child. A startup exception must retain its identity and leave the group usable for a subsequent start.

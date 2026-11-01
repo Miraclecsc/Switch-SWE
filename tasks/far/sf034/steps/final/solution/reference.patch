@@ -1,0 +1,92 @@
+diff --git a/sympy/matrices/decompositions.py b/sympy/matrices/decompositions.py
+--- a/sympy/matrices/decompositions.py
++++ b/sympy/matrices/decompositions.py
+@@ -1363,17 +1363,24 @@
+ 
+     for j in range(A.cols):
+         for i in range(j):
+-            if Q[:, i].is_zero_matrix:
++            z = Q[:, i].is_zero_matrix
++            if z is True:
+                 continue
+ 
+-            R[i, j] = dot(Q[:, i], Q[:, j]) / dot(Q[:, i], Q[:, i])
++            norm = dps(dot(Q[:, i], Q[:, i]))
++            if z is None and norm.equals(0):
++                continue
++
++            R[i, j] = dot(Q[:, i], Q[:, j]) / norm
+             R[i, j] = dps(R[i, j])
+             Q[:, j] -= Q[:, i] * R[i, j]
+ 
+         Q[:, j] = dps(Q[:, j])
+-        if Q[:, j].is_zero_matrix is not True:
+-            ranked.append(j)
+-            R[j, j] = M.one
++        z = Q[:, j].is_zero_matrix
++        if z is True or dps(dot(Q[:, j], Q[:, j])).equals(0):
++            continue
++        ranked.append(j)
++        R[j, j] = M.one
+ 
+     Q = Q.extract(range(Q.rows), ranked)
+     R = R.extract(ranked, range(R.cols))
+@@ -1388,7 +1395,7 @@
+     return M.__class__(Q), M.__class__(R)
+ 
+ 
+-def _QRdecomposition(M):
++def _QRdecomposition(M, normalize=True, pivoting=False):
+     r"""Returns a QR decomposition.
+ 
+     Explanation
+@@ -1568,7 +1575,34 @@
+     sympy.matrices.matrixbase.MatrixBase.LUdecomposition
+     QRsolve
+     """
+-    return _QRdecomposition_optional(M, normalize=True)
++    if normalize and not pivoting:
++        return _QRdecomposition_optional(M, normalize=True)
++
++    from sympy.polys.matrices import DomainMatrix
++    from sympy import cancel, sqrt
++
++    domain_matrix = DomainMatrix.from_Matrix(M).to_field()
++    _, pivots = domain_matrix.rref()
++    order = list(pivots) + [j for j in range(M.cols) if j not in pivots]
++    rank = len(pivots)
++    if rank:
++        basis = domain_matrix.extract(range(M.rows), list(pivots))
++        orthogonal, _ = basis.qr()
++        Q = orthogonal.to_Matrix()
++        R = (Q.T * M).as_mutable()
++        for i in range(rank):
++            norm2 = cancel((Q[:, i].T * Q[:, i])[0])
++            R[i, :] = R[i, :].applyfunc(lambda value: cancel(value / norm2))
++            if normalize:
++                norm = sqrt(norm2)
++                Q[:, i] = Q[:, i] / norm
++                R[i, :] = R[i, :] * norm
++    else:
++        Q, R = M.zeros(M.rows, 0), M.zeros(0, M.cols)
++    Q, R = M.__class__(Q), M.__class__(R)
++    if pivoting:
++        return Q, R[:, order], order
++    return Q, R
+ 
+ def _upper_hessenberg_decomposition(A):
+     """Converts a matrix into Hessenberg matrix H.
+diff --git a/sympy/matrices/matrixbase.py b/sympy/matrices/matrixbase.py
+--- a/sympy/matrices/matrixbase.py
++++ b/sympy/matrices/matrixbase.py
+@@ -5457,8 +5457,8 @@
+     def singular_value_decomposition(self) -> tuple[Self, Self, Self]:
+         return _singular_value_decomposition(self)
+ 
+-    def QRdecomposition(self) -> tuple[Self, Self]:
+-        return _QRdecomposition(self)
++    def QRdecomposition(self, *, normalize=True, pivoting=False):
++        return _QRdecomposition(self, normalize=normalize, pivoting=pivoting)
+ 
+     def upper_hessenberg_decomposition(self) -> tuple[Self, Self]:
+         return _upper_hessenberg_decomposition(self)

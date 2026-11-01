@@ -1,0 +1,130 @@
+diff --git a/networkx/algorithms/centrality/tests/test_betweenness_centrality.py b/networkx/algorithms/centrality/tests/test_betweenness_centrality.py
+index 5c988ae67b1..eff14c46960 100644
+--- a/networkx/algorithms/centrality/tests/test_betweenness_centrality.py
++++ b/networkx/algorithms/centrality/tests/test_betweenness_centrality.py
+@@ -726,6 +726,26 @@ def test_balanced_tree(self):
+         for n in sorted(G.edges()):
+             assert b[n] == pytest.approx(b_answer[n], abs=1e-7)
+ 
++    def test_edge_betweenness_k(self):
++        """Ensure setting `k` properly limits the number of source nodes."""
++        G = nx.path_graph(3)
++        # This choice of `k` and `seed` selects nodes 0 and 2.
++        # There is only one shortest path between any two pairs of nodes.
++        # With source nodes 0 and 2, this means that both edges are part of
++        # three shortest paths:
++        # For (0, 1): sp(0, 1), sp(0, 2), sp(2, 0).
++        # For (1, 2): sp(0, 2), sp(2, 0), sp(2, 1).
++        # We normalize by 2 because the graph is undirected, and by
++        # `k / n = 2 / 3` because we are only considering a subset of source
++        # nodes.
++        # This means the final eb centralities should be 3 / 2 / (2 / 3) = 9 / 4.
++        eb = nx.edge_betweenness_centrality(G, k=2, seed=42, normalized=False)
++        assert eb == {(0, 1): 9 / 4, (1, 2): 9 / 4}
++        # When normalization is `True`, we instead divide by the number of total
++        # `(s, t)` pairs, i.e. `k * (n - 1) = 4`, meaning we get an eb of `3 / 4`.
++        eb = nx.edge_betweenness_centrality(G, k=2, seed=42, normalized=True)
++        assert eb == {(0, 1): 3 / 4, (1, 2): 3 / 4}
++
+ 
+ class TestWeightedEdgeBetweennessCentrality:
+     def test_K5(self):
+diff --git a/networkx/algorithms/centrality/tests/test_betweenness_centrality_subset.py b/networkx/algorithms/centrality/tests/test_betweenness_centrality_subset.py
+index a35a401a28e..33bb6f7e8db 100644
+--- a/networkx/algorithms/centrality/tests/test_betweenness_centrality_subset.py
++++ b/networkx/algorithms/centrality/tests/test_betweenness_centrality_subset.py
+@@ -338,3 +338,17 @@ def test_weighted_graph(self):
+         )
+         for n in G.edges():
+             assert b[n] == pytest.approx(b_answer[n], abs=1e-7)
++
++
++def test_equivalence_non_subset():
++    """Assert that subset betweenness centrality with all nodes in the
++    subset is equivalent to full betweenness centrality.
++    """
++    G = nx.path_graph(10, create_using=nx.DiGraph)
++
++    assert nx.betweenness_centrality(G) == nx.betweenness_centrality_subset(
++        G, sources=G.nodes(), targets=G.nodes(), normalized=True
++    )
++    assert nx.edge_betweenness_centrality(G) == nx.edge_betweenness_centrality_subset(
++        G, sources=G.nodes(), targets=G.nodes(), normalized=True
++    )
+diff --git a/networkx/algorithms/centrality/tests/test_staged_contract.py b/networkx/algorithms/centrality/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/centrality/tests/test_staged_contract.py
+@@ -0,0 +1,72 @@
++import networkx as nx
++import pytest
++
++
++def oracle(graph, sources, targets, edge, normalized):
++    """Independent path enumeration, not the Brandes accumulation helpers."""
++    result = dict.fromkeys(graph.edges() if edge else graph, 0.0)
++    for source in set(sources):
++        for target in set(targets):
++            if source == target:
++                continue
++            try:
++                paths = list(nx.all_shortest_paths(graph, source, target, weight="weight"))
++            except nx.NetworkXNoPath:
++                continue
++            for path in paths:
++                items = zip(path, path[1:]) if edge else path[1:-1]
++                for item in items:
++                    if edge and item not in result:
++                        item = item[::-1]
++                    result[item] += 1 / len(paths)
++    n = len(graph)
++    scale = (1 / (n * (n - 1)) if edge else 1 / ((n - 1) * (n - 2))) if normalized else (1 if graph.is_directed() else 0.5)
++    return {key: value * scale for key, value in result.items()}
++
++
++def graph(directed):
++    result = nx.DiGraph() if directed else nx.Graph()
++    result.add_weighted_edges_from([(0, 1, 1), (1, 2, 1), (0, 2, 2), (2, 3, 1)])
++    return result
++
++
++@pytest.mark.parametrize("edge", [False, True])
++@pytest.mark.parametrize("directed", [False, True])
++@pytest.mark.parametrize("normalized", [False, True])
++def test_generator_node_sets_match_path_enumeration(edge, directed, normalized):
++    g = graph(directed)
++    sources, targets = [0, 0, 1, 2], [2, 3, 3]
++    fn = nx.edge_betweenness_centrality_subset if edge else nx.betweenness_centrality_subset
++    expected = oracle(g, sources, targets, edge, normalized)
++    before = list(g.edges(data=True))
++    actual = fn(g, iter(sources), iter(targets), weight="weight", normalized=normalized)
++    assert actual == pytest.approx(expected)
++    assert list(g.edges(data=True)) == before
++    assert sources == [0, 0, 1, 2] and targets == [2, 3, 3]
++
++
++@pytest.mark.parametrize("edge", [False, True])
++@pytest.mark.parametrize("missing", ["source", "target"])
++def test_missing_nodes_raise_node_not_found(edge, missing):
++    g = nx.path_graph(4)
++    fn = nx.edge_betweenness_centrality_subset if edge else nx.betweenness_centrality_subset
++    sources = [99] if missing == "source" else [0]
++    targets = [99] if missing == "target" else [3]
++    with pytest.raises(nx.NodeNotFound):
++        fn(g, iter(sources), iter(targets))
++
++
++@pytest.mark.parametrize("edge", [False, True])
++def test_valid_empty_sets_remain_zero(edge):
++    g = nx.path_graph(4)
++    fn = nx.edge_betweenness_centrality_subset if edge else nx.betweenness_centrality_subset
++    assert all(value == 0 for value in fn(g, [], []).values())
++
++
++def test_non_orderable_labels_and_list_snapshots():
++    left, right = object(), object()
++    g = nx.path_graph([left, "middle", right])
++    sources, targets = [left, left], [right]
++    result = nx.betweenness_centrality_subset(g, sources, targets)
++    assert result["middle"] == 0.5
++    assert sources == [left, left] and targets == [right]

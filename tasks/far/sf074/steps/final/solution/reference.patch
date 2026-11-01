@@ -1,0 +1,82 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+index d42f213c..298cf0ab 100644
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -13,7 +13,7 @@ Unreleased
+     :class:`~loaders.PackageLoader`. :issue:`1168`
+ -   Fix a bug that caused imported macros to not have access to the
+     current template's globals. :issue:`688`
+-
++-   Add ability to ignore ``trim_blocks`` using ``+%}``. :issue:`1036`
+ 
+ Version 2.11.2
+ --------------
+diff --git a/docs/templates.rst b/docs/templates.rst
+index a346ef23..3101d0ed 100644
+--- a/docs/templates.rst
++++ b/docs/templates.rst
+@@ -230,6 +230,15 @@ plus sign (``+``) at the start of a block::
+             {%+ if something %}yay{% endif %}
+     </div>
+ 
++Similarly, you can manually disable the ``trim_blocks`` behavior by
++putting a plus sign (``+``) at the end of a block::
++
++    <div>
++        {% if something +%}
++            yay
++        {% endif %}
++    </div>
++
+ You can also strip whitespace in templates by hand.  If you add a minus
+ sign (``-``) to the start or end of a block (e.g. a :ref:`for-loop` tag), a
+ comment, or a variable expression, the whitespaces before or after
+diff --git a/src/jinja2/lexer.py b/src/jinja2/lexer.py
+index 0a992073..766e6356 100644
+--- a/src/jinja2/lexer.py
++++ b/src/jinja2/lexer.py
+@@ -476,7 +476,10 @@ class Lexer:
+         variable_end_re = e(environment.variable_end_string)
+ 
+         # block suffix if trimming is enabled
+-        block_suffix_re = "\\n?" if environment.trim_blocks else ""
++        if environment.trim_blocks == "blank_lines":
++            block_suffix_re = r"(?:[ \t]*\n)*"
++        else:
++            block_suffix_re = "\\n?" if environment.trim_blocks else ""
+ 
+         # If lstrip is enabled, it should not be applied if there is any
+         # non-whitespace between the newline and block.
+@@ -509,8 +512,8 @@ class Lexer:
+             TOKEN_COMMENT_BEGIN: [
+                 (
+                     c(
+-                        fr"(.*?)((?:\-{comment_end_re}\s*"
+-                        fr"|{comment_end_re}){block_suffix_re})"
++                        fr"(.*?)((?:\+{comment_end_re}|\-{comment_end_re}\s*"
++                        fr"|{comment_end_re}{block_suffix_re}))"
+                     ),
+                     (TOKEN_COMMENT, TOKEN_COMMENT_END),
+                     "#pop",
+@@ -520,7 +523,10 @@ class Lexer:
+             # blocks
+             TOKEN_BLOCK_BEGIN: [
+                 (
+-                    c(fr"(?:\-{block_end_re}\s*|{block_end_re}){block_suffix_re}"),
++                    c(
++                        fr"(?:\+{block_end_re}|\-{block_end_re}\s*"
++                        fr"|{block_end_re}{block_suffix_re})"
++                    ),
+                     TOKEN_BLOCK_END,
+                     "#pop",
+                 ),
+@@ -540,7 +546,8 @@ class Lexer:
+                 (
+                     c(
+                         fr"(.*?)((?:{block_start_re}(\-|\+|))\s*endraw\s*"
+-                        fr"(?:\-{block_end_re}\s*|{block_end_re}{block_suffix_re}))"
++                        fr"(?:\+{block_end_re}|\-{block_end_re}\s*"
++                        fr"|{block_end_re}{block_suffix_re}))"
+                     ),
+                     OptionalLStrip(TOKEN_DATA, TOKEN_RAW_END),
+                     "#pop",

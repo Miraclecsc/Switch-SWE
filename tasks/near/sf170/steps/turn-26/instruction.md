@@ -1,0 +1,1 @@
+One more thing: Can you slice a fixture? Also, aren't fixtures really for more complicated tasks? I think of the `mark.parametrize` as easier to find than the definition of the fixture.

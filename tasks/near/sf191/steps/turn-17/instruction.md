@@ -1,0 +1,1 @@
+Also, Same comment as above — I think `base_class` will always have a `__dict__`.

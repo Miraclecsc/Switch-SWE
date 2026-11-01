@@ -1,0 +1,94 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index 870ef4ec5..c9e921e1d 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -10,9 +10,11 @@
+     import ctypes
+ except ImportError:
+     ctypes = None
++import importlib
+ import os
+ import pathlib
+ import platform
++import struct
+ import sys
+ import sysconfig
+ import types
+@@ -1341,3 +1343,29 @@ def test_cpython_first_none_any_tag(self, monkeypatch):
+ 
+         interpreter = f"cp{tags.interpreter_version()}"
+         assert tag == tags.Tag(interpreter, "none", "any")
++
++
++class TestBitness:
++    def teardown_method(self):
++        importlib.reload(tags)
++
++    @pytest.mark.parametrize(
++        "maxsize, sizeof_voidp, expected",
++        [
++            # 64-bit
++            (9223372036854775807, 8, False),
++            # 32-bit
++            (2147483647, 4, True),
++            # 64-bit w/ 32-bit sys.maxsize: GraalPy, IronPython, Jython
++            (2147483647, 8, False),
++        ],
++    )
++    def test_32bit_interpreter(self, maxsize, sizeof_voidp, expected, monkeypatch):
++        def _calcsize(fmt):
++            assert fmt == "P"
++            return sizeof_voidp
++
++        monkeypatch.setattr(sys, "maxsize", maxsize)
++        monkeypatch.setattr(struct, "calcsize", _calcsize)
++        importlib.reload(tags)
++        assert tags._32_BIT_INTERPRETER == expected
+diff --git a/tests/test_sf085_extension.py b/tests/test_sf085_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf085_extension.py
+@@ -0,0 +1,43 @@
++import pytest
++from packaging import tags
++
++def patch_platform(monkeypatch, platform):
++    seen=[]
++    monkeypatch.setattr(tags.sysconfig,"get_platform",lambda:platform)
++    monkeypatch.setattr(tags._manylinux,"platform_tags",lambda arches:seen.append(("many",list(arches))) or iter(()))
++    monkeypatch.setattr(tags._musllinux,"platform_tags",lambda arches:seen.append(("musl",list(arches))) or iter(()))
++    return seen
++
++def test_live_pointer_width_and_lazy_start(monkeypatch):
++    seen=patch_platform(monkeypatch,"linux-aarch64")
++    probes=[]
++    size=[8]
++    monkeypatch.setattr(tags.struct,"calcsize",lambda fmt:probes.append(fmt) or size[0])
++    stream=tags._linux_platforms()
++    assert probes == []
++    size[0]=4
++    assert list(stream) == ["linux_armv8l","linux_armv7l"]
++    assert seen == [("many",["armv8l","armv7l"]),("musl",["armv8l","armv7l"])]
++    size[0]=8
++    assert list(tags._linux_platforms()) == ["linux_aarch64"]
++    assert probes == ["P","P"]
++
++@pytest.mark.parametrize("width,expected",[(True,"linux_i686"),(False,"linux_x86_64")])
++def test_explicit_top_level_override(monkeypatch,width,expected):
++    patch_platform(monkeypatch,"linux-x86_64")
++    monkeypatch.setattr(tags.platform,"system",lambda:"Linux")
++    def forbidden(fmt): raise AssertionError("explicit width probed")
++    monkeypatch.setattr(tags.struct,"calcsize",forbidden)
++    assert list(tags.platform_tags(is_32bit=width)) == [expected]
++
++def test_nonlinux_no_probe(monkeypatch):
++    patch_platform(monkeypatch,"custom-platform")
++    def forbidden(fmt): raise AssertionError("not Linux")
++    monkeypatch.setattr(tags.struct,"calcsize",forbidden)
++    assert list(tags._linux_platforms()) == ["custom_platform"]
++    monkeypatch.setattr(tags.platform,"system",lambda:"Custom")
++    assert list(tags.platform_tags(is_32bit=True)) == ["custom_platform"]
++
++def test_existing_explicit_linux_width(monkeypatch):
++    patch_platform(monkeypatch,"linux-x86_64")
++    assert list(tags._linux_platforms(is_32bit=True)) == ["linux_i686"]

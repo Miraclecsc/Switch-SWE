@@ -1,0 +1,291 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+  ],
+  "case_id": "sf122_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c",
+      "python": "3.12.12",
+      "requirements": "requirements/959dd1f1db35c157-3.12.12-7f10686c.txt",
+      "source": "dependency-source/959dd1f1db35c157-3.12.12-7f10686c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "494b9575c70ff8f1cef56386a6b471def9bbae88",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/integrals/manualintegrate.py",
+          "sha256": "83b982b9aba3d6ef4fb334451ad8d59d9a4948fedea354ab8cb609f1b3b9cbba"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/partfrac.py",
+          "sha256": "146a3e3ed036f9449176912172e03d32172f94a22688dedf4a280e49413d7906"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/rootoftools.py",
+          "sha256": "ce0e57a408e2438b9237ceffbc82639ee8d6a3c7c8420912bff8f1aa20ca3e63"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/tests/test_rootoftools.py",
+          "sha256": "9f315a4174e3b60132dfb25b1b2ab7542f0f64d3842ea601a17e6eb163842ce3"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/pretty/tests/test_pretty.py",
+          "sha256": "388b0cda76ec3a4a993bee09e0f012e987c11f3fce1f6a4c926e98a6477cff07"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/str.py",
+          "sha256": "9bc3621e29e8f074dd98e6ace806f1743fb7a6ff2002ce0e63c9187d4799db99"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_latex.py",
+          "sha256": "effad3f67a8cf3e666acc8814afdba859ae400cf8b05c8cb458967306ec85f81"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_str.py",
+          "sha256": "f07312594e0add451904af384b992c58a3673ba0610a36ee8fb3f50b73b7ec05"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/solvers/ode/single.py",
+          "sha256": "c204ef23162fe6f135c0dedb674de0a435abe3208e56bb21c1d981b4a65f519e"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "ba8647df9546cfb1ab15d7d2fcb573ae60203be7",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/integrals/manualintegrate.py",
+          "sha256": "0667ce49294394cd66e6f24bf994f52aa319de7c0a2ffed5d19b8d8208ac23bb"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/partfrac.py",
+          "sha256": "146a3e3ed036f9449176912172e03d32172f94a22688dedf4a280e49413d7906"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/rootoftools.py",
+          "sha256": "ce0e57a408e2438b9237ceffbc82639ee8d6a3c7c8420912bff8f1aa20ca3e63"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/tests/test_rootoftools.py",
+          "sha256": "595be5c6ee1ab36f234d5d95363c0998df150d0dc0dd5e054dbe80b350fb92b4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/pretty/tests/test_pretty.py",
+          "sha256": "388b0cda76ec3a4a993bee09e0f012e987c11f3fce1f6a4c926e98a6477cff07"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/str.py",
+          "sha256": "bf35cb17389f6f3f258a47d445a2dd6c02f7d369723b765775767813a7a5b621"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_latex.py",
+          "sha256": "e68d7ec3d996653c118cfff66dfb11474ab2f84f66a8828fadc5fdc0107ccc7e"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_str.py",
+          "sha256": "f07312594e0add451904af384b992c58a3673ba0610a36ee8fb3f50b73b7ec05"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/solvers/ode/single.py",
+          "sha256": "c204ef23162fe6f135c0dedb674de0a435abe3208e56bb21c1d981b4a65f519e"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "e1cce7d2fdbede1ff87feff3cb19f9b7e3e37224",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/integrals/manualintegrate.py",
+          "sha256": "0667ce49294394cd66e6f24bf994f52aa319de7c0a2ffed5d19b8d8208ac23bb"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/partfrac.py",
+          "sha256": "146a3e3ed036f9449176912172e03d32172f94a22688dedf4a280e49413d7906"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/rootoftools.py",
+          "sha256": "ce0e57a408e2438b9237ceffbc82639ee8d6a3c7c8420912bff8f1aa20ca3e63"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/tests/test_rootoftools.py",
+          "sha256": "595be5c6ee1ab36f234d5d95363c0998df150d0dc0dd5e054dbe80b350fb92b4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/pretty/tests/test_pretty.py",
+          "sha256": "388b0cda76ec3a4a993bee09e0f012e987c11f3fce1f6a4c926e98a6477cff07"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/str.py",
+          "sha256": "bf35cb17389f6f3f258a47d445a2dd6c02f7d369723b765775767813a7a5b621"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_latex.py",
+          "sha256": "e68d7ec3d996653c118cfff66dfb11474ab2f84f66a8828fadc5fdc0107ccc7e"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_str.py",
+          "sha256": "f07312594e0add451904af384b992c58a3673ba0610a36ee8fb3f50b73b7ec05"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/solvers/ode/single.py",
+          "sha256": "c204ef23162fe6f135c0dedb674de0a435abe3208e56bb21c1d981b4a65f519e"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "1f80fc2a3f3a6f3292648d46175b05600ba4c39f",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/integrals/manualintegrate.py",
+          "sha256": "0667ce49294394cd66e6f24bf994f52aa319de7c0a2ffed5d19b8d8208ac23bb"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/partfrac.py",
+          "sha256": "146a3e3ed036f9449176912172e03d32172f94a22688dedf4a280e49413d7906"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/rootoftools.py",
+          "sha256": "ce0e57a408e2438b9237ceffbc82639ee8d6a3c7c8420912bff8f1aa20ca3e63"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/tests/test_rootoftools.py",
+          "sha256": "9f315a4174e3b60132dfb25b1b2ab7542f0f64d3842ea601a17e6eb163842ce3"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/pretty/tests/test_pretty.py",
+          "sha256": "388b0cda76ec3a4a993bee09e0f012e987c11f3fce1f6a4c926e98a6477cff07"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/str.py",
+          "sha256": "9bc3621e29e8f074dd98e6ace806f1743fb7a6ff2002ce0e63c9187d4799db99"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_latex.py",
+          "sha256": "effad3f67a8cf3e666acc8814afdba859ae400cf8b05c8cb458967306ec85f81"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/printing/tests/test_str.py",
+          "sha256": "f07312594e0add451904af384b992c58a3673ba0610a36ee8fb3f50b73b7ec05"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/solvers/ode/single.py",
+          "sha256": "c204ef23162fe6f135c0dedb674de0a435abe3208e56bb21c1d981b4a65f519e"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "2bc2d36ffc06d41f0c9520c52a2688289d6a02f2",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w04"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+One more thing: Will this break a project that subclassed `AuthenticationMiddleware` a while ago and has never set `request.auser`.
+
+Distinguish an absent optional cleaning hook from a failure inside one. In both clean_username() and aclean_username(), absence leaves the username unchanged, but exceptions raised by a provided hook (including AttributeError) must propagate. Keep async-hook precedence and all previous requirements.

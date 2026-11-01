@@ -1,0 +1,171 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-31fccb72",
+    "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-e308bbae"
+  ],
+  "case_id": "sf076_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_ADDOPTS": "-W ignore::pytest.PytestRemovedIn10Warning",
+    "PYTEST_PLUGINS": "setuptools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "SETUPTOOLS_USE_DISTUTILS": "local"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-e308bbae",
+      "python": "3.12.3",
+      "requirements": "requirements/29f6213c1284c6cd-3.12.3-e308bbae.txt",
+      "source": "dependency-source/29f6213c1284c6cd-3.12.3-e308bbae.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-31fccb72",
+      "python": "3.12.3",
+      "requirements": "requirements/7e1219e7e6ea87e2-3.12.3-31fccb72.txt",
+      "source": "dependency-source/7e1219e7e6ea87e2-3.12.3-31fccb72.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/4de8a343fac105ed-3.12.3-b8f4e2d2",
+      "python": "3.12.3",
+      "requirements": "requirements/4de8a343fac105ed-3.12.3-b8f4e2d2.txt",
+      "source": "dependency-source/4de8a343fac105ed-3.12.3-b8f4e2d2.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-2c80af1f",
+      "python": "3.12.3",
+      "requirements": "requirements/29f6213c1284c6cd-3.12.3-2c80af1f.txt",
+      "source": "dependency-source/29f6213c1284c6cd-3.12.3-2c80af1f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-5ce790b3",
+      "python": "3.12.3",
+      "requirements": "requirements/7e1219e7e6ea87e2-3.12.3-5ce790b3.txt",
+      "source": "dependency-source/7e1219e7e6ea87e2-3.12.3-5ce790b3.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-e308bbae",
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-31fccb72"
+      ],
+      "python": "3.12.3"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-e308bbae",
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-31fccb72"
+      ],
+      "python": "3.12.3"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-e308bbae",
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-31fccb72"
+      ],
+      "python": "3.12.3"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/4de8a343fac105ed-3.12.3-b8f4e2d2",
+        "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-2c80af1f",
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-5ce790b3"
+      ],
+      "python": "3.12.3"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/4de8a343fac105ed-3.12.3-b8f4e2d2",
+        "/opt/ssb/deps/29f6213c1284c6cd-3.12.3-2c80af1f",
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.3-5ce790b3"
+      ],
+      "python": "3.12.3"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "888eb1452625196985701e2727c5416b70e969fd",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.rst",
+          "sha256": "072d3bd6b7112cabdbf87a36fb56f80e74c7d9da32075f3c1711e6d4b588371e"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "28c1a05d571d15a3c54c1dedc2ce0e503d486697",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.rst",
+          "sha256": "61ad4542ff94bd1d97e719794401a3ca51c2a65424699642e4bdca2855c25069"
+        },
+        {
+          "mode": "100644",
+          "path": "src/packaging/requirements.py",
+          "sha256": "86be72b889c2fd187da98b35c026dbf617d0fb527a6e563027c2b43163dbb8ce"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "b7af5da73229b49f5fd340fea1b5f80b34414cfa",
+      "overlays": [],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "b1b483c2863b11d31d7353a3c6b27070ba1687ea",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.rst",
+          "sha256": "1a50e247f8b071df64223b083de0b9a78c3d4fee186bbeee3e84d957bc747e99"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "905c90c1eb8c77dede11899194ca4b0f5eaf188d",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.rst",
+          "sha256": "4ea46ecba1902cee28277ea00bcbba90119d2085e640f8c62ba5a5e50a34f261"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w04"
+    }
+  ]
+}

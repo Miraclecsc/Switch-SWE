@@ -1,0 +1,1 @@
+Please check this too: > Well, actually this is not only for that type, but for any ASGI middleware. @Kludex Let me know if you'd like the commit message changed or anything, that's no problem. Otherwise, it's rebased and ready if you're interested in the change.

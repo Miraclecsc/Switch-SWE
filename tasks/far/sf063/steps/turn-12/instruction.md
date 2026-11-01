@@ -1,0 +1,1 @@
+And here, Seems like the issue now is coverage _in tests_ (all of the tests still pass). There are several pieces of _test_ code that are not not being hit but I'm not sure if they were essential or just an implementation detail, some more careful evaluation is needed.

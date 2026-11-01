@@ -1,0 +1,1 @@
+Also, Why the slot usage? Chances are there will not be memory pressure from having millions of `Tag` instances.

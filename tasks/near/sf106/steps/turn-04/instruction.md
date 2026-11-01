@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Deprecated SQLCompiler.quote_name_unless_alias().

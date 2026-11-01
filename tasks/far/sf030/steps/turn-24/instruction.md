@@ -1,0 +1,1 @@
+And here, I'm going to do a follow-up with the deprecation of `on_startup` and `on_shutdown`. @adriangb Please check and my last commit to see if you are fine with it.

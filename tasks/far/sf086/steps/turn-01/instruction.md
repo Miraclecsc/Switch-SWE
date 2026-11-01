@@ -1,0 +1,1 @@
+I have this in /work/w02: Support --disable-gil builds (PEP 703) in packaging.tags This updates `packaging.tags` to compute the correct tags for the experimental CPython 3.13 `--disable-gil` builds. Closes #727

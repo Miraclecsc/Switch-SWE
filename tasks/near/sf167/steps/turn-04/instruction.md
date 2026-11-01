@@ -1,0 +1,1 @@
+And here, > The span name MUST be of the format <graphql.operation.type> <graphql.operation.name> provided that graphql.operation.type and graphql.operation.name are available. If graphql.operation.name is not available, the span SHOULD be named <graphql.operation.type>. When <graphql.operation.type> is not available, GraphQL Operation MAY be used as span name per

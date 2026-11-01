@@ -1,0 +1,1 @@
+One more thing: not really, the reason only mentions `KeyboardInterrupt` is presumably to hammer the point home that the user has no control of when it may happen - but this helper might as well handle them the same way.

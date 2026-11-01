@@ -1,0 +1,1 @@
+And here, No yoda style please ;) => `assert actual == "Bar"`

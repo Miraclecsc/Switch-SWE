@@ -1,0 +1,1 @@
+Please check this too: Treat an action's locations as a snapshot of the supplied configuration. Mutating a caller-owned list later must not change the action's availability. Empty collections disable the action at all locations; duplicates must not produce duplicate choices. Keep the default change-list-only behavior and the previous requirements.

@@ -1,0 +1,1 @@
+Please check this too: empty node labels, single quotes in labels, shape strings and optional attribute names/values, and tabs in strings must also round-trip. An empty node label is valid even though empty or whitespace-only optional attributes remain ignored with the existing warnings. Support directed/undirected graphs and parallel edges without mutating the input graph.

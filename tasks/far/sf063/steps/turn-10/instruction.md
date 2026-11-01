@@ -1,0 +1,1 @@
+One more thing: Prevents reraising of exception from BaseHttpMiddleware Fix for #2893 In current state exception is reraised and this adds a flag, which prevent the background exception handling code to rethrow a raised exception

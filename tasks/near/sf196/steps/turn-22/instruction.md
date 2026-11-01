@@ -1,0 +1,1 @@
+One more thing: I think this can only work when using because if `self.foreign.remove(id(agen))` is interrupted with a KI the id will outlive the agen and could end up being re-used

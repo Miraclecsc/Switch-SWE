@@ -1,0 +1,1 @@
+Please check this too: What do you mean, what are you doing wrong? You removed the assignment to `read_content` but not the subsequent test. See [tests/test_tempfile.py]( line 180.

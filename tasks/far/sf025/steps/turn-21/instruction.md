@@ -1,0 +1,1 @@
+Also, We need a test for `__hash__` as well.

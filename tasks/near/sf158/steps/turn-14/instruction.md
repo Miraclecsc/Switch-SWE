@@ -1,0 +1,3 @@
+One more thing: Okay, let's also add this to the `CHANGELOG`. What's the best user-facing description we can add here? > Return `500` error response instead of exceptions when `raise_app_exceptions=False` is set on `ASGITransport`. Perhaps?
+
+HEAD responses must still have an empty body during recovery. State must be per request: an incomplete request must not contaminate the status, headers, or body of a subsequent completed request using the same transport. Preserve propagation of actual application exceptions in strict mode.

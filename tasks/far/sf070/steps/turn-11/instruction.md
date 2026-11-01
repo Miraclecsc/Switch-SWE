@@ -1,0 +1,1 @@
+Please check this too: Note that the `dispatch` CI error occurs because the numpy version returns G as a numpy scalar. We didn't catch that before. It should probably use the `.item()` method to remove the resulting graph from its numpy wrapper.

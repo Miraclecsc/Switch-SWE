@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Consider we need it, I've tried to avoid handling `sticky` when cloning is disabled, but it caused test failures:

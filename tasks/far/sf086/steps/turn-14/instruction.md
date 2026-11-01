@@ -1,0 +1,1 @@
+One more thing: Is `_get_config_var("Py_NOGIL", warn)` the canonical way to check if a threaded build is being used? If so, is there any reason why that can't be used to calculate the `threading` argument every time instead of parsing the ABI tags?

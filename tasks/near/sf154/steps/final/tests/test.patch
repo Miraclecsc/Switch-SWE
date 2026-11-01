@@ -1,0 +1,129 @@
+diff --git a/tests/test_fileio.py b/tests/test_fileio.py
+index c4801187d..bcd7fe1dd 100644
+--- a/tests/test_fileio.py
++++ b/tests/test_fileio.py
+@@ -68,10 +68,15 @@ class TestPath:
+     def populated_tmpdir(self, tmp_path: pathlib.Path) -> pathlib.Path:
+         tmp_path.joinpath("testfile").touch()
+         tmp_path.joinpath("testfile2").touch()
++
+         subdir = tmp_path / "subdir"
+-        subdir.mkdir()
+-        subdir.joinpath("dummyfile1.txt").touch()
+-        subdir.joinpath("dummyfile2.txt").touch()
++        sibdir = tmp_path / "sibdir"
++
++        for subpath in (subdir, sibdir):
++            subpath.mkdir()
++            subpath.joinpath("dummyfile1.txt").touch()
++            subpath.joinpath("dummyfile2.txt").touch()
++
+         return tmp_path
+ 
+     async def test_properties(self) -> None:
+@@ -297,19 +302,29 @@ async def test_glob(self, populated_tmpdir: pathlib.Path) -> None:
+         all_paths = []
+         async for path in Path(populated_tmpdir).glob("**/*.txt"):
+             assert isinstance(path, Path)
+-            all_paths.append(path.name)
++            all_paths.append(path.relative_to(populated_tmpdir))
+ 
+         all_paths.sort()
+-        assert all_paths == ["dummyfile1.txt", "dummyfile2.txt"]
++        assert all_paths == [
++            Path("sibdir") / "dummyfile1.txt",
++            Path("sibdir") / "dummyfile2.txt",
++            Path("subdir") / "dummyfile1.txt",
++            Path("subdir") / "dummyfile2.txt",
++        ]
+ 
+     async def test_rglob(self, populated_tmpdir: pathlib.Path) -> None:
+         all_paths = []
+         async for path in Path(populated_tmpdir).rglob("*.txt"):
+             assert isinstance(path, Path)
+-            all_paths.append(path.name)
++            all_paths.append(path.relative_to(populated_tmpdir))
+ 
+         all_paths.sort()
+-        assert all_paths == ["dummyfile1.txt", "dummyfile2.txt"]
++        assert all_paths == [
++            Path("sibdir") / "dummyfile1.txt",
++            Path("sibdir") / "dummyfile2.txt",
++            Path("subdir") / "dummyfile1.txt",
++            Path("subdir") / "dummyfile2.txt",
++        ]
+ 
+     async def test_iterdir(self, populated_tmpdir: pathlib.Path) -> None:
+         all_paths = []
+@@ -318,7 +333,7 @@ async def test_iterdir(self, populated_tmpdir: pathlib.Path) -> None:
+             all_paths.append(path.name)
+ 
+         all_paths.sort()
+-        assert all_paths == ["subdir", "testfile", "testfile2"]
++        assert all_paths == ["sibdir", "subdir", "testfile", "testfile2"]
+ 
+     def test_joinpath(self) -> None:
+         path = Path("/foo").joinpath("bar")
+@@ -421,10 +436,29 @@ async def test_read_text(self, tmp_path: pathlib.Path) -> None:
+         path.write_text("some text åäö", encoding="utf-8")
+         assert await Path(path).read_text(encoding="utf-8") == "some text åäö"
+ 
+-    async def test_relative_to(self, tmp_path: pathlib.Path) -> None:
++    async def test_relative_to_subpath(self, tmp_path: pathlib.Path) -> None:
+         path = tmp_path / "subdir"
+         assert path.relative_to(tmp_path) == Path("subdir")
+ 
++    @pytest.mark.skipif(
++        sys.version_info < (3, 12),
++        reason="Path.relative_to(walk_up=<bool>) is only available on Python 3.12+",
++    )
++    async def test_relative_to_sibling(
++        self,
++        populated_tmpdir: pathlib.Path,
++        monkeypatch: pytest.MonkeyPatch,
++    ) -> None:
++        subdir = Path(populated_tmpdir / "subdir")
++        sibdir = Path(populated_tmpdir / "sibdir")
++
++        with pytest.raises(ValueError):
++            subdir.relative_to(sibdir, walk_up=False)
++
++        monkeypatch.chdir(sibdir)
++        relpath = subdir.relative_to(sibdir, walk_up=True) / "dummyfile1.txt"
++        assert os.access(relpath, os.R_OK)
++
+     async def test_rename(self, tmp_path: pathlib.Path) -> None:
+         path = tmp_path / "somefile"
+         path.touch()
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,27 @@
++import pathlib
++import pytest
++from anyio import Path
++
++def test_traversal_budget():
++    path = Path('/srv/a/file')
++    assert path.relative_to('/srv/b', walk_up=True, max_up=1) == Path('../a/file')
++    with pytest.raises(ValueError):
++        path.relative_to('/srv/b', walk_up=True, max_up=0)
++    assert isinstance(path.relative_to('/srv', max_up=0), Path)
++
++def test_budget_validation():
++    for value in (-1, -9):
++        with pytest.raises(ValueError):
++            Path('a').relative_to('a', max_up=value)
++    for value in (True, 1.5, '1'):
++        with pytest.raises(TypeError):
++            Path('a').relative_to('a', max_up=value)
++    with pytest.raises(ValueError):
++        Path('/a').relative_to('/b', max_up=9)
++
++def test_literal_parent_components_and_pathlike():
++    target = Path('/srv/a/../x')
++    assert target.relative_to(pathlib.Path('/srv'), max_up=1) == Path('a/../x')
++    with pytest.raises(ValueError):
++        target.relative_to('/srv', max_up=0)
++    assert target.relative_to('/srv', max_up=None) == Path('a/../x')

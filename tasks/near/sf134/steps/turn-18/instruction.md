@@ -1,0 +1,3 @@
+One more thing: We definitely don't want to add a `tree.barycenter` - I think the idea is to emphasize centroid over barycenter as the name of this concept.
+
+Demand weights must work together with edge weight, cached shortest paths sp, and objective output attr through either public name. Tree shortcuts must respect demand. Zero demands are valid, including all-zero demand where every node is optimal. Keep the existing prohibition on supplying sp and edge weight together.

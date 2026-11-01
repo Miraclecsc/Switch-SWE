@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Fix unintended lstrip_blocks behavior Introduced in #858. Closes #1138

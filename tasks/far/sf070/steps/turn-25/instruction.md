@@ -1,0 +1,1 @@
+Also, Very minor comment. `value` is the known answer and `scores[node]` is the thing being tested, so it makes sense to put `scores[node]` on the left and `value` inside the `pytest.approx`. It's just slightly easier to see what feature is being tested that way.

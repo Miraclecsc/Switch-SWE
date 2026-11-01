@@ -1,0 +1,1 @@
+And here, I don't see this test case reproduced in the new location. Consider we should ensure we don't lose any test coverage with this refactor.

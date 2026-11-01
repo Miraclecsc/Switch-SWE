@@ -1,0 +1,1 @@
+Please check this too: On a 64-bit Raspberry Pi, `sysconfig.get_platform()` returns `linux_armv8l` instead of `linux_aarch64`.

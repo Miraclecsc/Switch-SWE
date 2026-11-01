@@ -1,0 +1,1 @@
+And here, A minor variable-naming consideration: now that `match` is a Python built-in, having an arg named `match` messes with code lexers/syntax highlighting. Perhaps a different local variable name like `match_fn` or `matcher` could work?

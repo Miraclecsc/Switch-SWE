@@ -1,0 +1,223 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -83,6 +83,10 @@
+   ``anyio.run()``; the options are now passed as keyword arguments to ``trio.run()``
+   again, as documented (a regression from AnyIO 3)
+   (`#1161 <https://github.com/agronholm/anyio/pull/1161>`_; PR by @Zac-HD)
++- Fixed asyncio ``Lock`` and ``Semaphore`` deadlocks caused by cancelled waiters
++  left queued during release
++  (`#1145 <https://github.com/agronholm/anyio/pull/1145>`_; PR by @rasmusfaber,
++  @x42005e1f and @agronholm)
+ 
+ **4.13.0**
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -1880,13 +1880,15 @@
+         try:
+             await fut
+         except CancelledError:
+-            self._waiters.remove(item)
+-            if self._owner_task is task:
++            if fut.cancelled():
++                try:
++                    self._waiters.remove(item)
++                except ValueError:
++                    pass
++            else:
+                 self.release()
+ 
+             raise
+-
+-        self._waiters.remove(item)
+ 
+     def acquire_nowait(self) -> None:
+         task = cast(asyncio.Task, current_task())
+@@ -1906,11 +1908,17 @@
+         if self._owner_task != current_task():
+             raise RuntimeError("The current task is not holding this lock")
+ 
+-        for task, fut in self._waiters:
+-            if not fut.cancelled():
+-                self._owner_task = task
+-                fut.set_result(None)
+-                return
++        # A cancelled waiter that already received ownership removes itself from
++        # _waiters before calling release(); any cancelled waiter still queued here
++        # was cancelled before being woken, so drop it.
++        while self._waiters:
++            task, fut = self._waiters.popleft()
++            if fut.cancelled():
++                continue
++
++            self._owner_task = task
++            fut.set_result(None)
++            return
+ 
+         self._owner_task = None
+ 
+@@ -1965,9 +1973,12 @@
+         try:
+             await fut
+         except CancelledError:
+-            try:
+-                self._waiters.remove(fut)
+-            except ValueError:
++            if fut.cancelled():
++                try:
++                    self._waiters.remove(fut)
++                except ValueError:
++                    pass
++            else:
+                 self.release()
+ 
+             raise
+@@ -1982,11 +1993,13 @@
+         if self._max_value is not None and self._value == self._max_value:
+             raise ValueError("semaphore released too many times")
+ 
+-        for fut in self._waiters:
+-            if not fut.cancelled():
+-                fut.set_result(None)
+-                self._waiters.remove(fut)
+-                return
++        while self._waiters:
++            fut = self._waiters.popleft()
++            if fut.cancelled():
++                continue
++
++            fut.set_result(None)
++            return
+ 
+         self._value += 1
+ 
+diff --git a/src/anyio/_core/_synchronization.py b/src/anyio/_core/_synchronization.py
+--- a/src/anyio/_core/_synchronization.py
++++ b/src/anyio/_core/_synchronization.py
+@@ -7,9 +7,9 @@
+ from types import TracebackType
+ from typing import TypeVar
+ 
+-from ..lowlevel import checkpoint_if_cancelled
++from ..lowlevel import cancel_shielded_checkpoint, checkpoint_if_cancelled
+ from ._eventloop import get_async_backend
+-from ._exceptions import BusyResourceError, NoEventLoopError
++from ._exceptions import BusyResourceError, NoEventLoopError, WouldBlock
+ from ._tasks import CancelScope
+ from ._testing import TaskInfo, get_current_task
+ 
+@@ -770,3 +770,101 @@
+         exc_tb: TracebackType | None,
+     ) -> None:
+         self._guarded = False
++
++
++@dataclass(eq=False)
++class _WeightedWaiter:
++    units: int
++    event: Event
++    granted: bool = False
++
++
++class WeightedSemaphore:
++    """A FIFO semaphore that acquires and releases multiple permits atomically.
++
++    ``value`` counts available, unreserved permits. A queued request cannot be
++    bypassed by a smaller request. Cancellation before acquire returns refunds
++    any reserved permits and allows the next request to proceed.
++    """
++
++    def __init__(self, initial_value: int, *, max_value: int | None = None) -> None:
++        if not isinstance(initial_value, int):
++            raise TypeError("initial_value must be an integer")
++        if initial_value < 0:
++            raise ValueError("initial_value must not be negative")
++        if max_value is not None:
++            if not isinstance(max_value, int):
++                raise TypeError("max_value must be an integer")
++            if max_value < initial_value:
++                raise ValueError("max_value must not be less than initial_value")
++        self._value = initial_value
++        self._max_value = max_value
++        self._waiters: dict[_WeightedWaiter, None] = {}
++
++    def _validate_units(self, units: int) -> None:
++        if not isinstance(units, int):
++            raise TypeError("units must be an integer")
++        if units <= 0:
++            raise ValueError("units must be positive")
++        if self._max_value is not None and units > self._max_value:
++            raise ValueError("units exceed max_value")
++
++    def _wake_waiters(self) -> None:
++        while self._waiters:
++            waiter = next(iter(self._waiters))
++            if waiter.units > self._value:
++                break
++            del self._waiters[waiter]
++            self._value -= waiter.units
++            waiter.granted = True
++            waiter.event.set()
++
++    async def acquire(self, units: int = 1) -> None:
++        self._validate_units(units)
++        await checkpoint_if_cancelled()
++        if not self._waiters and self._value >= units:
++            self._value -= units
++            try:
++                await cancel_shielded_checkpoint()
++                await checkpoint_if_cancelled()
++            except BaseException:
++                self._value += units
++                self._wake_waiters()
++                raise
++            return
++        waiter = _WeightedWaiter(units, Event())
++        self._waiters[waiter] = None
++        try:
++            await waiter.event.wait()
++            await checkpoint_if_cancelled()
++        except BaseException:
++            if waiter.granted:
++                self._value += units
++            else:
++                self._waiters.pop(waiter, None)
++            self._wake_waiters()
++            raise
++
++    def acquire_nowait(self, units: int = 1) -> None:
++        self._validate_units(units)
++        if self._waiters or self._value < units:
++            raise WouldBlock
++        self._value -= units
++
++    def release(self, units: int = 1) -> None:
++        self._validate_units(units)
++        if self._max_value is not None and self._value + units > self._max_value:
++            raise ValueError("semaphore released too many times")
++        self._value += units
++        self._wake_waiters()
++
++    @property
++    def value(self) -> int:
++        return self._value
++
++    @property
++    def max_value(self) -> int | None:
++        return self._max_value
++
++    def statistics(self) -> SemaphoreStatistics:
++        return SemaphoreStatistics(tasks_waiting=len(self._waiters))
+diff --git a/src/anyio/__init__.py b/src/anyio/__init__.py
+--- a/src/anyio/__init__.py
++++ b/src/anyio/__init__.py
+@@ -66,6 +66,7 @@
+ from ._core._synchronization import Lock as Lock
+ from ._core._synchronization import LockStatistics as LockStatistics
+ from ._core._synchronization import ResourceGuard as ResourceGuard
++from ._core._synchronization import WeightedSemaphore as WeightedSemaphore
+ from ._core._synchronization import Semaphore as Semaphore
+ from ._core._synchronization import SemaphoreStatistics as SemaphoreStatistics
+ from ._core._tasks import TASK_STATUS_IGNORED as TASK_STATUS_IGNORED

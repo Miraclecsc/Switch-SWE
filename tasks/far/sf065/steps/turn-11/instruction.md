@@ -1,0 +1,1 @@
+Please check this too: Consume fixed once, tolerate duplicate nodes, and require every fixed node to exist in G and have an initial pos entry; otherwise raise ValueError. Preserve caller position arrays. If every node is fixed, return independent coordinate arrays without running numerical updates.

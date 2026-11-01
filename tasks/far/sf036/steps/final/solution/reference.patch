@@ -1,0 +1,79 @@
+diff --git a/starlette/datastructures.py b/starlette/datastructures.py
+--- a/starlette/datastructures.py
++++ b/starlette/datastructures.py
+@@ -4,7 +4,7 @@
+ from collections.abc import ItemsView, Iterable, Iterator, KeysView, Mapping, MutableMapping, Sequence, ValuesView
+ from shlex import shlex
+ from typing import Any, BinaryIO, Literal, NamedTuple, TypeVar, cast
+-from urllib.parse import SplitResult, parse_qsl, urlencode, urlsplit
++from urllib.parse import SplitResult, parse_qsl, quote, urlencode, urlsplit
+ 
+ from starlette.concurrency import run_in_threadpool
+ from starlette.types import Scope
+@@ -47,19 +47,21 @@
+                     break
+ 
+             if host_header is not None and _HOST_RE.fullmatch(host_header):
+-                url = f"{scheme}://{host_header}{path}"
+-            elif server is None:
+-                url = path
++                netloc = host_header
++            elif server is not None:
++                host, port = server
++                if ":" in host and not host.startswith("["):
++                    host = f"[{host}]"
++                default_port = {"http": 80, "https": 443, "ws": 80, "wss": 443}[scheme]
++                netloc = host if port == default_port else f"{host}:{port}"
+             else:
+-                host, port = server
+-                default_port = {"http": 80, "https": 443, "ws": 80, "wss": 443}[scheme]
+-                if port == default_port:
+-                    url = f"{scheme}://{host}{path}"
+-                else:
+-                    url = f"{scheme}://{host}:{port}{path}"
+-
+-            if query_string:
+-                url += "?" + query_string.decode()
++                netloc = None
++
++            query = query_string.decode()
++            if netloc is not None:
++                url = SplitResult(scheme=scheme, netloc=netloc, path=path, query=query, fragment="").geturl()
++            else:
++                url = f"{path}?{query}" if query else path
+         elif components:
+             assert not url, 'Cannot set both "url" and "**components".'
+             url = URL("").replace(**components).components.geturl()
+@@ -115,24 +117,22 @@
+     def replace(self, **kwargs: Any) -> URL:
+         if "username" in kwargs or "password" in kwargs or "hostname" in kwargs or "port" in kwargs:
+             hostname = kwargs.pop("hostname", None)
++            if hostname is None:
++                hostname = self.hostname or ""
+             port = kwargs.pop("port", self.port)
++            username_given = "username" in kwargs
++            password_given = "password" in kwargs
+             username = kwargs.pop("username", self.username)
+             password = kwargs.pop("password", self.password)
+-
+-            if hostname is None:
+-                netloc = self.netloc
+-                _, _, hostname = netloc.rpartition("@")
+-
+-                if hostname and hostname[-1] != "]":
+-                    hostname = hostname.rsplit(":", 1)[0]
+-
++            if ":" in hostname and not hostname.startswith("["):
++                hostname = f"[{hostname}]"
+             netloc = hostname
+             if port is not None:
+                 netloc += f":{port}"
+             if username is not None:
+-                userpass = username
++                userpass = quote(username, safe="*") if username_given else username
+                 if password is not None:
+-                    userpass += f":{password}"
++                    userpass += ":" + (quote(password, safe="*") if password_given else password)
+                 netloc = f"{userpass}@{netloc}"
+ 
+             kwargs["netloc"] = netloc

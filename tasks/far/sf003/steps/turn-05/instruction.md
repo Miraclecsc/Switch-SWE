@@ -1,0 +1,1 @@
+Also, BaseExceptions crash the event loop; the handler is never called with such an exception.

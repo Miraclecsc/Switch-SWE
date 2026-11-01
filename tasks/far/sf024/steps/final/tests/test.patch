@@ -1,0 +1,291 @@
+diff --git a/networkx/algorithms/tests/test_planarity.py b/networkx/algorithms/tests/test_planarity.py
+index af2d9a981d0..e2c92ea0d0e 100644
+--- a/networkx/algorithms/tests/test_planarity.py
++++ b/networkx/algorithms/tests/test_planarity.py
+@@ -1,3 +1,5 @@
++from collections import Counter
++
+ import pytest
+ 
+ import networkx as nx
+@@ -406,6 +408,17 @@ def check_counterexample(G, sub_graph):
+         raise nx.NetworkXException("Bad counter example.")
+ 
+ 
++def _assert_half_edge_partition(embedding, faces):
++    face_half_edges = (
++        (u, v) for u in embedding for v in embedding.neighbors_cw_order(u)
++    )
++    embedding_half_edges = (
++        (u, f[i % len(f)]) for f in faces if f for i, u in enumerate(f, 1)
++    )
++    assert Counter(face_half_edges) == Counter(embedding_half_edges)
++    assert all(count == 1 for count in Counter(face_half_edges).values())
++
++
+ class TestPlanarEmbeddingClass:
+     def test_add_half_edge(self):
+         embedding = nx.PlanarEmbedding()
+@@ -534,6 +547,55 @@ def test_unsuccessful_face_traversal(self):
+         with pytest.raises(nx.NetworkXException):
+             embedding.traverse_face(1, 2)
+ 
++    def test_faces_cycle_graph_and_half_edge_partition(self):
++        graph = nx.cycle_graph(4)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == 2
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_tree_has_single_face_walk_with_repeated_vertices(self):
++        graph = nx.path_graph(4)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == 1
++        assert len(faces[0]) == 2 * graph.number_of_edges()
++        assert len(set(faces[0])) < len(faces[0])
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_k4_match_euler_formula(self):
++        graph = nx.complete_graph(4)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == graph.number_of_edges() - graph.number_of_nodes() + 2
++        assert sorted(len(face) for face in faces) == [3, 3, 3, 3]
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_disconnected_components_return_component_local_boundary_walks(
++        self,
++    ):
++        graph = nx.disjoint_union(nx.cycle_graph(3), nx.cycle_graph(3))
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == 4
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_isolated_nodes_have_no_faces(self):
++        graph = nx.empty_graph(5)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert faces == []
++
+     def test_forbidden_methods(self):
+         embedding = nx.PlanarEmbedding()
+         embedding.add_node(42)  # no exception
+diff --git a/networkx/algorithms/tests/test_planarity_dual_contract.py b/networkx/algorithms/tests/test_planarity_dual_contract.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/tests/test_planarity_dual_contract.py
+@@ -0,0 +1,202 @@
++"""Public face-dual v1 regressions, exercised on real combinatorial embeddings."""
++from collections import Counter
++from copy import deepcopy
++
++import networkx as nx
++import pytest
++
++
++def embedding(graph):
++    planar, result = nx.check_planarity(graph)
++    assert planar
++    return result
++
++
++def darts(walk):
++    return list(zip(walk, walk[1:] + walk[:1]))
++
++
++def assert_incidence(e, dual, removed=()):
++    # Original faces/traverse_face are independently tested legacy primitives.
++    faces = list(e.faces())
++    expected = {dart: i for i, walk in enumerate(faces) for dart in darts(walk)}
++    assert dual.graph["faces"] == tuple(tuple(w) for w in faces)
++    assert dual.graph["half_edge_faces"] == expected
++    assert set(dual.graph["face_to_node"]) == set(range(len(faces)))
++    removed = {frozenset(edge) for edge in removed}
++    wanted = {frozenset(edge) for edge in expected} - removed
++    observed = []
++    for a, b, key, data in dual.edges(keys=True, data=True):
++        u, v = data["primal_edge"]
++        assert key == frozenset((u, v))
++        left = dual.graph["face_to_node"][expected[u, v]]
++        right = dual.graph["face_to_node"][expected[v, u]]
++        assert frozenset((a, b)) == frozenset((left, right))
++        observed.append(key)
++    assert Counter(observed) == Counter(wanted)
++    assert not dual.is_directed()
++    assert dual.is_multigraph()
++    for node, data in dual.nodes(data=True):
++        assert data["faces"] == tuple(sorted(data["faces"]))
++        assert node == min(data["faces"])
++        assert all(dual.graph["face_to_node"][face] == node for face in data["faces"])
++
++
++@pytest.mark.parametrize("graph", [nx.path_graph(4), nx.complete_graph(4)])
++def test_faces_preserve_rotation_and_fresh_walk_results(graph):
++    # Shared enumeration bookkeeping must not mutate the embedding or reuse a walk.
++    e = embedding(graph)
++    before = deepcopy(e.get_data())
++    first = list(e.faces())
++    first[0].append("not-an-input-node")
++    second = list(e.faces())
++    assert e.get_data() == before
++    assert all("not-an-input-node" not in walk for walk in second)
++
++
++def test_triangle_dual_keeps_three_parallel_edges():
++    e = embedding(nx.cycle_graph(3))
++    dual = e.dual_graph()
++    assert dual.number_of_nodes() == 2
++    assert dual.number_of_edges() == 3
++    assert nx.number_of_selfloops(dual) == 0
++    assert_incidence(e, dual)
++
++
++def test_tree_dual_keeps_bridge_loops_and_repeated_boundary_nodes():
++    e = embedding(nx.path_graph(4))
++    dual = e.dual_graph()
++    assert len(dual) == 1
++    assert nx.number_of_selfloops(dual) == 3
++    boundary = dual.graph["faces"][0]
++    assert len(boundary) == 6 and len(set(boundary)) == 4
++    assert_incidence(e, dual)
++
++
++def test_k4_dual_has_four_faces_and_six_edges():
++    e = embedding(nx.complete_graph(4))
++    dual = e.dual_graph()
++    assert len(dual) == 4 and dual.number_of_edges() == 6
++    assert sorted(dict(dual.degree()).values()) == [3, 3, 3, 3]
++    assert_incidence(e, dual)
++
++
++def test_disconnected_embeddings_do_not_merge_outer_faces():
++    e = embedding(nx.disjoint_union(nx.cycle_graph(3), nx.cycle_graph(3)))
++    e.add_node("isolated")
++    dual = e.dual_graph()
++    assert len(dual) == 4 and dual.number_of_edges() == 6
++    assert nx.number_connected_components(dual) == 2
++    assert_incidence(e, dual)
++
++
++@pytest.mark.parametrize("nodes", [[], ["isolated"], [1, "two", (3,)]])
++def test_edgeless_embeddings_have_empty_duals(nodes):
++    e = embedding(nx.empty_graph(nodes))
++    dual = e.dual_graph()
++    assert len(dual) == dual.number_of_edges() == 0
++    assert dual.graph["faces"] == ()
++    assert dual.graph["half_edge_faces"] == {}
++    assert dual.graph["face_to_node"] == {}
++
++
++def test_heterogeneous_nodes_are_not_sorted():
++    a, b, c = 1, "one", ("tuple",)
++    e = embedding(nx.Graph([(a, b), (b, c), (c, a)]))
++    dual = e.dual_graph()
++    assert dual.number_of_edges() == 3
++    assert_incidence(e, dual)
++
++
++def test_dual_contraction_merges_faces_and_keeps_remaining_loops():
++    e = embedding(nx.cycle_graph(3))
++    dual = e.dual_graph(contract_edges=[(0, 1)])
++    assert set(dual) == {0}
++    assert dual.nodes[0]["faces"] == (0, 1)
++    assert nx.number_of_selfloops(dual) == 2
++    assert_incidence(e, dual, [(0, 1)])
++
++
++def test_transitive_contractions_merge_three_faces():
++    e = embedding(nx.Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]))
++    dual = e.dual_graph(contract_edges=[(0, 1), (0, 2)])
++    assert set(dual) == {0}
++    assert dual.nodes[0]["faces"] == (0, 1, 2)
++    assert nx.number_of_selfloops(dual) == 3
++    assert_incidence(e, dual, [(0, 1), (0, 2)])
++
++
++def test_contracting_a_bridge_removes_only_its_dual_loop():
++    e = embedding(nx.path_graph(4))
++    dual = e.dual_graph(contract_edges=[(1, 2)])
++    assert set(dual) == {0}
++    assert dual.nodes[0]["faces"] == (0,)
++    assert nx.number_of_selfloops(dual) == 2
++    assert_incidence(e, dual, [(1, 2)])
++
++
++def test_contract_all_edges_retains_resulting_isolated_face_node():
++    e = embedding(nx.cycle_graph(3))
++    dual = e.dual_graph(contract_edges=[(0, 1), (1, 2), (2, 0)])
++    assert set(dual) == {0}
++    assert dual.nodes[0]["faces"] == (0, 1)
++    assert dual.number_of_edges() == 0
++    assert_incidence(e, dual, [(0, 1), (1, 2), (2, 0)])
++
++
++def test_duplicate_reversed_contractions_are_idempotent_and_single_pass():
++    class Once:
++        calls = 0
++        def __iter__(self):
++            self.calls += 1
++            assert self.calls == 1
++            yield (0, 1)
++            yield (1, 0)
++            yield (0, 1)
++    e = embedding(nx.cycle_graph(3))
++    edges = Once()
++    dual = e.dual_graph(contract_edges=edges)
++    assert edges.calls == 1
++    assert len(dual) == 1 and dual.number_of_edges() == 2
++    assert_incidence(e, dual, [(0, 1)])
++
++
++@pytest.mark.parametrize("bad", [[(0, 99)], [(0,)], [(0, 1, 2)], [None]])
++def test_invalid_contraction_raises_without_mutating_embedding(bad):
++    e = embedding(nx.cycle_graph(3))
++    before = deepcopy(e.get_data())
++    with pytest.raises(nx.NetworkXError):
++        e.dual_graph(contract_edges=bad)
++    assert e.get_data() == before
++
++
++def test_corrupt_embedding_rejected_without_partial_mutation():
++    e = embedding(nx.cycle_graph(3))
++    nx.DiGraph.remove_edge(e, 0, 1)
++    before = deepcopy(dict(e.adjacency()))
++    with pytest.raises(nx.NetworkXException):
++        e.dual_graph()
++    assert dict(e.adjacency()) == before
++
++
++def test_output_is_detached_from_subsequent_embedding_edits():
++    e = embedding(nx.cycle_graph(3))
++    before = deepcopy(e.get_data())
++    dual = e.dual_graph()
++    assert e.get_data() == before
++    faces = dual.graph["faces"]
++    e.remove_edge(0, 1)
++    assert dual.graph["faces"] == faces
++    assert dual.number_of_edges() == 3
++    dual.graph["half_edge_faces"].clear()
++    assert e.number_of_edges() == 4
++
++
++def test_disconnected_contractions_keep_component_local_regions():
++    e = embedding(nx.disjoint_union(nx.cycle_graph(3), nx.cycle_graph(3)))
++    dual = e.dual_graph(contract_edges=[(0, 1), (3, 4)])
++    assert len(dual) == 2
++    assert nx.number_connected_components(dual) == 2
++    assert sorted(len(data["faces"]) for _, data in dual.nodes(data=True)) == [2, 2]
++    assert nx.number_of_selfloops(dual) == 4
++    assert_incidence(e, dual, [(0, 1), (3, 4)])

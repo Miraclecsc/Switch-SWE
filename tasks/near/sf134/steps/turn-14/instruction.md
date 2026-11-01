@@ -1,0 +1,1 @@
+One more thing: Also, wanted to revisit if had anymore thoughts on a more permanent home for `generate_random_paths` (i.e., a Markovian random walk).

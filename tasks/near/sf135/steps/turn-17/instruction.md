@@ -1,0 +1,3 @@
+Also, Pivot partition selection via the `bipartite` node attribute is unsafe when the attribute is present on only a subset of nodes: `get_node_attributes()` returns a non-empty dict even if many nodes lack the attribute, and those nodes are then ignored when building `left/right`, potentially making `pivot` incomplete and counts incorrect. Consider only using the attribute-based sets when it fully covers the graph (e.g., `len(attr) == G.number_of_nodes()` and values are valid), otherwise fall back to a computed 2-coloring.
+
+For a MultiGraph in weighted mode, collapse parallel edges by summing their strengths before computing each four-node motif; in unweighted mode parallel links continue to count as one adjacency. Do not mutate the graph or its attributes.

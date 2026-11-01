@@ -1,0 +1,1 @@
+One more thing: yeah it wasn't specifically to avoid the PT017, just a stronger check than `isinstance`

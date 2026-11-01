@@ -1,0 +1,1 @@
+One more thing: I have been doing something like this in my own codebase for ages by now. One problem, though: in a subclass, how do I "cleanly" call the superclass's `__asynccontextmanager__`? The best way I can come up with is which is … meh. Anyway, whichever way we come up with needs documentation.

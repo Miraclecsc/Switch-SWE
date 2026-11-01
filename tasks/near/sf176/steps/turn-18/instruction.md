@@ -1,0 +1,1 @@
+One more thing: When more than one contributor provides a name, the earliest contributor wins.

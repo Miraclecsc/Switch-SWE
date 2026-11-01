@@ -1,0 +1,1 @@
+One more thing: I have slightly reworded the docstring of `_capacity_function` trying to avoid switching between words `function` and `callable`.

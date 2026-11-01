@@ -1,0 +1,1 @@
+One more thing: I saw that you fixed it for the ``JzKet`` class (I needed it for general Kets). The general case seems to also have been fixed by now.

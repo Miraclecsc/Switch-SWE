@@ -1,0 +1,1 @@
+One more thing: Rather than checking for the internal state of the buffer, I would prefer to have the task group surrounded with a `fail_after(1)` and then `assert receive.receive_nowait() == 'anyio'` outside of it.

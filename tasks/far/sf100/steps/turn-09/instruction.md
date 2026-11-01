@@ -1,0 +1,1 @@
+Also, Implement kernel computation for surjective homomorphisms of that types

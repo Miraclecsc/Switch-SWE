@@ -1,0 +1,1 @@
+One more thing: If you raise this is a fixture teardown pytest will report the test result and this failure separately

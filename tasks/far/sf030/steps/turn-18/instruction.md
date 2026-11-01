@@ -1,0 +1,1 @@
+One more thing: I have re-implemented it referring Flask, And I think it is somehow backward compatible in this way, because `str(Exception)` defaults to `str(Exception.args)` if you don't call `super().__init__` and don't override `__str__` method, so both `code` and `detail` should be outputted.

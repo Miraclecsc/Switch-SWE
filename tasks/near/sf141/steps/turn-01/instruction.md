@@ -1,0 +1,1 @@
+I have this in /work/w00: Add default_columns classmethod to Progress class

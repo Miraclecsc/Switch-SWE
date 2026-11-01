@@ -1,0 +1,1 @@
+One more thing: This is good, but I'd also check for the html that shows: There may be other reasons that the password hasn't shown (for example the Also, Consider, something like the following would be a better test here:

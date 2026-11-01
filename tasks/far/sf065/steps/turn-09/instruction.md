@@ -1,0 +1,1 @@
+Also, I think this change isn't needed... Though if you think it is not very readable we could switch to: I prefer not to use the test of `0 <` and `< 2` because it is a long (and perhaps confusing) way of saying `== 1`

@@ -1,0 +1,1 @@
+And here, Alright, I figured out how to do build test binaries from Docker and wrote tests against them. Logic-wise I think this is ready, but there’s some duplicated logic parsing ELF header between `packaging.tags` and the `_musllinux` implementation that I think can be refactored.

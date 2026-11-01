@@ -1,0 +1,62 @@
+{
+  "case_id": "sf102_switched",
+  "task_id": "ssb_v2_task_0004",
+  "repo": "django/django",
+  "base_commit": "335c6d0129400eda792f3bec5c71bb28af5e5d37",
+  "derived_fail_to_pass": [
+    "modeladmin.test_actions.AdminActionsTests.test_actions_inheritance",
+    "modeladmin.test_actions.AdminActionsTests.test_actions_replace_global_action",
+    "modeladmin.test_actions.AdminActionsTests.test_global_actions_description",
+    "modeladmin.test_staged_contract.ActionContractTests.test_caller_mutation_does_not_change_actions",
+    "modeladmin.test_staged_contract.ActionContractTests.test_generator_locations_are_repeatable",
+    "modeladmin.test_staged_contract.ActionContractTests.test_invalid_locations_rejected_early",
+    "modeladmin.test_staged_contract.ActionContractTests.test_kwargs_override_preserves_form_choices"
+  ],
+  "derived_pass_to_pass": [
+    "modeladmin.test_actions.AdminActionsTests.test_get_actions_respects_permissions",
+    "modeladmin.test_staged_contract.ActionContractTests.test_default_location_remains_change_list"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/admin_views/admin.py",
+    "tests/admin_views/models.py",
+    "tests/admin_views/test_actions.py",
+    "tests/modeladmin/test_actions.py",
+    "tests/modeladmin/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/admin_views/admin.py",
+    "tests/admin_views/models.py",
+    "tests/admin_views/test_actions.py",
+    "tests/modeladmin/test_actions.py",
+    "tests/modeladmin/test_staged_contract.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "2f4d191248a80827a83d955da17c18bc39cda07c067b93f75aefdf1296cfd6e5",
+    "config/recipes.json": "1e04f9d3e372c603fac56a9d7379ee810ee567b7aa163c3ce850b2b080d745b5"
+  }
+}

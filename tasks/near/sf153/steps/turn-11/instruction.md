@@ -1,0 +1,1 @@
+Please check this too: > What about all the other methods annotated to return `Path`? I’m not fully sure about the intended scope. It seems like the same issue could apply to all methods returning Path for subclassing consistency, BUT normal anyio.Path usage works fine. Maybe this should be applied broadly, or only in specific cases like path construction?

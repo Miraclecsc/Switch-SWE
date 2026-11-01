@@ -1,0 +1,61 @@
+{
+  "case_id": "sf066_switched",
+  "task_id": "ssb_v4_networkx__networkx_7690",
+  "repo": "networkx/networkx",
+  "base_commit": "17e0eaea449a18305e76d7a5227b4eb49f9cb11f",
+  "derived_fail_to_pass": [
+    "networkx.utils.tests.test_backends::test_not_implemented_by_nx",
+    "networkx.utils.tests.test_sf066_backend_priority::test_exhaustion_does_not_execute_stub",
+    "networkx.utils.tests.test_sf066_backend_priority::test_operational_errors_do_not_fall_through",
+    "networkx.utils.tests.test_sf066_backend_priority::test_priority_order_deduplicates_and_skips_uninstalled",
+    "networkx.utils.tests.test_sf066_backend_priority::test_validate_entire_priority_before_calling[choices0-ValueError]"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.utils.tests.test_backends::test_bad_backend_name",
+    "networkx.utils.tests.test_backends::test_dispatch_kwds_vs_args",
+    "networkx.utils.tests.test_backends::test_dispatchable_are_functions",
+    "networkx.utils.tests.test_backends::test_fallback_to_nx",
+    "networkx.utils.tests.test_backends::test_pickle",
+    "networkx.utils.tests.test_sf066_backend_priority::test_single_backend_behavior_remains",
+    "networkx.utils.tests.test_sf066_backend_priority::test_validate_entire_priority_before_calling[choices1-TypeError]",
+    "networkx.utils.tests.test_sf066_backend_priority::test_validate_entire_priority_before_calling[choices2-TypeError]",
+    "networkx.utils.tests.test_sf066_backend_priority::test_validate_entire_priority_before_calling[choices3-TypeError]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/utils/tests/test_backends.py",
+    "networkx/utils/tests/test_sf066_backend_priority.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/utils/tests/test_backends.py",
+    "networkx/utils/tests/test_sf066_backend_priority.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "86bbfcbe59b26006c5b29748c5b7c84278b02398f6b79a020c6853693eb8e3ea",
+    "config/recipes.json": "e72f6494181b86d43ca9be032c520b325824b879a1a8a258be55eec922390e85"
+  }
+}

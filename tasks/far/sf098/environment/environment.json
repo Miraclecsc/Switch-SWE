@@ -1,0 +1,167 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c",
+    "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f"
+  ],
+  "case_id": "sf098_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+      "python": "3.12.12",
+      "requirements": "requirements/07001f250a6c7059-3.12.12-701a407f.txt",
+      "source": "dependency-source/07001f250a6c7059-3.12.12-701a407f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c",
+      "python": "3.12.12",
+      "requirements": "requirements/959dd1f1db35c157-3.12.12-7f10686c.txt",
+      "source": "dependency-source/959dd1f1db35c157-3.12.12-7f10686c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/07001f250a6c7059-3.12.12-701a407f",
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "99e8816659474b2365c9cf533f430f9e016a7a45",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": ".mailmap",
+          "sha256": "681ac102964d6da96cf9fcbb8b64444df5511cb9ce3a27ae5f67572b09c4278c"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/geometry/plane.py",
+          "sha256": "d055a0ef7b0836343a9ba7a4506cee39c833623cfda7ad7958f8a1c127b647c4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/geometry/tests/test_plane.py",
+          "sha256": "550b9a5d9d3b753513c69b6f48b4015c4bf6cf47fc0e93b922c5501c5474a079"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "4a735bb4f38f7534f11c6634ab1cc36a8d57885e",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "f3e579e008c38f316862f99f71ef9a0df35cd7f6",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": ".mailmap",
+          "sha256": "c177bbf5be9af5ea454097e8dc3f51311568850cdde98fc7c868dbb75ef53276"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/geometry/plane.py",
+          "sha256": "d055a0ef7b0836343a9ba7a4506cee39c833623cfda7ad7958f8a1c127b647c4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/geometry/tests/test_plane.py",
+          "sha256": "550b9a5d9d3b753513c69b6f48b4015c4bf6cf47fc0e93b922c5501c5474a079"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "323113390a3ac123cff13448ed83a715c2c912ba",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "243a72a01bcb064f893da009a6aafbf5e231457a",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": ".mailmap",
+          "sha256": "ecac5fa056137f268d97c2e45dce6c926a1b5763f5b3a976b67dde7ce5f5005f"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/geometry/plane.py",
+          "sha256": "d055a0ef7b0836343a9ba7a4506cee39c833623cfda7ad7958f8a1c127b647c4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/geometry/tests/test_plane.py",
+          "sha256": "550b9a5d9d3b753513c69b6f48b4015c4bf6cf47fc0e93b922c5501c5474a079"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w04"
+    }
+  ]
+}

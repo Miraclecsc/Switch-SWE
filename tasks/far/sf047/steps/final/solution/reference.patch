@@ -1,0 +1,129 @@
+diff --git a/doc/source/whatsnew/v3.1.0.rst b/doc/source/whatsnew/v3.1.0.rst
+--- a/doc/source/whatsnew/v3.1.0.rst
++++ b/doc/source/whatsnew/v3.1.0.rst
+@@ -391,6 +391,7 @@
+ - Fixed bug in :meth:`DataFrame.to_hdf` raising ``TypeError`` when the index had a non-tick :class:`DateOffset` ``freq`` (e.g. ``DateOffset(years=1)``) (:issue:`45790`)
+ - Fixed bug in :meth:`DataFrame.to_hdf` with ``format="table"`` where a :class:`TimedeltaIndex` was reconstructed as a :class:`PeriodIndex` (when ``freq`` was set) or an integer :class:`Index` (otherwise) on read-back (:issue:`21466`)
+ - Fixed :meth:`DataFrame.to_hdf` and :meth:`Series.to_hdf` to round-trip a :class:`CategoricalIndex` in both ``"fixed"`` and ``"table"`` formats; previously raised ``AssertionError`` (:issue:`33909`, :issue:`16118`)
++- Bug in :meth:`Series.to_json` with ``date_format="iso"`` where a timezone-aware datetime :class:`Series` was serialized without the trailing ``Z`` marker, losing the timezone information that is retained for an equivalent :class:`DatetimeIndex` or :class:`DataFrame` column (:issue:`65744`)
+ - Fixed bug in :meth:`DataFrame.to_parquet` (``pyarrow`` engine) where a local file path was opened twice, once by pandas and again by pyarrow, wasting a syscall and silently truncating output to 0 bytes on filesystems that finalize a file's contents on close (:issue:`65810`)
+ - Fixed bug in :meth:`HDFStore.get_storer` where ``.shape`` reported a phantom row for a fixed-format :class:`Series` or :class:`DataFrame` stored with no rows (:issue:`37235`)
+ - Fixed bug in :meth:`HDFStore.remove` where a ``where`` clause selecting on more than 31 values (e.g. ``"index in [...]"``) deleted every row in the table instead of only the matching rows (:issue:`17567`)
+diff --git a/pandas/_libs/src/vendored/ujson/python/objToJSON.c b/pandas/_libs/src/vendored/ujson/python/objToJSON.c
+--- a/pandas/_libs/src/vendored/ujson/python/objToJSON.c
++++ b/pandas/_libs/src/vendored/ujson/python/objToJSON.c
+@@ -180,61 +180,68 @@
+   return pc;
+ }
+ 
++static PyObject *validate_json_values(PyObject *obj, PyObject *values) {
++  if (!PyArray_CheckExact(values) || PyArray_NDIM((PyArrayObject *)values) != 1) {
++    PyErr_SetString(PyExc_ValueError, "JSON values must be a one-dimensional numpy array");
++    Py_DECREF(values);
++    return NULL;
++  }
++  Py_ssize_t expected = PyObject_Length(obj);
++  if (expected < 0) {
++    Py_DECREF(values);
++    return NULL;
++  }
++  if (PyArray_DIM((PyArrayObject *)values, 0) != expected) {
++    PyErr_SetString(PyExc_ValueError, "JSON values length must match Series/Index length");
++    Py_DECREF(values);
++    return NULL;
++  }
++  return values;
++}
++
+ static PyObject *get_values(PyObject *obj) {
++  PyObject *typ = NULL;
++  PyObject *arr = NULL;
+   PyObject *values = NULL;
+ 
+-  if (object_is_index_type(obj) || object_is_series_type(obj)) {
+-    // The special cases to worry about are dt64tz and category[dt64tz].
+-    //  In both cases we want the UTC-localized datetime64 ndarray,
+-    //  without going through and object array of Timestamps.
+-    if (PyObject_HasAttrString(obj, "tz")) {
+-      PyObject *tz = PyObject_GetAttrString(obj, "tz");
+-      if (tz != Py_None) {
+-        // Go through object array if we have dt64tz, since tz info will
+-        // be lost if values is used directly.
+-        Py_DECREF(tz);
+-        values = PyObject_CallMethod(obj, "__array__", NULL);
+-        return values;
+-      }
+-      Py_DECREF(tz);
+-    }
++  if (!(object_is_index_type(obj) || object_is_series_type(obj))) {
++    PyObject *typeRepr = PyObject_Repr((PyObject *)Py_TYPE(obj));
++    PyErr_Format(PyExc_ValueError, "get_values expected Series/Index, got %R",
++                 typeRepr);
++    Py_DECREF(typeRepr);
++    return NULL;
++  }
++
++  // MultiIndex raises on .array -> go through .values to get numpy array
++  typ = PyObject_GetAttrString(obj, "_typ");
++  if (typ == NULL) {
++    return NULL;
++  }
++  if (PyUnicode_Check(typ) &&
++      PyUnicode_CompareWithASCIIString(typ, "multiindex") == 0) {
++    Py_DECREF(typ);
+     values = PyObject_GetAttrString(obj, "values");
+     if (values == NULL) {
+-      // Clear so we can subsequently try another method
+-      PyErr_Clear();
+-    } else if (PyObject_HasAttrString(values, "_values_for_json")) {
+-      // We have gotten an ExtensionArray
+-      PyObject *array_values =
+-          PyObject_CallMethod(values, "_values_for_json", NULL);
+-      Py_DECREF(values);
+-      values = array_values;
+-    } else if (!PyArray_CheckExact(values)) {
+-      // Didn't get a numpy array, so keep trying
+-      Py_DECREF(values);
+-      values = NULL;
+-    }
+-  }
++      return NULL;
++    }
++    return validate_json_values(obj, values);
++  }
++  Py_DECREF(typ);
++
++  // For all other cases, call _values_for_json on the underlying array
++  arr = PyObject_GetAttrString(obj, "array");
++  if (arr == NULL) {
++    return NULL;
++  }
++
++  values = PyObject_CallMethod(arr, "_values_for_json", NULL);
+ 
+   if (values == NULL) {
+-    PyObject *typeRepr = PyObject_Repr((PyObject *)Py_TYPE(obj));
+-    PyObject *repr;
+-    if (PyObject_HasAttrString(obj, "dtype")) {
+-      PyObject *dtype = PyObject_GetAttrString(obj, "dtype");
+-      repr = PyObject_Repr(dtype);
+-      Py_DECREF(dtype);
+-    } else {
+-      repr = PyUnicode_FromString("<unknown dtype>");
+-    }
+-
+-    PyErr_Format(PyExc_ValueError, "%R or %R are not JSON serializable yet",
+-                 repr, typeRepr);
+-    Py_DECREF(repr);
+-    Py_DECREF(typeRepr);
+-
++    Py_DECREF(arr);
+     return NULL;
+   }
+-
+-  return values;
++  Py_DECREF(arr);
++  return validate_json_values(obj, values);
+ }
+ 
+ static PyObject *get_sub_attr(PyObject *obj, char *attr, char *subAttr) {

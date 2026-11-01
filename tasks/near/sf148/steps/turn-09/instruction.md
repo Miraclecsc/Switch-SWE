@@ -1,0 +1,1 @@
+Also, On second thought, I don't think it's feasible to support reentrancy, as there's no way to track which generator to use in `__aexit__()`.

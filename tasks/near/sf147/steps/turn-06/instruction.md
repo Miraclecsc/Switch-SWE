@@ -1,0 +1,1 @@
+In the checkout at /work/w01, Key panel widget Adds a `KeyPanel` which can be summoned via the command palette.

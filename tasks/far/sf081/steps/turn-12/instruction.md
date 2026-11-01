@@ -1,0 +1,1 @@
+And here, Do these need to be explicitly marked as `TypeAlias`? The first one already is. Not sure about the other. IIRC `TypeAlias` is mostly needed to distinguish strings representing types from actual strings? If it is needed, I think the import should be moved to the top.

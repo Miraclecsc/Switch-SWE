@@ -1,0 +1,1 @@
+Please check this too: Yes, we can give each image it's own unique (but stable name) based on the sub command name (we use rich-click). I can expand on the docs to make point to others?

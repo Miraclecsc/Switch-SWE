@@ -1,0 +1,1 @@
+Also, Oh yeah, completely missed that. I have removed the `nan` part and corresponding tests for now.

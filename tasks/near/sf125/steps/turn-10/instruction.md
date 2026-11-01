@@ -1,0 +1,1 @@
+One more thing: I'm not sure if this is the right fix without looking closer through the ideal code. Maybe it makes more sense to remove this when constructing the ideal.

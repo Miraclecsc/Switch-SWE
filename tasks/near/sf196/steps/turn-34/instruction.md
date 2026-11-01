@@ -1,0 +1,1 @@
+One more thing: looking at `warn_deprecated` I might have noticed that supplies a `use` and only removed it in one of the three places. Fixed

@@ -1,0 +1,145 @@
+diff --git a/networkx/algorithms/tests/test_planarity.py b/networkx/algorithms/tests/test_planarity.py
+index af2d9a9..e2c92ea 100644
+--- a/networkx/algorithms/tests/test_planarity.py
++++ b/networkx/algorithms/tests/test_planarity.py
+@@ -1,3 +1,5 @@
++from collections import Counter
++
+ import pytest
+ 
+ import networkx as nx
+@@ -406,6 +408,17 @@ def check_counterexample(G, sub_graph):
+         raise nx.NetworkXException("Bad counter example.")
+ 
+ 
++def _assert_half_edge_partition(embedding, faces):
++    face_half_edges = (
++        (u, v) for u in embedding for v in embedding.neighbors_cw_order(u)
++    )
++    embedding_half_edges = (
++        (u, f[i % len(f)]) for f in faces if f for i, u in enumerate(f, 1)
++    )
++    assert Counter(face_half_edges) == Counter(embedding_half_edges)
++    assert all(count == 1 for count in Counter(face_half_edges).values())
++
++
+ class TestPlanarEmbeddingClass:
+     def test_add_half_edge(self):
+         embedding = nx.PlanarEmbedding()
+@@ -534,6 +547,55 @@ class TestPlanarEmbeddingClass:
+         with pytest.raises(nx.NetworkXException):
+             embedding.traverse_face(1, 2)
+ 
++    def test_faces_cycle_graph_and_half_edge_partition(self):
++        graph = nx.cycle_graph(4)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == 2
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_tree_has_single_face_walk_with_repeated_vertices(self):
++        graph = nx.path_graph(4)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == 1
++        assert len(faces[0]) == 2 * graph.number_of_edges()
++        assert len(set(faces[0])) < len(faces[0])
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_k4_match_euler_formula(self):
++        graph = nx.complete_graph(4)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == graph.number_of_edges() - graph.number_of_nodes() + 2
++        assert sorted(len(face) for face in faces) == [3, 3, 3, 3]
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_disconnected_components_return_component_local_boundary_walks(
++        self,
++    ):
++        graph = nx.disjoint_union(nx.cycle_graph(3), nx.cycle_graph(3))
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert len(faces) == 4
++        _assert_half_edge_partition(embedding, faces)
++
++    def test_faces_isolated_nodes_have_no_faces(self):
++        graph = nx.empty_graph(5)
++        _, embedding = nx.check_planarity(graph)
++
++        faces = list(embedding.faces())
++
++        assert faces == []
++
+     def test_forbidden_methods(self):
+         embedding = nx.PlanarEmbedding()
+         embedding.add_node(42)  # no exception
+diff --git a/networkx/algorithms/tests/test_sf133_faces.py b/networkx/algorithms/tests/test_sf133_faces.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/tests/test_sf133_faces.py
+@@ -0,0 +1,56 @@
++from collections import Counter
++import networkx as nx
++import pytest
++
++def embedding(g):
++    ok, e = nx.check_planarity(g)
++    assert ok
++    return e
++
++def edges(face):
++    return list(zip(face, face[1:] + face[:1]))
++
++def test_all_half_edges_and_bridges():
++    g = nx.disjoint_union(nx.cycle_graph(4), nx.path_graph(4))
++    g.add_node("isolated")
++    e = embedding(g)
++    walks = list(e.faces(as_edges=True))
++    assert Counter(x for f in walks for x in f) == Counter(list(e.edges()))
++    assert sorted(map(len, walks)) == [4, 4, 6]
++    assert list(e.faces()) == [list(u for u, v in f) for f in walks]
++
++def test_selected_sides_and_deduplication():
++    e = embedding(nx.cycle_graph(4))
++    face = e.traverse_face(0, 1)
++    seeds = iter([(0, 1), edges(face)[1], (1, 0), (0, 1)])
++    result = list(e.faces(seeds, as_edges=True))
++    assert result == [edges(face), edges(e.traverse_face(1, 0))]
++    assert list(e.faces(iter([]))) == []
++
++def test_all_seeds_validate_before_yield():
++    e = embedding(nx.path_graph(3))
++    before = e.get_data()
++    with pytest.raises(nx.NetworkXError):
++        iterator = e.faces(iter([(0, 1), (99, 0)]), as_edges=True)
++        next(iterator)
++    assert e.get_data() == before
++
++def test_one_shot_and_heterogeneous_nodes():
++    a, b, c = object(), "b", (1, 2)
++    g = nx.Graph([(a, b), (b, c)])
++    e = embedding(g)
++    class Once:
++        consumed = False
++        def __iter__(self):
++            assert not self.consumed
++            self.consumed = True
++            yield a, b
++            yield b, a
++    before = e.get_data()
++    walks = list(e.faces(Once(), as_edges=True))
++    assert walks == [edges(e.traverse_face(a, b))]
++    assert e.get_data() == before
++
++def test_default_and_isolates_unchanged():
++    e = embedding(nx.empty_graph(3))
++    assert list(e.faces()) == []

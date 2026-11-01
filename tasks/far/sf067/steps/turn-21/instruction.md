@@ -1,0 +1,1 @@
+Also, Can this use `_equivalent_partitions`? The actual partition is order-insensitive, so list equality could fail later if the same communities come back in a different order.

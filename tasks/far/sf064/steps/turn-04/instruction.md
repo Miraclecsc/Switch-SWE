@@ -1,0 +1,1 @@
+And here, Make this directive purge syntax-aware. Remove complete directive definitions (including descriptions and repeatable definitions), and remove applications of custom directives while keeping the existing built-in/federation allowlist. Handle nested object/list arguments, quoted parentheses, and adjacent directive syntax.

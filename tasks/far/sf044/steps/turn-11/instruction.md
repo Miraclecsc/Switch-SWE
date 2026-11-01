@@ -1,0 +1,1 @@
+Please check this too: Thanks for the fast review. I've added the renormalization and a seeded test that specifically targets the cumulative distribution evaluation. Thought bringing in the `gn_graph` might make the test a bit too complex.

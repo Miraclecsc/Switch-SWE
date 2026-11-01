@@ -1,0 +1,70 @@
+{
+  "case_id": "sf056_switched",
+  "task_id": "ssb_v4_agronholm__anyio_779",
+  "repo": "agronholm/anyio",
+  "base_commit": "4e9f18dfaa6e7db55231a35fcd93e18c343519a4",
+  "derived_fail_to_pass": [
+    "tests.test_pytest_plugin::test_keyboardinterrupt_during_test[asyncio]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[asyncgen-skip]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[asyncgen-xfail]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[fixture-skip]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[fixture-xfail]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[test-skip]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[test-xfail]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_pytest_plugin::test_async_fixture_teardown_after_sync_test",
+    "tests.test_pytest_plugin::test_asyncio",
+    "tests.test_pytest_plugin::test_autouse_async_fixture",
+    "tests.test_pytest_plugin::test_cancel_scope_in_asyncgen_fixture",
+    "tests.test_pytest_plugin::test_debugger_exit_in_taskgroup[asyncio]",
+    "tests.test_pytest_plugin::test_debugger_exit_in_taskgroup[trio]",
+    "tests.test_pytest_plugin::test_hypothesis_function_mark",
+    "tests.test_pytest_plugin::test_hypothesis_module_mark",
+    "tests.test_pytest_plugin::test_keyboardinterrupt_during_test[trio]",
+    "tests.test_pytest_plugin::test_module_scoped_task_group_fixture",
+    "tests.test_pytest_plugin::test_plugin",
+    "tests.test_sf056_outcome_groups::test_cancel_message_survives",
+    "tests.test_sf056_outcome_groups::test_grouped_fatal_error_propagates_unchanged",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[asyncgen-ordinary]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[fixture-ordinary]",
+    "tests.test_sf056_outcome_groups::test_grouped_outcomes_preserve_runner_and_context[test-ordinary]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_pytest_plugin.py",
+    "tests/test_sf056_outcome_groups.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_pytest_plugin.py",
+    "tests/test_sf056_outcome_groups.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "45b49f75d728b44d61a3d38ed434697839d7f06a536d6a383a4a189613897394",
+    "config/recipes.json": "70876c421367887b63047aafb639aaef43a975a003d3c214e6229e0ab2c87315"
+  }
+}

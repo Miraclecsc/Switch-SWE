@@ -1,0 +1,1 @@
+And here, Issues fixed. Added comment and also restructured code to make behavior of `show_default` arg to `prompt` more explicit

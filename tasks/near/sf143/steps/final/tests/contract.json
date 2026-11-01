@@ -1,0 +1,71 @@
+{
+  "case_id": "sf143_switched",
+  "task_id": "ssb_v4_Textualize__rich_2226",
+  "repo": "Textualize/rich",
+  "base_commit": "49840e3b82821d0d57e7e20992eb8e1d9af74a7d",
+  "derived_fail_to_pass": [
+    "test_traceback::test_rich_traceback_omit_optional_local_flag[True-3-expected_frame_names0]",
+    "test_sf143_markers::test_broken_marker_does_not_break_extraction[bool]",
+    "test_sf143_markers::test_broken_marker_does_not_break_extraction[call]",
+    "test_sf143_markers::test_cause_predicate_receives_corresponding_exception",
+    "test_sf143_markers::test_controls_hidden_from_locals",
+    "test_sf143_markers::test_false_callable_retains_frame_and_runs_once",
+    "test_sf143_markers::test_guard_still_clears_when_omitted"
+  ],
+  "derived_pass_to_pass": [
+    "test_traceback::test_broken_str",
+    "test_traceback::test_capture",
+    "test_traceback::test_caused_exception",
+    "test_traceback::test_filename_not_a_file",
+    "test_traceback::test_filename_with_bracket",
+    "test_traceback::test_guess_lexer",
+    "test_traceback::test_handler",
+    "test_traceback::test_nested_exception",
+    "test_traceback::test_no_exception",
+    "test_traceback::test_print_exception",
+    "test_traceback::test_print_exception_locals",
+    "test_traceback::test_print_exception_no_msg",
+    "test_traceback::test_recursive",
+    "test_traceback::test_rich_traceback_omit_optional_local_flag[False-4-expected_frame_names1]",
+    "test_traceback::test_suppress",
+    "test_traceback::test_syntax_error",
+    "test_traceback::test_traceback_console_theme_applies"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_traceback.py",
+    "tests/test_sf143_markers.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_sf143_markers.py",
+    "tests/test_traceback.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "32f6748430a100d493eaa9cbe78d8916bd5ff6556f12c1f32a9e787c2935cf4e",
+    "config/recipes.json": "4dfaba080f24e6d16558369412b845b0e6d1596efddca0559f0d1ed01d00b1a1"
+  }
+}

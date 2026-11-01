@@ -1,0 +1,1 @@
+Please check this too: Consider it would be better to stick to sin and cos. For example, Consider we should handle this case: `refine(cos(n*pi/2), Q.even(n))`. Consider we should try to cover as many simplifications as possible for cos and sin so we don't leave out anything important.

@@ -1,0 +1,1 @@
+I have this in /work/w01: Implement and test this repository change: Fix `HelpFormatter.write_usage` producing spurious characters.

@@ -1,0 +1,1 @@
+Also, this seems fine to have a `pragma: no cover` on - but think it'd be fairly straightforward to manipulate `_active_threads_local` to force an error.

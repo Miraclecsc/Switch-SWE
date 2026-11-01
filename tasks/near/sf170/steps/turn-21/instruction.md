@@ -1,0 +1,1 @@
+Also, The `|=` operator changes the existing set and we don't want that because it is the same set that is in the previous level of the DFS. So, we need to do a union and then assign that to the new dict. I'll update the comment and look at the options more.

@@ -1,0 +1,1 @@
+And here, suggestion: it appears that `np.empty/full` are the only python calls here before wrapping results in `pa.py_buffer`. I wonder if you can prompt the agent to use Numpy C-APIs so we can make everything `nogil` and the results we can wrap in a `memoryview` that can be passed into `pa.py_buffer`

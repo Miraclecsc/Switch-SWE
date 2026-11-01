@@ -1,0 +1,1 @@
+And here, I've fixed this in futrig. However I found that I was actually getting the TypeError from multiplying `Tuple` there. Consider that there is some exception masking going on because there is an `except TypeError: pass` in trigsimp probably that should be removed as it is Or, hiding bugs..

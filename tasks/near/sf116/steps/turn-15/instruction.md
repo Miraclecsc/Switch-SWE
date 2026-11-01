@@ -1,0 +1,1 @@
+Please check this too: > Why did you remove this? Could be right, just down know much about _compat.py Because this is a 1:1 reversal of #3470 and not used anywhere else. So better to remove this unused one before someone outside rely on it! 😅

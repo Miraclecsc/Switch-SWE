@@ -1,0 +1,1 @@
+And here, We should keep the call overhead as low as possible, so I would suggest to pass bound methods into this calls instead of a regex and a func and the dispatching.

@@ -1,0 +1,1 @@
+Also, Good question, thanks for reviewing! `N` is at least 2 once this code is reached. We handle `N < 2` at the beginning of the function and return w/o scaling, because the BC values will all be 0.

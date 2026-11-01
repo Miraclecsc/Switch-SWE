@@ -1,0 +1,1 @@
+Also, It echos an existing attribute in Rich. a human) is interacting with the terminal, as apposed to running on CI. It does disable animation, but the flag in Rich has broader meaning. It could also be `RICH_INTERACTIVE`. Perhaps the namespace would avoid any confusion.

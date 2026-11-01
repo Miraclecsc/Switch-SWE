@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Fixed #36542 -- Marked authenticate() with () decorator.

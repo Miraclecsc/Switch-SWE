@@ -1,0 +1,85 @@
+diff --git a/sympy/matrices/expressions/tests/test_matpow.py b/sympy/matrices/expressions/tests/test_matpow.py
+index 2afb5fdc2aa6..a3bcc6bd94e5 100644
+--- a/sympy/matrices/expressions/tests/test_matpow.py
++++ b/sympy/matrices/expressions/tests/test_matpow.py
+@@ -4,7 +4,7 @@
+ from sympy.core.expr import unchanged
+ from sympy.core import symbols, S
+ from sympy.matrices import Identity, MatrixSymbol, ImmutableMatrix, ZeroMatrix, OneMatrix, Matrix
+-from sympy.matrices.exceptions import NonSquareMatrixError
++from sympy.matrices.exceptions import NonInvertibleMatrixError, NonSquareMatrixError
+ from sympy.matrices.expressions import MatPow, MatAdd, MatMul
+ from sympy.matrices.expressions.inverse import Inverse
+ from sympy.matrices.expressions.matexpr import MatrixElement
+@@ -90,6 +90,24 @@ def test_doit_symbol():
+         assert MatPow(C, r).doit() == MatPow(C, r)
+ 
+ 
++def test_doit_MatMul_scalar_power():
++    a = symbols('a')
++    p = symbols('p')
++    pos = symbols('pos', positive=True)
++
++    assert MatPow(a*C, 2).doit() == a**2*C**2
++    assert (a*C)**2 == a**2*C**2
++    assert (a*C*D)**2 == a**2*(C*D)**2
++    assert (a*C*D)**-2 == a**-2*(C*D)**-2
++
++    assert MatPow(pos*C, S.Half).doit() == pos**S.Half*C**S.Half
++    assert (pos*C*D)**S.Half == pos**S.Half*(C*D)**S.Half
++
++    assert MatPow(a*C, S.Half).doit() == MatPow(a*C, S.Half)
++    assert (a*C)**p == MatPow(a*C, p)
++    assert (pos*C)**p == MatPow(pos*C, p)
++
++
+ def test_doit_matrix():
+     X = ImmutableMatrix([[1, 2], [3, 4]])
+     assert MatPow(X, 0).doit() == ImmutableMatrix(Identity(2))
+@@ -149,6 +167,7 @@ def test_zero_power():
+     assert MatPow(z2, 2).doit() == z2
+     assert MatPow(z2, 0).doit() == Identity(4)
+     raises(ValueError, lambda:MatPow(z2, -1).doit())
++    raises(NonInvertibleMatrixError, lambda: MatMul(0, C)**-1)
+ 
+ 
+ def test_OneMatrix_power():
+diff --git a/sympy/matrices/expressions/tests/test_sf099_extension.py b/sympy/matrices/expressions/tests/test_sf099_extension.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/matrices/expressions/tests/test_sf099_extension.py
+@@ -0,0 +1,34 @@
++from sympy import symbols, MatrixSymbol, MatPow, ImmutableMatrix, I
++
++A=MatrixSymbol("A",2,2);B=MatrixSymbol("B",2,2)
++p=symbols("p",positive=True);r=symbols("r",real=True);n=symbols("n",integer=True);a=symbols("a")
++
++def test_positive_scalar_real_symbol():
++    original=MatPow(p*A*B,r)
++    result=original.doit(extract_symbolic_scalars=True)
++    assert result == p**r*MatPow(A*B,r)
++    assert result.doit(extract_symbolic_scalars=True) == result
++    assert original.doit() == original
++
++def test_nonzero_scalar_integer_symbol():
++    nz=symbols("nz",nonzero=True)
++    assert MatPow(nz*A*B,n).doit(extract_symbolic_scalars=True) == nz**n*MatPow(A*B,n)
++    assert MatPow(-2*A,n).doit(extract_symbolic_scalars=True) == (-2)**n*MatPow(A,n)
++
++def test_unsafe_assumptions_retained():
++    for base,exponent in [(a*A,r),(a*A,n),(-2*A,r),(p*A,I)]:
++        original=MatPow(base,exponent)
++        assert original.doit(extract_symbolic_scalars=True) == original
++
++def test_matrix_order_and_numeric_substitution():
++    original=MatPow(p*A*B,n)
++    result=original.doit(extract_symbolic_scalars=True)
++    assert result == p**n*MatPow(A*B,n)
++    assert result != p**n*MatPow(B*A,n)
++    values={p:3,n:2,A:ImmutableMatrix([[1,1],[0,1]]),B:ImmutableMatrix([[2,0],[1,1]])}
++    assert result.subs(values).doit() == original.subs(values).doit()
++
++def test_coefficient_free_and_default():
++    original=MatPow(A*B,n)
++    assert original.doit(extract_symbolic_scalars=True) == original
++    assert MatPow(p*A,n).doit() == MatPow(p*A,n)

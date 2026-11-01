@@ -1,0 +1,1 @@
+One more thing: It tests the same thing as `test_default_python_version()`, but using a version with a multidigit component — i.e., it tests that `sys.version_info = (3, 11)` is handled appropriately. This completes the matrix of (default vs. explicit version) × (single-digit vs. multidigit version).

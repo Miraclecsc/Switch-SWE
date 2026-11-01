@@ -1,0 +1,60 @@
+{
+  "case_id": "sf040_switched",
+  "task_id": "ssb_v3_getmoto__moto_a34d458483",
+  "repo": "getmoto/moto",
+  "base_commit": "5c0dd0b56b7b3634bb85227bde0406461733d395",
+  "derived_fail_to_pass": [
+    "tests.test_s3.test_s3_lambda_integration::test_put_bucket_notification_sns_sqs_raw_delivery",
+    "tests.test_s3.test_sf040_protocol_payload_filter::test_default_payload_fallback_is_filtered",
+    "tests.test_s3.test_sf040_protocol_payload_filter::test_selected_protocol_body_matches_and_is_preserved[False]",
+    "tests.test_s3.test_sf040_protocol_payload_filter::test_selected_protocol_body_matches_and_is_preserved[True]",
+    "tests.test_s3.test_sf040_protocol_payload_filter::test_wrapper_match_cannot_override_selected_nonmatch"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_s3.test_s3_lambda_integration::test_object_copy__sends_to_queue",
+    "tests.test_s3.test_s3_lambda_integration::test_object_put__sends_to_queue__using_filter",
+    "tests.test_s3.test_s3_lambda_integration::test_objectcreated_put__invokes_lambda[match_events2-None]",
+    "tests.test_s3.test_s3_lambda_integration::test_objectcreated_put__unknown_lambda_is_handled_gracefully",
+    "tests.test_s3.test_s3_lambda_integration::test_put_bucket_notification_sns_error",
+    "tests.test_s3.test_s3_lambda_integration::test_put_bucket_notification_sns_sqs[cn-north-1-aws-cn]",
+    "tests.test_s3.test_s3_lambda_integration::test_put_bucket_notification_sns_sqs[us-west-2-aws]",
+    "tests.test_s3.test_sf040_protocol_payload_filter::test_ordinary_missing_attribute_message_regression"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_s3/test_s3_lambda_integration.py",
+    "tests/test_s3/test_sf040_protocol_payload_filter.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_s3/test_s3_lambda_integration.py",
+    "tests/test_s3/test_sf040_protocol_payload_filter.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "22e194d64fa8c6cf1ed9e19d3a8ff4f27b0e980295071b2482c6f3490cb33ce5",
+    "config/recipes.json": "05d39c4b5d8f644d7037ae47e457d631c61ec10d9d65daf150885ac14ab8a00f"
+  }
+}

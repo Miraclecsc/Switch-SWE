@@ -1,0 +1,3 @@
+One more thing: Currently the base implementation is just `np.array(self)`. But third party could so added a try-except. There aren't any EAs we can currently test this with, so didn't add a test for this case. Let me know if you want one.
+
+Propagate keyword-only skipna=False through the base ExtensionArray._monotonic_check. For skipna=True apply the extension array missing mask before extracting _values_for_argsort, so underlying placeholders cannot affect order. Return the increasing/decreasing pair, retaining the existing False/False fallback for non-orderable values.

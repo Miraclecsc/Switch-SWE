@@ -1,0 +1,1 @@
+For the checkout at /work/w03, PERF: Use is_monotonic in ExtensionArray._monotonic_check Ref: Since `_rank` already uses `_values_for_argsort`, this has the same requirements for third party EAs. An index backed by `string[python]` doesn't have e.g. `is_monotonic_increaing` cached - I'm thinking it should, but leaving that for another issue/PR.

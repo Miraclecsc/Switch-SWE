@@ -1,0 +1,1 @@
+Also, No, `Cancelled` itself is an instance of `NoPublicConstructor`, (well not exactly cause we hand that off to `type` in `__new__` but that's the idea) not instances of `Cancelled`. Metaclasses are weird!

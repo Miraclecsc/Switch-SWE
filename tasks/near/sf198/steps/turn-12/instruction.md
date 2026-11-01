@@ -1,0 +1,1 @@
+And here, consider "by default only catch exceptions wrapped in an exceptiongroup" to avoid double negative

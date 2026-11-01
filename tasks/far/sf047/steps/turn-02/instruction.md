@@ -1,0 +1,1 @@
+For the checkout at /work/w04, DEPR: warn on .at setitem when a new column expands the frame Follow-up to GH#48323: `_AtIndexer._warn_if_expanding` only checked the row axis, so `df.at[existing_row, new_col] = val` silently expanded the columns without firing the deprecation warning. Check both axes and emit the warning when either would expand.

@@ -1,0 +1,1 @@
+One more thing: I think it's safer to use `with pytest.deprecated_call():` here.

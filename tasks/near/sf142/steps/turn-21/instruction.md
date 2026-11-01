@@ -1,0 +1,1 @@
+Also, that's the bugfix itself! :slightly_smiling_face: i.e. we should use the length of the sanitised text, rather than the one of the text we received as an argument

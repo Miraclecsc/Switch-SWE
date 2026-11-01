@@ -1,0 +1,76 @@
+diff --git a/sympy/logic/tests/test_inference.py b/sympy/logic/tests/test_inference.py
+index 35d0ed34dabc..a9eb68035172 100644
+--- a/sympy/logic/tests/test_inference.py
++++ b/sympy/logic/tests/test_inference.py
+@@ -418,6 +418,7 @@ def make_random_cnf(num_clauses=5, num_constraints=10, num_var=2):
+ 
+ 
+ def test_issue_27733():
++    # original regression
+     x, y = symbols('x,y')
+     clauses = [[1, -3, -2], [5, 7, -8, -6, -4], [-10, -9, 10, 11, -4], [-12, 13, 14], [-10, 9, -6, 11, -4],
+                [16, -15, 18, -19, -17], [11, -6, 10, -9], [9, 11, -10, -9], [2, -3, -1], [-13, 12], [-15, 3, -17],
+@@ -431,3 +432,12 @@ def test_issue_27733():
+ 
+     cnf = EncodedCNF(clauses, encoding)
+     assert satisfiable(cnf, use_lra_theory=True) is False
++
++
++def test_issue_27733_second_fix():
++    # regression for flawed initial fix of issue 27733
++    x0, x1 = symbols('x0 x1')
++    clauses = [[1, 2], [-3, -4]]
++    encoding = {Q.gt(x0, x1): 1, Q.lt(x1, x0): 2, Q.le(x1, x0): 3, Q.ge(x0, x1): 4}
++    cnf = EncodedCNF(clauses, encoding)
++    assert satisfiable(cnf, use_lra_theory=True) is False
+diff --git a/sympy/logic/tests/test_root_assumptions_v1.py b/sympy/logic/tests/test_root_assumptions_v1.py
+new file mode 100644
+index 0000000000..a5fc0cab77
+--- /dev/null
++++ b/sympy/logic/tests/test_root_assumptions_v1.py
+@@ -0,0 +1,45 @@
++import pytest
++from sympy import And, Or, Symbol, symbols
++from sympy.assumptions.cnf import EncodedCNF
++from sympy.logic.inference import satisfiable
++
++
++def test_boolean_assumptions_constrain_the_returned_model():
++    p,q,r = symbols("p q r")
++    model = satisfiable(Or(p,q),assumptions=[~p,r])
++    assert model[p] is False and model[q] is True and model[r] is True
++
++
++def test_theory_inconsistent_assumptions_are_root_unsat():
++    x = Symbol("x")
++    expression = And(x>=0,x<=3)
++    assert satisfiable(expression,use_lra_theory=True,assumptions=[x>4]) is False
++    assert list(satisfiable(expression,use_lra_theory=True,assumptions=[x>4],all_models=True)) == [False]
++    assert satisfiable(expression,use_lra_theory=True,assumptions=[x<1]) is not False
++
++
++def test_encoded_cnf_and_interleaved_generators_are_isolated():
++    p,q = symbols("p q")
++    encoded = EncodedCNF()
++    encoded.add_prop(Or(p,q))
++    data,encoding = [set(c) for c in encoded.data],dict(encoded.encoding)
++    left = satisfiable(encoded,assumptions=iter([~p]),all_models=True)
++    right = satisfiable(encoded,assumptions=[~q],all_models=True)
++    assert list(left) == [{p:False,q:True}]
++    assert list(right) == [{p:True,q:False}]
++    assert encoded.data == data and encoded.encoding == encoding
++    assert len(list(satisfiable(encoded,algorithm="dpll2",all_models=True))) == 3
++
++
++def test_nonliteral_assumptions_and_unsupported_backend_are_explicit_errors():
++    p,q = symbols("p q")
++    with pytest.raises(ValueError):
++        satisfiable(p,assumptions=[Or(p,q)])
++    with pytest.raises(ValueError):
++        satisfiable(p,algorithm="dpll",assumptions=[q])
++
++
++def test_empty_assumptions_preserve_original_boolean_behavior():
++    p,q = symbols("p q")
++    assert satisfiable(p & ~p,algorithm="dpll2",assumptions=()) is False
++    assert satisfiable(p & ~q,algorithm="dpll2",assumptions=()) == {p:True,q:False}

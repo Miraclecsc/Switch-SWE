@@ -1,0 +1,1 @@
+For the checkout at /work/w01, Having had another think, it would be preferable if we don't add json specific logic here Can we not update `django.db.models.fields.json.KeyTransformIExact` somehow.

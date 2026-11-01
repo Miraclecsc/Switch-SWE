@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Refs #15759 -- Fixed ModelAdmin.list_editable form submission for non-editable instances.

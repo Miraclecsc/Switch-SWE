@@ -1,0 +1,1 @@
+Also, Now that I've rebased, if I add a line `from ._version import VersionInfo ` to `__init__.pyi` _without_ adding a `_version.pyi`, I get: --- > You added _version.py you'll probably have to add _version.pyi 1. Let's appreciate the irony of me saying that we don't add files a lot _yesterday_. 2. So I'll have to replicate the type information I guess? :(

@@ -1,0 +1,3 @@
+Please check this too: Add support for Mathematica Not operator (!) in parse_mathematica. Fixes a KeyError that occurred when trying to parse boolean string from Mathematica that contains a Not operator : '!'.
+
+Extend the same bang-operator parser to consecutive prefix negations, including adjacent !! and !!! as well as whitespace-separated ! tokens. At operand position a bang run is right-nested Not; after an operand preserve postfix ! as Factorial and !! as Factorial2, and convert Factorial2 to SymPy factorial2. Respect existing arithmetic/comparison/And/Or precedence and bracket/function/list nesting; != must remain its comparison token.

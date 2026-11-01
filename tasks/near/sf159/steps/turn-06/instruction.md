@@ -1,0 +1,3 @@
+One more thing: I'd expect the `ValueError` to be raised here. I don't think we need the conditional "don't raise if the encoding is being set but the resulting codec won't change". Simplicity over complexity where possible.
+
+In addition to rejecting changes after text has been accessed, validate every earlier explicit encoding assignment before changing response state: non-string values raise TypeError and unknown codec names raise ValueError. A rejected assignment leaves the prior effective encoding and byte content unchanged and does not lock future valid assignments. Valid codec aliases remain accepted. After text access, retain the unconditional ValueError rule (including assigning the same encoding); cached text stays unchanged.

@@ -1,0 +1,1 @@
+I have this in /work/w04: I've now also updated the `remove_items` method, so hopefully I was on the right track!

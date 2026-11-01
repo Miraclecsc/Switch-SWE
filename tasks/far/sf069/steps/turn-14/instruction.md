@@ -1,0 +1,1 @@
+One more thing: by convention, NX suggests calling functions from the top-level namespace when available, so let's enforce the convention here: ... and the other tests

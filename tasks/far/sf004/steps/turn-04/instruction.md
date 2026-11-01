@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Ensure __main__ module is importable in ``to_process`` when not ending in .py Solves #1027

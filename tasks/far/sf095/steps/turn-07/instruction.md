@@ -1,0 +1,1 @@
+Please check this too: This causes a regression for anyone who was using that method combined with that method. Okay, Or, they .(we (I)) should have been using `trio.lowlevel.wait_task_rescheduled` but the `RuntimeError` should have been phased in with a warning over one release cycle.

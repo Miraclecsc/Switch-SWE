@@ -1,0 +1,70 @@
+{
+  "case_id": "sf023_switched",
+  "task_id": "ssb_v2_task_0189",
+  "repo": "getmoto/moto",
+  "base_commit": "95178b84ec889785db3edad2eef1feb4b882704d",
+  "derived_fail_to_pass": [
+    "tests.test_wafv2.test_wafv2::test_get_web_acl_by_arn",
+    "tests.test_wafv2.test_wafv2::test_get_web_acl_by_arn_has_priority",
+    "tests.test_wafv2.test_arn_identity_v1::test_arn_reads_follow_update_delete_recreate_lifecycle",
+    "tests.test_wafv2.test_arn_identity_v1::test_global_arn_works_from_non_global_endpoint_without_scope",
+    "tests.test_wafv2.test_arn_identity_v1::test_regional_arn_overrides_endpoint_scope_name_and_id"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_wafv2.test_wafv2::test_create_web_acl[cn-north-1-aws-cn]",
+    "tests.test_wafv2.test_wafv2::test_create_web_acl[eusc-de-east-1-aws-eusc]",
+    "tests.test_wafv2.test_wafv2::test_create_web_acl[us-east-1-aws]",
+    "tests.test_wafv2.test_wafv2::test_create_web_acl[us-gov-east-1-aws-us-gov]",
+    "tests.test_wafv2.test_wafv2::test_create_web_acl_with_all_arguments",
+    "tests.test_wafv2.test_wafv2::test_delete_web_acl",
+    "tests.test_wafv2.test_wafv2::test_get_non_existent_web_acl_by_arn",
+    "tests.test_wafv2.test_wafv2::test_get_web_acl_by_id_and_name",
+    "tests.test_wafv2.test_wafv2::test_ip_set_crud",
+    "tests.test_wafv2.test_wafv2::test_list_ip_sets_pagination",
+    "tests.test_wafv2.test_wafv2::test_list_web_acl",
+    "tests.test_wafv2.test_wafv2::test_update_web_acl",
+    "tests.test_wafv2.test_arn_identity_v1::test_invalid_arn_never_falls_back_to_supplied_identity[account]",
+    "tests.test_wafv2.test_arn_identity_v1::test_invalid_arn_never_falls_back_to_supplied_identity[malformed]",
+    "tests.test_wafv2.test_arn_identity_v1::test_invalid_arn_never_falls_back_to_supplied_identity[missing]",
+    "tests.test_wafv2.test_arn_identity_v1::test_invalid_arn_never_falls_back_to_supplied_identity[partition]",
+    "tests.test_wafv2.test_arn_identity_v1::test_invalid_arn_never_falls_back_to_supplied_identity[service]",
+    "tests.test_wafv2.test_arn_identity_v1::test_no_arn_name_id_lookup_enforces_scope"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_wafv2/test_wafv2.py",
+    "tests/test_wafv2/test_arn_identity_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_wafv2/test_arn_identity_v1.py",
+    "tests/test_wafv2/test_wafv2.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "5ffe335add47e52cfa55955991a0845bc849b9963eed4617a7b7d8647f49e420",
+    "config/recipes.json": "ae17eca368cafe1566fc1e153737e08a3bcf98c39355d26f4a07e518e344b77c"
+  }
+}

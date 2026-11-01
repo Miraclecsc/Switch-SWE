@@ -1,0 +1,1 @@
+One more thing: Sorry to clarify, I mean the `compact` reactive in the `FooterKey`(not the Footer). This seems to fix the example above from a quick test.

@@ -1,0 +1,1 @@
+One more thing: Also changed `not cols_droplevel.any()` to `(cols_droplevel == "").all()` to be a more explicit check for "empty level" values as they get introduced by pandas. Otherwise this could also match `pd.Index([0], dtype=object)` because of the unfortunate behaviour of `any` with object dtype

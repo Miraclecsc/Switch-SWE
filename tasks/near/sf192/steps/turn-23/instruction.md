@@ -1,0 +1,1 @@
+Please check this too: Oh I see, you want to keep the deprecation specifically in the `cmp` property of `Attribute` - not else where? Sorry, my bad. Would we keep it in `Attribute`'s `init`? > Especially because it returns a bool, while eq and order can be callables. `eq` and `order` are also booleans. The callables are stored under `eq_key` and `order_key`.

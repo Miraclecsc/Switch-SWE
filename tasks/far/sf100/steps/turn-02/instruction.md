@@ -1,0 +1,1 @@
+For the checkout at /work/w00, raise geometryerror for zero area Polygon.centroid

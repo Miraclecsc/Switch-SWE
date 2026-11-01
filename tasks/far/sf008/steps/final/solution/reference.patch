@@ -1,0 +1,104 @@
+diff --git a/django/db/models/fields/related.py b/django/db/models/fields/related.py
+index f1bc664007..3e253958af 100644
+--- a/django/db/models/fields/related.py
++++ b/django/db/models/fields/related.py
+@@ -348,6 +348,24 @@ class RelatedField(FieldCacheMixin, Field):
+                     )
+                 )
+ 
++        # Check clash between reverse accessor and manager names on
++        # the target model.
++        if not rel_is_hidden:
++            manager_names = {m.name for m in rel_opts.managers} | {"_base_manager", "_default_manager"}
++            if rel_name in manager_names:
++                errors.append(
++                    checks.Error(
++                        f"Related name '{rel_name}' for '{field_name}' "
++                        f"clashes with the name of a model manager.",
++                        hint=(
++                            "Rename the model manager or change the related_name "
++                            "argument in the definition for field '%s'." % field_name
++                        ),
++                        obj=self,
++                        id="fields.E348",
++                    )
++                )
++
+         return errors
+ 
+     def db_type(self, connection):
+@@ -589,7 +607,6 @@ class ForeignObject(RelatedField):
+             *self._check_to_fields_exist(),
+             *self._check_to_fields_composite_pk(),
+             *self._check_unique_target(),
+-            *self._check_conflict_with_managers(),
+         ]
+ 
+     def _check_to_fields_exist(self):
+@@ -719,27 +736,6 @@ class ForeignObject(RelatedField):
+                 ]
+         return []
+ 
+-    def _check_conflict_with_managers(self):
+-        errors = []
+-        manager_names = {manager.name for manager in self.opts.managers}
+-        for rel_objs in self.model._meta.related_objects:
+-            related_object_name = rel_objs.name
+-            if related_object_name in manager_names:
+-                field_name = f"{self.model._meta.object_name}.{self.name}"
+-                errors.append(
+-                    checks.Error(
+-                        f"Related name '{related_object_name}' for '{field_name}' "
+-                        "clashes with the name of a model manager.",
+-                        hint=(
+-                            "Rename the model manager or change the related_name "
+-                            f"argument in the definition for field '{field_name}'."
+-                        ),
+-                        obj=self,
+-                        id="fields.E348",
+-                    )
+-                )
+-        return errors
+-
+     def deconstruct(self):
+         name, path, args, kwargs = super().deconstruct()
+         kwargs["on_delete"] = self.remote_field.on_delete
+@@ -939,7 +935,11 @@ class ForeignObject(RelatedField):
+     def contribute_to_related_class(self, cls, related):
+         # Internal FK's - i.e., those with a related name ending with '+' -
+         # and swapped models don't get a related descriptor.
+-        if not self.remote_field.hidden and not related.related_model._meta.swapped:
++        if (
++            not self.remote_field.hidden
++            and not related.related_model._meta.swapped
++            and related.accessor_name not in {"_base_manager", "_default_manager"}
++        ):
+             setattr(
+                 cls._meta.concrete_model,
+                 related.accessor_name,
+@@ -2104,7 +2104,11 @@ class ManyToManyField(RelatedField):
+     def contribute_to_related_class(self, cls, related):
+         # Internal M2Ms (i.e., those with a related name ending with '+')
+         # and swapped models don't get a related descriptor.
+-        if not self.remote_field.hidden and not related.related_model._meta.swapped:
++        if (
++            not self.remote_field.hidden
++            and not related.related_model._meta.swapped
++            and related.accessor_name not in {"_base_manager", "_default_manager"}
++        ):
+             setattr(
+                 cls,
+                 related.accessor_name,
+diff --git a/docs/releases/6.0.4.txt b/docs/releases/6.0.4.txt
+index 1967edacc8..de75dc7d13 100644
+--- a/docs/releases/6.0.4.txt
++++ b/docs/releases/6.0.4.txt
+@@ -18,3 +18,8 @@ Bugfixes
+ * Fixed a regression in Django 6.0 in admin forms where
+   ``RelatedFieldWidgetWrapper`` incorrectly wrapped all widgets in a
+   ``<fieldset>`` (:ticket:`36949`).
++
++* Fixed a bug in Django 6.0 where the ``fields.E348`` system check did not
++  detect name clashes between model managers and
++  :attr:`~django.db.models.ForeignKey.related_name`\s for non-self-referential
++  relationships (:ticket:`36973`).

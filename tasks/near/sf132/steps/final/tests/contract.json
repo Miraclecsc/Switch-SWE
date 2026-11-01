@@ -1,0 +1,78 @@
+{
+  "case_id": "sf132_switched",
+  "task_id": "ssb_v3_networkx__networkx_3e6ed3b1e1",
+  "repo": "networkx/networkx",
+  "base_commit": "dc49e2f37df6687e6922a690805879d326904c55",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_digraph_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_directed_cyclic_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_florentine_families_closeness_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_k5_closeness_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_krackhardt_closeness_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_les_miserables_closeness_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_p3_closeness_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_weighted_closeness_sp",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_wf_improved_sp",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_bad_orientation_does_not_consume",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_generator_cache[False-False]",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_generator_cache[False-True]",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_generator_cache[True-False]",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_generator_cache[True-True]",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_inward_asymmetric_and_partial[False]",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_inward_asymmetric_and_partial[True]",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_undirected_inward"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_digraph",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_florentine_families_closeness",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_k5_closeness",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_krackhardt_closeness",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_les_miserables_closeness",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_p3_closeness",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_weighted_closeness",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestClosenessCentrality::test_wf_improved",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestIncrementalClosenessCentrality::test_directed_raises",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestIncrementalClosenessCentrality::test_incremental",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestIncrementalClosenessCentrality::test_wrong_nodes_prev_cc_raises",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestIncrementalClosenessCentrality::test_wrong_size_prev_cc_raises",
+    "networkx.algorithms.centrality.tests.test_closeness_centrality.TestIncrementalClosenessCentrality::test_zero_centrality",
+    "networkx.algorithms.centrality.tests.test_sf132_cache::test_mapping_unchanged"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/centrality/tests/test_closeness_centrality.py",
+    "networkx/algorithms/centrality/tests/test_sf132_cache.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/centrality/tests/test_closeness_centrality.py",
+    "networkx/algorithms/centrality/tests/test_sf132_cache.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "e848955abb00b3d5001b8af2677d319ed6ec0f13e7487ae31617e9fa941735a0",
+    "config/recipes.json": "1c0242ce38eb0ac287439a85938236693bfde9207bf87f8eca4be94a6ff917f3"
+  }
+}

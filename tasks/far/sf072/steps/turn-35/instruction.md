@@ -1,0 +1,1 @@
+Please check this too: I agree this reads better, if only for the fact that my implementation was defining the variable `u_weight` only within a conditional branch, and then used it in an another branch (although based on the same condition)

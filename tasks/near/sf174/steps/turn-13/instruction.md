@@ -1,0 +1,1 @@
+Also, Add details to `prompt` and `confirm` docstrings regarding 8.3.1 change This adds details of the change in #3021

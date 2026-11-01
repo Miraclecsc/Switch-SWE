@@ -1,0 +1,1 @@
+One more thing: A JSONDecodeError pickle round trip must retain Requests request/response context and caller-attached exception attributes, in addition to the JSON decoder fields. Support all pickle protocols supported by the interpreter, including cyclic attributes. copy.copy and copy.deepcopy must retain the same information with their normal shallow/deep semantics.

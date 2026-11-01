@@ -1,0 +1,1 @@
+Also, As a rule, PDF output is not produced for that type tests, the exception being tests/roots/test-root, see tests/test_builders/test_build_latex.py::test_build_latex_doc, which we (rarely) extend to catch potential PDF build crash situations.

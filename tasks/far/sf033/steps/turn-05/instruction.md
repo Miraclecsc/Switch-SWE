@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: refactor(lra_theory): Move Bound getting to LRAVar Replace static methods `Boundary.get_upper` and `Boundary.get_lower` with LRAVariable instance methods: `get_active_lower_boundary` and `get_active_lower_boundary`. Merge upper and lower getting logic into a single consolidated function: `_build_active_boundary`.

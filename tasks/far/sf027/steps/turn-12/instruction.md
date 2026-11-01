@@ -1,0 +1,1 @@
+And here, I relaunched the failed Docutils HEAD test and it now passes with current Docutils revision. LaTeX failure was only a duplicate because it uses Docutils HEAD since some time. See Also, Merge branch 'master' into fix/writer/text-table # Conflicts: # CHANGES.rst

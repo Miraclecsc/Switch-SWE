@@ -1,0 +1,1 @@
+In the checkout at /work/w01, Fixes #36590 subclasses of BaseCache should use specialized implementation of methods for async version

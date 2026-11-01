@@ -1,0 +1,1 @@
+Also, I'll revert the changes to this file, as the admin's rendering of file fields with a `<fieldset>` was already covered in `test_use_fieldset_fields_render()`:

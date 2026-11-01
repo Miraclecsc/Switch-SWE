@@ -1,0 +1,1 @@
+One more thing: This makes sense for a `__str__`, but not sure it's a great repr. Maybe surround it in `<name >`? ? (Maybe not, if this looks a lot better in list printouts or something, but usually it's good to have something to help identify what class it's from)

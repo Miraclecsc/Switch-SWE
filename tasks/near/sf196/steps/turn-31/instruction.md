@@ -1,0 +1,1 @@
+Please check this too: Maybe we could call `signal.raise_signal(signal.SIGINT)` in the `except KeyboardInterrupt:` and call it a day? Not a great solution IMO. (though actually that ... would probably raise in that except statement. ouch? nevermind)

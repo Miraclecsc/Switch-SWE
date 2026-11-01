@@ -1,0 +1,1 @@
+One more thing: Extend the same multipart FileContent API to accept bytearray and memoryview values wherever bytes/str file content is accepted, including bare content and 2/3/4-element file tuples. Encode their logical bytes, including strided or non-byte-format views; Content-Length must equal the emitted byte length and repeated iteration must agree.

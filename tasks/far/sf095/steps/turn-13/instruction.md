@@ -1,0 +1,1 @@
+Also, Since that type returns this, we might want to consider making it public, adding `NoPublicConstructor` and making `empty` private. It can then just be documented as an opaque token.

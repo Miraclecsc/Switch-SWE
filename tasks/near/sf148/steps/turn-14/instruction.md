@@ -1,0 +1,1 @@
+One more thing: Right. Ideally we'd be able to simply do `async with super()` but that'd require some interesting core CPython changes AFAICT.

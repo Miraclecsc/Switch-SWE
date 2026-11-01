@@ -1,0 +1,1 @@
+Please check this too: Thanks @di for the PR! Thanks @xavfernandez and @uranusjr for the reviews! I think it's perfectly fine to depend on `hash`. And and, thanks @brettcannon for his review as well! I got to do the easy-and-fun part. ;)

@@ -1,0 +1,1 @@
+I have this in /work/w01: Pass appropriate stacklevel in assoc deprecation warning. Fixes #208. I (deliberately) didn't document this change or write a test for it, let me know if that was a mistake.

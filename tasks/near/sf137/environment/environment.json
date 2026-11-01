@@ -1,0 +1,151 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8",
+    "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a"
+  ],
+  "case_id": "sf137_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+      "python": "3.12.12",
+      "requirements": "requirements/15b8f212b76f243b-3.12.12-7539736a.txt",
+      "source": "dependency-source/15b8f212b76f243b-3.12.12-7539736a.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8",
+      "python": "3.12.12",
+      "requirements": "requirements/5d08426a4a722541-3.12.12-559cdec8.txt",
+      "source": "dependency-source/5d08426a4a722541-3.12.12-559cdec8.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "a5f5aa6d4012d256ccca24638f2642fc371e9f77",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGES.rst",
+          "sha256": "5a07503b1225e7dcfe338f421324668b1b5e80fe80d81ff5fb594b3362f3d6cc"
+        },
+        {
+          "mode": "100644",
+          "path": "src/click/types.py",
+          "sha256": "fbf73eacccf845463a610f583176bf262ba797260b5f32b287fb126013a8efaf"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_types.py",
+          "sha256": "b8bffcc9222718c21ea5da68a8ff608a888b812c78a28e5534a8f5938992b2d0"
+        }
+      ],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "d959898db264aaf07e70ad4eafa254286f9a5185",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGES.rst",
+          "sha256": "adadd4b55e6f05258f266e56e978fe9cf023b1f1b780705efd8c93618e307733"
+        },
+        {
+          "mode": "100644",
+          "path": "src/click/types.py",
+          "sha256": "5a612956316a0a6075488253bc5e132ee72a59b65a8edf66a2086068f9636dfb"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_types.py",
+          "sha256": "b8bffcc9222718c21ea5da68a8ff608a888b812c78a28e5534a8f5938992b2d0"
+        }
+      ],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "1a4d8c1bb1e8f8e214ede7223bd2c05dc2ce006a",
+      "overlays": [],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "16fe802a3f96c4c8fa3cd382f1a7577fda0c5321",
+      "overlays": [],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "5b9630f50fde938b72ad8c99542efe3a6f5717e2",
+      "overlays": [],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w04"
+    }
+  ]
+}

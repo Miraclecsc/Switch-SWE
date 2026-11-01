@@ -1,0 +1,1 @@
+And here, Thanks @khughitt ! In most of the networkx algorithms, the starting node is referred to as `source`. Also, we can consider adding a `target` (ending node) parameter here too. btw, not a blocker for this PR :)

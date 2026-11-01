@@ -1,0 +1,1 @@
+Please check this too: This seems like a lot of boilerplate that gets in the way of clarity. Can we make the `get_edge_attr` function handle the defaults and kwargs get cruft? It should have access to the kwargs and defaults variables from the function namespace, right?

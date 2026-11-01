@@ -1,0 +1,1 @@
+Also, This looks good to me, but I'd really like to have the protocol importable by normal code. @layday can you refactor this logic out of .pyi files?

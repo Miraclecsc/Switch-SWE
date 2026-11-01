@@ -1,0 +1,1 @@
+I have this in /work/w03: git_hook(lazy=True) not checking unstaged changes Passing `lazy=True` to `git_hook` causes isort to [_discover_ unstaged files]( but then AFAICS it still only [checks the staged file content]( This fits with my observed behaviour that running the following in my `pre-commit` hook:

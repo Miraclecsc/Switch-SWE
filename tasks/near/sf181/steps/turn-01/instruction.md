@@ -1,0 +1,1 @@
+I have this in /work/w01: 32-bit Linux running on 64-bit ARM arch should have platform "linux_armv7l" Currently on a 32-bit OS that runs on a 64-bit ARM CPU (ARM-v8, aarch64), `_linux_platforms` returns the incorrect string. This commit fixes this issue by following the solution similar to that of the x86_64/x86 pair. Ported from cc @chrahunt @bdwyer2

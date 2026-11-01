@@ -1,0 +1,1 @@
+One more thing: The type ignore feels wrong here since we know the types of the parameter `total` and `Task.total`. `float_total` and assigned to that rather than re-assigning `total` to a float, you wouldn't need to ignore.

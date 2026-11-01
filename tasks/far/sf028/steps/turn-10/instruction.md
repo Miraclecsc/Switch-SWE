@@ -1,0 +1,1 @@
+One more thing: Fix that type parameter p to represent success probability

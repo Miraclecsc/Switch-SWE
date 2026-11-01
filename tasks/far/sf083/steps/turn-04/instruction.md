@@ -1,0 +1,1 @@
+In the checkout at /work/w01, Support enriched metadata Take raw metadata and wrap data as appropriate with more enriched representations (e.g., `requirements.Requirement` for `Requires-Dist`). Part of #570

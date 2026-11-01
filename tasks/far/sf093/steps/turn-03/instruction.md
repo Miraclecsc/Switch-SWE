@@ -1,0 +1,1 @@
+For the checkout at /work/w04, Isn't `defaultdict` a 3.9+ thing? Why is ruff doing this? Cause the `from __future__ import annotations`? or is this a bug.

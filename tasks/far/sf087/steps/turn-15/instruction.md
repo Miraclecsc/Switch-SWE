@@ -1,0 +1,1 @@
+Please check this too: Is there a need for `property` and to have hidden attributes instead of simply directly exposing e.g. `interpreter`?

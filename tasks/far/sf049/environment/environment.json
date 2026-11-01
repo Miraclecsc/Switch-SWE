@@ -1,0 +1,160 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3",
+    "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0"
+  ],
+  "case_id": "sf049_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0",
+      "python": "3.12.12",
+      "requirements": "requirements/67696f6f49716b52-3.12.12-bb5d36e0.txt",
+      "source": "dependency-source/67696f6f49716b52-3.12.12-bb5d36e0.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3",
+      "python": "3.12.12",
+      "requirements": "requirements/cbddd0015727d688-3.12.12-e8df46c3.txt",
+      "source": "dependency-source/cbddd0015727d688-3.12.12-e8df46c3.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/67696f6f49716b52-3.12.12-bb5d36e0",
+        "/opt/ssb/deps/cbddd0015727d688-3.12.12-e8df46c3"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "4c0efd5503af859d55d9171ad68152bad63e0e74",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "09003dfbc0ff2879811cdc0b33dfdb26731c2cb1",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "e03efd50f83a8453f023e404fda3865773dc0c37",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "323c582c6399f7798041b8ed273657b00dcb87404ce38057768f1bf36cb74c7f"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/events/click.md",
+          "sha256": "b228f6519b22c9d3d7b72efcff3298559b4c7a806b921315503311efe3d24554"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/guide/testing.md",
+          "sha256": "e9717543294e146da608db8bdbd294ca07f4f52c21dcaeeea1734891106bc311"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/app.py",
+          "sha256": "55dde01e34b761adf044a35e056c768584fd1b71282807f3c2920a8768290980"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/events.py",
+          "sha256": "ed6db4ee49d8d7a08d6233f2a47741782c9d1189252dcafe34a52e4ad76612bd"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/message_pump.py",
+          "sha256": "d6fbd50ce5e7dd997f0670233fe619fb6848c95718b18f37b41598bd850c8614"
+        },
+        {
+          "mode": "100644",
+          "path": "src/textual/pilot.py",
+          "sha256": "3ba0fba7135d1dd6014ef7ae1c9c8ff32816dda27f6fcf92a8a8d522b7a07ae5"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_app.py",
+          "sha256": "65b5a7b9d31c626a0a5c23b26e8d35fbc04eacf4aef43d79f7ede931d8e3137a"
+        }
+      ],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "35409c319f7c546f20152040004691d486855530",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "44d250a185618d85897253e5ce5ab2ed221904d4",
+      "overlays": [],
+      "repo": "Textualize/textual",
+      "url": "https://github.com/Textualize/textual.git",
+      "workspace": "w04"
+    }
+  ]
+}

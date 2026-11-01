@@ -1,0 +1,1 @@
+And here, My understanding is that the PlanarEmbedding class only works for undirected graphs. Even though it is a subclass of `DiGraph`, it is representing undirected graphs. So I think this wording should change to something like "non-embedded undirected graph":

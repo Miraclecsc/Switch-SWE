@@ -1,0 +1,96 @@
+diff --git a/httpx/_decoders.py b/httpx/_decoders.py
+index 57c6492..2941372 100644
+--- a/httpx/_decoders.py
++++ b/httpx/_decoders.py
+@@ -212,7 +212,7 @@ class TextChunker:
+ 
+     def decode(self, content: str) -> typing.List[str]:
+         if self._chunk_size is None:
+-            return [content]
++            return [content] if content else []
+ 
+         self._buffer.write(content)
+         if self._buffer.tell() >= self._chunk_size:
+@@ -263,7 +263,9 @@ class LineDecoder:
+     but handling the input iteratively.
+     """
+ 
+-    def __init__(self) -> None:
++    def __init__(self, keepends: bool = False) -> None:
++        self.keepends = keepends
++        self.pending = ""
+         self.buffer: typing.List[str] = []
+         self.trailing_cr: bool = False
+ 
+@@ -271,6 +273,14 @@ class LineDecoder:
+         # See https://docs.python.org/3/library/stdtypes.html#str.splitlines
+         NEWLINE_CHARS = "\n\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+ 
++        if self.keepends:
++            self.pending += text
++            lines = self.pending.splitlines(keepends=True)
++            self.pending = ""
++            if lines and (lines[-1][-1] not in NEWLINE_CHARS or lines[-1].endswith("\r")):
++                self.pending = lines.pop()
++            return lines
++
+         # We always push a trailing `\r` into the next decode iteration.
+         if self.trailing_cr:
+             text = "\r" + text
+@@ -280,7 +290,9 @@ class LineDecoder:
+             text = text[:-1]
+ 
+         if not text:
+-            return []
++            # NOTE: the edge case input of empty text doesn't occur in practice,
++            # because other httpx internals filter out this value
++            return []  # pragma: no cover
+ 
+         trailing_newline = text[-1] in NEWLINE_CHARS
+         lines = text.splitlines()
+@@ -304,6 +316,9 @@ class LineDecoder:
+         return lines
+ 
+     def flush(self) -> typing.List[str]:
++        if self.keepends:
++            pending, self.pending = self.pending, ""
++            return [pending] if pending else []
+         if not self.buffer and not self.trailing_cr:
+             return []
+ 
+diff --git a/httpx/_models.py b/httpx/_models.py
+index dac177c..e9319b1 100644
+--- a/httpx/_models.py
++++ b/httpx/_models.py
+@@ -853,12 +853,12 @@ class Response:
+                     yield chunk
+             text_content = decoder.flush()
+             for chunk in chunker.decode(text_content):
+-                yield chunk
++                yield chunk  # pragma: no cover
+             for chunk in chunker.flush():
+                 yield chunk
+ 
+-    def iter_lines(self) -> typing.Iterator[str]:
+-        decoder = LineDecoder()
++    def iter_lines(self, *, keepends: bool = False) -> typing.Iterator[str]:
++        decoder = LineDecoder(keepends=keepends)
+         with request_context(request=self._request):
+             for text in self.iter_text():
+                 for line in decoder.decode(text):
+@@ -957,12 +957,12 @@ class Response:
+                     yield chunk
+             text_content = decoder.flush()
+             for chunk in chunker.decode(text_content):
+-                yield chunk
++                yield chunk  # pragma: no cover
+             for chunk in chunker.flush():
+                 yield chunk
+ 
+-    async def aiter_lines(self) -> typing.AsyncIterator[str]:
+-        decoder = LineDecoder()
++    async def aiter_lines(self, *, keepends: bool = False) -> typing.AsyncIterator[str]:
++        decoder = LineDecoder(keepends=keepends)
+         with request_context(request=self._request):
+             async for text in self.aiter_text():
+                 for line in decoder.decode(text):

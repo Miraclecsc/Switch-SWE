@@ -1,0 +1,217 @@
+diff --git a/tests/test_taskgroups.py b/tests/test_taskgroups.py
+index 52f966009..7fe13223e 100644
+--- a/tests/test_taskgroups.py
++++ b/tests/test_taskgroups.py
+@@ -1837,3 +1837,13 @@ async def test_patched_asyncio_task(monkeypatch: MonkeyPatch) -> None:
+     )
+     async with create_task_group() as tg:
+         tg.start_soon(sleep, 0)
++
++
++async def test_exception_groups_suppresses_exc_context() -> None:
++    with pytest.raises(
++        cast(type[ExceptionGroup[Exception]], ExceptionGroup)
++    ) as exc_info:
++        async with create_task_group():
++            raise Exception("Error")
++
++    assert exc_info.value.__suppress_context__
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,194 @@
++from __future__ import annotations
++
++import asyncio
++import traceback
++
++import pytest
++
++from anyio import CancelScope, create_task_group, get_cancelled_exc_class, sleep
++from .conftest import asyncio_params
++
++pytestmark = [pytest.mark.anyio, pytest.mark.parametrize("anyio_backend", asyncio_params)]
++
++
++class TaggedGroup(BaseExceptionGroup):
++    def __new__(cls, message, exceptions, tag="trace"):
++        obj = super().__new__(cls, message, exceptions)
++        obj.tag = tag
++        return obj
++
++    def derive(self, exceptions):
++        return type(self)(self.message, exceptions, self.tag)
++
++
++class UntouchedGroup(ExceptionGroup):
++    def derive(self, exceptions):
++        raise AssertionError("unchanged subgroup must not be reconstructed")
++
++
++def leaves(exc):
++    if isinstance(exc, BaseExceptionGroup):
++        return [leaf for child in exc.exceptions for leaf in leaves(child)]
++    return [exc]
++
++
++async def exit_cancelled_scope(make_group):
++    original = None
++    caught = None
++    scope = CancelScope()
++    try:
++        with scope:
++            scope.cancel()
++            try:
++                await sleep(0)
++            except get_cancelled_exc_class() as cancelled:
++                owned = cancelled
++            original = make_group(owned)
++            raise original
++    except BaseException as exc:
++        caught = exc
++    return original, caught, scope
++
++
++async def test_a2_taskgroup_preserves_leaf_diagnostics():
++    cause = LookupError("cause")
++    context = RuntimeError("context")
++    leaf = ValueError("leaf")
++    leaf.__cause__ = cause
++    leaf.__context__ = context
++    leaf.add_note("leaf-note")
++    with pytest.raises(ExceptionGroup) as caught:
++        async with create_task_group():
++            raise leaf
++    wrapper = caught.value
++    assert wrapper.__suppress_context__
++    assert wrapper.exceptions == (leaf,)
++    assert leaf.__cause__ is cause and leaf.__context__ is context
++    assert leaf.__notes__ == ["leaf-note"]
++    formatted = "".join(traceback.format_exception(wrapper))
++    assert "leaf-note" in formatted and "LookupError: cause" in formatted
++
++
++async def test_a3_mixed_cancellation_leaves_removed():
++    leaf = ValueError("kept")
++    original, caught, scope = await exit_cancelled_scope(
++        lambda cancelled: BaseExceptionGroup("mixed", [cancelled, leaf])
++    )
++    assert scope.cancelled_caught
++    assert isinstance(caught, ExceptionGroup)
++    assert caught.message == "mixed" and caught.exceptions == (leaf,)
++    assert len(original.exceptions) == 2
++
++
++async def test_a4_tree_shape_and_occurrences_preserved():
++    a, b = ValueError("a"), TypeError("b")
++    original, caught, scope = await exit_cancelled_scope(
++        lambda cancelled: BaseExceptionGroup("root", [
++            BaseExceptionGroup("left", [a, cancelled, a]),
++            BaseExceptionGroup("empty", [cancelled]),
++            BaseExceptionGroup("right", [BaseExceptionGroup("inner", [cancelled, b])]),
++        ])
++    )
++    assert scope.cancelled_caught
++    assert [group.message for group in caught.exceptions] == ["left", "right"]
++    assert caught.exceptions[0].exceptions == (a, a)
++    assert caught.exceptions[1].exceptions[0].message == "inner"
++    assert caught.exceptions[1].exceptions[0].exceptions == (b,)
++    assert leaves(caught) == [a, a, b]
++    assert len(original.exceptions) == 3
++
++
++async def test_a5_unchanged_subgroups_keep_identity():
++    leaf = ValueError("kept")
++    untouched = UntouchedGroup("opaque", [leaf])
++    original, caught, scope = await exit_cancelled_scope(
++        lambda cancelled: BaseExceptionGroup("root", [cancelled, untouched, untouched])
++    )
++    assert scope.cancelled_caught
++    assert isinstance(caught, ExceptionGroup), repr(caught)
++    assert caught.exceptions == (untouched, untouched)
++    assert caught.exceptions[0] is untouched
++    assert original.exceptions[1] is untouched
++
++
++async def test_a6_metadata_context_and_original_immutable():
++    cause, context = LookupError("explicit-cause"), RuntimeError("prior-context")
++    leaf = ValueError("payload")
++    leaf.add_note("leaf note")
++    child_context = OSError("nested-context")
++    originals = {}
++    def make(cancelled):
++        branch = TaggedGroup("branch", [cancelled, leaf], "branch-tag")
++        branch.__context__ = child_context
++        branch.__suppress_context__ = False
++        branch.add_note("branch note")
++        root = TaggedGroup("root", [branch], "root-tag")
++        root.__cause__ = cause
++        root.__context__ = context
++        root.__suppress_context__ = True
++        root.add_note("root note")
++        originals["branch"] = branch
++        return root
++    original, caught, scope = await exit_cancelled_scope(make)
++    assert scope.cancelled_caught
++    assert type(caught) is TaggedGroup and caught.tag == "root-tag"
++    assert caught.__cause__ is cause and caught.__context__ is context
++    assert caught.__suppress_context__ is True
++    assert caught.__notes__ == ["root note"]
++    branch = caught.exceptions[0]
++    assert type(branch) is TaggedGroup and branch.tag == "branch-tag"
++    assert branch.__context__ is child_context and not branch.__suppress_context__
++    assert branch.__notes__ == ["branch note"] and branch.exceptions == (leaf,)
++    caught.add_note("new root note")
++    branch.add_note("new branch note")
++    assert original.__notes__ == ["root note"]
++    assert originals["branch"].__notes__ == ["branch note"]
++    assert len(originals["branch"].exceptions) == 2
++    assert leaf.__notes__ == ["leaf note"]
++
++
++async def test_a7_native_cancellation_and_baseexception_retained():
++    class Fatal(BaseException):
++        pass
++    native = asyncio.CancelledError("not an AnyIO scope cancellation")
++    fatal = Fatal("fatal")
++    original, caught, scope = await exit_cancelled_scope(
++        lambda cancelled: BaseExceptionGroup("root", [cancelled, native, fatal])
++    )
++    assert scope.cancelled_caught
++    assert isinstance(caught, BaseExceptionGroup) and not isinstance(caught, ExceptionGroup)
++    assert caught.exceptions == (native, fatal)
++    assert len(original.exceptions) == 3
++
++
++async def test_a7_no_matching_cancellation_is_exact_passthrough():
++    original = UntouchedGroup("untouched root", [ValueError("keep")])
++    scope = CancelScope()
++    caught = None
++    try:
++        with scope:
++            scope.cancel()
++            raise original
++    except BaseException as exc:
++        caught = exc
++    assert caught is original
++    assert not scope.cancelled_caught
++
++
++async def test_a8_shared_changed_subgroups_keep_aliases():
++    leaf = ValueError("kept twice")
++    retained = {}
++    def make(cancelled):
++        shared = TaggedGroup("shared", [cancelled, leaf], "shared-tag")
++        retained["shared"] = shared
++        return BaseExceptionGroup("root", [shared, shared])
++    original, caught, scope = await exit_cancelled_scope(make)
++    assert scope.cancelled_caught
++    assert len(caught.exceptions) == 2
++    assert caught.exceptions[0] is caught.exceptions[1]
++    assert caught.exceptions[0] is not retained["shared"]
++    assert caught.exceptions[0].exceptions == (leaf,)
++    assert caught.exceptions[0].tag == "shared-tag"
++    assert leaves(caught) == [leaf, leaf]
++    assert original.exceptions[0] is original.exceptions[1]
++    assert len(retained["shared"].exceptions) == 2

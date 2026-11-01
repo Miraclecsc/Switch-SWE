@@ -1,0 +1,57 @@
+{
+  "case_id": "sf197_switched",
+  "task_id": "ssb_v4_python-trio__trio_3050",
+  "repo": "python-trio/trio",
+  "base_commit": "6fad505488504fffd6e8b9bf3ab830fd2b5243ba",
+  "derived_fail_to_pass": [
+    "src.trio._tests.tools.test_gen_exports::test_process[from collections import Counter\\n]",
+    "src.trio._tests.tools.test_gen_exports::test_process[from collections import Counter\\nimport os\\n]",
+    "src.trio._tests.tools.test_gen_exports::test_process[from typing import TYPE_CHECKING\\nif TYPE_CHECKING:\\n    from collections import Counter\\n]",
+    "tests.test_sf197_staged::test_hook_triggers_for_generator_and_generated_outputs",
+    "tests.test_sf197_staged::test_noop_preserves_metadata_and_changed_output_preserves_mode",
+    "tests.test_sf197_staged::test_encoding_failure_preserves_all_outputs"
+  ],
+  "derived_pass_to_pass": [
+    "src.trio._tests.tools.test_gen_exports::test_create_pass_through_args",
+    "src.trio._tests.tools.test_gen_exports::test_get_public_methods",
+    "src.trio._tests.tools.test_gen_exports::test_lint_failure",
+    "src.trio._tests.tools.test_gen_exports::test_run_ruff"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "src/trio/_tests/tools/test_gen_exports.py",
+    "tests/test_sf197_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "src/trio/_tests/tools/test_gen_exports.py",
+    "tests/test_sf197_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "7c9b00f5b8085c32a9a48b837760fcc342ec8c48e239f95387712f65dc4c1239",
+    "config/recipes.json": "173b380650e4ae3da59b732a8243d523b8540f3527b0bef023412971f77dea2a"
+  }
+}

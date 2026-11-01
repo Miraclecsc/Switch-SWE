@@ -1,0 +1,1 @@
+One more thing: The problem here would be that this will blow up with strings: This seemed like the only way to get the `isnan` check cleanly even though looks magic.

@@ -1,0 +1,1 @@
+And here, WDYT about dropping `_BaseVersion` in favor of just a `Version` class (merging the classes really)? Likewise, how about dropping `BaseSpecifier`?

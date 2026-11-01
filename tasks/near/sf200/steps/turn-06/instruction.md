@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Fix nonlinsolve TypeError when nfloat produces nan

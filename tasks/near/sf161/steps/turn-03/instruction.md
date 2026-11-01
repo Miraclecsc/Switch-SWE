@@ -1,0 +1,3 @@
+Please check this too: Can we deprecate the `**env_options` first, then remove it on v1?
+
+When using a supplied Jinja Environment, provide the request-aware url_for template global if absent. Do not overwrite an existing url_for global or replace the supplied environment, loader, filters, or autoescape settings. The default global must resolve against each render call's request, not a previously rendered request.

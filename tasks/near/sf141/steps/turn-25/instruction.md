@@ -1,0 +1,3 @@
+Also, I've got a decent docstring, but just want to double-check on the name. Do you *really* want get_default_columns()? I usually associate getters with instances, not the class. For this method, I'm not sure what value the "get_" prefix adds.
+
+Consume each supplied iterable only once and materialize the whole replacement before changing an existing layout. A factory or iterable exception must leave current columns and task state intact. Generated defaults must retain subclass dispatch, including when called after tasks already exist.

@@ -1,0 +1,1 @@
+Also, The process of calling `cleandoc()` on the doctring's content and getting only its first paragraph if `self.help` is not True is now factorised in a single method, rather than done twice in this class

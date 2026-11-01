@@ -1,0 +1,210 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 47ac88c..7950a5f 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+ 
+ ## Unreleased
+ 
++### Deprecated
++
++* The `app=...` shortcut has been deprecated. Use the explicit style of `transport=httpx.WSGITransport()` or `transport=httpx.ASGITransport()` instead.
++
+ ### Fixed
+ 
+ * Respect the `http1` argument while configuring proxy transports. (#3023)
+diff --git a/docs/advanced/transports.md b/docs/advanced/transports.md
+index 2f3e006..7e0e21c 100644
+--- a/docs/advanced/transports.md
++++ b/docs/advanced/transports.md
+@@ -42,7 +42,9 @@ You can configure an `httpx` client to call directly into a Python web applicati
+ This is particularly useful for two main use-cases:
+ 
+ * Using `httpx` as a client inside test cases.
+-* Mocking out external services during tests or in dev/staging environments.
++* Mocking out external services during tests or in dev or staging environments.
++
++### Example
+ 
+ Here's an example of integrating against a Flask application:
+ 
+@@ -57,12 +59,15 @@ app = Flask(__name__)
+ def hello():
+     return "Hello World!"
+ 
+-with httpx.Client(app=app, base_url="http://testserver") as client:
++transport = httpx.WSGITransport(app=app)
++with httpx.Client(transport=transport, base_url="http://testserver") as client:
+     r = client.get("/")
+     assert r.status_code == 200
+     assert r.text == "Hello World!"
+ ```
+ 
++### Configuration
++
+ For some more complex cases you might need to customize the WSGI transport. This allows you to:
+ 
+ * Inspect 500 error responses rather than raise exceptions by setting `raise_app_exceptions=False`.
+@@ -78,6 +83,69 @@ with httpx.Client(transport=transport, base_url="http://testserver") as client:
+     ...
+ ```
+ 
++## ASGITransport
++
++You can configure an `httpx` client to call directly into an async Python web application using the ASGI protocol.
++
++This is particularly useful for two main use-cases:
++
++* Using `httpx` as a client inside test cases.
++* Mocking out external services during tests or in dev or staging environments.
++
++### Example
++
++Let's take this Starlette application as an example:
++
++```python
++from starlette.applications import Starlette
++from starlette.responses import HTMLResponse
++from starlette.routing import Route
++
++
++async def hello(request):
++    return HTMLResponse("Hello World!")
++
++
++app = Starlette(routes=[Route("/", hello)])
++```
++
++We can make requests directly against the application, like so:
++
++```python
++transport = httpx.ASGITransport(app=app)
++
++async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
++    r = await client.get("/")
++    assert r.status_code == 200
++    assert r.text == "Hello World!"
++```
++
++### Configuration
++
++For some more complex cases you might need to customise the ASGI transport. This allows you to:
++
++* Inspect 500 error responses rather than raise exceptions by setting `raise_app_exceptions=False`.
++* Mount the ASGI application at a subpath by setting `root_path`.
++* Use a given client address for requests by setting `client`.
++
++For example:
++
++```python
++# Instantiate a client that makes ASGI requests with a client IP of "1.2.3.4",
++# on port 123.
++transport = httpx.ASGITransport(app=app, client=("1.2.3.4", 123))
++async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
++    ...
++```
++
++See [the ASGI documentation](https://asgi.readthedocs.io/en/latest/specs/www.html#connection-scope) for more details on the `client` and `root_path` keys.
++
++### ASGI startup and shutdown
++
++It is not in the scope of HTTPX to trigger ASGI lifespan events of your app.
++
++However it is suggested to use `LifespanManager` from [asgi-lifespan](https://github.com/florimondmanca/asgi-lifespan#usage) in pair with `AsyncClient`.
++
+ ## Custom transports
+ 
+ A transport instance must implement the low-level Transport API, which deals
+diff --git a/docs/async.md b/docs/async.md
+index d54a353..089d783 100644
+--- a/docs/async.md
++++ b/docs/async.md
+@@ -191,54 +191,4 @@ anyio.run(main, backend='trio')
+ 
+ ## Calling into Python Web Apps
+ 
+-Just as `httpx.Client` allows you to call directly into WSGI web applications,
+-the `httpx.AsyncClient` class allows you to call directly into ASGI web applications.
+-
+-Let's take this Starlette application as an example:
+-
+-```python
+-from starlette.applications import Starlette
+-from starlette.responses import HTMLResponse
+-from starlette.routing import Route
+-
+-
+-async def hello(request):
+-    return HTMLResponse("Hello World!")
+-
+-
+-app = Starlette(routes=[Route("/", hello)])
+-```
+-
+-We can make requests directly against the application, like so:
+-
+-```pycon
+->>> import httpx
+->>> async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
+-...     r = await client.get("/")
+-...     assert r.status_code == 200
+-...     assert r.text == "Hello World!"
+-```
+-
+-For some more complex cases you might need to customise the ASGI transport. This allows you to:
+-
+-* Inspect 500 error responses rather than raise exceptions by setting `raise_app_exceptions=False`.
+-* Mount the ASGI application at a subpath by setting `root_path`.
+-* Use a given client address for requests by setting `client`.
+-
+-For example:
+-
+-```python
+-# Instantiate a client that makes ASGI requests with a client IP of "1.2.3.4",
+-# on port 123.
+-transport = httpx.ASGITransport(app=app, client=("1.2.3.4", 123))
+-async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+-    ...
+-```
+-
+-See [the ASGI documentation](https://asgi.readthedocs.io/en/latest/specs/www.html#connection-scope) for more details on the `client` and `root_path` keys.
+-
+-## Startup/shutdown of ASGI apps
+-
+-It is not in the scope of HTTPX to trigger lifespan events of your app.
+-
+-However it is suggested to use `LifespanManager` from [asgi-lifespan](https://github.com/florimondmanca/asgi-lifespan#usage) in pair with `AsyncClient`.
++For details on calling directly into ASGI applications, see [the `ASGITransport` docs](../advanced/transports#asgitransport).
+\ No newline at end of file
+diff --git a/httpx/_client.py b/httpx/_client.py
+index 1f2145d..5345536 100644
+--- a/httpx/_client.py
++++ b/httpx/_client.py
+@@ -672,6 +672,13 @@ class Client(BaseClient):
+             if proxy:
+                 raise RuntimeError("Use either `proxy` or 'proxies', not both.")
+ 
++        if app is not None:
++            message = (
++                "The 'app' shortcut is now deprecated."
++                " Use the explicit style 'transport=WSGITransport(app=...)' instead."
++            )
++            warnings.warn(message, DeprecationWarning, stacklevel=2)
++
+         allow_env_proxies = trust_env and app is None and transport is None
+         proxy_map = self._get_proxy_map(proxies or proxy, allow_env_proxies)
+ 
+@@ -1411,6 +1418,13 @@ class AsyncClient(BaseClient):
+             if proxy:
+                 raise RuntimeError("Use either `proxy` or 'proxies', not both.")
+ 
++        if app is not None:
++            message = (
++                "The 'app' shortcut is now deprecated."
++                " Use the explicit style 'transport=ASGITransport(app=...)' instead."
++            )
++            warnings.warn(message, DeprecationWarning, stacklevel=2)
++
+         allow_env_proxies = trust_env and app is None and transport is None
+         proxy_map = self._get_proxy_map(proxies or proxy, allow_env_proxies)
+ 

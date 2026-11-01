@@ -1,0 +1,3 @@
+And here, Consider it would be better to stick to sin and cos. For example, Consider we should handle this case: `refine(cos(n*pi/2), Q.even(n))`. Consider we should try to cover as many simplifications as possible for cos and sin so we don't leave out anything important.
+
+Handle assumptions on a combined phase as well as on individual symbols. For sin or cos of x + pi*n/2 + pi*m/2, assumptions that n+m is even or odd must remove that entire phase from the trigonometric argument, using the appropriate sign power and sin/cos cofunction. Do not require n and m to have separately known parity or integrality. Support more than two phase summands, negative coefficients, and a symbolic residual angle; keep the existing partial-phase simplifications.

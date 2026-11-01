@@ -1,0 +1,1 @@
+Please check this too: Yeah, if someone raises that type in a child task + aclose raises in a nursery. I'm not sure if we should care though, since for instance .close doesn't care if you raise that type or if it does. (I forgot to check if Python suppresses that type from next(gen) too... I'll check in a bit)

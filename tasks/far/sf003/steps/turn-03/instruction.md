@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Added an exception handler in the asyncio test runner It will now raise all the capture exceptions if the test function completes without raising any exceptions of its own. Closes #205.

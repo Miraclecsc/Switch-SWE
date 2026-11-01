@@ -1,0 +1,1 @@
+One more thing: > Not sure, what kind of example you think of for the typing examples, though. Just use the API and see if MyPy complains. :)

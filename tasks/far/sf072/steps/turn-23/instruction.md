@@ -1,0 +1,1 @@
+Please check this too: Good catch! I had intended this to mean "add 0 as a node" but that's not how `empty_graph` works!

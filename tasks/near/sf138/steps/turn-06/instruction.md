@@ -1,0 +1,1 @@
+One more thing: I would expect the result to be the same dtype as `ser`, only upcasting when necessary. This shouldn't be object dtype.

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Should let this exception rise. Toying with your test case shows that this should already raise an error elsewhere. Also, `NotRelationField` is not caught.

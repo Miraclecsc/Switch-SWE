@@ -1,0 +1,1 @@
+One more thing: @Kludex for what it's worth, I don't think that `__str__` and `__repr__` implementations should match if you want standard behavior Using the `__repr__` implementation would break expectations in downstream libraries that format exceptions e.g. would display the exception type twice The linked Flask code omits the type from the `__str__`

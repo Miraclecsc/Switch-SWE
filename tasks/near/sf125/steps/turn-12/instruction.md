@@ -1,0 +1,1 @@
+And here, Add test case for inverse derivative Verifies that d(S**-1)/dt is correctly computed as -S**-1

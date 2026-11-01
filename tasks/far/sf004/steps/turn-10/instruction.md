@@ -1,0 +1,1 @@
+One more thing: CapacityLimiter.total_tokens is mutable so I'd rather users update that than update the limiter Also, I also don't see any test mutating the limiter on an open file or Path

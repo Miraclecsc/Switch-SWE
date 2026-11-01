@@ -1,0 +1,1 @@
+One more thing: Easier to use `pytest.mark.parametrize()` to run the same test with different inputs.

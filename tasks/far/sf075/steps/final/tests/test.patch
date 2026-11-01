@@ -1,0 +1,132 @@
+diff --git a/tests/test_regression.py b/tests/test_regression.py
+index 945061ab5..a49356b3e 100644
+--- a/tests/test_regression.py
++++ b/tests/test_regression.py
+@@ -717,36 +717,31 @@ def test(ctx):
+         # show up outside of it
+         assert tmpl.render() == "42\n0\n24\n0\n42\n1\n24\n1\n42"
+ 
+-    def test_cached_extends(self):
++    @pytest.mark.parametrize("op", ["extends", "include"])
++    def test_cached_extends(self, op):
+         env = Environment(
+             loader=DictLoader(
+-                {"parent": "{{ foo }}", "child": "{% extends 'parent' %}"}
++                {"base": "{{ x }} {{ y }}", "main": f"{{% {op} 'base' %}}"}
+             )
+         )
+-        tmpl = env.get_template("child", globals={"foo": "bar"})
+-        assert tmpl.render() == "bar"
++        env.globals["x"] = "x"
++        env.globals["y"] = "y"
+ 
+-        tmpl = env.get_template("parent", globals={"foo": 42})
+-        assert tmpl.render() == "42"
++        # template globals overlay env globals
++        tmpl = env.get_template("main", globals={"x": "bar"})
++        assert tmpl.render() == "bar y"
+ 
+-        tmpl = env.get_template("child")
+-        assert tmpl.render() == "bar"
+-
+-        tmpl = env.get_template("parent")
+-        assert tmpl.render() == "42"
+-
+-    def test_cached_includes(self):
+-        env = Environment(
+-            loader=DictLoader({"base": "{{ foo }}", "main": "{% include 'base' %}"})
+-        )
+-        tmpl = env.get_template("main", globals={"foo": "bar"})
+-        assert tmpl.render() == "bar"
++        # base was loaded indirectly, it just has env globals
++        tmpl = env.get_template("base")
++        assert tmpl.render() == "x y"
+ 
+-        tmpl = env.get_template("base", globals={"foo": 42})
+-        assert tmpl.render() == "42"
++        # set template globals for base, no longer uses env globals
++        tmpl = env.get_template("base", globals={"x": 42})
++        assert tmpl.render() == "42 y"
+ 
++        # templates are cached, they keep template globals set earlier
+         tmpl = env.get_template("main")
+-        assert tmpl.render() == "bar"
++        assert tmpl.render() == "bar y"
+ 
+         tmpl = env.get_template("base")
+-        assert tmpl.render() == "42"
++        assert tmpl.render() == "42 y"
+diff --git a/tests/test_sf075_globals_ownership.py b/tests/test_sf075_globals_ownership.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf075_globals_ownership.py
+@@ -0,0 +1,69 @@
++
++from collections.abc import Mapping
++from types import MappingProxyType
++import pytest
++from jinja2 import Environment, DictLoader
++
++def environment():
++    env = Environment(loader=DictLoader({"a": "{{local}}/{{shared}}",
++                                        "b": "{{local}}/{{shared}}"}))
++    env.globals["shared"] = "environment"
++    return env
++
++def test_caller_mapping_is_snapshotted_for_each_loaded_template():
++    env = environment()
++    supplied = {"local": "original"}
++    first = env.get_template("a", globals=supplied)
++    second = env.get_template("b", globals=supplied)
++    supplied["local"] = "caller changed"
++    assert first.render() == second.render() == "original/environment"
++    env.get_template("a", globals={"local": "a only"})
++    assert first.render() == "a only/environment"
++    assert second.render() == "original/environment"
++    assert supplied == {"local": "caller changed"}
++    env.globals["shared"] = "updated"
++    assert second.render() == "original/updated"
++
++@pytest.mark.parametrize("entry", ["get", "select", "get_or_select", "from_string"])
++def test_readonly_input_mapping_does_not_make_template_globals_readonly(entry):
++    env = environment()
++    supplied = MappingProxyType({"local": "initial"})
++    if entry == "get":
++        template = env.get_template("a", globals=supplied)
++    elif entry == "select":
++        template = env.select_template(["missing", "a"], globals=supplied)
++    elif entry == "get_or_select":
++        template = env.get_or_select_template(["missing", "a"], globals=supplied)
++    else:
++        template = env.from_string("{{local}}/{{shared}}", globals=supplied)
++    template.globals["local"] = "owned"
++    assert template.render() == "owned/environment"
++    assert supplied["local"] == "initial"
++    assert "local" not in env.globals
++
++def test_failed_cached_globals_update_is_atomic():
++    env = environment()
++    template = env.get_template("a", globals={"local": "original"})
++    error = RuntimeError("cannot materialize mapping")
++    class Broken(Mapping):
++        def __iter__(self):
++            return iter(["local", "bad"])
++        def __len__(self):
++            return 2
++        def __getitem__(self, key):
++            if key == "bad":
++                raise error
++            return "partially changed"
++    with pytest.raises(RuntimeError) as caught:
++        env.get_template("a", globals=Broken())
++    assert caught.value is error
++    assert template.render() == "original/environment"
++    assert env.get_template("a") is template
++
++def test_from_string_snapshots_input_but_keeps_environment_fallback_live():
++    env = environment()
++    supplied = {"local": "initial"}
++    template = env.from_string("{{local}}/{{shared}}", globals=supplied)
++    supplied.clear()
++    env.globals["shared"] = "later"
++    assert template.render() == "initial/later"

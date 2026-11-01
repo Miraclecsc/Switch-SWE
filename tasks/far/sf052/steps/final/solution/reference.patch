@@ -1,0 +1,233 @@
+diff --git a/docs/cancellation.rst b/docs/cancellation.rst
+index 11a52c5..ccfd32e 100644
+--- a/docs/cancellation.rst
++++ b/docs/cancellation.rst
+@@ -7,7 +7,7 @@ The ability to cancel tasks is the foremost advantage of the asynchronous progra
+ model. Threads, on the other hand, cannot be forcibly killed and shutting them down will
+ require perfect cooperation from the code running in them.
+ 
+-Cancellation in AnyIO follows the model established by the trio_ framework. This means
++Cancellation in AnyIO follows the model established by the Trio_ framework. This means
+ that cancellation of tasks is done via so called *cancel scopes*. Cancel scopes are used
+ as context managers and can be nested. Cancelling a cancel scope cancels all cancel
+ scopes nested within it. If a task is waiting on something, it is cancelled immediately.
+@@ -17,7 +17,7 @@ requiring waiting, such as :func:`~sleep`.
+ A task group contains its own cancel scope. The entire task group can be cancelled by
+ cancelling this scope.
+ 
+-.. _trio: https://trio.readthedocs.io/en/latest/reference-core.html#cancellation-and-timeouts
++.. _Trio: https://trio.readthedocs.io/en/latest/reference-core.html#cancellation-and-timeouts
+ 
+ Timeouts
+ --------
+@@ -46,11 +46,15 @@ Here's how you typically use timeouts::
+                 await sleep(2)
+                 print('This should never be printed')
+ 
+-            # The cancel_called property will be True if timeout was reached
+-            print('Exited cancel scope, cancelled =', scope.cancel_called)
++            # The cancelled_caught property will be True if timeout was reached
++            print('Exited cancel scope, cancelled =', scope.cancelled_caught)
+ 
+     run(main)
+ 
++.. note:: It's recommended not to directly cancel a scope from :func:`~fail_after`, as
++    that may currently result in :exc:`TimeoutError` being erroneously raised if exiting
++    the scope is delayed long enough for the deadline to be exceeded.
++
+ Shielding
+ ---------
+ 
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index d9c0570..c6a94e2 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -33,6 +33,10 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ - Added the ``anyio.Path.is_junction()`` and ``anyio.Path.walk()`` methods
+ - Added ``create_unix_datagram_socket`` and ``create_connected_unix_datagram_socket`` to
+   create UNIX datagram sockets (PR by Jean Hominal)
++- Added the ``CancelScope.cancelled_caught`` property which tells users if the cancel
++  scope suppressed a cancellation exception
++- Fixed ``fail_after()`` raising an unwarranted ``TimeoutError`` when the cancel scope
++  was cancelled before reaching its deadline
+ 
+ **3.7.1**
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index 0662b25..4250392 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -90,7 +90,7 @@ else:
+     import signal
+     from asyncio import coroutines, events, exceptions, tasks
+ 
+-    from exceptiongroup import BaseExceptionGroup, ExceptionGroup
++    from exceptiongroup import BaseExceptionGroup
+ 
+     class _State(enum.Enum):
+         CREATED = "created"
+@@ -346,12 +346,12 @@ class CancelScope(BaseCancelScope):
+         self._shield = shield
+         self._parent_scope: CancelScope | None = None
+         self._cancel_called = False
++        self._cancelled_caught = False
+         self._active = False
+         self._timeout_handle: asyncio.TimerHandle | None = None
+         self._cancel_handle: asyncio.Handle | None = None
+         self._tasks: set[asyncio.Task] = set()
+         self._host_task: asyncio.Task | None = None
+-        self._timeout_expired = False
+         self._cancel_calls: int = 0
+ 
+     def __enter__(self) -> CancelScope:
+@@ -416,19 +416,9 @@ class CancelScope(BaseCancelScope):
+         if self._shield:
+             self._deliver_cancellation_to_parent()
+ 
+-        if exc_val is not None:
+-            exceptions = (
+-                exc_val.exceptions if isinstance(exc_val, ExceptionGroup) else [exc_val]
+-            )
+-            if all(isinstance(exc, CancelledError) for exc in exceptions):
+-                if self._timeout_expired:
+-                    return self._uncancel()
+-                elif not self._cancel_called:
+-                    # Task was cancelled natively
+-                    return None
+-                elif not self._parent_cancelled():
+-                    # This scope was directly cancelled
+-                    return self._uncancel()
++        if isinstance(exc_val, CancelledError) and self._cancel_called:
++            self._cancelled_caught = self._uncancel()
++            return self._cancelled_caught
+ 
+         return None
+ 
+@@ -448,7 +438,6 @@ class CancelScope(BaseCancelScope):
+         if self._deadline != math.inf:
+             loop = get_running_loop()
+             if loop.time() >= self._deadline:
+-                self._timeout_expired = True
+                 self.cancel()
+             else:
+                 self._timeout_handle = loop.call_at(self._deadline, self._timeout)
+@@ -546,6 +535,10 @@ class CancelScope(BaseCancelScope):
+     def cancel_called(self) -> bool:
+         return self._cancel_called
+ 
++    @property
++    def cancelled_caught(self) -> bool:
++        return self._cancelled_caught
++
+     @property
+     def shield(self) -> bool:
+         return self._shield
+diff --git a/src/anyio/_backends/_trio.py b/src/anyio/_backends/_trio.py
+index 9a5a8dc..28ddf55 100644
+--- a/src/anyio/_backends/_trio.py
++++ b/src/anyio/_backends/_trio.py
+@@ -118,6 +118,10 @@ class CancelScope(BaseCancelScope):
+     def cancel_called(self) -> bool:
+         return self.__original.cancel_called
+ 
++    @property
++    def cancelled_caught(self) -> bool:
++        return self.__original.cancelled_caught
++
+     @property
+     def shield(self) -> bool:
+         return self.__original.shield
+diff --git a/src/anyio/_core/_tasks.py b/src/anyio/_core/_tasks.py
+index 45d6be4..6b3558e 100644
+--- a/src/anyio/_core/_tasks.py
++++ b/src/anyio/_core/_tasks.py
+@@ -1,6 +1,8 @@
+ from __future__ import annotations
+ 
+ import math
++from collections.abc import Generator
++from contextlib import contextmanager
+ from types import TracebackType
+ 
+ from ..abc._tasks import TaskGroup, TaskStatus
+@@ -51,6 +53,19 @@ class CancelScope:
+         """``True`` if :meth:`cancel` has been called."""
+         raise NotImplementedError
+ 
++    @property
++    def cancelled_caught(self) -> bool:
++        """
++        ``True`` if this scope suppressed a cancellation exception it itself raised.
++
++        This is typically used to check if any work was interrupted, or to see if the
++        scope was cancelled due to its deadline being reached. The value will, however,
++        only be ``True`` if the cancellation was triggered by the scope itself (and not
++        an outer scope).
++
++        """
++        raise NotImplementedError
++
+     @property
+     def shield(self) -> bool:
+         """
+@@ -77,27 +92,10 @@ class CancelScope:
+         raise NotImplementedError
+ 
+ 
+-class FailAfterContextManager:
+-    def __init__(self, cancel_scope: CancelScope):
+-        self._cancel_scope = cancel_scope
+-
+-    def __enter__(self) -> CancelScope:
+-        return self._cancel_scope.__enter__()
+-
+-    def __exit__(
+-        self,
+-        exc_type: type[BaseException] | None,
+-        exc_val: BaseException | None,
+-        exc_tb: TracebackType | None,
+-    ) -> bool | None:
+-        retval = self._cancel_scope.__exit__(exc_type, exc_val, exc_tb)
+-        if self._cancel_scope.cancel_called:
+-            raise TimeoutError
+-
+-        return retval
+-
+-
+-def fail_after(delay: float | None, shield: bool = False) -> FailAfterContextManager:
++@contextmanager
++def fail_after(
++    delay: float | None, shield: bool = False, *, on_timeout=None
++) -> Generator[CancelScope, None, None]:
+     """
+     Create a context manager which raises a :class:`TimeoutError` if does not finish in
+     time.
+@@ -109,13 +107,22 @@ def fail_after(delay: float | None, shield: bool = False) -> FailAfterContextMan
+     :rtype: :class:`~typing.ContextManager`\\[:class:`~anyio.CancelScope`\\]
+ 
+     """
+-    deadline = (
+-        (get_async_backend().current_time() + delay) if delay is not None else math.inf
+-    )
+-    cancel_scope = get_async_backend().create_cancel_scope(
++    if on_timeout is not None and not callable(on_timeout):
++        raise TypeError("on_timeout must be callable or None")
++    current_time = get_async_backend().current_time
++    deadline = (current_time() + delay) if delay is not None else math.inf
++    with get_async_backend().create_cancel_scope(
+         deadline=deadline, shield=shield
+-    )
+-    return FailAfterContextManager(cancel_scope)
++    ) as cancel_scope:
++        yield cancel_scope
++
++    if cancel_scope.cancelled_caught and current_time() >= cancel_scope.deadline:
++        if on_timeout is not None:
++            try:
++                on_timeout(cancel_scope.deadline)
++            except Exception as exc:
++                raise TimeoutError from exc
++        raise TimeoutError
+ 
+ 
+ def move_on_after(delay: float | None, shield: bool = False) -> CancelScope:

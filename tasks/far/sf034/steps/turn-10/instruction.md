@@ -1,0 +1,1 @@
+One more thing: quantum: fix doc tests for spin.py This commit fixes the doc tests for the spin module to adjust for the new way of printing tensor products of states.

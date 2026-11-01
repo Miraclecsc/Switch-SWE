@@ -1,0 +1,1 @@
+One more thing: Are you sure we're okay with not looking at the task cancellation counter when entering the scope? I think there was a reason why `asyncio.timeout()` does that.

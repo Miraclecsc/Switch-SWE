@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Suppress GeneratorExit from `.aclose()` for `as_safe_channel` Fixes #3324.

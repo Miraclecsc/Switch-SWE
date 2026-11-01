@@ -1,0 +1,122 @@
+diff --git a/tests/test_converters.py b/tests/test_converters.py
+index 164fb0ffa..d4aca4307 100644
+--- a/tests/test_converters.py
++++ b/tests/test_converters.py
+@@ -143,6 +143,14 @@ def test_fail(self):
+         with pytest.raises(ValueError):
+             c("not_an_int")
+ 
++    def test_converter_instance(self):
++        """
++        Works when passed a Converter instance as argument.
++        """
++        c = optional(Converter(to_bool))
++
++        assert True is c("yes", None, None)
++
+ 
+ class TestDefaultIfNone:
+     def test_missing_default(self):
+@@ -272,6 +280,48 @@ class C:
+         )
+ 
+ 
++class TestOptionalPipe:
++    def test_optional(self):
++        """
++        Nothing happens if None.
++        """
++        c = optional(pipe(str, Converter(to_bool), bool))
++
++        assert None is c.converter(None, None, None)
++
++    def test_pipe(self):
++        """
++        A value is given, run it through all wrapped converters.
++        """
++        c = optional(pipe(str, Converter(to_bool), bool))
++
++        assert (
++            True
++            is c.converter("True", None, None)
++            is c.converter(True, None, None)
++        )
++
++    def test_instance(self):
++        """
++        Should work when set as an attrib.
++        """
++
++        @attr.s
++        class C:
++            x = attrib(
++                converter=optional(pipe(str, Converter(to_bool), bool)),
++                default=None,
++            )
++
++        c1 = C()
++
++        assert None is c1.x
++
++        c2 = C("True")
++
++        assert True is c2.x
++
++
+ class TestToBool:
+     def test_unhashable(self):
+         """
+diff --git a/tests/test_sf188_staged.py b/tests/test_sf188_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf188_staged.py
+@@ -0,0 +1,49 @@
++
++import attrs
++from attrs.converters import optional
++
++def test_optional_sequences_and_empty_identity():
++    for pipeline in ([int, str], (int,str)):
++        @attrs.define
++        class Example:
++            value: object = attrs.field(converter=optional(pipeline))
++        assert Example('12').value == '12'
++        assert Example(None).value is None
++    @attrs.define
++    class Empty:
++        value = attrs.field(converter=optional([]))
++    token = object()
++    assert Empty(token).value is token
++    assert Empty(None).value is None
++
++def test_contextual_optional_sequence_construction_and_assignment():
++    calls = []
++    def with_context(value, instance, field):
++        calls.append((instance, field.name, value))
++        return value + instance.offset
++    pipeline = [int, attrs.Converter(with_context, takes_self=True, takes_field=True)]
++    @attrs.define
++    class Example:
++        offset: int
++        value: object = attrs.field(converter=optional(pipeline))
++    example = Example(3, '4')
++    assert example.value == 7 and calls == [(example,'value',4)]
++    example.value = None
++    assert example.value is None and len(calls) == 1
++    example.value = '5'
++    assert example.value == 8 and calls[-1] == (example,'value',5)
++
++def test_none_bypasses_failing_pipeline_and_errors_propagate():
++    error = ValueError('conversion rejected')
++    def fail(value):
++        raise error
++    @attrs.define
++    class Example:
++        value = attrs.field(converter=optional((fail,)))
++    assert Example(None).value is None
++    try:
++        Example('x')
++    except ValueError as caught:
++        assert caught is error
++    else:
++        raise AssertionError('converter error swallowed')

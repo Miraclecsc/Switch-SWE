@@ -1,0 +1,74 @@
+{
+  "case_id": "sf041_switched",
+  "task_id": "ssb_v3_getmoto__moto_a3e1138d20",
+  "repo": "getmoto/moto",
+  "base_commit": "dc17b54d78bb9b7245f642b2980de58887a3e51d",
+  "derived_fail_to_pass": [
+    "tests.test_pipes.test_pipes::test_create_pipe",
+    "tests.test_pipes.test_pipes::test_create_pipe_with_optional_parameters",
+    "tests.test_pipes.test_pipes::test_start_pipe_on_running_pipe",
+    "tests.test_pipes.test_pipes::test_start_pipe_on_stopped_pipe",
+    "tests.test_pipes.test_pipes::test_stop_pipe_on_running_pipe",
+    "tests.test_pipes.test_pipes::test_stop_pipe_on_stopped_pipe",
+    "tests.test_pipes.test_sf041_terminal_states::test_created_stopped_remains_stopped_under_polling",
+    "tests.test_pipes.test_sf041_terminal_states::test_explicit_stop_is_terminal_until_start",
+    "tests.test_pipes.test_sf041_terminal_states::test_latest_request_wins_during_delayed_transitions[STOPPED]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_pipes.test_pipes::test_conflict_exception_with_all_parameters",
+    "tests.test_pipes.test_pipes::test_create_pipe_missing_role_arn",
+    "tests.test_pipes.test_pipes::test_create_pipe_missing_source",
+    "tests.test_pipes.test_pipes::test_create_pipe_missing_target",
+    "tests.test_pipes.test_pipes::test_delete_pipe",
+    "tests.test_pipes.test_pipes::test_describe_pipe",
+    "tests.test_pipes.test_pipes::test_internal_exception_with_retry_after",
+    "tests.test_pipes.test_pipes::test_list_pipes",
+    "tests.test_pipes.test_pipes::test_list_pipes_with_invalid_limit",
+    "tests.test_pipes.test_pipes::test_list_pipes_with_pagination",
+    "tests.test_pipes.test_pipes::test_service_quota_exceeded_exception_with_all_parameters",
+    "tests.test_pipes.test_pipes::test_tag_resource",
+    "tests.test_pipes.test_pipes::test_tag_resource_updates_existing_tags",
+    "tests.test_pipes.test_pipes::test_throttling_exception_with_all_parameters",
+    "tests.test_pipes.test_pipes::test_untag_resource",
+    "tests.test_pipes.test_pipes::test_untag_resource_all_tags",
+    "tests.test_pipes.test_sf041_terminal_states::test_default_creation_regression",
+    "tests.test_pipes.test_sf041_terminal_states::test_latest_request_wins_during_delayed_transitions[RUNNING]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_pipes/test_pipes.py",
+    "tests/test_pipes/test_sf041_terminal_states.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_pipes/test_pipes.py",
+    "tests/test_pipes/test_sf041_terminal_states.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "2b58eb3b1850da0e2fe47dd8447664f55a99d47db76511799c7515e0d0302d4a",
+    "config/recipes.json": "a9c87852b3e1d8249ad9a82d46cbed6cd4b412770301e74f37cece23554c0978"
+  }
+}

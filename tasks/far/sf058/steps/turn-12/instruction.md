@@ -1,0 +1,1 @@
+And here, Good catch — you're right, that first `async with create_task_group(): pass` was dead code creating an unrelated task group. I've removed it in the latest push. The test now correctly creates a single that type, enters it once, then asserts that re-entry raises `RuntimeError`.

@@ -1,0 +1,1 @@
+And here, FWIW, there's one other place this is used; it's part of `parse_wheel_filename`. We could add a kwarg there, or we could just wait till #1113 and make sure it's part of that when it lands (currently on hold waiting for wheel variants).

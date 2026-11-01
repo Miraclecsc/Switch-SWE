@@ -1,0 +1,1 @@
+For the checkout at /work/w01, Sorry, doubt I can fix the new test, without bringing analog of `six.add_metaclass` to the code, or using an ugly hack with `eval`.

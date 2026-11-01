@@ -1,0 +1,3 @@
+And here, I should really enforce this in `python-multipart`.
+
+Likewise enforce max_part_size during name/data callbacks, before buffering the new slice. Count the combined encoded name and value bytes cumulatively across chunk boundaries, retaining the original inclusive boundary and error text. Stop before completing an oversized field or parsing subsequent fields, clear queued partial messages on that error, and do not read additional stream chunks after rejection. Preserve percent decoding, exact-boundary bodies, infinity field limits and the existing Request HTTP-400 translation.

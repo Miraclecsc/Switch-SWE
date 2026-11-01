@@ -1,0 +1,1 @@
+And here, Since `default_environment` is part of the public API (pending documentation I wonder if we should avoid adding `extra` to it.

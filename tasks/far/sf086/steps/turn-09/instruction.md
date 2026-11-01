@@ -1,0 +1,1 @@
+I have this in /work/w03: Personally I like to rely on `hash()`, since it would be easier to add entries to `_spec` in the future (if this is ever needed) without the risk of forgetting to update both of them.

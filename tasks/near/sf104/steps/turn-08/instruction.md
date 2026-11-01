@@ -1,0 +1,1 @@
+And here, I added these `# fmt: ` annotations just to avoid Black changing the second test case so that it spawns across multiple lines when the 1st one doesn't, as they are functionally the same thing But happy to let Black format _everything_ and remove those if you prefer, of course :slightly_smiling_face:

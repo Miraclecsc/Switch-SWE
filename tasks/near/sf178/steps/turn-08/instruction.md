@@ -1,0 +1,1 @@
+I have this in /work/w02: Fix `prepare_body` stream detection for `__getattr__`-based file wrappers Resolves #7432 . Add `hasattr(data, "__iter__")` as a fallback stream detector: This catches file-like objects that proxy their interface through `__getattr__`, restoring the 2.33.1 behavior without reverting the isinstance(Iterable) modernization for standard iterables.

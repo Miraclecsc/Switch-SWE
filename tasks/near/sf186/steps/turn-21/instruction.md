@@ -1,0 +1,1 @@
+Also, Explicit globalns/localns and supplied attribs must be honored even after a class was previously resolved. Mutating an explicit namespace between calls must affect the result; distinct supplied attribute lists must each be resolved. These explicit-context calls must not leave a stale cache for subsequent default resolution. Preserve return-of-class behavior.

@@ -1,0 +1,1 @@
+Also, The test name uses btwn, but the existing test `test_clash_between_related_query_name_and_manager` spells out between, so it would be better to rename this one to `test_clash_between_related_name_and_manager_non_self_referential` for Also, It’s a small thing, but there’s a typo in the commit message: accross should be across.

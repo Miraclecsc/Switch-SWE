@@ -1,0 +1,1 @@
+One more thing: > The compiled versions of the most recent patterns passed to re.match(), re.search() or re.compile() are cached, so programs that use only a few regular expressions at a time needn’t worry about compiling regular expressions. Meh, it can't hurt but I won't block the PR on that (which, I guess is the same as you).

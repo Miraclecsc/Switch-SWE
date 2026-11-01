@@ -1,0 +1,3 @@
+One more thing: maybe we could extract it to a private "module-scoped" variable, rather than re-creating it for each invocation of the `size` function? :thinking:
+
+Extend POSIX Console.size discovery to prefer an explicitly configured output file descriptor, then fall back to the existing stdin/stdout/stderr descriptor order. With no explicit file, retain the existing standard descriptor order. Probe each distinct descriptor at most once per size lookup; missing or closed file descriptors must not prevent fallback.

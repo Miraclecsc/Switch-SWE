@@ -1,0 +1,344 @@
+diff --git a/tests/test_ram/test_ram.py b/tests/test_ram/test_ram.py
+index f262015ba140..27ebc5ac39c0 100644
+--- a/tests/test_ram/test_ram.py
++++ b/tests/test_ram/test_ram.py
+@@ -119,6 +119,123 @@ def test_create_resource_share_errors():
+     )
+ 
+ 
++@mock_aws
++def test_create_resource_share_with_service_principal():
++    client = boto3.client("ram", region_name="us-east-1")
++
++    response = client.create_resource_share(
++        name="test-service-principal",
++        principals=["backup.amazonaws.com"],
++        resourceArns=[
++            f"arn:aws:ec2:us-east-1:{ACCOUNT_ID}:transit-gateway/tgw-123456789"
++        ],
++    )
++    resource_share = response["resourceShare"]
++    assert resource_share["name"] == "test-service-principal"
++
++    associations = client.get_resource_share_associations(
++        associationType="PRINCIPAL",
++        resourceShareArns=[resource_share["resourceShareArn"]],
++    )["resourceShareAssociations"]
++    assert len(associations) == 1
++    assert associations[0]["associatedEntity"] == "backup.amazonaws.com"
++
++
++@mock_aws
++def test_create_resource_share_with_iam_role_principal():
++    client = boto3.client("ram", region_name="us-east-1")
++
++    role_arn = f"arn:aws:iam::{ACCOUNT_ID}:role/MyRole"
++    response = client.create_resource_share(
++        name="test-iam-role",
++        principals=[role_arn],
++        resourceArns=[
++            f"arn:aws:ec2:us-east-1:{ACCOUNT_ID}:transit-gateway/tgw-123456789"
++        ],
++    )
++    resource_share = response["resourceShare"]
++    assert resource_share["name"] == "test-iam-role"
++
++    associations = client.get_resource_share_associations(
++        associationType="PRINCIPAL",
++        resourceShareArns=[resource_share["resourceShareArn"]],
++    )["resourceShareAssociations"]
++    assert len(associations) == 1
++    assert associations[0]["associatedEntity"] == role_arn
++
++
++@mock_aws
++def test_create_resource_share_with_iam_user_principal():
++    client = boto3.client("ram", region_name="us-east-1")
++
++    user_arn = f"arn:aws:iam::{ACCOUNT_ID}:user/MyUser"
++    response = client.create_resource_share(
++        name="test-iam-user",
++        principals=[user_arn],
++        resourceArns=[
++            f"arn:aws:ec2:us-east-1:{ACCOUNT_ID}:transit-gateway/tgw-123456789"
++        ],
++    )
++    resource_share = response["resourceShare"]
++    assert resource_share["name"] == "test-iam-user"
++
++    associations = client.get_resource_share_associations(
++        associationType="PRINCIPAL",
++        resourceShareArns=[resource_share["resourceShareArn"]],
++    )["resourceShareAssociations"]
++    assert len(associations) == 1
++    assert associations[0]["associatedEntity"] == user_arn
++
++
++@mock_aws
++def test_create_resource_share_with_root_principal():
++    client = boto3.client("ram", region_name="us-east-1")
++
++    root_arn = f"arn:aws:iam::{ACCOUNT_ID}:root"
++    response = client.create_resource_share(
++        name="test-root",
++        principals=[root_arn],
++        resourceArns=[
++            f"arn:aws:ec2:us-east-1:{ACCOUNT_ID}:transit-gateway/tgw-123456789"
++        ],
++    )
++    resource_share = response["resourceShare"]
++    assert resource_share["name"] == "test-root"
++
++    associations = client.get_resource_share_associations(
++        associationType="PRINCIPAL",
++        resourceShareArns=[resource_share["resourceShareArn"]],
++    )["resourceShareAssociations"]
++    assert len(associations) == 1
++    assert associations[0]["associatedEntity"] == root_arn
++
++
++@mock_aws
++def test_create_resource_share_rejects_invalid_principal():
++    client = boto3.client("ram", region_name="us-east-1")
++
++    invalid_principals = [
++        "not-a-valid-principal",
++        "arn:aws:iam::not-account:role/Foo",
++        "UPPERCASE.amazonaws.com",
++        "under_score.amazonaws.com",
++    ]
++
++    for principal in invalid_principals:
++        with pytest.raises(ClientError) as e:
++            client.create_resource_share(
++                name="test-invalid",
++                principals=[principal],
++                resourceArns=[
++                    f"arn:aws:ec2:us-east-1:{ACCOUNT_ID}:transit-gateway/tgw-123456789"
++                ],
++            )
++        ex = e.value
++        assert ex.response["ResponseMetadata"]["HTTPStatusCode"] == 400
++        assert "InvalidParameterException" in ex.response["Error"]["Code"]
++        assert "is malformed" in ex.response["Error"]["Message"]
++
++
+ @mock_aws
+ def test_create_resource_share_with_organization():
+     # given
+diff --git a/tests/test_ram/test_ram_idempotency.py b/tests/test_ram/test_ram_idempotency.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_ram/test_ram_idempotency.py
+@@ -0,0 +1,211 @@
++"""Public API and backend-state tests for sf018 RAM retry requirements."""
++from copy import deepcopy
++
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++
++from moto import mock_aws
++from moto.core import DEFAULT_ACCOUNT_ID as ACCOUNT
++from moto.ram.models import ResourceAccessManagerBackend
++
++RESOURCE = f"arn:aws:ec2:us-east-1:{ACCOUNT}:transit-gateway/tgw-123456789"
++PRINCIPALS = [
++    ACCOUNT,
++    "backup.amazonaws.com",
++    f"arn:aws:iam::{ACCOUNT}:role/team/Role",
++    f"arn:aws:iam::{ACCOUNT}:root",
++]
++
++
++def request(**changes):
++    value = dict(name="receipt", principals=[ACCOUNT], resourceArns=[RESOURCE])
++    value.update(changes)
++    return value
++
++
++def shares(client):
++    return client.get_resource_shares(resourceOwner="SELF")["resourceShares"]
++
++
++def mismatch(client, params):
++    with pytest.raises(ClientError) as exc:
++        client.create_resource_share(**params)
++    assert exc.value.response["Error"]["Code"] == "IdempotentParameterMismatchException"
++    assert exc.value.response["ResponseMetadata"]["HTTPStatusCode"] == 400
++
++
++@pytest.mark.parametrize("principal", PRINCIPALS)
++@mock_aws
++def test_retry_preserves_share_and_single_principal(principal):
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request(principals=[principal], clientToken="retry-token")
++    first = client.create_resource_share(**params)
++    again = client.create_resource_share(**params)
++    assert again["resourceShare"] == first["resourceShare"]
++    assert again["clientToken"] == first["clientToken"] == "retry-token"
++    assert len(shares(client)) == 1
++    associations = client.get_resource_share_associations(
++        associationType="PRINCIPAL",
++        resourceShareArns=[first["resourceShare"]["resourceShareArn"]],
++    )["resourceShareAssociations"]
++    assert [row["associatedEntity"] for row in associations] == [principal]
++
++
++@pytest.mark.parametrize(
++    "change",
++    [
++        {"name": "different"},
++        {"principals": ["backup.amazonaws.com"]},
++        {"resourceArns": [RESOURCE + "-other"]},
++        {"allowExternalPrincipals": False},
++        {"tags": [{"key": "stage", "value": "two"}]},
++        {"permissionArns": ["arn:aws:ram::aws:permission/Other"]},
++    ],
++    ids=["name", "principals", "resources", "external", "tags", "permissions"],
++)
++@mock_aws
++def test_retry_parameter_conflict_does_not_replace_result(change):
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request(clientToken="conflict")
++    first = client.create_resource_share(**params)
++    mismatch(client, {**params, **change})
++    assert client.create_resource_share(**params)["resourceShare"] == first["resourceShare"]
++    assert len(shares(client)) == 1
++
++
++@mock_aws
++def test_missing_tokens_are_generated_and_replayable():
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request()
++    first = client.create_resource_share(**params)
++    second = client.create_resource_share(**params)
++    assert isinstance(first["clientToken"], str) and first["clientToken"]
++    assert first["clientToken"] != second["clientToken"]
++    assert first["resourceShare"]["resourceShareArn"] != second["resourceShare"]["resourceShareArn"]
++    replay = client.create_resource_share(**params, clientToken=first["clientToken"])
++    assert replay["resourceShare"] == first["resourceShare"]
++    assert len(shares(client)) == 2
++
++
++@mock_aws
++def test_tokens_are_case_sensitive():
++    client = boto3.client("ram", region_name="us-east-1")
++    first = client.create_resource_share(**request(clientToken="Case"))
++    second = client.create_resource_share(**request(clientToken="case"))
++    assert first["resourceShare"]["resourceShareArn"] != second["resourceShare"]["resourceShareArn"]
++    assert len(shares(client)) == 2
++
++
++@pytest.mark.parametrize("invalid_part", ["principals", "resourceArns"])
++@mock_aws
++def test_failed_validation_does_not_reserve_token(invalid_part):
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request(clientToken="after-failure")
++    bad = {**params, invalid_part: params[invalid_part] + ["invalid"]}
++    with pytest.raises(ClientError):
++        client.create_resource_share(**bad)
++    assert shares(client) == []
++    result = client.create_resource_share(**params)
++    assert client.create_resource_share(**params)["resourceShare"] == result["resourceShare"]
++    assert len(shares(client)) == 1
++
++
++@mock_aws
++def test_normalized_defaults_and_mapping_key_order():
++    client = boto3.client("ram", region_name="us-east-1")
++    first = client.create_resource_share(name="defaults", clientToken="defaults")
++    again = client.create_resource_share(
++        clientToken="defaults", allowExternalPrincipals=True,
++        principals=[], resourceArns=[], name="defaults",
++    )
++    assert again["resourceShare"] == first["resourceShare"]
++    assert len(shares(client)) == 1
++
++
++@mock_aws
++def test_principal_order_and_multiplicity_are_fingerprint_values():
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request(clientToken="ordered", principals=[ACCOUNT, "backup.amazonaws.com"])
++    first = client.create_resource_share(**params)
++    mismatch(client, {**params, "principals": list(reversed(params["principals"]))})
++    mismatch(client, {**params, "principals": params["principals"] + [ACCOUNT]})
++    assert client.create_resource_share(**params)["resourceShare"] == first["resourceShare"]
++    assert len(shares(client)) == 1
++
++
++@pytest.mark.parametrize("mutation", ["update", "delete"])
++@mock_aws
++def test_replay_is_creation_snapshot_without_rolling_back_live_state(mutation):
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request(clientToken="snapshot")
++    first = client.create_resource_share(**params)
++    arn = first["resourceShare"]["resourceShareArn"]
++    if mutation == "update":
++        client.update_resource_share(resourceShareArn=arn, name="live-name")
++    else:
++        client.delete_resource_share(resourceShareArn=arn)
++    live = deepcopy(shares(client))
++    assert client.create_resource_share(**params)["resourceShare"] == first["resourceShare"]
++    assert shares(client) == live
++    assert live[0]["name"] == ("live-name" if mutation == "update" else "receipt")
++    assert live[0]["status"] == ("ACTIVE" if mutation == "update" else "DELETED")
++
++
++@mock_aws
++def test_cached_principal_request_does_not_revalidate_deleted_ou():
++    orgs = boto3.client("organizations", region_name="us-east-1")
++    orgs.create_organization()
++    root = orgs.list_roots()["Roots"][0]["Id"]
++    ou = orgs.create_organizational_unit(ParentId=root, Name="temporary")["OrganizationalUnit"]
++    client = boto3.client("ram", region_name="us-east-1")
++    params = request(clientToken="ou", principals=[ou["Arn"]])
++    first = client.create_resource_share(**params)
++    orgs.delete_organizational_unit(OrganizationalUnitId=ou["Id"])
++    assert client.create_resource_share(**params)["resourceShare"] == first["resourceShare"]
++    with pytest.raises(ClientError) as exc:
++        client.create_resource_share(**{**params, "clientToken": "fresh-ou"})
++    assert exc.value.response["Error"]["Code"] == "UnknownResourceException"
++    assert len(shares(client)) == 1
++
++
++def test_backend_owns_deep_request_and_response_snapshots():
++    backend = ResourceAccessManagerBackend("us-east-1", ACCOUNT)
++    params = request(clientToken="deep", tags=[{"key": "k", "value": "v"}])
++    pristine = deepcopy(params)
++    first = backend.create_resource_share(**params)
++    expected = deepcopy(first)
++    params["principals"].append("backup.amazonaws.com")
++    params["tags"][0]["value"] = "mutated"
++    first["resourceShare"]["name"] = "mutated-response"
++    first["clientToken"] = "mutated-token"
++    assert backend.create_resource_share(**pristine) == expected
++    again = backend.create_resource_share(**pristine)
++    again["resourceShare"]["status"] = "corrupt"
++    assert backend.create_resource_share(**pristine) == expected
++    assert backend.resource_shares[0].principals == [ACCOUNT]
++
++
++@pytest.mark.parametrize("account,region", [
++    ("111111111111", "us-east-1"),
++    (ACCOUNT, "eu-west-1"),
++])
++def test_tokens_are_scoped_to_account_and_region_backends(account, region):
++    a = ResourceAccessManagerBackend("us-east-1", ACCOUNT)
++    b = ResourceAccessManagerBackend(region, account)
++    first = a.create_resource_share(**request(clientToken="scope"))
++    second = b.create_resource_share(**request(name="other", clientToken="scope"))
++    assert first["resourceShare"]["resourceShareArn"] != second["resourceShare"]["resourceShareArn"]
++    assert len(a.resource_shares) == len(b.resource_shares) == 1
++    assert a.create_resource_share(**request(clientToken="scope")) == first
++
++
++def test_mock_reset_clears_token_state():
++    with mock_aws():
++        client = boto3.client("ram", region_name="us-east-1")
++        client.create_resource_share(**request(clientToken="reset"))
++    with mock_aws():
++        client = boto3.client("ram", region_name="us-east-1")
++        response = client.create_resource_share(**request(name="new", clientToken="reset"))
++        assert response["resourceShare"]["name"] == "new"
++        assert len(shares(client)) == 1

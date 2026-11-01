@@ -1,0 +1,1 @@
+Please check this too: What we need here is to check that the "length of the PathCollection" is >0. So I think the following assert is needed. Note that we do have to assert on this length here. Even if the len is not 5 it should be > 0. So the comment following this can be removed. And the `subplots` and `ax=ax` stuff can be removed too. We only need to call the function.

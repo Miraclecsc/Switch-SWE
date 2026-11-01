@@ -1,0 +1,1 @@
+Please check this too: Codex found more aliasing bugs (15, Or, more.) of this type and I am currently reviewing if they are indeed bugs. After that, I was going to fix them all here. Let me know if you think that it is a bad idea.

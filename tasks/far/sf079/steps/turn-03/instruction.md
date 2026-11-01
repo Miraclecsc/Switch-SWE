@@ -1,0 +1,1 @@
+There's something to adjust in /work/w00: I made it return an iterator to allow for possible future optimizations. So obtaining the best compatible wheel looks like this:

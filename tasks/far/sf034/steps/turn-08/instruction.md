@@ -1,0 +1,3 @@
+And here, Try something like this: This kind of operation is basically something that needs to be done using canonical representations. Generating giant unstructured expressions and using `.equals` to check if something is zero is not a good approach if we go beyond even just a 2x2 symbolic matrix.
+
+Extend Matrix.QRdecomposition with keyword-only normalize=True. normalize=False must return an economical orthogonal (not normalized) Q and R with Q*R equal to the input, for real rational matrices and matrices of formal real rational functions. Avoid introducing square roots in that mode. The number of Q columns must equal generic symbolic rank, including zero/empty/tall/wide and dependent-column inputs. Preserve the existing default API and complex default behavior.

@@ -1,0 +1,1 @@
+Also, I will also note that `_generic_abi()` could probably be changed to return a sequence and leave out `"none"`.

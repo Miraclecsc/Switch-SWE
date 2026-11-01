@@ -1,0 +1,3 @@
+Also, This should be defined on `BaseCache` and not `BaseDatabaseCache`. As pointed out in the ticket the memcached and redis backend are also affected.
+
+Support native async optimized overrides as well, including async callable objects: await them directly instead of passing them to sync_to_async. Apply the same callable handling to close/aclose and retain thread-sensitive offloading for synchronous backend operations.

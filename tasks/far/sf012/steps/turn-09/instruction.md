@@ -1,0 +1,1 @@
+Also, I'm not entirely sure this change belongs in this branch, since for `fields` there are currently no checks for M2M either. And the referenced ticket is only about the `list_display`.

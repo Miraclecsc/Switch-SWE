@@ -1,0 +1,1 @@
+I have this in /work/w01: Addressed the issue where `dsolve` does not output constant solutions

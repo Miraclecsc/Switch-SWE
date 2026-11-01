@@ -1,0 +1,1 @@
+Also, Type annotation for `expected` is too generic here (`list`). Since the expected values are strings, annotate it as `list[str]` for consistency with the rest of the file (e.g. `expected_spans: list[CellSpan]`).

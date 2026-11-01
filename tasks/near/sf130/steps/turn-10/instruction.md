@@ -1,0 +1,3 @@
+One more thing: > Alternatively, I think it's worth running the whole `TestCase` with `USE_TZ=True`, e.g. Agreed. > Edit: but it seems `test_thousand_years_ago` needs adjustments to make this work. Is it not enough to base `t` on `self.t`? e.g. ```diff
+
+Make refreshing transactional from the caller perspective. If resolving the path, compiling match, scanning the directory, or a recursive walk fails, propagate that exception while keeping the previous field choices and widget choices intact. Do not silently accept a partial recursive scan: propagate the os.walk onerror error. Publish the replacement only after the entire refresh succeeds; a later successful retry must recover normally.

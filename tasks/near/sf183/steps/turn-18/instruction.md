@@ -1,0 +1,1 @@
+One more thing: My 2 cents on this would be to change it to: - `e.msg` is "Expected stringEnd" which might help users debug what happened - printing the URL of the requirement could be helpful? maybe.

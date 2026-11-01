@@ -1,0 +1,1 @@
+I have this in /work/w04: Ambiguous generator selection polys: Fix ambiguous generator selection in degree() Fixes #29090 Release Notes * degree() function only allows gen to be an int if f is a Poly or is a polynomial expression expressed in a single Atom

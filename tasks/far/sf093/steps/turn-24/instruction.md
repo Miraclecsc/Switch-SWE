@@ -1,0 +1,1 @@
+And here, If `s` is a Stream object here, it actually accepts `bytes | bytearray | memoryview` apparently.

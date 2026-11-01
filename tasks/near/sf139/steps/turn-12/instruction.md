@@ -1,0 +1,1 @@
+And here, This is False for e.g. UserDict. Can you use `is_dict_like`.

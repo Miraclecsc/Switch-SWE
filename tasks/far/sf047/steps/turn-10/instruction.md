@@ -1,0 +1,3 @@
+One more thing: i think removing the "tz" check above is going to cause this to change behavior on dt64tz cases?
+
+Validate the values crossing the C JSON bridge. The result must be a one-dimensional NumPy array whose length equals the source Series/Index length; reject wrong dimensions or length with ValueError before iterating or encoding it. Apply the same checks to that type .values fallback and release invalid results on error.

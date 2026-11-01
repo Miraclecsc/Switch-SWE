@@ -1,0 +1,1 @@
+I have this in /work/w00: fix: only ASCII allowed in local version This is an alternative to and closes #470. Tests come from that PR.

@@ -1,0 +1,1 @@
+One more thing: Nit, and it doesn't matter here, but since Ale just mentioned it it's fresh in my mind. We can avoid loading the whole list in memory.

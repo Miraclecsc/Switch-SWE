@@ -1,0 +1,1 @@
+And here, I'll be mostly away from a computer next week but would like to get a beta version of `isort` out before CPython 3.15.0 beta 1 (5th of May). Then Consider whether I should block some time in my calendar to do the release :)

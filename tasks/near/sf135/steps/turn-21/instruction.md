@@ -1,0 +1,3 @@
+Also, `wedge_pivots` stores a list of every pivot node for every wedge key, which can require Θ(∑_v C(d(v),2)) memory in dense neighborhoods—much larger than the docstring’s stated `O(E)` and can be a practical memory bottleneck. You can avoid storing pivot lists by doing a second wedge-enumeration pass: after building `wedge_counts`, re-enumerate wedges per pivot `v` and add `wedge_counts[key] - 1` to `_bt[v]`, while still adding `C(k,2)` to the two non-pivot endpoints once per key.
+
+Validate every edge strength, even outside a requested node subset: negative, infinite, NaN and nonnumeric values raise ValueError. Preserve directed-graph rejection and every original test.

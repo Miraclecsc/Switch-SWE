@@ -1,0 +1,1 @@
+Please check this too: I guess they are functions associated to the module object so technically they are methods. I didn't really think about it so probably the "nx.bla" made me think of methods. I can change them to functions if you prefer so or maybe "distance_metrics"?

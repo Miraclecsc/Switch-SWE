@@ -1,0 +1,130 @@
+diff --git a/tests/auth_tests/test_middleware.py b/tests/auth_tests/test_middleware.py
+index 5e106d40f731..894b49548b27 100644
+--- a/tests/auth_tests/test_middleware.py
++++ b/tests/auth_tests/test_middleware.py
+@@ -4,7 +4,7 @@
+     AuthenticationMiddleware,
+     LoginRequiredMiddleware,
+ )
+-from django.contrib.auth.models import User
++from django.contrib.auth.models import AnonymousUser, User
+ from django.core.exceptions import ImproperlyConfigured
+ from django.http import HttpRequest, HttpResponse
+ from django.test import TestCase, modify_settings, override_settings
+@@ -77,6 +77,35 @@ async def test_auser_after_alogout(self):
+         self.assertTrue(auser_second.is_anonymous)
+ 
+ 
++class TestAsyncLoginLogoutAfterSyncMiddleware(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        cls.user = User.objects.create_user(
++            "test_user", "test@example.com", "test_password"
++        )
++        cls.user2 = User.objects.create_user(
++            "test_user2", "test2@example.com", "test_password2"
++        )
++
++    def setUp(self):
++        self.middleware = AuthenticationMiddleware(lambda req: HttpResponse())
++        self.client.force_login(self.user)
++        self.request = HttpRequest()
++        self.request.session = self.client.session
++        # Populate self.request.user.
++        self.middleware(self.request)
++        # .user is lazy, so materialize it by accessing an attribute.
++        self.request.user.is_authenticated
++
++    async def test_user_after_alogin(self):
++        await alogin(self.request, self.user2)
++        self.assertEqual(self.request.user, self.user2)
++
++    async def test_user_after_alogout(self):
++        await alogout(self.request)
++        self.assertEqual(self.request.user, AnonymousUser())
++
++
+ @override_settings(ROOT_URLCONF="auth_tests.urls")
+ @modify_settings(
+     MIDDLEWARE={"append": "django.contrib.auth.middleware.LoginRequiredMiddleware"}
+diff --git a/tests/auth_tests/test_identity_cache_v1.py b/tests/auth_tests/test_identity_cache_v1.py
+new file mode 100644
+index 0000000000..1bbff3edd5
+--- /dev/null
++++ b/tests/auth_tests/test_identity_cache_v1.py
+@@ -0,0 +1,75 @@
++from django.contrib.auth import alogin, alogout
++from django.contrib.auth.middleware import AuthenticationMiddleware, auser, get_user
++from django.contrib.auth.models import User
++from django.contrib.auth.signals import user_logged_in, user_logged_out
++from django.http import HttpRequest, HttpResponse
++from django.test import TestCase
++
++
++class AsyncIdentityCacheTests(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        cls.first = User.objects.create_user("cache-first")
++        cls.second = User.objects.create_user("cache-second")
++
++    def setUp(self):
++        self.client.force_login(self.first)
++        self.request = HttpRequest()
++        self.request.session = self.client.session
++        AuthenticationMiddleware(lambda r: HttpResponse()).process_request(self.request)
++        self.request.user.is_authenticated
++        self.original_auser = self.request.auser
++
++    async def assert_identity(self, user):
++        self.assertEqual(self.request.user, user)
++        self.assertEqual(get_user(self.request), user)
++        self.assertEqual(await auser(self.request), user)
++        self.assertEqual(await self.request.auser(), user)
++        self.assertEqual(await self.original_auser(), user)
++
++    async def test_login_refreshes_both_previously_populated_caches(self):
++        await self.original_auser()
++        await alogin(self.request, self.second)
++        await self.assert_identity(self.second)
++
++    async def test_logout_refreshes_retained_middleware_callable(self):
++        await self.original_auser()
++        await alogout(self.request)
++        self.assertTrue(self.request.user.is_anonymous)
++        self.assertTrue(get_user(self.request).is_anonymous)
++        self.assertTrue((await auser(self.request)).is_anonymous)
++        self.assertTrue((await self.original_auser()).is_anonymous)
++
++    async def test_alternating_transitions_never_reuse_stale_identity(self):
++        await self.original_auser()
++        await alogin(self.request, self.second)
++        await self.assert_identity(self.second)
++        await alogout(self.request)
++        self.assertTrue((await self.original_auser()).is_anonymous)
++        await alogin(self.request, self.first)
++        await self.assert_identity(self.first)
++
++    async def test_login_signal_observes_new_identity_and_logout_signal_old_identity(self):
++        await self.original_auser()
++        observed = []
++        async def logged_in(sender, request, user, **kwargs):
++            observed.append(("in", get_user(request), await auser(request), user))
++        async def logged_out(sender, request, user, **kwargs):
++            observed.append(("out", get_user(request), await auser(request), user))
++        user_logged_in.connect(logged_in)
++        user_logged_out.connect(logged_out)
++        try:
++            await alogin(self.request, self.second)
++            await alogout(self.request)
++        finally:
++            user_logged_in.disconnect(logged_in)
++            user_logged_out.disconnect(logged_out)
++        self.assertEqual(observed, [
++            ("in", self.second, self.second, self.second),
++            ("out", self.second, self.second, self.second)])
++
++    async def test_current_callable_and_direct_user_agree_without_async_cache_priming(self):
++        await alogin(self.request, self.second)
++        self.assertEqual(await self.request.auser(), self.request.user)
++        await alogout(self.request)
++        self.assertEqual(await self.request.auser(), self.request.user)

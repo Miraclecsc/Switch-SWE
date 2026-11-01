@@ -1,0 +1,3 @@
+Please check this too: Alternatively, I think it's worth running the whole `TestCase` with `USE_TZ=True`, e.g. Edit: but it seems `test_thousand_years_ago` needs adjustments to make this work.
+
+For request-dependent directories, allow forms.FilePathField.path to be a zero-argument callable returning a path string or os.PathLike. Resolve it exactly once for each set_choices() call, including construction, and retain the callable so later refreshes can point at another directory. Use current match/recursive/allow_files/allow_folders/required settings for every refresh. Preserve the existing path values, labels, ordering, and optional blank-choice convention.

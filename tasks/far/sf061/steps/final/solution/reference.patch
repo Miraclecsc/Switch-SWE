@@ -1,0 +1,45 @@
+diff --git a/httpx/_multipart.py b/httpx/_multipart.py
+index 0329649..5fd42c6 100644
+--- a/httpx/_multipart.py
++++ b/httpx/_multipart.py
+@@ -112,6 +112,10 @@ class FileField:
+             filename = Path(str(getattr(value, "name", "upload"))).name
+             fileobj = value
+ 
++        headers = dict(headers)
++        if isinstance(fileobj, (bytearray, memoryview)):
++            fileobj = bytes(fileobj)
++
+         if content_type is None:
+             content_type = guess_content_type(filename)
+ 
+@@ -122,8 +126,14 @@ class FileField:
+             # requests does the opposite (it overwrites the header with the 3rd tuple element)
+             headers["Content-Type"] = content_type
+ 
+-        if isinstance(fileobj, (str, io.StringIO)):
+-            raise TypeError(f"Expected bytes or bytes-like object got: {type(fileobj)}")
++        if "b" not in getattr(fileobj, "mode", "b"):
++            raise TypeError(
++                "Multipart file uploads must be opened in binary mode, not text mode."
++            )
++        if isinstance(fileobj, io.StringIO):
++            raise TypeError(
++                "Multipart file uploads require 'io.BytesIO', not 'io.StringIO'."
++            )
+ 
+         self.filename = filename
+         self.file = fileobj
+diff --git a/httpx/_types.py b/httpx/_types.py
+index e015844..f148fba 100644
+--- a/httpx/_types.py
++++ b/httpx/_types.py
+@@ -80,7 +80,7 @@ ResponseExtensions = Dict[str, Any]
+ 
+ RequestData = Mapping[str, Any]
+ 
+-FileContent = Union[IO[bytes], bytes]
++FileContent = Union[IO[bytes], bytes, str, bytearray, memoryview]
+ FileTypes = Union[
+     # file (or bytes)
+     FileContent,

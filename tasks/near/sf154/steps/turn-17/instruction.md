@@ -1,0 +1,1 @@
+Also, perhaps `statistics` should have a special case (like `is_set` does) to allow lookup from outside of the event loop context? `Lock.statistics()` for instance is accessible from outside of the event loop already.

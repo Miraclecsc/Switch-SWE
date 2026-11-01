@@ -1,0 +1,1 @@
+One more thing: Instead of these versionchanged throughout the example, can you do a single one after the `func` argument description.

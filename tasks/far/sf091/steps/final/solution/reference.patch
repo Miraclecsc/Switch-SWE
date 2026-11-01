@@ -1,0 +1,64 @@
+diff --git a/trio/_core/_run.py b/trio/_core/_run.py
+index ff30a56c..bd5b29f8 100644
+--- a/trio/_core/_run.py
++++ b/trio/_core/_run.py
+@@ -1,5 +1,7 @@
+ from __future__ import annotations
+ 
++from collections.abc import Mapping
++
+ import enum
+ import functools
+ import gc
+@@ -593,9 +595,10 @@ class CancelScope:
+                 self.cancelled_caught = True
+                 exc = None
+             elif isinstance(exc, BaseExceptionGroup):
+-                matched, exc = exc.split(Cancelled)
++                matched, remaining = exc.split(Cancelled)
+                 if matched:
+                     self.cancelled_caught = True
++                    exc = remaining
+ 
+                 if exc:
+                     exc = collapse_exception_group(exc)
+@@ -1101,6 +1104,13 @@ class Nursery(metaclass=NoPublicConstructor):
+ 
+         popped = self._parent_task._child_nurseries.pop()
+         assert popped is self
++
++        # don't unnecessarily wrap an exceptiongroup in another exceptiongroup
++        # see https://github.com/python-trio/trio/issues/2611
++        if len(self._pending_excs) == 1 and isinstance(
++            self._pending_excs[0], BaseExceptionGroup
++        ):
++            return self._pending_excs[0]
+         if self._pending_excs:
+             try:
+                 return MultiError(
+@@ -1165,6 +1175,7 @@ class Nursery(metaclass=NoPublicConstructor):
+         async_fn: Callable[..., Awaitable[object]],
+         *args: object,
+         name: object = None,
++        kwargs=None,
+     ) -> StatusT:
+         r"""Creates and initializes a child task.
+ 
+@@ -1207,11 +1218,16 @@ class Nursery(metaclass=NoPublicConstructor):
+         """
+         if self._closed:
+             raise RuntimeError("Nursery is closed to new arrivals")
++        if kwargs is not None and not isinstance(kwargs, Mapping):
++            raise TypeError("kwargs must be a mapping or None")
++        child_kwargs = dict(kwargs) if kwargs is not None else {}
++        if "task_status" in child_kwargs or any(not isinstance(key, str) for key in child_kwargs):
++            raise TypeError("child keyword names must be strings other than task_status")
+         try:
+             self._pending_starts += 1
+             async with open_nursery() as old_nursery:
+                 task_status: _TaskStatus[StatusT] = _TaskStatus(old_nursery, self)
+-                thunk = functools.partial(async_fn, task_status=task_status)
++                thunk = functools.partial(async_fn, task_status=task_status, **child_kwargs)
+                 task = GLOBAL_RUN_CONTEXT.runner.spawn_impl(
+                     thunk, args, old_nursery, name
+                 )

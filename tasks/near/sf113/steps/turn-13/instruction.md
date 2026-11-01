@@ -1,0 +1,3 @@
+Also, My hypothesis would be that it was copied over from a pre-existing `_rescale` fn for the node betweenness centrality. The results of [blame]( ) sees to suggest this was the case, though it's not definitive.
+
+Validate membership of both source and target collections consistently: a node absent from G must raise NetworkX NodeNotFound for either subset function. Empty valid collections still return zero centralities. Preserve the original full-versus-subset equivalence.

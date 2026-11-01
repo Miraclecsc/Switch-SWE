@@ -1,0 +1,1 @@
+One more thing: refactor(lra_theory): Track boundary source lit Track which literals caused bounds to update to make conflict clause generation way more straightforward. Previously, the conflict causing literals were being infered in a complicated and bug prone process.

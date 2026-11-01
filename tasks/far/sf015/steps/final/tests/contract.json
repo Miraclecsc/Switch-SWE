@@ -1,0 +1,74 @@
+{
+  "case_id": "sf015_switched",
+  "task_id": "ssb_v2_task_0161",
+  "repo": "getmoto/moto",
+  "base_commit": "18167d99e5cb6eb6c21af1c91333a5122e7a38c4",
+  "derived_fail_to_pass": [
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_endpoint_conflict",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_endpoint_with_version_and_tags",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_with_optional_fields",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_with_tags",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_agent_runtime_removes_endpoints",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime_endpoint_not_found",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime_not_found",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_agent_runtime_endpoints",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_agent_runtime_versions",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_agent_runtimes",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_tag_resource",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_untag_resource",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_agent_runtime_with_optional_fields",
+    "tests.test_bedrockagentcorecontrol.test_gateway_retries_v1::test_distinct_tokens_still_create_distinct_resources",
+    "tests.test_bedrockagentcorecontrol.test_gateway_retries_v1::test_gateway_replay_is_original_snapshot_and_never_resurrects_deleted_resource",
+    "tests.test_bedrockagentcorecontrol.test_gateway_retries_v1::test_gateway_retry_and_conflicting_payload",
+    "tests.test_bedrockagentcorecontrol.test_gateway_retries_v1::test_target_retry_is_scoped_to_parent_and_rejects_changes",
+    "tests.test_bedrockagentcorecontrol.test_gateway_retries_v1::test_tokens_are_region_scoped"
+  ],
+  "derived_pass_to_pass": [],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_bedrockagentcorecontrol/__init__.py",
+    "tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py",
+    "tests/test_bedrockagentcorecontrol/test_gateway_retries_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_bedrockagentcorecontrol/__init__.py",
+    "tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py",
+    "tests/test_bedrockagentcorecontrol/test_gateway_retries_v1.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "006b37a9ee8c431baff7ea6833abdd9313db0d037d3c7b2f995e42406cbd7f36",
+    "config/recipes.json": "1c2a4df094d4fca2cb1e50bcf58843a3fc206b420eb4ca3712dd9ed690633d01"
+  }
+}

@@ -1,0 +1,1 @@
+And here, If you're going to use a test class for this, perhaps each assertion could be its own method.

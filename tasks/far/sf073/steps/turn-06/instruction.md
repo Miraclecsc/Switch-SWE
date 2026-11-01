@@ -1,0 +1,1 @@
+One more thing: @rossbar Thanks for the feedback! You're absolutely right about both points: 1. **Keyword-only argument**: I'll update the function signature to make the parameter keyword-only 2. **Tests needed**: I'll add comprehensive tests covering both strict and non-strict modes I'll implement these changes and push an update. Thanks for the clear guidance!

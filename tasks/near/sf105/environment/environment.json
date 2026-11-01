@@ -1,0 +1,172 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+  ],
+  "case_id": "sf105_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": ".:/work/test-deps/00"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e",
+      "python": "3.12.12",
+      "requirements": "requirements/241e3b2e3913784b-3.12.12-d164db9e.txt",
+      "source": "dependency-source/241e3b2e3913784b-3.12.12-d164db9e.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/241e3b2e3913784b-3.12.12-d164db9e"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "1ce6e78dd4beed702f15fa0be798dd17a15d4ba8",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/contrib/admin/checks.py",
+          "sha256": "d49322d88fe9fcde688b365a1ff8598070b74efca8994d34cf4f93ff02dd1bae"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/ref/checks.txt",
+          "sha256": "73d3d99c2a33a9d7996ae4a55321ea203b9b97d791374467ee9f149b0ac215af"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/modeladmin/test_checks.py",
+          "sha256": "b106b8d91fe2d9ae2f23d9a63d0f36cb5401e75d546471553e232cb7d0a5df24"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "ba4751e0ca558dd8f0d9e6153bec4280289ca2f4",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/contrib/admin/checks.py",
+          "sha256": "cda077e0ae37d92018003f2ec9011b2fcf0e7302463c811e72b8b2906d909a7a"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/ref/checks.txt",
+          "sha256": "1d0ce866ffdfc4c9e39618922e36d9707b02027a6e3b7ea7582c3a1fe94a1522"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/modeladmin/test_checks.py",
+          "sha256": "b106b8d91fe2d9ae2f23d9a63d0f36cb5401e75d546471553e232cb7d0a5df24"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "e8c6322b4f2ab4df610bb480003a54c88f32210e",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/contrib/admin/checks.py",
+          "sha256": "692f7d4d28562b4f1b42de23684d84816fade8fa055676ed8b11c457e3a76723"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/ref/checks.txt",
+          "sha256": "f60209cde8cf3775aa9ed2cb440424e424eb4030b4654d14909fc55f6f1b97ac"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/modeladmin/test_checks.py",
+          "sha256": "b106b8d91fe2d9ae2f23d9a63d0f36cb5401e75d546471553e232cb7d0a5df24"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "a77be30a4346d111beaf366dcee4934734458a48",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "django/contrib/admin/checks.py",
+          "sha256": "cda077e0ae37d92018003f2ec9011b2fcf0e7302463c811e72b8b2906d909a7a"
+        },
+        {
+          "mode": "100644",
+          "path": "docs/ref/checks.txt",
+          "sha256": "2509643acb3895c0a1d742bc9e9ae588da0f123cdc6903f41016c2e4a5c920d1"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/modeladmin/test_checks.py",
+          "sha256": "b106b8d91fe2d9ae2f23d9a63d0f36cb5401e75d546471553e232cb7d0a5df24"
+        }
+      ],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "83c9765f45e4622e4a5af3adcd92263a28b13624",
+      "overlays": [],
+      "repo": "django/django",
+      "url": "https://github.com/django/django.git",
+      "workspace": "w04"
+    }
+  ]
+}

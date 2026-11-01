@@ -1,0 +1,1 @@
+For the checkout at /work/w00, Fix incorrect derivative for non-commutative powers Previously, diff(S*S) where S is non-commutative would simplify to 2*S*dS, which is incorrect. It now correctly uses the product rule: S*dS + dS*S.

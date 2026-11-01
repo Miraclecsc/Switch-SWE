@@ -1,0 +1,1 @@
+Please check this too: Keep existing cache-update semantics and every original globals regression. This is a shallow ownership snapshot; it does not promise to deep-copy values stored in globals.

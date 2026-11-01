@@ -1,0 +1,1 @@
+Please check this too: Drop overloaded usage of 'verify' and 'cert'. This PR follows up on #3022, and... * Drops the overloaded style of `verify=str`, in favor of the existing `.load_verify_locations(...)` API. * Drops the `cert` parameter, in favor of the Also, Let's keep it, avoid new `certifi.where()` call per instantization.

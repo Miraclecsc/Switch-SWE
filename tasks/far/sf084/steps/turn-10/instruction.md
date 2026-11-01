@@ -1,0 +1,3 @@
+One more thing: Tests are now failing because of: but `universal` shall not be returned for `riscv` (c.f.
+
+Add minimum_version=None to mac_platforms(version=None, arch=None). A supplied inclusive deployment floor filters the existing compatibility stream without changing its order or architecture rules. Normalize floors for macOS 11 and later to (major, 0), matching the platform-tag minor-version policy; pre-11 floors retain both components. A floor above the target yields no tags. Defaults retain the complete original stream.

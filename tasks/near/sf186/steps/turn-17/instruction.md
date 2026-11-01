@@ -1,0 +1,1 @@
+I have this in /work/w03: Allow converter.optional to take a Converter such as converter.pipe as its argument # Summary

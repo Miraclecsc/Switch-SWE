@@ -1,0 +1,1 @@
+I have this in /work/w02: Allow refresh of path choices for FilePathField "As noted by a couple of people on django-users, FilePathField does not automatically refresh choices if files are add to or removed from the path being pointed to ( and A nice addition to FilePathField would be the ability to refresh the path choices on a per-request basis."

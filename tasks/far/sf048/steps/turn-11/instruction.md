@@ -1,0 +1,3 @@
+Please check this too: i think this can raise on non-orderable?
+
+Add keyword-only skipna=False to algorithms.is_monotonic. With skipna=True, ignore missing values in their original order before checking increasing/decreasing/strict monotonicity. Preserve dtype-aware handling, including time-like NaT and nullable extension arrays. Empty or all-missing filtered sequences follow the existing empty-sequence convention (True,True,True); repeated remaining values are not strict. Default calls retain original behavior.

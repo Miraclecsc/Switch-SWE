@@ -1,0 +1,1 @@
+Also, I'm not sure if this will pass the TypedDict check in some static type checkers.

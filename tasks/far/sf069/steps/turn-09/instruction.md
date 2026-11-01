@@ -1,0 +1,1 @@
+Also, Extend the same removed-random_tree diagnostic to its former defining module, networkx.generators.trees, as well as the top-level nx access. Both paths must report removal in 3.4 and direct users to nx.random_labeled_tree, without restoring the removed function.

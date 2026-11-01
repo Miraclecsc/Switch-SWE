@@ -1,0 +1,1 @@
+Please check this too: ahh I see. I was trying to mimic how this logic was implemented for the `optional` validator. I'm happy to change it to `and_` if thats better but then we should probably add in a issue to update the `optional` validator too (I can make the issue if you'd like)

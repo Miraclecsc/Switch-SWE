@@ -1,0 +1,57 @@
+diff --git a/django/contrib/auth/__init__.py b/django/contrib/auth/__init__.py
+index 2702c38aa4..e02e4f7742 100644
+--- a/django/contrib/auth/__init__.py
++++ b/django/contrib/auth/__init__.py
+@@ -205,7 +205,11 @@ async def alogin(request, user, backend=None):
+     await request.session.aset(SESSION_KEY, user._meta.pk.value_to_string(user))
+     await request.session.aset(BACKEND_SESSION_KEY, backend)
+     await request.session.aset(HASH_SESSION_KEY, session_auth_hash)
++    if hasattr(request, "user"):
++        request.user = user
++        request._cached_user = user
+     if hasattr(request, "auser"):
++        request._acached_user = user
+ 
+         async def auser():
+             return user
+@@ -244,13 +248,23 @@ async def alogout(request):
+             user = None
+     await user_logged_out.asend(sender=user.__class__, request=request, user=user)
+     await request.session.aflush()
+-    if hasattr(request, "auser"):
++
++    has_user = hasattr(request, "user")
++    has_auser = hasattr(request, "auser")
++    if has_user or has_auser:
+         from django.contrib.auth.models import AnonymousUser
+ 
+-        async def auser():
+-            return AnonymousUser()
++        anon = AnonymousUser()
++        if has_user:
++            request.user = anon
++            request._cached_user = anon
++        if has_auser:
++            request._acached_user = anon
+ 
+-        request.auser = auser
++            async def auser():
++                return anon
++
++            request.auser = auser
+ 
+ 
+ def get_user_model():
+diff --git a/docs/releases/6.0.4.txt b/docs/releases/6.0.4.txt
+index a32a49dc93..e24397d9bc 100644
+--- a/docs/releases/6.0.4.txt
++++ b/docs/releases/6.0.4.txt
+@@ -10,4 +10,7 @@ issues with severity "low", and several bugs in 6.0.3.
+ Bugfixes
+ ========
+ 
+-* ...
++* Fixed a regression in Django 6.0 where :func:`~django.contrib.auth.alogin`
++  and :func:`~django.contrib.auth.alogout` did not respectively set or clear
++  ``request.user`` if it had already been materialized (e.g., by sync
++  middleware) (:ticket:`37017`).

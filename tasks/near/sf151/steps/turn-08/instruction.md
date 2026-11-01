@@ -1,0 +1,3 @@
+And here, this thread is not cleaned up if SIGINT occurs during `portal = future.result()`
+
+this won't work in a sub-interpreter, and it looks like there's movement to remove the feature from the language as @vstinner says: > Daemon threads must die. That's a first step towards their death! Per using a `with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:` should create a thread that are scheduled to be cleaned up correctly

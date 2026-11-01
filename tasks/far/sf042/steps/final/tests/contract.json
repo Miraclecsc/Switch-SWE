@@ -1,0 +1,68 @@
+{
+  "case_id": "sf042_switched",
+  "task_id": "ssb_v3_getmoto__moto_e024e5a7de",
+  "repo": "getmoto/moto",
+  "base_commit": "42e3cdf7bd922a5b2d42a8571deede4f234987fc",
+  "derived_fail_to_pass": [
+    "tests.test_core.test_instance_metadata::test_common_metadata_paths[ami-id-ami-moto-virtual]",
+    "tests.test_core.test_instance_metadata::test_common_metadata_paths[instance-id-i-fake]",
+    "tests.test_core.test_instance_metadata::test_common_metadata_paths[mac-00:de:ad:be:ef:00]",
+    "tests.test_core.test_instance_metadata::test_common_metadata_paths[reservation-id-r-moto-virtual]",
+    "tests.test_core.test_instance_metadata::test_common_metadata_paths[security-groups-moto-default]",
+    "tests.test_core.test_instance_metadata::test_imdsv2_flow",
+    "tests.test_core.test_instance_metadata::test_imdsv2_token",
+    "tests.test_core.test_sf042_metadata_protocol::test_head_directory_and_unknown_path",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_supplied_token_is_rejected",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_ttl_is_bad_request[-1]",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_ttl_is_bad_request[0]",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_ttl_is_bad_request[1.5]",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_ttl_is_bad_request[21601]",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_ttl_is_bad_request[None]",
+    "tests.test_core.test_sf042_metadata_protocol::test_invalid_ttl_is_bad_request[abc]",
+    "tests.test_core.test_sf042_metadata_protocol::test_token_methods_forwarding_and_ttl_echo"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_core.test_instance_metadata::test_latest_meta_data",
+    "tests.test_core.test_instance_metadata::test_meta_data_default_role",
+    "tests.test_core.test_instance_metadata::test_meta_data_iam",
+    "tests.test_core.test_instance_metadata::test_meta_data_security_credentials",
+    "tests.test_core.test_sf042_metadata_protocol::test_fixed_root_and_common_value_regression"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_core/test_instance_metadata.py",
+    "tests/test_core/test_sf042_metadata_protocol.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_core/test_instance_metadata.py",
+    "tests/test_core/test_sf042_metadata_protocol.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "ee2e923e4ff6386e4e7eae0345241820fd0d7508d00128c6cdf9e88233ddbabf",
+    "config/recipes.json": "8e75c62a85a742ed23b7d23fe9f2b99fcc790c13f1afcb89cc0a5cf888685b3e"
+  }
+}

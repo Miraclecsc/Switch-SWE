@@ -1,0 +1,80 @@
+diff --git a/tests/test_annotations.py b/tests/test_annotations.py
+index 0ff68c779..f5ad41d0b 100644
+--- a/tests/test_annotations.py
++++ b/tests/test_annotations.py
+@@ -516,6 +516,34 @@ class C:
+         assert str is attr.fields(C).y.type
+         assert None is attr.fields(C).z.type
+ 
++    @pytest.mark.skipif(
++        sys.version_info[:2] < (3, 9),
++        reason="Incompatible behavior on older Pythons",
++    )
++    def test_extra_resolve(self):
++        """
++        `get_type_hints` returns extra type hints.
++        """
++        from typing import Annotated
++
++        globals = {"Annotated": Annotated}
++
++        @attr.define
++        class C:
++            x: 'Annotated[float, "test"]'
++
++        attr.resolve_types(C, globals)
++
++        assert attr.fields(C).x.type == Annotated[float, "test"]
++
++        @attr.define
++        class D:
++            x: 'Annotated[float, "test"]'
++
++        attr.resolve_types(D, globals, include_extras=False)
++
++        assert attr.fields(D).x.type == float
++
+     def test_resolve_types_auto_attrib(self, slots):
+         """
+         Types can be resolved even when strings are involved.
+diff --git a/tests/test_sf186_staged.py b/tests/test_sf186_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf186_staged.py
+@@ -0,0 +1,36 @@
++
++import typing
++import attrs
++
++def test_include_extras_changes_on_repeated_resolution():
++    @attrs.define
++    class Example:
++        value: typing.Annotated[int, 'meta']
++    assert attrs.resolve_types(Example, include_extras=False) is Example
++    assert attrs.fields(Example).value.type is int
++    attrs.resolve_types(Example, include_extras=True)
++    assert attrs.fields(Example).value.type == typing.Annotated[int, 'meta']
++    attrs.resolve_types(Example, include_extras=False)
++    assert attrs.fields(Example).value.type is int
++
++def test_explicit_namespace_is_reapplied_after_mutation():
++    @attrs.define
++    class Example:
++        value: 'Target'
++    namespace = {'Target': int}
++    attrs.resolve_types(Example, localns=namespace)
++    assert attrs.fields(Example).value.type is int
++    namespace['Target'] = str
++    attrs.resolve_types(Example, localns=namespace)
++    assert attrs.fields(Example).value.type is str
++
++def test_supplied_attribute_lists_are_each_resolved():
++    @attrs.define
++    class Example:
++        value: int
++    attrs.resolve_types(Example)
++    first = [attrs.fields(Example).value.evolve(type='int')]
++    second = [attrs.fields(Example).value.evolve(type='int')]
++    attrs.resolve_types(Example, attribs=first)
++    attrs.resolve_types(Example, attribs=second)
++    assert first[0].type is int and second[0].type is int

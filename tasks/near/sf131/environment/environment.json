@@ -1,0 +1,199 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1"
+  ],
+  "case_id": "sf131_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-774eb9f1",
+      "python": "3.12.12",
+      "requirements": "requirements/49f338bc7f91ae07-3.12.12-774eb9f1.txt",
+      "source": "dependency-source/49f338bc7f91ae07-3.12.12-774eb9f1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/541778e293548289-3.12.12-be356a4f",
+      "python": "3.12.12",
+      "requirements": "requirements/541778e293548289-3.12.12-be356a4f.txt",
+      "source": "dependency-source/541778e293548289-3.12.12-be356a4f.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-44203a09",
+      "python": "3.12.12",
+      "requirements": "requirements/49f338bc7f91ae07-3.12.12-44203a09.txt",
+      "source": "dependency-source/49f338bc7f91ae07-3.12.12-44203a09.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/d13170a46ac5a41a-3.12.12-8bce5a40",
+      "python": "3.12.12",
+      "requirements": "requirements/d13170a46ac5a41a-3.12.12-8bce5a40.txt",
+      "source": "dependency-source/d13170a46ac5a41a-3.12.12-8bce5a40.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-2575f8ec",
+      "python": "3.12.12",
+      "requirements": "requirements/49f338bc7f91ae07-3.12.12-2575f8ec.txt",
+      "source": "dependency-source/49f338bc7f91ae07-3.12.12-2575f8ec.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/79360c04ad51f7f8-3.12.12-4059dbab",
+      "python": "3.12.12",
+      "requirements": "requirements/79360c04ad51f7f8-3.12.12-4059dbab.txt",
+      "source": "dependency-source/79360c04ad51f7f8-3.12.12-4059dbab.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/d13170a46ac5a41a-3.12.12-32b4b728",
+      "python": "3.12.12",
+      "requirements": "requirements/d13170a46ac5a41a-3.12.12-32b4b728.txt",
+      "source": "dependency-source/d13170a46ac5a41a-3.12.12-32b4b728.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-34ed0c84",
+      "python": "3.12.12",
+      "requirements": "requirements/49f338bc7f91ae07-3.12.12-34ed0c84.txt",
+      "source": "dependency-source/49f338bc7f91ae07-3.12.12-34ed0c84.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/431f0c8be0e78a92-3.12.12-f9fe3d5e",
+      "python": "3.12.12",
+      "requirements": "requirements/431f0c8be0e78a92-3.12.12-f9fe3d5e.txt",
+      "source": "dependency-source/431f0c8be0e78a92-3.12.12-f9fe3d5e.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-501ad363",
+      "python": "3.12.12",
+      "requirements": "requirements/49f338bc7f91ae07-3.12.12-501ad363.txt",
+      "source": "dependency-source/49f338bc7f91ae07-3.12.12-501ad363.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/541778e293548289-3.12.12-be356a4f",
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-44203a09"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/d13170a46ac5a41a-3.12.12-8bce5a40",
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-2575f8ec"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/541778e293548289-3.12.12-be356a4f",
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-44203a09"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/79360c04ad51f7f8-3.12.12-4059dbab",
+        "/opt/ssb/deps/d13170a46ac5a41a-3.12.12-32b4b728",
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-34ed0c84"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/431f0c8be0e78a92-3.12.12-f9fe3d5e",
+        "/opt/ssb/deps/49f338bc7f91ae07-3.12.12-501ad363"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "19d08115ce56da8d4da2838ecdd9c5882cb2b365",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/responses.md",
+          "sha256": "d8d647ddfa22d447493d9a2d475188f15254c034945ea9019d6e37545af7bf02"
+        },
+        {
+          "mode": "100644",
+          "path": "starlette/responses.py",
+          "sha256": "7bb11748cf7c5de076ead4dc15d94429923c86c16bae7e5ff84a8a20bb5bf09e"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_responses.py",
+          "sha256": "2499f08e8ab38ef985142cdd0dca3ea5f6593f08d40d610965f2b0d0365d88e3"
+        }
+      ],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "8da52c2243b8855426c40c16ae24b27734824078",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "014f0e2efaca4e34a0f4b4b1a28a70296035e09d",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/responses.md",
+          "sha256": "d8d647ddfa22d447493d9a2d475188f15254c034945ea9019d6e37545af7bf02"
+        },
+        {
+          "mode": "100644",
+          "path": "starlette/responses.py",
+          "sha256": "60e24f3ad6d7d61350f653b8335f504538836f5bdedead633c41fd456c63bfbd"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_responses.py",
+          "sha256": "76c7589ff13985113e071c0a7562454c235cbab9eae72c926242c2edb1a4a9d0"
+        }
+      ],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "164b35021654107cea51ce0a66191f7691855cbe",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "01f997569737cea16ac53fd3ea0538e3ee4d4611",
+      "overlays": [],
+      "repo": "encode/starlette",
+      "url": "https://github.com/encode/starlette.git",
+      "workspace": "w04"
+    }
+  ]
+}

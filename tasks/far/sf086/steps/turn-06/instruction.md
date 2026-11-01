@@ -1,0 +1,1 @@
+One more thing: Just to be future-proof, could we also check that the ABI is `none`?

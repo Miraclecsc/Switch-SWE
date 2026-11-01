@@ -1,0 +1,1 @@
+For the checkout at /work/w00, For anyone else puzzling over `self.legacy_windows`, which is subtracted from `width` in other places: this isn't needed at all here because `self.legacy_window = 0` when `self.is_jupyter == True`.

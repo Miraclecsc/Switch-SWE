@@ -1,0 +1,3 @@
+One more thing: Well, actually this is not only for that type, but for any ASGI middleware.
+
+Support ASGI wrapper chains in the provider slots: if an object has no callable url_path_for, follow its .app links to the first object that does. Bound traversal by object identity so cycles terminate. A provider with a callable resolver defines a lookup boundary; do not unwrap it after NoMatchFound. With no usable provider retain the existing clear RuntimeError. Resolve from current scope on each call, and keep HTTPConnection's shared behavior for Request and WebSocket.

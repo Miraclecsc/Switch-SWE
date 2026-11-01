@@ -1,0 +1,1 @@
+And here, The change from checking `if target in self.stores: continue` to using `difference_update` on two sets performs roughly the same goal: Making sure we don't override the loading behaviour of a symbol already defined in this context.

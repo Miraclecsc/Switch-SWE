@@ -1,0 +1,1 @@
+Please check this too: Let's keep it, avoid new `certifi.where()` call per instantization. Also, when `verify=False`, we actually don't load certifi. let's move this comment to down.

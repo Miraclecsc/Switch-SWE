@@ -1,0 +1,3 @@
+And here, I confirm that it resolves prompt backspace problems in `llm` (
+
+Extend the readline prompt fix to colored visible prompts on non-Windows terminals. For terminal output, surround each ANSI CSI escape sequence with GNU readline's zero-width delimiters (SOH '\x01' before, STX '\x02' after) in the string passed to the visible input function. Printable characters and prompt suffixes keep their order; apply this to both prompt and confirm.

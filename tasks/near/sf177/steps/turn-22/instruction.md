@@ -1,0 +1,1 @@
+One more thing: > I have the feeling any block-level check is likely to have problematic edge cases - can't we just let it fail when actually accessing the filter? Hmm that's true. The error won't be as helpful though: `TypeError: 'NoneType' object is not callable`

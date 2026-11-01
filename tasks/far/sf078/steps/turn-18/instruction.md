@@ -1,0 +1,1 @@
+One more thing: No, without this change mypy can't infer that return type here will always be a `str` and gives the following error:

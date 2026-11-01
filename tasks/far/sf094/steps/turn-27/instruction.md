@@ -1,0 +1,1 @@
+Please check this too: In my `run` PR to avoid adding a lot of irrelevant imports to this file I just `import trio`, then changed the original types to do `trio.whatever.Class`. Perhaps we should just change the processing logic below to have a different set of imports for each file instead though.

@@ -1,0 +1,76 @@
+{
+  "case_id": "sf089_switched",
+  "task_id": "ssb_v4_python-trio__trio_2648",
+  "repo": "python-trio/trio",
+  "base_commit": "ef06fba6df98fa77ebd44546d30696daeeff1d01",
+  "derived_fail_to_pass": [
+    "trio._core._tests.test_multierror::test_pickle_multierror[0]",
+    "trio._core._tests.test_multierror::test_pickle_multierror[1]",
+    "trio._core._tests.test_multierror::test_pickle_multierror[2]",
+    "trio._core._tests.test_multierror::test_pickle_multierror[3]",
+    "trio._core._tests.test_multierror::test_pickle_multierror[4]",
+    "trio._core._tests.test_multierror::test_pickle_multierror[5]",
+    "trio._core._tests.test_sf089_extension::test_base_exception_distinction",
+    "trio._core._tests.test_sf089_extension::test_singleton_shape[0]",
+    "trio._core._tests.test_sf089_extension::test_singleton_shape[1]",
+    "trio._core._tests.test_sf089_extension::test_singleton_shape[2]",
+    "trio._core._tests.test_sf089_extension::test_singleton_shape[3]",
+    "trio._core._tests.test_sf089_extension::test_singleton_shape[4]",
+    "trio._core._tests.test_sf089_extension::test_singleton_shape[5]",
+    "trio._core._tests.test_sf089_extension::test_state_aliasing_and_causes[0]",
+    "trio._core._tests.test_sf089_extension::test_state_aliasing_and_causes[5]"
+  ],
+  "derived_pass_to_pass": [
+    "trio._core._tests.test_multierror::test_MultiError",
+    "trio._core._tests.test_multierror::test_MultiErrorOfSingleMultiError",
+    "trio._core._tests.test_multierror::test_MultiError_catch",
+    "trio._core._tests.test_multierror::test_MultiError_catch_doesnt_create_cyclic_garbage",
+    "trio._core._tests.test_multierror::test_MultiError_filter",
+    "trio._core._tests.test_multierror::test_MultiError_filter_NotHashable",
+    "trio._core._tests.test_multierror::test_assert_match_in_seq",
+    "trio._core._tests.test_multierror::test_base_multierror",
+    "trio._core._tests.test_multierror::test_concat_tb",
+    "trio._core._tests.test_multierror::test_ipython_custom_exc_handler",
+    "trio._core._tests.test_multierror::test_ipython_exc_handler",
+    "trio._core._tests.test_multierror::test_ipython_imported_but_unused",
+    "trio._core._tests.test_multierror::test_non_base_multierror",
+    "trio._core._tests.test_sf089_extension::test_original_multi_child_pickle"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "trio/_core/_tests/test_multierror.py",
+    "trio/_core/_tests/test_sf089_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "trio/_core/_tests/test_multierror.py",
+    "trio/_core/_tests/test_sf089_extension.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "e186da0dc5c48cff2d1de23b1606fb654cdea8dca59acb751758bc34fe776143",
+    "config/recipes.json": "0f976572b4c4691253e3e0f4288c5773924b9986a79fa83cb396f8d3abdb84ae"
+  }
+}

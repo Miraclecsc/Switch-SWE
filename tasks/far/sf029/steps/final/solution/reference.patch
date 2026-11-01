@@ -1,0 +1,67 @@
+diff --git a/sympy/parsing/mathematica.py b/sympy/parsing/mathematica.py
+--- a/sympy/parsing/mathematica.py
++++ b/sympy/parsing/mathematica.py
+@@ -9,7 +9,7 @@
+     acosh, atanh, acoth, asech, acsch, expand, im, flatten, polylog, cancel, expand_trig, sign, simplify, \
+     UnevaluatedExpr, S, atan, atan2, Mod, Max, Min, rf, Ei, Si, Ci, airyai, airyaiprime, airybi, primepi, prime, \
+     isprime, cot, sec, csc, csch, sech, coth, Function, E, I, pi, Tuple, GreaterThan, StrictGreaterThan, StrictLessThan, \
+-    LessThan, Equality, Or, And, Lambda, Integer, Dummy, symbols
++    LessThan, Equality, Or, And, Lambda, Integer, Dummy, symbols, Not, factorial, factorial2
+ from sympy.core.sympify import sympify, _sympify
+ from sympy.functions.special.bessel import airybiprime
+ from sympy.functions.special.error_functions import li
+@@ -886,6 +886,16 @@
+ 
+         self._util_remove_newlines(lines, tokens, inside_enclosure)
+ 
++        # A double bang at operand position is two prefix negations.
++        # At value position it remains the postfix double factorial token.
++        position = 0
++        while position < len(tokens):
++            if tokens[position] == "!!" and (position == 0 or self._is_op(tokens[position - 1])):
++                tokens[position:position + 1] = ["!", "!"]
++                position += 2
++            else:
++                position += 1
++
+         for op_type, grouping_strat, op_dict in reversed(self._mathematica_op_precedence):
+             if "*" in op_dict:
+                 self._util_add_missing_asterisks(tokens)
+@@ -912,6 +922,25 @@
+                         if pointer == 0 or pointer == size - 1 or self._is_op(tokens[pointer - 1]) or self._is_op(tokens[pointer + 1]):
+                             pointer += 1
+                             continue
++                    # Special case: "!" without preceding operand is PREFIX Not, not POSTFIX Factorial
++                    if token == "!" and op_type == self.POSTFIX:
++                        if pointer == 0 or self._is_op(tokens[pointer - 1]):
++                            pointer += 1
++                            continue
++                    if token == "!" and op_type == self.PREFIX:
++                        end = pointer
++                        while end < size and tokens[end] == "!":
++                            end += 1
++                        if end == size or self._is_op(tokens[end]):
++                            raise SyntaxError("Not requires an operand")
++                        operand = tokens[end]
++                        for _ in range(end - pointer):
++                            operand = ["Not", operand]
++                        tokens[pointer:end + 1] = [operand]
++                        size = len(tokens)
++                        changed = True
++                        pointer += 1
++                        continue
+                     changed = True
+                     tokens[pointer] = node
+                     if op_type == self.INFIX:
+@@ -1135,8 +1164,10 @@
+         "Equal": Equality,
+         "Or": Or,
+         "And": And,
+-
++        "Not": Not,
+         "Function": _parse_Function,
++        "Factorial": factorial,
++        "Factorial2": factorial2,
+     }
+ 
+     _atom_conversions = {

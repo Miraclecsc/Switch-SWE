@@ -1,0 +1,1 @@
+One more thing: The cause of issue #29750 is here: `_lambda[j]` is an `ANP` element, but `0` is a Python `int`. Cross-type comparison `ANP != int` always returns `True`.

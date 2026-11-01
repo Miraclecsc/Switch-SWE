@@ -1,0 +1,1 @@
+Also, I'm wondering why we even need this attribute on the runner. I only see it referenced in two spots in `src/trio/_core/_run.py`, which could as easily be changed to `runner.clock.autojump_threshold`, no? I suspect I'm missing something related to an edge case when the threshold value is changed.

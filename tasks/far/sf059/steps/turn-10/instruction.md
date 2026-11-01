@@ -1,0 +1,1 @@
+One more thing: Tests should be self-contained whenever possible. Move this to both the tests that use it.

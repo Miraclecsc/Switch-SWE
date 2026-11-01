@@ -1,0 +1,1 @@
+One more thing: Add hidden=False support to Argument and that method for controlling the new argument-help records. With hidden=True omit its detail record from the Positional arguments section.

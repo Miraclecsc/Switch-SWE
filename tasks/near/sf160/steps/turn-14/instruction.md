@@ -1,0 +1,1 @@
+One more thing: There are dropping from top-level API, Consider deprecation policy should be applied here. `proxies=` `data=` (non-Mapping objects) `cookies=` (per-request) Also, I'm curious why we're overriding `__new__` instead of `__init__` here.

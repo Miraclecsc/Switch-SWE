@@ -1,0 +1,3 @@
+One more thing: `test_reduce_series_boolean` below in this file used `pytest.raises`; removing them here allows us to remove that override.
+
+Compose keepdims with skipna, min_count for sum/prod, ddof for std/var, and valid one-dimensional axes (0 or None). Missing results must stay masked length-one arrays rather than Python scalars, including all-missing inputs and unmet min_count. Preserve existing errors for unsupported operations and invalid keyword arguments.

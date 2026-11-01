@@ -1,0 +1,88 @@
+{
+  "case_id": "sf016_switched",
+  "task_id": "ssb_v2_task_0162",
+  "repo": "getmoto/moto",
+  "base_commit": "c0fa5b6a300b161ecd5cbd38317acd5d288572d7",
+  "derived_fail_to_pass": [
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_gateway",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_gateway_target",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_gateway_with_optional_fields_and_tags",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_gateway",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_gateway_removes_targets",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_gateway_target",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_gateway",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_gateway_not_found",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_gateway_target",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_gateway_target_not_found",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_gateway_targets",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_gateways",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_gateway",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_gateway_target",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_gateway_target_with_optional_fields",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_gateway_with_optional_fields",
+    "tests.test_bedrockagentcorecontrol.test_endpoint_revisions_v1::test_create_unknown_version_does_not_leave_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_endpoint_revisions_v1::test_endpoint_promotes_existing_target_revision_when_ready",
+    "tests.test_bedrockagentcorecontrol.test_endpoint_revisions_v1::test_invalid_update_is_atomic_for_description_and_version"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_endpoint_conflict",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_endpoint_with_version_and_tags",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_with_optional_fields",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_create_agent_runtime_with_tags",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_delete_agent_runtime_removes_endpoints",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime_endpoint_not_found",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_get_agent_runtime_not_found",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_agent_runtime_endpoints",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_agent_runtime_versions",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_list_agent_runtimes",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_tag_resource",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_untag_resource",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_agent_runtime",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_agent_runtime_endpoint",
+    "tests.test_bedrockagentcorecontrol.test_bedrockagentcorecontrol::test_update_agent_runtime_with_optional_fields",
+    "tests.test_bedrockagentcorecontrol.test_endpoint_revisions_v1::test_default_revision_is_pinned_and_metadata_update_keeps_it"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py",
+    "tests/test_bedrockagentcorecontrol/test_endpoint_revisions_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py",
+    "tests/test_bedrockagentcorecontrol/test_endpoint_revisions_v1.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "b149cd5a14f773a64b679aa9d861f56c1a2787f645e80b778d9ee558ad4dc742",
+    "config/recipes.json": "18d00690fd319b9127003240b22b5e7929c7649b0b419aff35eeab8851e90f17"
+  }
+}

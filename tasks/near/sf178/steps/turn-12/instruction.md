@@ -1,0 +1,1 @@
+And here, Do we actually need `data` or `params`? The behavior should trigger with just `files`. Let's only use that to keep the tests intent clear.

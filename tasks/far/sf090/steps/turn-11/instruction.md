@@ -1,0 +1,1 @@
+I have this in /work/w01: Prevent MockClock from mutating the current runner Based on the issue @jc211 had on Gitter. You probably shouldn't be creating a `MockClock` and not using it, but this is a footgun.

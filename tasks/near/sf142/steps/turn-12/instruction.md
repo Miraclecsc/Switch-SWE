@@ -1,0 +1,1 @@
+And here, Added automated test (extended to all box drawing characters). All tests pass, but... especially review results for cases in which `show_footer=False`.

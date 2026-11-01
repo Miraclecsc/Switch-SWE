@@ -1,0 +1,64 @@
+{
+  "case_id": "sf021_switched",
+  "task_id": "ssb_v2_task_0185",
+  "repo": "getmoto/moto",
+  "base_commit": "7d9d153b66eb3dded684a0cd322f245a12a448a0",
+  "derived_fail_to_pass": [
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items__put_and_delete_with_different_key_order",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_duplicate_identity_is_rejected_before_evaluating_conditions",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_failure_rolls_back_tables_referred_to_only_by_arn",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_numeric_key_equivalence_across_operation_kinds[ConditionCheck-Update]",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_numeric_key_equivalence_across_operation_kinds[Delete-ConditionCheck]",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_numeric_key_equivalence_across_operation_kinds[Put-Delete]",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_numeric_key_equivalence_across_operation_kinds[Update-Put]",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_table_arn_and_name_identify_same_transaction_target"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_multiple_transactions_on_same_item",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items__empty_expr_attr_values",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items__put_and_delete_on_same_item",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items__too_many_transactions",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items__update_with_multiple_set_clauses",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items_multiple_operations_fail",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transact_write_items_with_empty_gsi_key",
+    "tests.test_dynamodb.exceptions.test_dynamodb_transactions::test_transaction_with_empty_key",
+    "tests.test_dynamodb.exceptions.test_target_identity_v1::test_distinct_numeric_keys_and_distinct_tables_are_not_duplicates"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_dynamodb/exceptions/test_dynamodb_transactions.py",
+    "tests/test_dynamodb/exceptions/test_target_identity_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_dynamodb/exceptions/test_dynamodb_transactions.py",
+    "tests/test_dynamodb/exceptions/test_target_identity_v1.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "75b49bf6193a2cd12b9cf9fdbbcea2e9cc9371e8cfb9e3458ab0dc6783c91383",
+    "config/recipes.json": "b6beca629206949516c2c470601b585b07542626da97847e7d43b355aa4086a9"
+  }
+}

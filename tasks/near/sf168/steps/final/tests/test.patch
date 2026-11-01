@@ -1,0 +1,65 @@
+diff --git a/networkx/algorithms/centrality/tests/test_eigenvector_centrality.py b/networkx/algorithms/centrality/tests/test_eigenvector_centrality.py
+index b8620056a94..cfc9ee7953f 100644
+--- a/networkx/algorithms/centrality/tests/test_eigenvector_centrality.py
++++ b/networkx/algorithms/centrality/tests/test_eigenvector_centrality.py
+@@ -159,14 +159,26 @@ def test_multigraph_numpy(self):
+         with pytest.raises(nx.NetworkXException):
+             nx.eigenvector_centrality_numpy(nx.MultiGraph())
+ 
+-    def test_empty(self):
++    def test_null(self):
+         with pytest.raises(nx.NetworkXException):
+             nx.eigenvector_centrality(nx.Graph())
+ 
+-    def test_empty_numpy(self):
++    def test_null_numpy(self):
+         with pytest.raises(nx.NetworkXException):
+             nx.eigenvector_centrality_numpy(nx.Graph())
+ 
++    @pytest.mark.parametrize(
++        "G",
++        [
++            nx.empty_graph(3),
++            nx.DiGraph([(0, 1), (1, 2)]),
++        ],
++    )
++    def test_disconnected_numpy(self, G):
++        msg = "does not give consistent results for disconnected"
++        with pytest.raises(nx.AmbiguousSolution, match=msg):
++            nx.eigenvector_centrality_numpy(G)
++
+     def test_zero_nstart(self):
+         G = nx.Graph([(1, 2), (1, 3), (2, 3)])
+         with pytest.raises(
+diff --git a/tests/test_sf168_staged.py b/tests/test_sf168_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf168_staged.py
+@@ -0,0 +1,27 @@
++import math
++import networkx as nx
++import pytest
++
++def test_singleton_centrality():
++    for kind in (nx.Graph, nx.DiGraph):
++        graph = kind()
++        graph.add_node("only")
++        assert nx.eigenvector_centrality_numpy(graph) == {"only": 1.0}
++        graph.add_edge("only", "only", weight=4)
++        assert nx.eigenvector_centrality_numpy(graph, weight="weight") == {"only": 1.0}
++
++def test_two_node_undirected():
++    graph = nx.Graph()
++    graph.add_edge("left", "right", strength=5)
++    values = nx.eigenvector_centrality_numpy(graph, weight="strength")
++    assert values == pytest.approx({"left": 1/math.sqrt(2), "right": 1/math.sqrt(2)})
++
++def test_two_node_directed_left_eigenvector():
++    graph = nx.DiGraph()
++    graph.add_edge("a", "b", weight=4)
++    graph.add_edge("b", "a", weight=1)
++    values = nx.eigenvector_centrality_numpy(graph, weight="weight")
++    assert values == pytest.approx({"a": 1/math.sqrt(5), "b": 2/math.sqrt(5)})
++    graph.remove_edge("b", "a")
++    with pytest.raises(nx.AmbiguousSolution):
++        nx.eigenvector_centrality_numpy(graph, weight="weight")

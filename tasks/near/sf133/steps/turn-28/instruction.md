@@ -1,0 +1,1 @@
+And here, Thanks, that sounds good to me. One small question about the name, since the current function returns only the size of a maximum antichain would `antichain_width` be clearer than `longest_antichain`? My concern is that `longest_antichain` may suggest that the function returns an actual antichain.

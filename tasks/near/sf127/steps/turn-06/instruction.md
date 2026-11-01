@@ -1,0 +1,1 @@
+One more thing: The comment says "We actually need to compute 1+x accurately, not x" but the code computes Add(S.NegativeOne, arg), which calculates arg The comment should be updated to say "We actually need to compute x-1 accurately" or "We compute (arg 1) to maintain precision" to match what the code actually does.

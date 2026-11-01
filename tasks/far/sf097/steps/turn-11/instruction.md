@@ -1,0 +1,1 @@
+Please check this too: Why does it say "CHANGE START" and "CHANGE END"? Is that put there by an AI agent or something? The check `self.base.is_nonzero is not False` is not right. There should just be a separate check above like:

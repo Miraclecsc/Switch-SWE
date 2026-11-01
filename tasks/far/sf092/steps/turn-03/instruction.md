@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Remove infinity support for tcp listener backlogs This PR makes due on my comment in 6f9ab95349044dbb9d63408d2245dc95ad167f7e, removing support for `math.inf` as an argument for the tcp listener backlog, leaving only `int | None` as valid options.

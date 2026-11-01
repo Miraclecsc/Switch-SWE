@@ -1,0 +1,1 @@
+For the checkout at /work/w03, fix command palette key Started out as a fix for the command palette key binding. Turned in to a refactor and an alternative centralised way of defining how keys are displayed in footer and key panel. Fixes Fixes

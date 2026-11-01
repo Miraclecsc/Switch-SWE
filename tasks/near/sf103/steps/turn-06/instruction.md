@@ -1,0 +1,1 @@
+One more thing: Bump black minimum version to 26.3.1 to fix arbitrary file write vulnerability Also, Remove unnecessary black bumps, improve docs, add regression tests for issue #2392

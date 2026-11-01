@@ -1,0 +1,1 @@
+In the checkout at /work/w01, It looks like a new test was added recently which breaks with this change: I suppose that suggests that we may only want to normalize spaces in `_generic_platforms` or maybe `platform_tags`:

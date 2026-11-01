@@ -1,0 +1,1 @@
+And here, > I will also say that I initially left the logging out as I wasn't sure how useful it would be since I didn't notice logging being used in 'packaging' itself. Hmm, maybe we should slightly change the API that `pip` is expecting here and make the default `warn=False`? That way anyone else using `packaging` doesn't get unexpected log messages.

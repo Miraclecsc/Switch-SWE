@@ -1,0 +1,1 @@
+Please check this too: We probably shouldn't hard-code glibc 2 support in case they actually do ever bump that version since "the glibc maintainers advised us that we should assume that glibc will maintain backwards-compatibility indefinitely, even if they bump the major version number."

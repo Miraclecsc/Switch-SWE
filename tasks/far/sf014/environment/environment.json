@@ -1,0 +1,251 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+  ],
+  "case_id": "sf014_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e",
+      "python": "3.12.12",
+      "requirements": "requirements/121ec7ee69f22989-3.12.12-06fd2a7e.txt",
+      "source": "dependency-source/121ec7ee69f22989-3.12.12-06fd2a7e.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "c0fa5b6a300b161ecd5cbd38317acd5d288572d7",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/__init__.py",
+          "sha256": "0af8067a820e551448682ee733c95369a2944304959b742a3093c8d444929b9c"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/table.py",
+          "sha256": "c760fd8f570844eaaa898715b103c33c3b540982f00b64d0066e0de13ad67f1d"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/parsing/key_condition_expression.py",
+          "sha256": "39e9b650687fd2b68e94654d06bcb35e8b6451ce6642136ac174ecc08617bff5"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/responses.py",
+          "sha256": "5cb621028968dc80e79baabe678e98f1fe48049ea7e17acc9951f465d661fe31"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/__init__.py",
+          "sha256": "0182035b3eccf08d361530af627770764b2ca01ab20b1e064cede6cb01638914"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/models/test_key_condition_expression_parser.py",
+          "sha256": "287ac638bdb653082cc9cae12ee2dd7e6cc4aac31d251bd3e2dae486e22b33f9"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "95cd9fe04e55c801d15d34405f252b7de52c5cac",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/__init__.py",
+          "sha256": "0af8067a820e551448682ee733c95369a2944304959b742a3093c8d444929b9c"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/table.py",
+          "sha256": "c760fd8f570844eaaa898715b103c33c3b540982f00b64d0066e0de13ad67f1d"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/parsing/key_condition_expression.py",
+          "sha256": "39e9b650687fd2b68e94654d06bcb35e8b6451ce6642136ac174ecc08617bff5"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/responses.py",
+          "sha256": "5cb621028968dc80e79baabe678e98f1fe48049ea7e17acc9951f465d661fe31"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/__init__.py",
+          "sha256": "0182035b3eccf08d361530af627770764b2ca01ab20b1e064cede6cb01638914"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/models/test_key_condition_expression_parser.py",
+          "sha256": "287ac638bdb653082cc9cae12ee2dd7e6cc4aac31d251bd3e2dae486e22b33f9"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "5c0dd0b56b7b3634bb85227bde0406461733d395",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/__init__.py",
+          "sha256": "1aa4dc6bb42ace417e5a6ce918c8d5b4eb66edef6de6aa7bfc15724135d3ac99"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/table.py",
+          "sha256": "c760fd8f570844eaaa898715b103c33c3b540982f00b64d0066e0de13ad67f1d"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/parsing/key_condition_expression.py",
+          "sha256": "39e9b650687fd2b68e94654d06bcb35e8b6451ce6642136ac174ecc08617bff5"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/responses.py",
+          "sha256": "5cb621028968dc80e79baabe678e98f1fe48049ea7e17acc9951f465d661fe31"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/__init__.py",
+          "sha256": "0182035b3eccf08d361530af627770764b2ca01ab20b1e064cede6cb01638914"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/models/test_key_condition_expression_parser.py",
+          "sha256": "287ac638bdb653082cc9cae12ee2dd7e6cc4aac31d251bd3e2dae486e22b33f9"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "842051918afd64e422e0ccb8799df95400f2655c",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "dc425e8b3d56b7ad84bf9d2820ae89e72d10a4a9",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/__init__.py",
+          "sha256": "1aa4dc6bb42ace417e5a6ce918c8d5b4eb66edef6de6aa7bfc15724135d3ac99"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/models/table.py",
+          "sha256": "02827dc97d8a6dd7c97d5154122ac8f185e5f7d85220634b6722a81a75acd3e7"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/parsing/key_condition_expression.py",
+          "sha256": "39e9b650687fd2b68e94654d06bcb35e8b6451ce6642136ac174ecc08617bff5"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/dynamodb/responses.py",
+          "sha256": "2ee919aaf6ac66ec946a85a9e289890ebb270174ec0aa62a2d37cbced3aed109"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/__init__.py",
+          "sha256": "0182035b3eccf08d361530af627770764b2ca01ab20b1e064cede6cb01638914"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/models/test_key_condition_expression_parser.py",
+          "sha256": "287ac638bdb653082cc9cae12ee2dd7e6cc4aac31d251bd3e2dae486e22b33f9"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_dynamodb/test_dynamodb_multi_attribute_gsi.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w04"
+    }
+  ]
+}

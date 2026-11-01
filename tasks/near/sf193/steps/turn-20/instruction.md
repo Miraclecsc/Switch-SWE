@@ -1,0 +1,1 @@
+And here, Oh. You shouldn't run `mypy` on attrs source code. At least we haven't made it pass type checking. The only file that passes type checking is `typing_example.py`

@@ -1,0 +1,164 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index 74d40a546..2d00060d0 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -1038,10 +1038,104 @@ def test_all_args(self) -> None:
+         assert result == [
+             tags.Tag("cp313", "cp313t", "plat1"),
+             tags.Tag("cp313", "cp313t", "plat2"),
++            tags.Tag("cp313", "abi3t", "plat1"),
++            tags.Tag("cp313", "abi3t", "plat2"),
+             tags.Tag("cp313", "none", "plat1"),
+             tags.Tag("cp313", "none", "plat2"),
++            tags.Tag("cp312", "abi3t", "plat1"),
++            tags.Tag("cp312", "abi3t", "plat2"),
++            tags.Tag("cp311", "abi3t", "plat1"),
++            tags.Tag("cp311", "abi3t", "plat2"),
++            tags.Tag("cp310", "abi3t", "plat1"),
++            tags.Tag("cp310", "abi3t", "plat2"),
++            tags.Tag("cp39", "abi3t", "plat1"),
++            tags.Tag("cp39", "abi3t", "plat2"),
++            tags.Tag("cp38", "abi3t", "plat1"),
++            tags.Tag("cp38", "abi3t", "plat2"),
++            tags.Tag("cp37", "abi3t", "plat1"),
++            tags.Tag("cp37", "abi3t", "plat2"),
++            tags.Tag("cp36", "abi3t", "plat1"),
++            tags.Tag("cp36", "abi3t", "plat2"),
++            tags.Tag("cp35", "abi3t", "plat1"),
++            tags.Tag("cp35", "abi3t", "plat2"),
++            tags.Tag("cp34", "abi3t", "plat1"),
++            tags.Tag("cp34", "abi3t", "plat2"),
++            tags.Tag("cp33", "abi3t", "plat1"),
++            tags.Tag("cp33", "abi3t", "plat2"),
++            tags.Tag("cp32", "abi3t", "plat1"),
++            tags.Tag("cp32", "abi3t", "plat2"),
+         ]
+ 
++        result = list(tags.cpython_tags((3, 15), ["cp315t"], ["platform"]))
++        assert result == [
++            tags.Tag("cp315", "cp315t", "platform"),
++            tags.Tag("cp315", "abi3t", "platform"),
++            tags.Tag("cp315", "none", "platform"),
++            tags.Tag("cp314", "abi3t", "platform"),
++            tags.Tag("cp313", "abi3t", "platform"),
++            tags.Tag("cp312", "abi3t", "platform"),
++            tags.Tag("cp311", "abi3t", "platform"),
++            tags.Tag("cp310", "abi3t", "platform"),
++            tags.Tag("cp39", "abi3t", "platform"),
++            tags.Tag("cp38", "abi3t", "platform"),
++            tags.Tag("cp37", "abi3t", "platform"),
++            tags.Tag("cp36", "abi3t", "platform"),
++            tags.Tag("cp35", "abi3t", "platform"),
++            tags.Tag("cp34", "abi3t", "platform"),
++            tags.Tag("cp33", "abi3t", "platform"),
++            tags.Tag("cp32", "abi3t", "platform"),
++        ]
++
++        result = list(tags.cpython_tags((3, 16), ["cp316t"], ["platform"]))
++        assert result == [
++            tags.Tag("cp316", "cp316t", "platform"),
++            tags.Tag("cp316", "abi3t", "platform"),
++            tags.Tag("cp316", "none", "platform"),
++            tags.Tag("cp315", "abi3t", "platform"),
++            tags.Tag("cp314", "abi3t", "platform"),
++            tags.Tag("cp313", "abi3t", "platform"),
++            tags.Tag("cp312", "abi3t", "platform"),
++            tags.Tag("cp311", "abi3t", "platform"),
++            tags.Tag("cp310", "abi3t", "platform"),
++            tags.Tag("cp39", "abi3t", "platform"),
++            tags.Tag("cp38", "abi3t", "platform"),
++            tags.Tag("cp37", "abi3t", "platform"),
++            tags.Tag("cp36", "abi3t", "platform"),
++            tags.Tag("cp35", "abi3t", "platform"),
++            tags.Tag("cp34", "abi3t", "platform"),
++            tags.Tag("cp33", "abi3t", "platform"),
++            tags.Tag("cp32", "abi3t", "platform"),
++        ]
++
++        result = list(tags.cpython_tags((3, 16), ["cp316"], ["platform"]))
++        assert result == [
++            tags.Tag("cp316", "cp316", "platform"),
++            tags.Tag("cp316", "abi3", "platform"),
++            tags.Tag("cp316", "none", "platform"),
++            tags.Tag("cp315", "abi3", "platform"),
++            tags.Tag("cp314", "abi3", "platform"),
++            tags.Tag("cp313", "abi3", "platform"),
++            tags.Tag("cp312", "abi3", "platform"),
++            tags.Tag("cp311", "abi3", "platform"),
++            tags.Tag("cp310", "abi3", "platform"),
++            tags.Tag("cp39", "abi3", "platform"),
++            tags.Tag("cp38", "abi3", "platform"),
++            tags.Tag("cp37", "abi3", "platform"),
++            tags.Tag("cp36", "abi3", "platform"),
++            tags.Tag("cp35", "abi3", "platform"),
++            tags.Tag("cp34", "abi3", "platform"),
++            tags.Tag("cp33", "abi3", "platform"),
++            tags.Tag("cp32", "abi3", "platform"),
++        ]
++
++    def test_no_abi3t_in_non_threaded_interpreter(self) -> None:
++        result = list(tags.cpython_tags((3, 16), ["cp316"], ["platform"]))
++        assert all(t.abi in ("cp316", "none", "abi3") for t in result)
++
++    def test_no_abi3_in_threaded_interpreter(self) -> None:
++        result = list(tags.cpython_tags((3, 16), ["cp316t"], ["platform"]))
++        assert all(t.abi in ("cp316t", "none", "abi3t") for t in result)
++
+     def test_python_version_defaults(self) -> None:
+         tag = next(tags.cpython_tags(abis=["abi3"], platforms=["any"]))
+         interpreter = "cp" + tags._version_nodot(sys.version_info[:2])
+diff --git a/tests/test_stable_abi_inputs_v1.py b/tests/test_stable_abi_inputs_v1.py
+new file mode 100644
+index 0000000..3410fbf
+--- /dev/null
++++ b/tests/test_stable_abi_inputs_v1.py
+@@ -0,0 +1,49 @@
++import pytest
++from packaging.tags import Tag, cpython_tags
++
++
++def test_reserved_abi_hints_and_duplicate_inputs_do_not_duplicate_output():
++    abis = ["abi3t", "cp315t", "none", "abi3", "abi3t", "cp315t", "none"]
++    platforms = ["linux_x86_64", "linux_x86_64", "other"]
++    before = abis[:], platforms[:]
++    result = list(cpython_tags((3, 15), abis=abis, platforms=platforms))
++    assert len(result) == len(set(result))
++    assert all(tag.abi != "abi3" for tag in result)
++    assert result[:6] == [
++        Tag("cp315", abi, platform)
++        for abi in ["cp315t", "abi3t", "none"]
++        for platform in ["linux_x86_64", "other"]]
++    assert (abis, platforms) == before
++
++
++def test_custom_abi_before_native_threaded_abi_does_not_change_stable_family():
++    result = list(cpython_tags((3, 15), abis=["custom", "cp315td", "cp315t"], platforms=["p"]))
++    assert result[:5] == [
++        Tag("cp315", abi, "p") for abi in ["custom", "cp315td", "cp315t", "abi3t", "none"]]
++    assert Tag("cp32", "abi3t", "p") in result
++    assert not any(t.abi == "abi3" for t in result)
++
++
++def test_contradictory_gil_abis_are_rejected():
++    with pytest.raises(ValueError):
++        list(cpython_tags((3,15), abis=["cp315", "cp315t"], platforms=["p"]))
++    with pytest.raises(ValueError):
++        list(cpython_tags((3,15), abis=["cp315td", "custom", "cp315d"], platforms=["p"]))
++
++
++def test_generators_match_lists_and_preserve_priority():
++    abis, platforms = ["cp315t", "custom"], ["first", "second"]
++    assert list(cpython_tags((3,15), abis=iter(abis), platforms=iter(platforms))) == list(
++        cpython_tags((3,15), abis=abis, platforms=platforms))
++
++
++def test_major_only_target_does_not_leak_reserved_stable_abis():
++    result = list(cpython_tags((3,), abis=["abi3t", "abi3", "custom", "none"], platforms=["p"]))
++    assert result == [Tag("cp3","custom","p"), Tag("cp3","none","p")]
++
++
++def test_nonthreaded_native_abi_retains_abi3_family():
++    result = list(cpython_tags((3,15), abis=["cp315"], platforms=["p"]))
++    assert result[:3] == [Tag("cp315",a,"p") for a in ["cp315","abi3","none"]]
++    assert Tag("cp32","abi3","p") in result
++    assert not any(t.abi == "abi3t" for t in result)

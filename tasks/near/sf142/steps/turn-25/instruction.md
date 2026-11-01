@@ -1,0 +1,1 @@
+Also, I'd prefer `escape_control_code`. Would you mind changing the terminology from "make readable" elsewhere?

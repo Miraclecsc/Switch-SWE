@@ -1,0 +1,1 @@
+One more thing: This assert will pass regardless of whether or not the Filters argument is supplied. Let's make it more specific to ensure the behavior under test is correct.

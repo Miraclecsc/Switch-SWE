@@ -1,0 +1,1 @@
+And here, Do not draw random numbers after a terminating yield. With unchanged seeds, bounded walks must be exact prefixes of existing walks. Preserve weighted/unweighted transitions, negative/zero-weight handling, directed dead ends and multigraph rejection.

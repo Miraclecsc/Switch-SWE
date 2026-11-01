@@ -1,0 +1,1 @@
+Please check this too: I _think_ I now understand what you meant by this not de-duping the key displays, now that support for keymaps has been released. Hopefully fixed by the key-display de-duplication update?

@@ -1,0 +1,1 @@
+One more thing: Retain the original None, empty, multiline, nargs=-1 and deprecation help behavior for arguments without hidden=True.

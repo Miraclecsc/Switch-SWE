@@ -1,0 +1,1 @@
+Also, This is not quite accurate. A sequence of nodes is not a valid node in the graph. And sequences of nodes do not raise a NetworkXError. I think the original wording is more correct: If nbunch is not a node or sequence of nodes the NetworkXError is raised. I believe that nothing more is needed. Am I missing something? What is unclear here?

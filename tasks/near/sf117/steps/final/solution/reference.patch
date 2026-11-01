@@ -1,0 +1,164 @@
+diff --git a/src/packaging/tags.py b/src/packaging/tags.py
+--- a/src/packaging/tags.py
++++ b/src/packaging/tags.py
+@@ -18,6 +18,7 @@
+     Iterator,
+     Sequence,
+     Tuple,
++    TypeVar,
+     cast,
+ )
+ 
+@@ -28,6 +29,8 @@
+     "AppleVersion",
+     "PythonVersion",
+     "Tag",
++    "CompatibleTagsSelector",
++    "create_compatible_tags_selector",
+     "android_platforms",
+     "compatible_tags",
+     "cpython_tags",
+@@ -769,3 +772,108 @@
+     else:
+         interp = None
+     yield from compatible_tags(interpreter=interp)
++
++
++_T = TypeVar("_T")
++
++
++class CompatibleTagsSelector:
++    """A reusable, demand-driven ranking stream for a supported tag source.
++
++    Queries have independent cursors over a shared cache of distinct tags.
++    Instances support single-threaded interleaving, not concurrent threads.
++    """
++
++    def __init__(self, tags: Iterable[Tag]) -> None:
++        self._input = tags
++        self._source: Iterator[Tag] | None = None
++        self._started = False
++        self._cache: list[Tag] = []
++        self._seen: set[Tag] = set()
++        self._exhausted = False
++        self._source_error: Exception | None = None
++
++    @property
++    def cached_tags(self) -> tuple[Tag, ...]:
++        """The distinct supported tags consumed so far, in preference order."""
++        return tuple(self._cache)
++
++    @property
++    def exhausted(self) -> bool:
++        """Whether normal StopIteration has actually been observed."""
++        return self._exhausted
++
++    def _tag_at(self, index: int) -> Tag | None:
++        if index < len(self._cache):
++            return self._cache[index]
++        if self._source_error is not None:
++            raise self._source_error
++        if self._exhausted:
++            return None
++        try:
++            if not self._started:
++                self._started = True
++                self._source = iter(self._input)
++            assert self._source is not None
++            while True:
++                tag = next(self._source)
++                if tag not in self._seen:
++                    self._seen.add(tag)
++                    self._cache.append(tag)
++                    return tag
++        except StopIteration:
++            self._exhausted = True
++            return None
++        except Exception as exc:
++            self._source_error = exc
++            raise
++
++    def __call__(
++        self,
++        tagged_things: Iterable[tuple[_T, Iterable[Tag]]],
++        *,
++        limit: int | None = None,
++    ) -> Iterator[_T]:
++        """Create a lazy query; snapshot candidate tags on its first advance.
++
++        Rank by the earliest supported tag, keeping input order for ties. Each
++        input entry is independent, including repeated or unhashable payloads.
++        """
++        if limit is not None:
++            if not isinstance(limit, int):
++                raise TypeError("limit must be an integer or None")
++            if limit < 0:
++                raise ValueError("limit must be nonnegative")
++
++        def select() -> Iterator[_T]:
++            if limit == 0:
++                return
++            candidates = [(thing, frozenset(tags)) for thing, tags in tagged_things]
++            remaining = len(candidates)
++            if not remaining:
++                return
++            emitted = [False] * remaining
++            cursor = count = 0
++            while remaining:
++                tag = self._tag_at(cursor)
++                if tag is None:
++                    return
++                cursor += 1
++                for i, (thing, thing_tags) in enumerate(candidates):
++                    if not emitted[i] and tag in thing_tags:
++                        emitted[i] = True
++                        remaining -= 1
++                        count += 1
++                        yield thing
++                        if remaining == 0 or (limit is not None and count >= limit):
++                            return
++
++        return select()
++
++
++def create_compatible_tags_selector(tags: Iterable[Tag]) -> CompatibleTagsSelector:
++    """Create a selector without advancing or obtaining an iterator from tags.
++
++    See CompatibleTagsSelector for ranking, state and query lifecycle behavior.
++    """
++    return CompatibleTagsSelector(tags)
+diff --git a/docs/tags.rst b/docs/tags.rst
+--- a/docs/tags.rst
++++ b/docs/tags.rst
+@@ -89,3 +89,31 @@
+ .. _`abbreviation codes`: https://www.python.org/dev/peps/pep-0425/#python-tag
+ .. _`compressed tag set`: https://www.python.org/dev/peps/pep-0425/#compressed-tag-sets
+ .. _`platform compatibility tags`: https://packaging.python.org/specifications/platform-compatibility-tags/
++
++
++Stateful compatibility selection
++-------------------------------
++
++``create_compatible_tags_selector(supported_tags)`` returns a callable
++``CompatibleTagsSelector``. Neither creating it nor calling it consumes inputs.
++On first advance, each query snapshots its finite candidate iterable and tag
++memberships, retaining payload identities. Entries are ordered by the first
++matching supported tag, with input order breaking ties. Duplicate payloads
++remain distinct entries. The supported source's preference order is authoritative:
++on Linux, compatible manylinux tags precede the corresponding plain linux tags.
++
++``selector(candidates, limit=None)`` accepts a nonnegative integer or None.
++Invalid limits raise at call time; zero does not touch either input.
++Iteration stops as soon as the limit or all matches are satisfied.
++
++Queries have independent cursors over one shared lazy cache. A suspended query
++sees tags added by other queries. Closing a query leaves the source available.
++This supports single-threaded interleaving, not concurrent threads.
++
++``cached_tags`` is a read-only tuple snapshot of distinct consumed supported tags.
++``exhausted`` becomes true only upon observing normal StopIteration. Cached tags
++remain useful after exhaustion, and the source is not polled again.
++An ordinary source exception is remembered at the cache boundary: later queries
++replay cached tags, and only queries needing more tags receive its type and
++message. No retry occurs. Empty and zero-limit queries do not surface it.
++Candidate input failures are local to their query.

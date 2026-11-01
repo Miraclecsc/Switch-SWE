@@ -1,0 +1,1 @@
+Also, I'm all in favor of keeping this consistent with the old implementation (supporting keys, and not supporting negative indexes) and looking to support future improvements in later pull requests.

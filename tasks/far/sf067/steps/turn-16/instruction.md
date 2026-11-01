@@ -1,0 +1,1 @@
+And here, I would like to add to @dschult comments that the code does provide `scaling_ratio` for scaling. Reading, your comments, however, I think you are referring to the absolute scaling. Users could post-host apply `rescale_layout[_dict]` for these purposes. Consequently, I don't see a need to provide this in this function other than convenience.

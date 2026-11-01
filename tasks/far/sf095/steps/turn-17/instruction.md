@@ -1,0 +1,1 @@
+Also, It might be good to deliberately leave `args` unannotated, so we get warnings about it to remind us to add `TypeVarTuple`/something else in the future to type this properly.

@@ -1,0 +1,1 @@
+One more thing: Notice that `_to_str` is basically what `__str__` was, but it can take a parameter: the name to be used. So now `__str__` just calls `_to_str`, and I can reuse that logic from `__hash__` too, which needs to use the canonicalized name. Do you think there's a simpler way? Happy to change the implementation if so.

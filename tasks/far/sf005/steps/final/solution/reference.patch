@@ -1,0 +1,134 @@
+diff --git a/django/dispatch/dispatcher.py b/django/dispatch/dispatcher.py
+index 63fb75285e..853b34d051 100644
+--- a/django/dispatch/dispatcher.py
++++ b/django/dispatch/dispatcher.py
+@@ -1,4 +1,5 @@
+ import asyncio
++import contextvars
+ import logging
+ import threading
+ import weakref
+@@ -21,14 +22,40 @@ NONE_ID = _make_id(None)
+ # A marker for caching
+ NO_RECEIVERS = object()
+ 
++# Context ownership is carried by receiver tasks, never by a process global.
++_dispatch_context = contextvars.ContextVar("signal_dispatch_context", default=None)
++
++
++def _restore_context(context):
++    """
++    Check for changes in contextvars, and set them to the current
++    context for downstream consumers.
++    """
++    for cvar in context:
++        if cvar is _dispatch_context:
++            continue
++        cvalue = context.get(cvar)
++        try:
++            if cvar.get() != cvalue:
++                cvar.set(cvalue)
++        except LookupError:
++            cvar.set(cvalue)
++
++
++async def _run_parallel(*coros):
++    """
++    Execute multiple asynchronous coroutines in parallel,
++    sharing the current context between them.
++    """
++    context = _dispatch_context.get()
++    owns_context = context is None
++    if owns_context:
++        context = contextvars.copy_context()
++        context.run(_dispatch_context.set, context)
+ 
+-async def _gather(*coros):
+     if len(coros) == 0:
+         return []
+ 
+-    if len(coros) == 1:
+-        return [await coros[0]]
+-
+     async def run(i, coro):
+         results[i] = await coro
+ 
+@@ -36,12 +63,15 @@ async def _gather(*coros):
+         async with asyncio.TaskGroup() as tg:
+             results = [None] * len(coros)
+             for i, coro in enumerate(coros):
+-                tg.create_task(run(i, coro))
++                tg.create_task(run(i, coro), context=context)
+         return results
+     except BaseExceptionGroup as exception_group:
+         if len(exception_group.exceptions) == 1:
+             raise exception_group.exceptions[0]
+         raise
++    finally:
++        if owns_context:
++            _restore_context(context=context)
+ 
+ 
+ class Signal:
+@@ -233,7 +263,7 @@ class Signal:
+         if async_receivers:
+ 
+             async def asend():
+-                async_responses = await _gather(
++                async_responses = await _run_parallel(
+                     *(
+                         receiver(signal=self, sender=sender, **named)
+                         for receiver in async_receivers
+@@ -275,6 +305,7 @@ class Signal:
+         ):
+             return []
+         sync_receivers, async_receivers = self._live_receivers(sender)
++
+         if sync_receivers:
+ 
+             @sync_to_async
+@@ -290,14 +321,12 @@ class Signal:
+             async def sync_send():
+                 return []
+ 
+-        responses, async_responses = await _gather(
+-            sync_send(),
+-            _gather(
+-                *(
+-                    receiver(signal=self, sender=sender, **named)
+-                    for receiver in async_receivers
+-                )
+-            ),
++        responses = await sync_send()
++        async_responses = await _run_parallel(
++            *(
++                receiver(signal=self, sender=sender, **named)
++                for receiver in async_receivers
++            )
+         )
+         responses.extend(zip(async_receivers, async_responses))
+         return responses
+@@ -362,7 +391,7 @@ class Signal:
+                 return response
+ 
+             async def asend():
+-                async_responses = await _gather(
++                async_responses = await _run_parallel(
+                     *(
+                         asend_and_wrap_exception(receiver)
+                         for receiver in async_receivers
+@@ -436,11 +465,9 @@ class Signal:
+                 return err
+             return response
+ 
+-        responses, async_responses = await _gather(
+-            sync_send(),
+-            _gather(
+-                *(asend_and_wrap_exception(receiver) for receiver in async_receivers),
+-            ),
++        responses = await sync_send()
++        async_responses = await _run_parallel(
++            *(asend_and_wrap_exception(receiver) for receiver in async_receivers),
+         )
+         responses.extend(zip(async_receivers, async_responses))
+         return responses

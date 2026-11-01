@@ -1,0 +1,1 @@
+One more thing: Yeah but `Tuple[Any, ...]` is what we want and (I correct myself) `tuple` is equivalent to `Tuple[Any, ...]`. The difference between `object` and `Any` comes down to type substitution rules which are not relevant here. Bottom line is, `tuple` is correct.

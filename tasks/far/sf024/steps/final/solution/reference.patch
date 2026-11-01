@@ -1,0 +1,107 @@
+diff --git a/networkx/algorithms/planarity.py b/networkx/algorithms/planarity.py
+--- a/networkx/algorithms/planarity.py
++++ b/networkx/algorithms/planarity.py
+@@ -1380,6 +1380,103 @@
+ 
+         return face_nodes
+ 
++    def faces(self):
++        """Generate facial boundary walks from this planar embedding.
++
++        Yields
++        ------
++        face : list
++            A facial boundary walk as a node sequence in cyclic order.
++            Walks are not guaranteed to be simple cycles: vertices can repeat,
++            for example around bridges or articulation points.
++
++        Notes
++        -----
++        This method traverses each directed half-edge exactly once.
++        For disconnected embeddings, a unique global outer face is not
++        distinguished by the combinatorial embedding.
++        When the embedding is obtained from :func:`check_planarity`,
++        self-loops are not represented and parallel edges are merged
++        before the embedding is constructed.
++        """
++        visited_half_edges = set()
++        for v in self:
++            for w in self.neighbors_cw_order(v):
++                if (v, w) not in visited_half_edges:
++                    yield self.traverse_face(v, w, mark_half_edges=visited_half_edges)
++
++    def dual_graph(self, *, contract_edges=()):
++        """Return the component-local face dual, optionally contracting dual edges.
++
++        This is the ``sf024-face-dual-v1`` benchmark extension. Each original
++        face has its index in ``list(self.faces())`` as its ID. The returned
++        MultiGraph keeps parallel edges and the self-loops corresponding to
++        primal bridges. Isolated primal nodes produce no dual nodes.
++
++        ``contract_edges`` is a single-pass iterable of primal endpoint pairs.
++        Each selected pair contracts its *dual* edge: incident faces are merged,
++        and only selected edges are removed. Repeated or reversed pairs are
++        idempotent. Remaining edges, including newly formed self-loops, survive.
++        Invalid pairs raise NetworkXError. The embedding is never modified.
++
++        The graph attributes ``faces`` and ``half_edge_faces`` retain original
++        boundary walks and dart-to-original-face incidence. ``face_to_node`` maps
++        original face IDs to their resulting node. Each resulting node is the
++        smallest face ID in its region and has a sorted tuple ``faces`` attribute.
++        Each edge has its primal endpoint frozenset as key and an oriented
++        ``primal_edge`` endpoint pair as data. Endpoint orientation is immaterial.
++        """
++        self.check_structure()
++        faces = tuple(tuple(face) for face in self.faces())
++        incidence = {}
++        for index, face in enumerate(faces):
++            for u, v in zip(face, face[1:] + face[:1]):
++                incidence[u, v] = index
++
++        selected = {}
++        try:
++            for item in contract_edges:
++                u, v = item
++                if (u, v) not in incidence or (v, u) not in incidence:
++                    raise nx.NetworkXError("Contraction edge is not in the embedding")
++                selected[frozenset((u, v))] = (u, v)
++        except (TypeError, ValueError) as exc:
++            raise nx.NetworkXError("Contraction entries must be endpoint pairs") from exc
++
++        regions = nx.utils.UnionFind(range(len(faces)))
++        for u, v in selected.values():
++            regions.union(incidence[u, v], incidence[v, u])
++        members = {}
++        for index in range(len(faces)):
++            members.setdefault(regions[index], []).append(index)
++        face_to_node = {
++            index: min(group) for group in members.values() for index in group
++        }
++
++        dual = nx.MultiGraph()
++        dual.graph.update(
++            faces=faces,
++            half_edge_faces=incidence,
++            face_to_node=face_to_node,
++        )
++        for group in members.values():
++            dual.add_node(min(group), faces=tuple(group))
++        seen = set()
++        for (u, v), face in incidence.items():
++            key = frozenset((u, v))
++            if key in seen:
++                continue
++            seen.add(key)
++            if key in selected:
++                continue
++            dual.add_edge(
++                face_to_node[face],
++                face_to_node[incidence[v, u]],
++                key=key,
++                primal_edge=(u, v),
++            )
++        return dual
++
+     def is_directed(self):
+         """A valid PlanarEmbedding is undirected.
+ 

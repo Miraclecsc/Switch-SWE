@@ -1,0 +1,1 @@
+In the checkout at /work/w02, I don't know if I'm comfortable with the JSON support. I actually almost had it in the first version of the module, but decided against it until we had a standard around it.

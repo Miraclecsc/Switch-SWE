@@ -1,0 +1,1 @@
+Also, Not really, as long as everything works (= tests pass). If it's private, by definition it can change whenever we want.

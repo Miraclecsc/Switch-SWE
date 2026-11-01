@@ -1,0 +1,72 @@
+{
+  "case_id": "sf049_switched",
+  "task_id": "ssb_v4_Textualize__textual_5369",
+  "repo": "Textualize/textual",
+  "base_commit": "44d250a185618d85897253e5ce5ab2ed221904d4",
+  "derived_fail_to_pass": [
+    "tests.test_app::test_click_chain_different_offset",
+    "tests.test_app::test_click_chain_initial_repeated_clicks[1-1]",
+    "tests.test_app::test_click_chain_initial_repeated_clicks[2-3]",
+    "tests.test_app::test_click_chain_initial_repeated_clicks[3-6]",
+    "tests.test_app::test_click_chain_offset_changes_mid_chain",
+    "tests.test_app::test_click_chain_time_outwith_threshold",
+    "tests.test_sf049_click_identity::test_button_and_modifier_changes_break_chain",
+    "tests.test_sf049_click_identity::test_duplicate_and_mismatched_releases_do_not_click",
+    "tests.test_sf049_click_identity::test_pilot_multi_click_and_boolean_wrappers",
+    "tests.test_sf049_click_identity::test_replacing_widget_at_same_position_starts_new_chain"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_app::test_ansi_theme",
+    "tests.test_app::test_batch_update",
+    "tests.test_app::test_default_return_code_is_zero",
+    "tests.test_app::test_early_exit",
+    "tests.test_app::test_early_exit_inline",
+    "tests.test_app::test_hover_update_styles",
+    "tests.test_app::test_no_return_code_before_running",
+    "tests.test_app::test_no_return_code_while_running",
+    "tests.test_app::test_return_code_is_one_after_crash",
+    "tests.test_app::test_search_with_empty_list",
+    "tests.test_app::test_search_with_simple_commands",
+    "tests.test_app::test_search_with_tuples",
+    "tests.test_app::test_set_return_code",
+    "tests.test_app::test_setting_sub_title",
+    "tests.test_app::test_setting_title"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_app.py",
+    "tests/test_sf049_click_identity.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_app.py",
+    "tests/test_sf049_click_identity.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "1acdb7b2c61e903212bbc5a1af1dd810ba432cbf697cd7b64561de84749f6f2b",
+    "config/recipes.json": "bebda1bc824c5ee0396cddd9460813e23e11d12b59078bc2bbce6673a9d1d467"
+  }
+}

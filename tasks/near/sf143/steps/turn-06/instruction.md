@@ -1,0 +1,1 @@
+I have this in /work/w00: Update progress.py Don't output extraneous blank line when progress display is disabled

@@ -1,0 +1,108 @@
+diff --git a/tests/test_taskgroups.py b/tests/test_taskgroups.py
+index 1f5369409..d20565c11 100644
+--- a/tests/test_taskgroups.py
++++ b/tests/test_taskgroups.py
+@@ -11,7 +11,7 @@
+ 
+ import pytest
+ from exceptiongroup import catch
+-from pytest import FixtureRequest
++from pytest import FixtureRequest, MonkeyPatch
+ from pytest_mock import MockerFixture
+ 
+ import anyio
+@@ -1778,3 +1778,14 @@ async def sync_coro() -> None:
+     async with create_task_group() as tg:
+         tg.start_soon(sync_coro)
+         tg.cancel_scope.cancel()
++
++
++@pytest.mark.parametrize("anyio_backend", ["asyncio"])
++async def test_patched_asyncio_task(monkeypatch: MonkeyPatch) -> None:
++    monkeypatch.setattr(
++        asyncio,
++        "Task",
++        asyncio.tasks._PyTask,  # type: ignore[attr-defined]
++    )
++    async with create_task_group() as tg:
++        tg.start_soon(sleep, 0)
+diff --git a/tests/test_sf059_task_state_mapping.py b/tests/test_sf059_task_state_mapping.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf059_task_state_mapping.py
+@@ -0,0 +1,75 @@
++
++import gc
++import weakref
++import pytest
++from anyio._backends._asyncio import TaskStateStore, TaskState
++
++async def pending():
++    pass
++
++def test_preliminary_coroutine_mapping_roundtrip_and_views():
++    store = TaskStateStore()
++    first, second = pending(), pending()
++    state1, state2 = TaskState(1, None), TaskState(2, None)
++    try:
++        store[first] = state1
++        assert store[first] is state1
++        assert first in store
++        assert list(store.items()) == [(first, state1)]
++        assert store.setdefault(first, state2) is state1
++        store.update({first: state2, second: state1})
++        assert store.pop(first) is state2
++        assert store.get(first, "missing") == "missing"
++        assert store.pop(second) is state1
++        assert len(store) == 0
++    finally:
++        first.close()
++        second.close()
++
++def test_snapshot_keys_can_be_read_and_preliminary_clear_is_complete():
++    store = TaskStateStore()
++    coros = [pending(), pending()]
++    try:
++        for index, coro in enumerate(coros):
++            store[coro] = TaskState(index, None)
++        assert [store[key].parent_id for key in store] == [0, 1]
++        store.clear()
++        assert len(store) == 0
++        for coro in coros:
++            with pytest.raises(KeyError):
++                store[coro]
++    finally:
++        for coro in coros:
++            coro.close()
++
++def test_task_like_lookup_prefers_direct_state_and_does_not_own_task():
++    store = TaskStateStore()
++    coro = pending()
++    class Adapter:
++        def get_coro(self):
++            return coro
++    task = Adapter()
++    preliminary, direct = TaskState(1, None), TaskState(2, None)
++    try:
++        store[coro] = preliminary
++        assert store[task] is preliminary
++        store[task] = direct
++        assert store[task] is direct
++        del store[coro]
++        assert store[task] is direct
++        weak = weakref.ref(task)
++        del task
++        gc.collect()
++        assert weak() is None
++        assert len(store) == 0
++    finally:
++        coro.close()
++
++def test_missing_adapter_without_coro_is_keyerror():
++    store = TaskStateStore()
++    class Adapter:
++        pass
++    task = Adapter()
++    with pytest.raises(KeyError) as caught:
++        store[task]
++    assert caught.value.args == (task,)

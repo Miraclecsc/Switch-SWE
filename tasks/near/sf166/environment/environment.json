@@ -1,0 +1,138 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+  ],
+  "case_id": "sf166_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w00",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1",
+      "python": "3.12.12",
+      "requirements": "requirements/269fc27ee576cae3-3.12.12-cb13f3e1.txt",
+      "source": "dependency-source/269fc27ee576cae3-3.12.12-cb13f3e1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/61fcda12244c3183-3.12.12-5afdf750",
+      "python": "3.12.12",
+      "requirements": "requirements/61fcda12244c3183-3.12.12-5afdf750.txt",
+      "source": "dependency-source/61fcda12244c3183-3.12.12-5afdf750.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/269fc27ee576cae3-3.12.12-25edc432",
+      "python": "3.12.12",
+      "requirements": "requirements/269fc27ee576cae3-3.12.12-25edc432.txt",
+      "source": "dependency-source/269fc27ee576cae3-3.12.12-25edc432.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-cb13f3e1"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/61fcda12244c3183-3.12.12-5afdf750",
+        "/opt/ssb/deps/269fc27ee576cae3-3.12.12-25edc432"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "cd304a0f36edf014581082a1bd82c41b2d9529a8",
+      "overlays": [],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "cb2efb5165596e4d5b6ab50b5c85d861d243feb5",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "ariadne/utils.py",
+          "sha256": "f3d8e1ac561ccb8af4b7954760e344907df5f3e1db93ceeba2b095912545189a"
+        }
+      ],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "8af63773c2df087677ed730af8402607799a7e46",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "ariadne/utils.py",
+          "sha256": "8da96a568c961f48c808cc8fb60d44ae13c9363ec703ca65c3649a197b33bb6c"
+        }
+      ],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "e5c83bf3e98a94217fbb7b4f9b8f25a59269f9c9",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "ariadne/utils.py",
+          "sha256": "8da96a568c961f48c808cc8fb60d44ae13c9363ec703ca65c3649a197b33bb6c"
+        }
+      ],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "6b94b6e4ef09df14ccfa8cdebb11d6d7e62a2b2d",
+      "overlays": [],
+      "repo": "mirumee/ariadne",
+      "url": "https://github.com/mirumee/ariadne.git",
+      "workspace": "w04"
+    }
+  ]
+}

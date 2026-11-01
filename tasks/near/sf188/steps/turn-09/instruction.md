@@ -1,0 +1,1 @@
+Also, It may be more clear to create a module scope function like: and then in both Python 2 and 3 make the `__reduce__` return `return_none, ()`

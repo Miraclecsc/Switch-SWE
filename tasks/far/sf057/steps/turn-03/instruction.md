@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Ensure __main__ module is importable in ``to_process`` when not ending in .py Solves #1027

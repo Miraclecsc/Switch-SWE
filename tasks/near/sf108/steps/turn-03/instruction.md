@@ -1,0 +1,3 @@
+Please check this too: These tests will pass even without your changes applied as these methods are always present they were just the wrong implementations. You could assert against their nature instead and the test doesn't need to be `async`
+
+The async wrappers for optimized get_many, set_many, delete_many, get_or_set, has_key, incr and incr_version must also accept callable overrides that do not expose __func__: instance-assigned functions, functools.partial and callable objects. Forward the original positional/keyword arguments and result exactly once. Preserve fallback to async primitives for the unchanged BaseCache implementations.

@@ -1,0 +1,1 @@
+One more thing: ~~Oh, I see, aiofiles have methods named differently than what your code expects.~~ Wait, `aread` is a method of `AsyncByteStream`, it needs only `__aiter__` from the underlying file object, so it’s supposed to work?

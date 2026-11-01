@@ -1,0 +1,1 @@
+And here, > I don't think this is useful without adding `npgettext` (for pluralization) as well. Yes also `trans` should be extended to accept `context` option

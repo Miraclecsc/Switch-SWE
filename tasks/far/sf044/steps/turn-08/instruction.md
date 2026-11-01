@@ -1,0 +1,1 @@
+And here, Super nit, but I'd vote to make this a ValueError instead. I think we should also get rid of the `isinstance` check - `range` itself will raise if something wacky is passed in, and that way we can avoid issues with non-Python-builtins (e.g. `np.int`)

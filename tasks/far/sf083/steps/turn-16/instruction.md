@@ -1,0 +1,1 @@
+And here, Is there any reason that type has that restriction? Or should we ask that type to update to accept the newer architecture?

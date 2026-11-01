@@ -1,0 +1,1 @@
+Also, Repeated resolve_types calls with different include_extras values must honor the most recent request, restoring Annotated metadata when switching back to True and removing it for False. Identical default-context calls may remain cached, but subclasses must resolve their own annotations.

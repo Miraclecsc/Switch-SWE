@@ -1,0 +1,1 @@
+Also, I've updated the test to use @pytest.mark.parametrize, covering both the non-empty message case and the empty message fallback.

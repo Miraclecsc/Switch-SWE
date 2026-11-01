@@ -1,0 +1,1 @@
+Please check this too: Sure. I already write two more tests about `function` and `args`, it does work. Howerer for the `result`, current solution fails. It seems to be the problem of asyncio itself.

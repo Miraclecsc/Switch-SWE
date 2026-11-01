@@ -1,0 +1,150 @@
+diff --git a/tests/test_markers.py b/tests/test_markers.py
+index c2640afeb..7a7663ba0 100644
+--- a/tests/test_markers.py
++++ b/tests/test_markers.py
+@@ -202,10 +202,51 @@ def test_parses_invalid(self, marker_string):
+             ),
+         ],
+     )
+-    def test_str_and_repr(self, marker_string, expected):
++    def test_str_repr_eq_hash(self, marker_string, expected):
+         m = Marker(marker_string)
+         assert str(m) == expected
+         assert repr(m) == f"<Marker({str(m)!r})>"
++        # Objects created from the same string should be equal.
++        assert m == Marker(marker_string)
++        # Objects created from the equivalent strings should also be equal.
++        assert m == Marker(expected)
++        # Objects created from the same string should have the same hash.
++        assert hash(Marker(marker_string)) == hash(Marker(marker_string))
++        # Objects created from equivalent strings should also have the same hash.
++        assert hash(Marker(marker_string)) == hash(Marker(expected))
++
++    @pytest.mark.parametrize(
++        ("example1", "example2"),
++        [
++            # Test trivial comparisons.
++            ('python_version == "2.7"', 'python_version == "3.7"'),
++            (
++                'python_version == "2.7"',
++                'python_version == "2.7" and os_name == "linux"',
++            ),
++            (
++                'python_version == "2.7"',
++                '(python_version == "2.7" and os_name == "linux")',
++            ),
++            # Test different precedence.
++            (
++                'python_version == "2.7" and (os_name == "linux" or '
++                'sys_platform == "win32")',
++                'python_version == "2.7" and os_name == "linux" or '
++                'sys_platform == "win32"',
++            ),
++        ],
++    )
++    def test_different_markers_different_hashes(self, example1, example2):
++        marker1, marker2 = Marker(example1), Marker(example2)
++        # Markers created from strings that are not equivalent should differ.
++        assert marker1 != marker2
++        # Different Marker objects should have different hashes.
++        assert hash(marker1) != hash(marker2)
++
++    def test_compare_markers_to_other_objects(self):
++        # Markers should not be comparable to other kinds of objects.
++        assert Marker("os_name == 'nt'") != "os_name == 'nt'"
+ 
+     def test_extra_with_no_extra_in_environment(self):
+         # We can't evaluate an extra if no extra is passed into the environment
+diff --git a/tests/test_requirements.py b/tests/test_requirements.py
+index f2c209c45..ad07de760 100644
+--- a/tests/test_requirements.py
++++ b/tests/test_requirements.py
+@@ -195,3 +195,57 @@ def test_parseexception_error_msg(self):
+         assert "Expected stringEnd" in str(e.value) or (
+             "Expected string_end" in str(e.value)  # pyparsing>=3.0.0
+         )
++
++    EQUAL_DEPENDENCIES = [
++        ("packaging>20.1", "packaging>20.1"),
++        (
++            'requests[security, tests]>=2.8.1,==2.8.*;python_version<"2.7"',
++            'requests [security,tests] >= 2.8.1, == 2.8.* ; python_version < "2.7"',
++        ),
++        (
++            'importlib-metadata; python_version<"3.8"',
++            "importlib-metadata; python_version<'3.8'",
++        ),
++        (
++            'appdirs>=1.4.4,<2; os_name=="posix" and extra=="testing"',
++            "appdirs>=1.4.4,<2; os_name == 'posix' and extra == 'testing'",
++        ),
++    ]
++
++    DIFFERENT_DEPENDENCIES = [
++        ("packaging>20.1", "packaging>=20.1"),
++        ("packaging>20.1", "packaging>21.1"),
++        ("packaging>20.1", "package>20.1"),
++        (
++            'requests[security,tests]>=2.8.1,==2.8.*;python_version<"2.7"',
++            'requests [security,tests] >= 2.8.1 ; python_version < "2.7"',
++        ),
++        (
++            'importlib-metadata; python_version<"3.8"',
++            "importlib-metadata; python_version<'3.7'",
++        ),
++        (
++            'appdirs>=1.4.4,<2; os_name=="posix" and extra=="testing"',
++            "appdirs>=1.4.4,<2; os_name == 'posix' and extra == 'docs'",
++        ),
++    ]
++
++    @pytest.mark.parametrize("dep1, dep2", EQUAL_DEPENDENCIES)
++    def test_equal_reqs_equal_hashes(self, dep1, dep2):
++        # Requirement objects created from equivalent strings should be equal.
++        req1, req2 = Requirement(dep1), Requirement(dep2)
++        assert req1 == req2
++        # Equal Requirement objects should have the same hash.
++        assert hash(req1) == hash(req2)
++
++    @pytest.mark.parametrize("dep1, dep2", DIFFERENT_DEPENDENCIES)
++    def test_different_reqs_different_hashes(self, dep1, dep2):
++        # Requirement objects created from non-equivalent strings should differ.
++        req1, req2 = Requirement(dep1), Requirement(dep2)
++        assert req1 != req2
++        # Different Requirement objects should have different hashes.
++        assert hash(req1) != hash(req2)
++
++    def test_compare_reqs_to_other_objects(self):
++        # Requirement objects should not be comparable to other kinds of objects.
++        assert Requirement("packaging>=21.3") != "packaging>=21.3"
+diff --git a/tests/test_sf184_staged.py b/tests/test_sf184_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf184_staged.py
+@@ -0,0 +1,26 @@
++
++from packaging.requirements import Requirement
++
++def test_semantic_name_specifier_hash_and_lookup():
++    a = Requirement('My_Pkg>=1.0')
++    b = Requirement('my-pkg>=1.0.0')
++    assert a == b and hash(a) == hash(b)
++    assert {a:'found'}[b] == 'found'
++    assert a.name == 'My_Pkg'
++    class Derived(Requirement):
++        pass
++    assert Derived('my-pkg>=1') == b
++    assert hash(Derived('my-pkg>=1')) == hash(b)
++
++def test_normalized_extras_are_semantic_sets():
++    a = Requirement('demo[Fast_IO,fast.io,TLS]>=1')
++    b = Requirement('demo[fast-io,tls]>=1.0')
++    assert a == b and hash(a) == hash(b)
++    assert len({a,b}) == 1
++    assert a.extras == {'Fast_IO','fast.io','TLS'}
++    assert a != Requirement('demo[fast-io]>=1')
++
++def test_distinct_urls_markers_and_foreign_operands():
++    assert Requirement('demo @ https://example.invalid/a') != Requirement('demo @ https://example.invalid/b')
++    assert Requirement('demo; os_name == "a"') != Requirement('demo; os_name == "b"')
++    assert Requirement('demo').__eq__(object()) is NotImplemented

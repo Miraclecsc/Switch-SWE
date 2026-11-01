@@ -1,0 +1,76 @@
+{
+  "case_id": "sf073_switched",
+  "task_id": "ssb_v4_networkx__networkx_8383",
+  "repo": "networkx/networkx",
+  "base_commit": "c2bb296ad5d8d821463d10cf09911dbafff7ca1b",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.tests.test_walks::test_random_walk_missing_start_node_raises_nodenotfound",
+    "networkx.algorithms.tests.test_walks::test_random_walk_multigraph_not_implemented",
+    "networkx.algorithms.tests.test_walks::test_random_walk_omitted_start_raises_typeerror",
+    "networkx.algorithms.tests.test_walks::test_random_walk_start_must_be_keyword",
+    "networkx.algorithms.tests.test_walks::test_random_walk_unexpected_walk_length_argument",
+    "networkx.algorithms.tests.test_walks::test_random_walk_unweighted_dead_end",
+    "networkx.algorithms.tests.test_walks::test_random_walk_unweighted_directed",
+    "networkx.algorithms.tests.test_walks::test_random_walk_unweighted_reproducible",
+    "networkx.algorithms.tests.test_walks::test_random_walk_unweighted_with_negative_weight_attr",
+    "networkx.algorithms.tests.test_walks::test_random_walk_weighted_default_weight",
+    "networkx.algorithms.tests.test_walks::test_random_walk_weighted_negative_weight_raises",
+    "networkx.algorithms.tests.test_walks::test_random_walk_weighted_reproducible",
+    "networkx.algorithms.tests.test_walks::test_random_walk_weighted_with_generator_seed",
+    "networkx.algorithms.tests.test_walks::test_random_walk_weighted_zero_weight_stops",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_bounded_walk_is_exact_seeded_prefix[None]",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_bounded_walk_is_exact_seeded_prefix[weight]",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_invalid_bounds_before_first_yield[-1-ValueError]",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_no_random_draw_at_termination[kwargs0]",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_no_random_draw_at_termination[kwargs1]",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_stop_iterable_consumed_once_and_stop_is_included",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_unknown_stop_and_existing_dead_end_behavior"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.tests.test_walks::test_directed",
+    "networkx.algorithms.tests.test_walks::test_hidden_weight_attr",
+    "networkx.algorithms.tests.test_walks::test_negative_length_exception",
+    "networkx.algorithms.tests.test_walks::test_non_integer_nodes",
+    "networkx.algorithms.tests.test_walks::test_undirected",
+    "networkx.algorithms.tests.test_walks::test_zero_length",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_invalid_bounds_before_first_yield[1.5-TypeError]",
+    "networkx.algorithms.tests.test_sf073_bounded_walk::test_invalid_bounds_before_first_yield[True-TypeError]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/tests/test_walks.py",
+    "networkx/algorithms/tests/test_sf073_bounded_walk.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/tests/test_sf073_bounded_walk.py",
+    "networkx/algorithms/tests/test_walks.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "a9ae4a244b40628cb7155c18b4d14f910804579661e9414a828d10253cb87f02",
+    "config/recipes.json": "c2487dadfe5b1c6847951b717b8ece2349d30273041c8a13edc0b6d74178685e"
+  }
+}

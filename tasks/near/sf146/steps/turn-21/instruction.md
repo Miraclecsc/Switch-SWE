@@ -1,0 +1,1 @@
+Also, This is hard to follow because it contains no context unless I click through to GitHub, and also contains some redundancy that might make sense in the MRE, but not in the test. If it fails, we should be able to validate the failure without following a paper-trail. I think it's better to refine MREs a bit when translating them into tests.

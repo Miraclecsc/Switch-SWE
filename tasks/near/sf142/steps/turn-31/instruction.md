@@ -1,0 +1,1 @@
+Please check this too: The dev probably isn't going to have all the ranges in a single sequence. This also requires the dev to import and use the `SyntaxHighlightRange` object. Lets have an method that adds a single range: `

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: BUG: Conversion from numpy masked arrays to pandas array does not preserve missing values Also, Why is asarray required here. Does `filled` not always return an ndarray.

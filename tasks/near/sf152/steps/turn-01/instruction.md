@@ -1,0 +1,1 @@
+I have this in /work/w01: Combined CancelledErrors into one Instead of raising an exception group with multiple CancelledErrors, raise just one to allow asyncio to ignore it when it propagates out of a task. Fixes #281.

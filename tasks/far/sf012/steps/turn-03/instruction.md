@@ -1,0 +1,1 @@
+Please check this too: The id for this Error check should follow the existing convention from the reference docs: I don't think we should use `E412` (since the `E4xx` are reserved for checks for the default `AdminSite`), Consider we should use the next one available within the `E1xx` list, which at the time of this writing it seems to be `E131`.

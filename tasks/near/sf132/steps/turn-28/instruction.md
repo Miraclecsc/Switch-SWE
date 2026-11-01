@@ -1,0 +1,1 @@
+And here, Can we rename `nodes` as `sampled_nodes`? And let's remove the default values. This helper function doesn't need defaults. (makes the signature line shorter too.)

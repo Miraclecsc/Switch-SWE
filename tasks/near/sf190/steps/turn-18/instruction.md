@@ -1,0 +1,1 @@
+One more thing: OK, I've changed it to an auto-skipping fixture and added some docstrings and a changelog. If you think there's somewhere else that this should be explicitly documented, let me know. It didn't seem like it would fit much into `CONTRIBUTING.rst`, since this is more aimed at downstream redistributors than at contributors.

@@ -1,0 +1,1 @@
+And here, IIUC the reason that we checked `cancelling()` when entering the scope was #606, but that case is now covered by the `__context__` walk.

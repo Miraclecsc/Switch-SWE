@@ -1,0 +1,78 @@
+diff --git a/sympy/matrices/tests/test_decompositions.py b/sympy/matrices/tests/test_decompositions.py
+index d169ec3a8846..0b81111f7e32 100644
+--- a/sympy/matrices/tests/test_decompositions.py
++++ b/sympy/matrices/tests/test_decompositions.py
+@@ -276,6 +276,20 @@ def test_QR_trivial():
+     assert A == Q*R
+ 
+ 
++def test_QR_symbolic_dependent_columns():
++    a = Symbol('a', real=True)
++    b = Symbol('b', real=True)
++    k = Symbol('k', real=True)
++    A = Matrix([[a, k*a],
++                [b, k*b]])
++    Q, R = A.QRdecomposition()
++    assert A.rank() == 1
++    assert Q.cols == A.rank()
++    QQ = (Q.H * Q).applyfunc(simplify)
++    assert not QQ.has(S.NaN)
++    assert (Q*R - A).applyfunc(simplify) == zeros(2, 2)
++
++
+ def test_QR_float():
+     A = Matrix([[1, 1], [1, 1.01]])
+     Q, R = A.QRdecomposition()
+diff --git a/sympy/matrices/tests/test_sf034_rank_revealing_qr.py b/sympy/matrices/tests/test_sf034_rank_revealing_qr.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/matrices/tests/test_sf034_rank_revealing_qr.py
+@@ -0,0 +1,48 @@
++import pytest
++from sympy import Matrix, ImmutableMatrix, Rational, Symbol, cancel, eye, zeros
++
++def zero(matrix):
++    assert all(cancel(value)==0 for value in matrix)
++
++@pytest.mark.parametrize('factory',[Matrix,ImmutableMatrix])
++def test_exact_unnormalized_qr(factory):
++    a=factory([[0,2,4],[0,3,6],[0,5,10]])
++    saved=a.copy()
++    q,r=a.QRdecomposition(normalize=False)
++    assert isinstance(q,factory) and isinstance(r,factory)
++    assert q.shape==(3,1) and r.shape==(1,3)
++    zero(q*r-a)
++    assert all(value.is_Rational for value in q)
++    assert a==saved
++
++@pytest.mark.parametrize('normalize',[False,True])
++def test_rank_revealing_permutation(normalize):
++    a=Matrix([[0,1,2,0],[0,0,0,3],[0,1,2,0]])
++    q,r,permutation=a.QRdecomposition(pivoting=True,normalize=normalize)
++    assert sorted(permutation)==list(range(a.cols))
++    assert q.shape==(3,2) and r.shape==(2,4)
++    assert a[:,permutation[:2]].rank()==2
++    zero(q*r-a[:,permutation])
++    zero(q.T*q-eye(2) if normalize else Matrix([[0,(q.T*q)[0,1]],[(q.T*q)[1,0],0]]))
++    assert r[1,0]==0
++
++def test_rational_function_dependencies():
++    x=Symbol('x',positive=True)
++    a=Matrix([[1/(x+1),1,2/(x+1)],[x/(x+1),x,2*x/(x+1)],[1, x+1,2]])
++    q,r,permutation=a.QRdecomposition(normalize=False,pivoting=True)
++    assert q.cols==1
++    zero(q*r-a[:,permutation])
++    assert all(value.is_rational_function(x) for value in q)
++
++@pytest.mark.parametrize('shape',[(3,4),(0,4),(3,0),(0,0)])
++def test_zero_and_empty_shapes(shape):
++    a=zeros(*shape)
++    q,r,p=a.QRdecomposition(pivoting=True,normalize=False)
++    assert q.shape==(shape[0],0) and r.shape==(0,shape[1])
++    assert sorted(p)==list(range(shape[1]))
++    assert q*r==a
++
++def test_original_default_normalized_qr():
++    a=Matrix([[1,2],[3,4],[5,6]])
++    q,r=a.QRdecomposition()
++    zero(q*r-a);zero(q.T*q-eye(2))

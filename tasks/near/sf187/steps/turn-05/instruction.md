@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Compatibility fixes. This just restores `__hash__` to our validators. I'd have preferred to make them frozen, but that requires a discussion and is maybe better left until we have zero-overhead frozen classes. See #192.

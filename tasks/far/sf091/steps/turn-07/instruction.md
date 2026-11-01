@@ -1,0 +1,1 @@
+In the checkout at /work/w02, I don't immediately understand why this should be the case. For example, `typos` exists only as a pre-commit hook, and in fact I don't know if it even exists as a python package. Similar with `zizmor`.

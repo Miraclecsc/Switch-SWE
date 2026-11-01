@@ -1,0 +1,1 @@
+And here, I'm not exactly sure what happens, but if I try to use `read_across_frames` I get decoding errors. Also, please note I've copied this logic from urllib3 so it is "Best Practice" :-) or at least proven to be working. I would be open for suggestions of course!

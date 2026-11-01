@@ -1,0 +1,90 @@
+diff --git a/tests/test_progress.py b/tests/test_progress.py
+index 2020f91ffb..20b9d32ed4 100644
+--- a/tests/test_progress.py
++++ b/tests/test_progress.py
+@@ -334,6 +334,32 @@ def test_columns() -> None:
+     assert result == expected
+ 
+ 
++def test_using_default_columns() -> None:
++    # can only check types, as the instances do not '==' each other
++    expected_default_types = [
++        TextColumn,
++        BarColumn,
++        TextColumn,
++        TimeRemainingColumn,
++    ]
++
++    progress = Progress()
++    assert [type(c) for c in progress.columns] == expected_default_types
++
++    progress = Progress(
++        SpinnerColumn(),
++        *Progress.get_default_columns(),
++        "Elapsed:",
++        TimeElapsedColumn(),
++    )
++    assert [type(c) for c in progress.columns] == [
++        SpinnerColumn,
++        *expected_default_types,
++        str,
++        TimeElapsedColumn,
++    ]
++
++
+ def test_task_create() -> None:
+     task = Task(TaskID(1), "foo", 100, 0, _get_time=lambda: 1)
+     assert task.elapsed is None
+diff --git a/tests/test_sf141_columns.py b/tests/test_sf141_columns.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf141_columns.py
+@@ -0,0 +1,48 @@
++import io
++import pytest
++from rich.console import Console
++from rich.progress import Progress, TextColumn
++
++def render(p):
++    console=Console(file=io.StringIO(),width=100,color_system=None)
++    with console.capture() as capture: console.print(p.get_renderable())
++    return capture.get()
++
++class Custom(Progress):
++    calls=0
++    @classmethod
++    def get_default_columns(cls):
++        cls.calls+=1
++        return (TextColumn("DEFAULT {task.description}"),)
++
++def test_constructor_decorations_and_explicit_bypass():
++    Custom.calls=0
++    p=Custom(columns_before=iter(["BEFORE"]),columns_after=iter(["AFTER"]),auto_refresh=False)
++    p.add_task("job")
++    assert "BEFORE" in render(p) and "DEFAULT job" in render(p) and "AFTER" in render(p)
++    assert Custom.calls==1
++    q=Custom("EXPLICIT",columns_before=iter(["prefix"]),auto_refresh=False)
++    q.add_task("job")
++    assert "EXPLICIT" in render(q) and Custom.calls==1
++
++def test_runtime_layout_preserves_tasks_and_refreshes(monkeypatch):
++    p=Custom(auto_refresh=False);task_id=p.add_task("job",total=20,completed=7,owner="Alice")
++    task=p.tasks[0];calls=[];monkeypatch.setattr(p,"refresh",lambda:calls.append(True))
++    p.set_columns(TextColumn("{task.fields[owner]} {task.completed}"),before=iter(["NEW"]))
++    assert "Alice 7" in render(p) and "NEW" in render(p)
++    assert p.tasks[0] is task and task.id==task_id and task.completed==7
++    p.set_columns(after=iter(["END"]))
++    assert "DEFAULT job" in render(p) and "END" in render(p)
++    assert len(calls)==2 and task.fields["owner"]=="Alice"
++
++def test_iterator_failure_is_atomic():
++    p=Custom(auto_refresh=False);p.add_task("job");before=render(p);columns=p.columns
++    def broken():
++        yield "partial"
++        raise RuntimeError("iterator failed")
++    with pytest.raises(RuntimeError): p.set_columns("replacement",after=broken())
++    assert p.columns is columns and render(p)==before
++
++def test_default_instances_are_independent():
++    a=Progress();b=Progress()
++    assert all(x is not y for x,y in zip(a.columns,b.columns))

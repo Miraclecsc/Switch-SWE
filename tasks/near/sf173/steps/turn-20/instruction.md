@@ -1,0 +1,1 @@
+And here, > I realized there's already that type which does all the dunder stuff. Let's get rid of `_SkipClose`, it's redundant. (Again noticing just how many wrappers we have.) Seems to do the trick! Thanks for the hint! :)

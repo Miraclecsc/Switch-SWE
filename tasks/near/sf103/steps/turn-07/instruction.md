@@ -1,0 +1,1 @@
+Please check this too: Apply the bracket fix from issue 471 only for use_parentheses=True Closes #2154 1. Moved the fix for Issue 471 under the use_parentheses=True condition as it fixes the situation where we added a closing bracket after the comment at line Also, One test has failed, Consider yet why, hmm.

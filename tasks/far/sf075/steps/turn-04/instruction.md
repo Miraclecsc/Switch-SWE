@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: add default to map filter added ability to pass default entry to map filter if attribute is not defined. If default is not defined it defaults to an empty string. fixes #557

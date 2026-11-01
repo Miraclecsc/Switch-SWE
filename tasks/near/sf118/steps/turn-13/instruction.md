@@ -1,0 +1,1 @@
+Also, Consider the correct course is: Keep the `spec = Specifier(...)` and `spec.contains` otherwise, and let it error with `InvalidSpecifier`. This matches [the spec]( Currently `packaging` passes on `Marker("python_full_version == 'surprise'").evaluate()`, when my reading is that it should error. Removing this try/except would let this error correctly.

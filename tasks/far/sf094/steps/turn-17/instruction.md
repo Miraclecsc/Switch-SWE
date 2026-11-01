@@ -1,0 +1,1 @@
+Also, ruff is surprisingly on top of mirroring the - functionality in a lot of flake8 plugins, I added a check to flake8-bugbear and in less than 24 hours it was added to ruff. But if there's a flake8 plugin we need that's not implemented I don't mind having flake8 *just* for that one plugin

@@ -1,0 +1,121 @@
+diff --git a/tests/test_s3/test_s3_lambda_integration.py b/tests/test_s3/test_s3_lambda_integration.py
+index 52bf419..d814a28 100644
+--- a/tests/test_s3/test_s3_lambda_integration.py
++++ b/tests/test_s3/test_s3_lambda_integration.py
+@@ -365,6 +365,68 @@ def test_put_bucket_notification_sns_sqs(region, partition):
+     )
+ 
+ 
++@mock_aws
++def test_put_bucket_notification_sns_sqs_raw_delivery():
++    s3_client = boto3.client("s3", region_name=REGION_NAME)
++    bucket_name = str(uuid4())
++    s3_client.create_bucket(Bucket=bucket_name)
++
++    sqs_client = boto3.client("sqs", region_name=REGION_NAME)
++    sqs_queue = sqs_client.create_queue(QueueName=str(uuid4()))
++    sqs_queue_arn = sqs_client.get_queue_attributes(
++        QueueUrl=sqs_queue["QueueUrl"], AttributeNames=["QueueArn"]
++    )
++
++    sns_client = boto3.client("sns", region_name=REGION_NAME)
++    sns_topic = sns_client.create_topic(Name="topic")
++
++    # Subscribe SQS queue to SNS topic using raw delivery.
++    sns_client.subscribe(
++        TopicArn=sns_topic["TopicArn"],
++        Protocol="sqs",
++        Endpoint=sqs_queue_arn["Attributes"]["QueueArn"],
++        Attributes={"RawMessageDelivery": "true"},
++    )
++
++    s3_client.put_bucket_notification_configuration(
++        Bucket=bucket_name,
++        NotificationConfiguration={
++            "TopicConfigurations": [
++                {
++                    "Id": "SomeID",
++                    "TopicArn": sns_topic["TopicArn"],
++                    "Events": ["s3:ObjectCreated:*"],
++                }
++            ]
++        },
++    )
++
++    # Raw delivery should preserve the S3 test event body without an SNS envelope.
++    messages = sqs_client.receive_message(
++        QueueUrl=sqs_queue["QueueUrl"], MaxNumberOfMessages=10
++    )
++    assert len(messages["Messages"]) == 1
++    message_body = json.loads(messages["Messages"][0]["Body"])
++    assert message_body["Event"] == "s3:TestEvent"
++
++    sqs_client.delete_message(
++        QueueUrl=sqs_queue["QueueUrl"],
++        ReceiptHandle=messages["Messages"][0]["ReceiptHandle"],
++    )
++
++    s3_client.put_object(Bucket=bucket_name, Key="incoming/myfile", Body=b"asdf1324")
++
++    messages = sqs_client.receive_message(
++        QueueUrl=sqs_queue["QueueUrl"], MaxNumberOfMessages=10
++    )
++    assert len(messages["Messages"]) == 1
++    message_body = json.loads(messages["Messages"][0]["Body"])
++    assert message_body["Records"][0]["eventName"] == "ObjectCreated:Put"
++    assert message_body["Records"][0]["awsRegion"] == REGION_NAME
++    assert message_body["Records"][0]["s3"]["configurationId"] == "SomeID"
++    assert message_body["Records"][0]["s3"]["object"]["key"] == "incoming%2Fmyfile"
++
++
+ @mock_aws
+ def test_put_bucket_notification_sns_error():
+     s3_client = boto3.client("s3", region_name=REGION_NAME)
+diff --git a/tests/test_s3/test_sf040_protocol_payload_filter.py b/tests/test_s3/test_sf040_protocol_payload_filter.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_s3/test_sf040_protocol_payload_filter.py
+@@ -0,0 +1,43 @@
++import json
++import boto3
++import pytest
++from moto import mock_aws
++
++def setup(raw=True):
++    sns=boto3.client('sns',region_name='us-east-1');sqs=boto3.client('sqs',region_name='us-east-1')
++    url=sqs.create_queue(QueueName='payload')['QueueUrl']
++    arn=sqs.get_queue_attributes(QueueUrl=url,AttributeNames=['QueueArn'])['Attributes']['QueueArn']
++    topic=sns.create_topic(Name='payload')['TopicArn']
++    sns.subscribe(TopicArn=topic,Protocol='sqs',Endpoint=arn,Attributes={'RawMessageDelivery':str(raw).lower(),'FilterPolicyScope':'MessageBody','FilterPolicy':json.dumps({'kind':['wanted']})})
++    return sns,sqs,url,topic
++
++@pytest.mark.parametrize('raw',[True,False])
++@mock_aws
++def test_selected_protocol_body_matches_and_is_preserved(raw):
++    sns,sqs,url,topic=setup(raw)
++    body=' {"kind": "wanted", "text": "雪"} '
++    sns.publish(TopicArn=topic,MessageStructure='json',Message=json.dumps({'default':'{"kind":"other"}','sqs':body}))
++    messages=sqs.receive_message(QueueUrl=url).get('Messages',[])
++    assert len(messages)==1
++    received=messages[0]['Body'] if raw else json.loads(messages[0]['Body'])['Message']
++    assert received==body
++
++@mock_aws
++def test_default_payload_fallback_is_filtered():
++    sns,sqs,url,topic=setup()
++    body='{"kind":"wanted","number":3}'
++    sns.publish(TopicArn=topic,MessageStructure='json',Message=json.dumps({'default':body}))
++    assert sqs.receive_message(QueueUrl=url)['Messages'][0]['Body']==body
++
++@mock_aws
++def test_wrapper_match_cannot_override_selected_nonmatch():
++    sns,sqs,url,topic=setup()
++    sns.publish(TopicArn=topic,MessageStructure='json',Message=json.dumps({'kind':'wanted','default':'{"kind":"wanted"}','sqs':'{"kind":"other"}'}))
++    assert not sqs.receive_message(QueueUrl=url).get('Messages')
++
++@mock_aws
++def test_ordinary_missing_attribute_message_regression():
++    sns,sqs,url,topic=setup()
++    body='{"kind":"wanted"}'
++    sns.publish(TopicArn=topic,Message=body)
++    assert sqs.receive_message(QueueUrl=url)['Messages'][0]['Body']==body

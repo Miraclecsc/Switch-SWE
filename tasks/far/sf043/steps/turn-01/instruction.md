@@ -1,0 +1,1 @@
+I have this in /work/w03: Fix Pajek serialization so embedded double quotes and backslashes in node labels and optional string attributes survive write/read round trips without creating extra tokens or attributes. Preserve existing behavior for ordinary graphs and non-string/blank optional attributes. Implement and verify it.

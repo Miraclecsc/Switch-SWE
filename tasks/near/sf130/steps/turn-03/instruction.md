@@ -1,0 +1,1 @@
+Please check this too: I'm assuming the original intent was showing that MediaAsset does not equal Stylesheet, now that eq considers attributes it's not as clear a test. It will still fail on class type first, so just a clarity thing not a correctness.

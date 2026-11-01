@@ -1,0 +1,122 @@
+diff --git a/tests/model_regress/models.py b/tests/model_regress/models.py
+index 350850393a2e..2af882f20fd9 100644
+--- a/tests/model_regress/models.py
++++ b/tests/model_regress/models.py
+@@ -45,6 +45,10 @@ def __str__(self):
+         return self.name
+ 
+ 
++class WorkerProfile(models.Model):
++    worker = models.OneToOneField(Worker, on_delete=models.CASCADE)
++
++
+ class NonAutoPK(models.Model):
+     name = models.CharField(max_length=10, primary_key=True)
+ 
+diff --git a/tests/model_regress/test_state.py b/tests/model_regress/test_state.py
+index 8b0f08782919..8abcc58382c5 100644
+--- a/tests/model_regress/test_state.py
++++ b/tests/model_regress/test_state.py
+@@ -1,7 +1,33 @@
++import gc
++
+ from django.db.models.base import ModelState, ModelStateFieldsCacheDescriptor
+ from django.test import SimpleTestCase
++from django.test.utils import garbage_collect
++
++from .models import Worker, WorkerProfile
+ 
+ 
+ class ModelStateTests(SimpleTestCase):
+     def test_fields_cache_descriptor(self):
+         self.assertIsInstance(ModelState.fields_cache, ModelStateFieldsCacheDescriptor)
++
++    def test_one_to_one_field_cycle_collection(self):
++        self.addCleanup(gc.set_debug, gc.get_debug())
++        gc.set_debug(gc.DEBUG_SAVEALL)
++
++        def clear_garbage():
++            del gc.garbage[:]
++
++        self.addCleanup(clear_garbage)
++
++        worker = Worker()
++        profile = WorkerProfile(worker=worker)
++        worker_id = id(worker)
++
++        del worker
++        del profile
++
++        garbage_collect()
++
++        leaked = [obj for obj in gc.garbage if id(obj) == worker_id]
++        self.assertEqual(leaked, [])
+diff --git a/tests/model_regress/test_cache_ownership_v1.py b/tests/model_regress/test_cache_ownership_v1.py
+new file mode 100644
+index 0000000000..edc308b338
+--- /dev/null
++++ b/tests/model_regress/test_cache_ownership_v1.py
+@@ -0,0 +1,63 @@
++import copy
++import gc
++import pickle
++from django.db.models.base import ModelState
++from django.test import SimpleTestCase
++from .models import Worker, WorkerProfile
++
++
++class StateCacheOwnershipTests(SimpleTestCase):
++    def test_discarding_shallow_state_copy_preserves_live_relations(self):
++        worker = Worker()
++        profile = WorkerProfile(worker=worker)
++        state = worker._state
++        self.assertIs(worker.workerprofile, profile)
++        duplicate = copy.copy(state)
++        self.assertIs(duplicate.fields_cache["workerprofile"], profile)
++        del duplicate
++        gc.collect()
++        self.assertIs(state.fields_cache.get("workerprofile"), profile)
++        self.assertIs(profile.worker, worker)
++
++    def test_copy_cache_edits_are_local_and_values_remain_shallow(self):
++        state = ModelState()
++        related = object()
++        state.fields_cache["relation"] = related
++        first, second = copy.copy(state), copy.copy(state)
++        first.fields_cache.pop("relation")
++        second.fields_cache["other"] = object()
++        self.assertEqual(set(state.fields_cache), {"relation"})
++        self.assertIs(second.fields_cache["relation"], related)
++        self.assertNotIn("other", first.fields_cache)
++
++    def test_serialization_snapshots_do_not_own_the_live_cache(self):
++        state = ModelState()
++        related = object()
++        state.fields_cache["relation"] = related
++        before = state.__getstate__()
++        state.fields_cache["new"] = 2
++        after = state.__getstate__()
++        self.assertEqual(set(before["fields_cache"]), {"relation"})
++        before["fields_cache"].clear()
++        self.assertIs(state.fields_cache["relation"], related)
++        self.assertEqual(set(after["fields_cache"]), {"relation", "new"})
++
++    def test_pickle_retains_flags_without_aliasing_cache(self):
++        state = ModelState()
++        state.db = "replica"
++        state.adding = False
++        state.fields_cache["relation"] = {"id": 7}
++        restored = pickle.loads(pickle.dumps(state))
++        self.assertEqual(restored.db, "replica")
++        self.assertFalse(restored.adding)
++        restored.fields_cache.clear()
++        self.assertEqual(state.fields_cache, {"relation": {"id": 7}})
++
++    def test_copying_model_keeps_existing_relation_semantics(self):
++        worker = Worker()
++        profile = WorkerProfile(worker=worker)
++        duplicate = copy.copy(worker)
++        self.assertIs(duplicate.workerprofile, profile)
++        del duplicate
++        gc.collect()
++        self.assertIs(worker._state.fields_cache["workerprofile"], profile)

@@ -1,0 +1,1 @@
+Please check this too: > Why the slot usage? I don't expect memory pressure to be an issue for us here, but the inability to assign to arbitrary attributes of the `Tag` object is nice IMO. I don't care strongly about this.

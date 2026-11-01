@@ -1,0 +1,1 @@
+Also, The AdminFileWidget class now explicitly sets use_fieldset to True, but there's no test coverage to verify this attribute value. Since the base ClearableFileInput has test coverage for use_fieldset in test_clearablefileinput.py, consider adding a similar test for AdminFileWidget to prevent future regressions of this attribute.

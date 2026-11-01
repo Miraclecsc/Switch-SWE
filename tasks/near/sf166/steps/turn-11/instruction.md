@@ -1,0 +1,3 @@
+Please check this too: Travis tests are passing with only fails being pylint and black. I'll fix those later myself. Thank you!
+
+Prevent data loss caused by the newly grouped acronyms: within each individual keyword/input mapping, if two distinct source keys convert to the same Python key (for example userID/userId or userID/user_id), raise ValueError before invoking resolver user code. Report both original keys and the mapping location, including containing input keys and list indices for nested input. Apply this to all nesting depths and sync/async resolvers, independent of input key order. The same converted key in separate dictionaries is valid; preserve all original string-conversion rules.

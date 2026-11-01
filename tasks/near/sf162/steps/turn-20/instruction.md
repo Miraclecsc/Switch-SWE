@@ -1,0 +1,3 @@
+And here, Is this necessary? `else` has a `kwargs.get("context")` instead of a `kwargs.get("context", {})`... 🤔
+
+Make request/context handling safe across repeated renders. Explicit context=None with an explicit request means a fresh empty context. Never mutate a caller's context dictionary, including legacy calls and context-processor updates. The explicit request is authoritative: processors receive that request and the final template context must contain it even if the supplied context or a processor contains a stale request. Preserve processor order and ordinary value overrides.

@@ -1,0 +1,1 @@
+One more thing: Platform compatibility expansion must respect explicit negative legacy flags on the optional _manylinux module. If a newer manylinux level is allowed but an older level is explicitly False, do not infer that older tag. Missing older flags still permit the existing backward-compatibility inference. Keep descending compatibility order and the plain Linux fallback.

@@ -1,0 +1,1 @@
+One more thing: What this is still missing is some documentation of which operations require `await`.

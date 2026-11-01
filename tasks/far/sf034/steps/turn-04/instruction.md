@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Sympy.solve now rewrites Max/Min functions as piecewise functions prior to solving.

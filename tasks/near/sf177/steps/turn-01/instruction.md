@@ -1,0 +1,1 @@
+I have this in /work/w04: allow optional use of a filter based on its existence Resolves #842 - Undefined filters nested in if/elif/else statements and conditional expressions will cause an error only if executed during runtime Files changed: - `nodes.py` - `compiler.py` - `runtime.py`

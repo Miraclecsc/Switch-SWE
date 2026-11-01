@@ -1,0 +1,1 @@
+One more thing: Sorry also just to clarify, if the `before`/`after` argument is an index that is out of range, this also won't raise an error (the same as Python's `insert`)

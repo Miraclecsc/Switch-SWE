@@ -1,0 +1,1 @@
+Please check this too: But when I started merging and reviewing the code and running tests I found out that after your commit 6afe7ce93964f56e33a29d477c269436f9b60cbf one of the selenium test does not pass I tried commenting the But it doesn't seem to solve the problem. In commit one before to 6afe7ce93964f56e33a29d477c269436f9b60cbf the test passed for me locally.

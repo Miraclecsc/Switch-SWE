@@ -1,0 +1,1 @@
+Also, After some testing it seems like re-raising a caught instance like this doesn't add any extra context and can just be left as is in any case.

@@ -1,0 +1,1 @@
+One more thing: ~~I don't think there's any reason to enable ASYNC910/async-function-no-checkpoint on test files. Or is this a different check saying "async function with no awaits can be sync?"~~ oh this is RUF029/unused-async

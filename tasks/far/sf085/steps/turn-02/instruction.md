@@ -1,0 +1,3 @@
+One more thing: If we also want to report 16-bit architecture as _32_BIT_INTERPRETER in order to behave more like that was when using sys.maxsize, then this could be replaced by
+
+Make the Linux default bitness decision fresh for each _linux_platforms iteration, instead of freezing it as a default argument at import. is_32bit=None means auto-detect using struct.calcsize("P") == 4 when the generator is first advanced; explicit True/False must bypass pointer-size probing. Preserve _32_BIT_INTERPRETER as the existing import-time compatibility constant. The non-Linux sysconfig fallback must not probe pointer size at all. Keep the x86_64/i686 and aarch64/armv8l/armv7l mappings and pass the resolved architectures consistently to both manylinux and musllinux generators.

@@ -1,0 +1,120 @@
+diff --git a/tests/invalid_models_tests/test_relative_fields.py b/tests/invalid_models_tests/test_relative_fields.py
+index 51b1de149427..a6edcc4e048e 100644
+--- a/tests/invalid_models_tests/test_relative_fields.py
++++ b/tests/invalid_models_tests/test_relative_fields.py
+@@ -1579,11 +1579,12 @@ class Author(models.Model):
+             Author.check(),
+             [
+                 Error(
+-                    "Related name 'authors' for 'Author.mentor' clashes with the name "
+-                    "of a model manager.",
++                    "Related name 'authors' for 'invalid_models_tests.Author.mentor' "
++                    "clashes with the name of a model manager.",
+                     hint=(
+                         "Rename the model manager or change the related_name argument "
+-                        "in the definition for field 'Author.mentor'."
++                        "in the definition for field "
++                        "'invalid_models_tests.Author.mentor'."
+                     ),
+                     obj=Author._meta.get_field("mentor"),
+                     id="fields.E348",
+@@ -1591,6 +1592,31 @@ class Author(models.Model):
+             ],
+         )
+ 
++    def test_clash_between_rel_name_and_manager_non_self_referential(self):
++        class Thing(models.Model):
++            items = models.Manager()
++
++        class Item(models.Model):
++            thing = models.ForeignKey(Thing, models.CASCADE, related_name="items")
++            something = models.ForeignKey(Thing, models.CASCADE, related_name="+")
++
++        self.assertEqual(
++            Item.check(),
++            [
++                Error(
++                    "Related name 'items' for 'invalid_models_tests.Item.thing' "
++                    "clashes with the name of a model manager.",
++                    hint=(
++                        "Rename the model manager or change the related_name argument "
++                        "in the definition for field 'invalid_models_tests.Item.thing'."
++                    ),
++                    obj=Item._meta.get_field("thing"),
++                    id="fields.E348",
++                )
++            ],
++        )
++        self.assertEqual(Thing.check(), [])
++
+ 
+ @isolate_apps("invalid_models_tests")
+ class SelfReferentialM2MClashTests(SimpleTestCase):
+diff --git a/tests/invalid_models_tests/test_reserved_manager_accessors_v1.py b/tests/invalid_models_tests/test_reserved_manager_accessors_v1.py
+new file mode 100644
+index 0000000000..7b35941614
+--- /dev/null
++++ b/tests/invalid_models_tests/test_reserved_manager_accessors_v1.py
+@@ -0,0 +1,62 @@
++from django.db import models
++from django.test import SimpleTestCase
++from django.test.utils import isolate_apps
++
++
++class ReservedManagerAccessorTests(SimpleTestCase):
++    def assert_reserved(self, field_type):
++        for alias in ["_base_manager", "_default_manager"]:
++            with isolate_apps("invalid_models_tests"):
++                class Target(models.Model):
++                    class Meta:
++                        app_label = "invalid_models_tests"
++                kwargs = {"related_name":alias}
++                if field_type is not models.ManyToManyField:
++                    kwargs["on_delete"] = models.CASCADE
++                field = field_type(Target, **kwargs)
++                try:
++                    class Source(models.Model):
++                        link = field
++                        class Meta:
++                            app_label = "invalid_models_tests"
++                except AttributeError as exc:
++                    self.fail(f"An invalid reverse name must be diagnosed by system checks, not crash model construction: {exc}")
++                errors = Source._meta.get_field("link").check(from_model=Source)
++                matches = [e for e in errors if e.id == "fields.E348"]
++                self.assertEqual(len(matches), 1)
++                self.assertIs(matches[0].obj, Source._meta.get_field("link"))
++                self.assertIn(alias, matches[0].msg)
++                self.assertIsInstance(Target._base_manager, models.Manager)
++                self.assertIsInstance(Target._default_manager, models.Manager)
++
++    def test_foreign_key_reserved_accessor(self):
++        self.assert_reserved(models.ForeignKey)
++
++    def test_one_to_one_reserved_accessor(self):
++        self.assert_reserved(models.OneToOneField)
++
++    def test_many_to_many_reserved_accessor(self):
++        self.assert_reserved(models.ManyToManyField)
++
++    @isolate_apps("invalid_models_tests")
++    def test_hidden_reverse_name_remains_valid(self):
++        class Target(models.Model):
++            class Meta:
++                app_label = "invalid_models_tests"
++        class Source(models.Model):
++            link = models.ForeignKey(Target, on_delete=models.CASCADE, related_name="_base_manager+")
++            class Meta:
++                app_label = "invalid_models_tests"
++        self.assertNotIn("fields.E348", [e.id for e in Source._meta.get_field("link").check()])
++
++    @isolate_apps("invalid_models_tests")
++    def test_ordinary_reverse_accessor_is_installed(self):
++        class Target(models.Model):
++            class Meta:
++                app_label = "invalid_models_tests"
++        class Source(models.Model):
++            link = models.ForeignKey(Target, on_delete=models.CASCADE, related_name="links")
++            class Meta:
++                app_label = "invalid_models_tests"
++        self.assertNotIn("fields.E348", [e.id for e in Source._meta.get_field("link").check()])
++        self.assertTrue(hasattr(Target, "links"))

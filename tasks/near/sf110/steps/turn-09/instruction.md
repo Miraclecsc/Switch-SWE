@@ -1,0 +1,3 @@
+Also, In the future, we should probably add the async_unsafe decorator to all sync session methods.
+
+Keep the subclass-aware middleware errors and async session access. Extend async username cleaning: when the configured backend provides aclean_username(username), prefer and await that hook. Otherwise run its synchronous clean_username(username), if present, through thread-sensitive offloading so it may safely use synchronous backend resources without running on the event-loop thread.

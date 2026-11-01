@@ -1,0 +1,5 @@
+One more thing: Fix callable ``flag_value`` being instantiated when used as a default Closes #3121 Refs: #3201 #3213
+
+Extend the callable-flag fix so lazy default factories and callable default_map entries receive the same True-to-flag_value alignment as literal default=True. Evaluate the selected factory at most once when call=True, then if its result is exactly True for a flag option return flag_value without invoking that callable value.
+Preserve the distinction between a callable used as flag_value and an explicitly callable default: default=SomeClass still instantiates that class as required by the original tests. A factory returning any value other than the True sentinel returns that value normally, without recursively invoking a returned callable.
+call=False and help generation must not evaluate default factories. Explicit command-line flags override defaults without evaluating them; default_map keeps its existing precedence. Non-flag options returning True retain True. Keep every original option/default test and parameter-source behavior.

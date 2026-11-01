@@ -1,0 +1,3 @@
+Please check this too: Ah, there was a test that accessed `MODES` to check changes made from `add_mode`, so I figured it was documented behavior. Will move it to `_modes`.
+
+A screen or mode factory must return a Screen; invalid results raise TypeError and must not replace the factory or create a mode stack. Factory exceptions remain retryable. A failed mode switch must leave the current screen active and must not send it ScreenSuspend.

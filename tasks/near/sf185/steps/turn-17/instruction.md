@@ -1,0 +1,1 @@
+Also, Tested this locally, and changing `__hash__` to this: makes all hashing tests fail because of a behavior I'm not able to explain: Probably because the hash of a generator is based on id, and not content However, if I avoid using the generator inside `hash()` and do then there's no point in having an `_iter_parts` method in the first place, or is it?

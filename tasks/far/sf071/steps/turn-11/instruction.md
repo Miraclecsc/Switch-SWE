@@ -1,0 +1,1 @@
+Please check this too: Extend ISMAGS find_isomorphisms, subgraph_isomorphisms_iter and isomorphisms_iter with keyword-only anchors=None. Anchors map graph nodes to subgraph nodes in the same orientation as returned mappings; every yielded result must contain those assignments.

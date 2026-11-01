@@ -1,0 +1,61 @@
+{
+  "case_id": "sf167_switched",
+  "task_id": "ssb_v4_mirumee__ariadne_465",
+  "repo": "mirumee/ariadne",
+  "base_commit": "a126443d76deefab5363cdb0067e893162dc6393",
+  "derived_fail_to_pass": [
+    "tests.test_case_convertion_util::test_digits_are_treated_as_word",
+    "tests.test_sf167_staged::test_existing_numeric_separator_is_preserved",
+    "tests.test_sf167_staged::test_numeric_names_are_idempotent",
+    "tests.test_sf167_staged::test_nested_resolver_numeric_keys"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_case_convertion_util::test_lower_case_name_is_not_changed",
+    "tests.test_case_convertion_util::test_no_underscore_added_if_previous_character_is_an_underscore",
+    "tests.test_case_convertion_util::test_no_underscore_added_if_previous_character_is_uppercase",
+    "tests.test_case_convertion_util::test_pascal_case_name_is_lowercased",
+    "tests.test_case_convertion_util::test_three_words_camel_case_name_is_converted",
+    "tests.test_case_convertion_util::test_three_words_pascal_case_name_is_converted",
+    "tests.test_case_convertion_util::test_three_words_snake_case_name_is_not_changed",
+    "tests.test_case_convertion_util::test_two_words_camel_case_name_is_converted",
+    "tests.test_case_convertion_util::test_two_words_pascal_case_name_is_converted",
+    "tests.test_case_convertion_util::test_two_words_snake_case_name_is_not_changed"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_case_convertion_util.py",
+    "tests/test_sf167_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_case_convertion_util.py",
+    "tests/test_sf167_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "ecdbeaf4782cefd7e07f57f1d8e0082714158bc55baa8aed06ec2ff221b4c806",
+    "config/recipes.json": "b5764cd96b89f20972fe94c8e5c6793622af1ae9dff51576f1331120b23da4c7"
+  }
+}

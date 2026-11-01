@@ -1,0 +1,3 @@
+One more thing: note: if having `start` internally depend on `strict_exception_groups=False` is unwanted, an alternative patch could be <details> <summary>click to expand</summary> ```diff
+
+Add Nursery.start_with_timeout(timeout, async_fn, *args, name=None), behaving like that method but limiting the startup handshake to timeout seconds on the Trio clock. None means no timeout. Return the started(value) value and preserve the task name. A child that does not announce startup before the deadline must be cancelled, with its cleanup completed before TooSlowError is raised directly to the awaiting caller. The nursery must remain usable afterward.

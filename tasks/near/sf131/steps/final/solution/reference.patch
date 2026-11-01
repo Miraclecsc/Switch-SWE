@@ -1,0 +1,31 @@
+diff --git a/starlette/formparsers.py b/starlette/formparsers.py
+index d1723d5..d0977fd 100644
+--- a/starlette/formparsers.py
++++ b/starlette/formparsers.py
+@@ -267,10 +267,20 @@ class MultiPartParser:
+                 self._file_parts_to_write.clear()
+                 self._file_parts_to_finish.clear()
+             parser.finalize()
+-        except MultiPartException as exc:
+-            # Close all the files if there was an error.
++            result = FormData(self.items)
++        except BaseException:
++            # Parsing owns all uploads until a FormData is successfully returned.
++            # Cleanup must not replace the stream/write/cancellation exception or
++            # prevent later files from being closed if one close fails.
+             for file in self._files_to_close_on_error:
+-                file.close()
+-            raise exc
+-
+-        return FormData(self.items)
++                try:
++                    file.close()
++                except BaseException:
++                    pass
++            self._file_parts_to_write.clear()
++            self._file_parts_to_finish.clear()
++            self._files_to_close_on_error.clear()
++            raise
++
++        self._files_to_close_on_error.clear()
++        return result

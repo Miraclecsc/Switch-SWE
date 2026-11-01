@@ -1,0 +1,3 @@
+Also, Hm, how about implementing this alias with `__getattribute__()` to emit a deprecation warning when the old name is accessed?
+
+Preserve the deprecated BrokenWorkerIntepreter alias at both anyio and anyio._core._exceptions, so old direct imports and serialized class references using either module still resolve to the single corrected BrokenWorkerInterpreter class. Access must emit DeprecationWarning; do not install a second exception class.

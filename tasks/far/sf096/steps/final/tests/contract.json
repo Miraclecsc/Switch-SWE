@@ -1,0 +1,81 @@
+{
+  "case_id": "sf096_switched",
+  "task_id": "ssb_v4_sympy__sympy_28467",
+  "repo": "sympy/sympy",
+  "base_commit": "4580fd6403157037596807bafb2c97b42246e1f3",
+  "derived_fail_to_pass": [
+    "sympy.printing.tests.test_rust::test_parenthesize_typecast",
+    "sympy.printing.tests.test_sf096_extension::test_compound_explicit_cast",
+    "sympy.printing.tests.test_sf096_extension::test_integer_coefficients_of_float_rounding[ceiling]",
+    "sympy.printing.tests.test_sf096_extension::test_integer_coefficients_of_float_rounding[floor]",
+    "sympy.printing.tests.test_sf096_extension::test_integer_float_method_receiver[cos]",
+    "sympy.printing.tests.test_sf096_extension::test_integer_float_method_receiver[exp]",
+    "sympy.printing.tests.test_sf096_extension::test_integer_float_method_receiver[log]",
+    "sympy.printing.tests.test_sf096_extension::test_integer_float_method_receiver[sin]"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.printing.tests.test_rust::test_Functions",
+    "sympy.printing.tests.test_rust::test_ITE",
+    "sympy.printing.tests.test_rust::test_Indexed",
+    "sympy.printing.tests.test_rust::test_Integer",
+    "sympy.printing.tests.test_rust::test_Piecewise",
+    "sympy.printing.tests.test_rust::test_Pow",
+    "sympy.printing.tests.test_rust::test_Rational",
+    "sympy.printing.tests.test_rust::test_Relational",
+    "sympy.printing.tests.test_rust::test_basic_ops",
+    "sympy.printing.tests.test_rust::test_boolean",
+    "sympy.printing.tests.test_rust::test_constants",
+    "sympy.printing.tests.test_rust::test_constants_other",
+    "sympy.printing.tests.test_rust::test_dereference_printing",
+    "sympy.printing.tests.test_rust::test_dummy_loops",
+    "sympy.printing.tests.test_rust::test_inline_function",
+    "sympy.printing.tests.test_rust::test_loops",
+    "sympy.printing.tests.test_rust::test_loops_addfactor",
+    "sympy.printing.tests.test_rust::test_loops_multiple_contractions",
+    "sympy.printing.tests.test_rust::test_matrix",
+    "sympy.printing.tests.test_rust::test_printmethod",
+    "sympy.printing.tests.test_rust::test_reserved_words",
+    "sympy.printing.tests.test_rust::test_settings",
+    "sympy.printing.tests.test_rust::test_sign",
+    "sympy.printing.tests.test_rust::test_sparse_matrix",
+    "sympy.printing.tests.test_rust::test_user_functions",
+    "sympy.printing.tests.test_sf096_extension::test_custom_mapping_not_promoted"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/printing/tests/test_rust.py",
+    "sympy/printing/tests/test_sf096_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/printing/tests/test_rust.py",
+    "sympy/printing/tests/test_sf096_extension.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "b3cc6c640cb3eba89c73c46b016b6302bd25e71255b0916b753a37cf42c855b0",
+    "config/recipes.json": "e5a9dedef9b6982ccd4113f967d0b5d8a71c499f44cc5b461e772d79fd3c754c"
+  }
+}

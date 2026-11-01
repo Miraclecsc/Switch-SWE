@@ -1,0 +1,1 @@
+And here, literal CR or LF in node labels is invalid and must raise ValueError. Preserve the existing warnings/omission policy for ignored optional attributes.

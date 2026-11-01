@@ -1,0 +1,1 @@
+And here, i believe it actually could, good catch, I also didn't like the explicit verbosity of the space check. looking at the specs, `charset` should not be possible to be a substring any other place than as the optional parameter. the following might be the safest:

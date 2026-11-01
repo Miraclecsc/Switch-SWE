@@ -1,0 +1,1 @@
+Please check this too: All that should be required is modifying [`jinja2.tests.TESTS`]( which is [used by the `jinjatests` directive]( which you did. If rebuilding the docs doesn't render the new sections, then try wiping the `docs/_build` directory to do a clean build.

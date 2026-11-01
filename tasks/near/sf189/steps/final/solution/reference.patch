@@ -1,0 +1,37 @@
+diff --git a/src/attr/_make.py b/src/attr/_make.py
+index 7439dc2..24c84bc 100644
+--- a/src/attr/_make.py
++++ b/src/attr/_make.py
+@@ -448,7 +448,16 @@ def _transform_attrs(
+     attrs = base_attrs + own_attrs
+ 
+     if field_transformer is not None:
+-        attrs = field_transformer(cls, attrs)
++        attrs = tuple(field_transformer(cls, attrs))
++        if any(not isinstance(a, Attribute) for a in attrs):
++            raise TypeError("field_transformer must yield Attribute instances")
++
++    if field_transformer is not None:
++        seen_names = set()
++        for a in attrs:
++            if a.name in seen_names:
++                raise ValueError(f"Duplicate field name: {a.name!r}")
++            seen_names.add(a.name)
+ 
+     # Check attr order after executing the field_transformer.
+     # Mandatory vs non-mandatory attr order only matters when they are part of
+@@ -472,6 +481,14 @@ def _transform_attrs(
+             # Evolve is very slow, so we hold our nose and do it dirty.
+             _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
+ 
++    if field_transformer is not None:
++        seen_aliases = set()
++        for a in attrs:
++            if a.init:
++                if a.alias in seen_aliases:
++                    raise ValueError(f"Duplicate init alias: {a.alias!r}")
++                seen_aliases.add(a.alias)
++
+     # Create AttrsClass *after* applying the field_transformer since it may
+     # add or remove attributes!
+     attr_names = [a.name for a in attrs]

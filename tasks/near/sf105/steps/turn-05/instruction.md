@@ -1,0 +1,1 @@
+Also, Fixed! Changed the test to store the return values: child_active = Child.objects.create(name="Active Child", parent=parent, is_active=True) child_inactive = Child.objects.create(name="Inactive Child", parent=parent, is_active=False) This eliminates the unnecessary .get() refetches.

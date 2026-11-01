@@ -1,0 +1,1 @@
+And here, This is useful as it unlocks future per-route error handlers, greatly simplifying view code. However, this does not solve the problem when someone wants to access `request.body` in other middleware. This issue is still there, isn't it? This solution ( is more straightforward as fixes the issue everywhere.

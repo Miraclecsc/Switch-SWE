@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Move this next to the other z3 tests, rename it "test_z3_predicate_equivalence", and put a link to the issue in a comment.

@@ -1,0 +1,1 @@
+One more thing: I vote for unconditional bare tuple `attrs = tuple(attrs)` on first use. This is a copy of a probably small number of elements that happens on class definition time, not at runtime, so I would be surprised if it had any noticeable performance impact in real code.

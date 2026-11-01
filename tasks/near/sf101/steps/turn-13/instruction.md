@@ -1,0 +1,1 @@
+Also, To give alternative test suggestions instead of adding a new test class, if you prefer: Also, Consider if we also should do something about about sync `logout()` and async `auser`

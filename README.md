@@ -1,48 +1,41 @@
 # Switch-SWE
 
-A benchmark for coding agents that switch between unfinished tasks in one conversation.
+**Do Coding Agents Hold Focus When Switching Between Unfinished Tasks?**
 
-Each task has two sessions: an uninterrupted **baseline**, and a **switched** session that interleaves the focus task with four other tasks from the same repository. Each task keeps its own checkout; the final focus patch is scored.
+[Paper](assets/paper.pdf) · [Harbor](https://github.com/harbor-framework/harbor) · [RCM plugin](plugins/context-manager)
 
-| Split | Focus tasks | Interruption locality |
-| --- | ---: | --- |
-| Near | 100 | Different source files sharing a parent directory |
-| Far | 100 | Source files in different parent directories |
+Switch-SWE evaluates how coding agents resume unfinished work after handling other tasks in the same repository. This release contains **200 switched sessions from 19 Python repositories**: **100 near** and **100 far**.
 
-**200 tasks · 400 sessions · 19 Python repositories**
+Each session interleaves five tasks in one continuous conversation, with a persistent checkout for each task. Near interruptions touch different source files sharing a parent directory; far interruptions touch different parent directories. Only the final focus-task changes are scored.
 
-## Dataset
+## Evaluate with Harbor
 
-- [pairs.json](data/pairs.json): the 200 tasks and their split labels.
-- [cases.json](data/cases.json): prompts, turn order and repository commits for both sessions.
-- [splits/](data/splits/): near and far task lists.
-- [workspace_overlays.json](data/workspace_overlays.json) and [blobs/](data/blobs/): prepared initial source changes.
-
-Requires Python 3.10+:
+Requires Python 3.12+ and Docker. Install the pinned upstream Harbor:
 
 ```sh
-python3 scripts/verify_release.py
-python3 scripts/inspect_case.py --split near
-python3 scripts/inspect_case.py --case-id sf001_switched --turn 0
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+
+# All 200 tasks; choose your model.
+harbor run -c harbor.yaml -a opencode -m <provider/model> --resume-trajectory
+
+# One split or one task.
+harbor run -p tasks/near -a opencode -m <provider/model> --resume-trajectory
+harbor run -p tasks/far/sf076 -a opencode -m <provider/model> --resume-trajectory
 ```
 
-See [workspace preparation](docs/workspaces.md) to build the checkouts. Private grading tests and runtime bundles are maintained separately.
+Set your model provider's API key before running. `--resume-trajectory` keeps the same native agent session across requests; the included config enables it. Harbor builds the environments, executes the steps, transfers the final focus checkout, and runs the F2P/P2P tests in a separate verifier. Results are written to `jobs/`.
 
-## OpenCode plugin
+## Tasks
 
-The **Resumption Context Manager (RCM)** routes conversation history by task and maintains task memory for resumption. This repository includes the selected **v003** plugin, tested with **OpenCode 1.18.2**.
-
-![Resumption Context Manager](docs/assets/rcm.png)
-
-```sh
-OPENCODE_UPSTREAM_BIN=/absolute/path/to/opencode \
-  ./plugins/context-manager/opencode_plus run "Your coding request"
+```text
+tasks/near/    100 Harbor tasks
+tasks/far/     100 Harbor tasks
 ```
 
-Modes: `off` for native context, `a` for task routing, and `x` (default) for routing plus memory. See the [plugin guide](plugins/context-manager/README.md) for provider configuration and usage.
+Each task contains `task.toml`, an `environment/` build, ordered `steps/` with the original prompts, and final-step tests and a reference solution. Dependencies are pinned from the prepared environments and rebuilt from public packages. The reward is the final step's result.
 
-## More
+[RCM](plugins/context-manager) contains the paper's OpenCode context-management plugin. [tools/](tools/) contains the dataset exporter and Harbor task checks.
 
-[Data card](docs/data-card.md) · [Evaluation](docs/evaluation.md) · [Provenance](docs/provenance.md) · [Tests](docs/validation.md)
-
-Original project code: [MIT](LICENSE). Repository-derived material retains its [upstream licenses](THIRD_PARTY_NOTICES.md).
+Original code: [MIT](LICENSE). Included upstream source retains its original license notices.

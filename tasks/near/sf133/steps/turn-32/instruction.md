@@ -1,0 +1,1 @@
+And here, Thank you! I’ve removed the runtime type annotations and imports from planarity.py. The runtime type check remains.

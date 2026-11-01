@@ -1,0 +1,110 @@
+diff --git a/networkx/drawing/tests/test_pylab.py b/networkx/drawing/tests/test_pylab.py
+index a741c9d6992..d6cdd1455df 100644
+--- a/networkx/drawing/tests/test_pylab.py
++++ b/networkx/drawing/tests/test_pylab.py
+@@ -1152,6 +1152,33 @@ def test_draw_nodes_missing_node_from_position():
+         nx.draw_networkx_nodes(G, pos)
+ 
+ 
++def test_draw_networkx_nodes_node_shape_list_with_scalar_color(subplots):
++    """Ensure draw_networkx_nodes works when node_shape is a Python list.
++
++    This covers the case where node_shape is a sequence (list) and node_color
++    is a single scalar color, which should be supported.
++    """
++    fig, ax = subplots
++
++    G = nx.empty_graph(5)
++    pos = {i: (i, i) for i in G}
++
++    shapes = ["o", "^", "o", "^", "o"]
++
++    nodes = nx.draw_networkx_nodes(
++        G,
++        pos,
++        node_color="red",  # scalar color (supported)
++        node_shape=shapes,  # list of shapes – this used to be buggy
++        ax=ax,
++    )
++    # Should get a PathCollection with an element in it (same as with numpy arrays)
++    assert len(nodes.get_offsets()) > 0
++    # NOTE: When node_shape is a sequence, draw_networkx_nodes internally calls
++    # ax.scatter multiple times and returns only the last PathCollection.
++    # Therefore, we do NOT assert a value for len(nodes.get_offsets()) here.
++
++
+ # NOTE: parametrizing on marker to test both branches of internal
+ # nx.draw_networkx_edges.to_marker_edge function
+ @pytest.mark.parametrize("node_shape", ("o", "s"))
+diff --git a/networkx/drawing/tests/test_sf072_shape_styles.py b/networkx/drawing/tests/test_sf072_shape_styles.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/drawing/tests/test_sf072_shape_styles.py
+@@ -0,0 +1,67 @@
++
++import matplotlib.pyplot as plt
++from matplotlib.colors import to_rgba
++import numpy as np
++import pytest
++import networkx as nx
++
++@pytest.fixture(autouse=True)
++def close_figures():
++    yield
++    plt.close("all")
++
++def styles_by_x(ax):
++    rows = {}
++    for collection in ax.collections:
++        offsets = collection.get_offsets()
++        sizes = collection.get_sizes()
++        colors = collection.get_facecolors()
++        edges = collection.get_edgecolors()
++        widths = collection.get_linewidths()
++        for i, xy in enumerate(offsets):
++            rows[int(xy[0])] = (sizes[i if len(sizes) > 1 else 0],
++                colors[i if len(colors) > 1 else 0], edges[i if len(edges) > 1 else 0],
++                widths[i if len(widths) > 1 else 0], collection.get_zorder())
++    return rows
++
++def test_per_node_styles_follow_reordered_nodelist_across_shapes():
++    graph = nx.path_graph(4)
++    pos = {n: (n, 0) for n in graph}
++    nodes = [3, 0, 2, 1]
++    sizes = [80, 20, 60, 40]
++    colors = ["red", "green", "blue", "yellow"]
++    edges = ["black", "purple", "cyan", "orange"]
++    widths = [4, 1, 3, 2]
++    alphas = [0.8, 0.2, 0.6, 0.4]
++    fig, ax = plt.subplots()
++    nx.draw_networkx_nodes(graph, pos, nodelist=nodes, node_shape=["s", "o", "s", "o"],
++        node_size=sizes, node_color=colors, edgecolors=edges, linewidths=widths, alpha=alphas, ax=ax)
++    fig.canvas.draw()
++    rows = styles_by_x(ax)
++    for i, node in enumerate(nodes):
++        size, color, edge, width, z = rows[node]
++        assert size == sizes[i] and width == widths[i] and z == 2
++        np.testing.assert_allclose(color, to_rgba(colors[i], alphas[i]))
++        np.testing.assert_allclose(edge[:3], to_rgba(edges[i])[:3])
++
++def test_numeric_colors_share_normalization_across_shape_groups():
++    graph = nx.path_graph(4)
++    fig, ax = plt.subplots()
++    cmap = plt.get_cmap("viridis")
++    nx.draw_networkx_nodes(graph, {n: (n, 0) for n in graph},
++        node_shape=["o", "s", "o", "s"], node_color=[0., 1., 2., 3.], cmap=cmap, ax=ax)
++    fig.canvas.draw()
++    rows = styles_by_x(ax)
++    for node in graph:
++        np.testing.assert_allclose(rows[node][1], cmap(node / 3))
++
++def test_scalar_rgb_and_style_broadcast_are_preserved():
++    graph = nx.path_graph(4)
++    fig, ax = plt.subplots()
++    nx.draw_networkx_nodes(graph, {n: (n, 0) for n in graph},
++        node_shape=["o", "s", "o", "s"], node_color=(0.1, 0.2, 0.3),
++        node_size=45, linewidths=2, edgecolors="black", ax=ax)
++    fig.canvas.draw()
++    for size, color, edge, width, z in styles_by_x(ax).values():
++        assert size == 45 and width == 2 and z == 2
++        np.testing.assert_allclose(color, [0.1, 0.2, 0.3, 1])

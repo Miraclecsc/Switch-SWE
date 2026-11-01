@@ -1,0 +1,1 @@
+Also, Ariadne has build-in function for this: [`load_schema_from_path`](

@@ -1,0 +1,1 @@
+And here, I hate that `graphql.document` thing. What if its big or contains personal data embed in query body? Ugh.

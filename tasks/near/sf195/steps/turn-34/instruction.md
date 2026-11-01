@@ -1,0 +1,1 @@
+One more thing: Okay this should be pretty decent. `ctypes.util.find_library("pthread")` fails on the CI mac machines, which I didn't expect, so I'm going to leave getting it to work on mac to somebody else.

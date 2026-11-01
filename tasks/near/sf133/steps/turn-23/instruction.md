@@ -1,0 +1,1 @@
+Please check this too: 1. Updated the `weight` parameter description to match the style used in other NetworkX functions. 2. Moved the notes about floating-point weights and positive weights to a separate "Notes" section at the end of the docstring. 3. Kept the rest of the docstring, including the detailed explanation and references, unchanged.

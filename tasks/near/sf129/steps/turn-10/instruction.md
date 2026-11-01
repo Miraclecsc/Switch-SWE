@@ -1,0 +1,1 @@
+One more thing: `OSError` used to be `IOError` and it's in since the beginning (aef16506b5da26684103db2e47346dbf49a7e7a1). If `write` fails for some reason, I'd like to see an error message, rather than swallowing any error that might occur – but I'm happy to revert this change if the reviewer disagrees or there is a reason I'm not aware of

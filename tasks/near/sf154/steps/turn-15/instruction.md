@@ -1,0 +1,1 @@
+Please check this too: Sure. Python 3.11.2, standard Debian installation. The error shows up in a new venv, so it's unlikely to be related to any strange module I installed. Removing the `fail_after` call in `eat` makes the error go away.

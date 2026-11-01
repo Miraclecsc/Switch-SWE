@@ -1,0 +1,1 @@
+One more thing: > Should write some tests for the new script first, maybe also do the same for Black & isort. I posted about pre-commit in Gitter, and in case we add it and start relying on it I'm not sure it's worth the effort to write coverage tests and polish this up too much.

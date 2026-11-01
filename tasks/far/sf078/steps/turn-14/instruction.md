@@ -1,0 +1,1 @@
+One more thing: nit: Let's have a `mypy.ini` that sets strict to 1/true/whatever, so that my alias of `tox-mypy` (== `./.tox/mypy/bin/mypy`) would do the right thing. :3

@@ -1,0 +1,1 @@
+Also, We can keep just `MYPY` in the new stub file and import it from `__init__.pyi`, but then we'll have the problem I described with defining the protocol:

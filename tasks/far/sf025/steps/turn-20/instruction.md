@@ -1,0 +1,1 @@
+And here, pip supports version input with only the major part ([docs]( In the event that the provided `PythonVersion` is only size 1, we could yield only the single `py{major}` entry.

@@ -1,0 +1,62 @@
+diff --git a/tests/test_specifiers.py b/tests/test_specifiers.py
+index a3feecc23..ee54dc84b 100644
+--- a/tests/test_specifiers.py
++++ b/tests/test_specifiers.py
+@@ -253,6 +253,12 @@ def test_comparison_true(self, left, right, op):
+         assert op(left, Specifier(right))
+         assert op(Specifier(left), right)
+ 
++    @pytest.mark.parametrize(("left", "right"), [("==2.8.0", "==2.8")])
++    def test_comparison_canonicalizes(self, left, right):
++        assert Specifier(left) == Specifier(right)
++        assert left == Specifier(right)
++        assert Specifier(left) == right
++
+     @pytest.mark.parametrize(
+         ("left", "right", "op"),
+         itertools.chain(
+@@ -961,6 +967,12 @@ def test_comparison_false(self, left, right, op):
+         assert not op(left, SpecifierSet(right))
+         assert not op(SpecifierSet(left), right)
+ 
++    @pytest.mark.parametrize(("left", "right"), [("==2.8.0", "==2.8")])
++    def test_comparison_canonicalizes(self, left, right):
++        assert SpecifierSet(left) == SpecifierSet(right)
++        assert left == SpecifierSet(right)
++        assert SpecifierSet(left) == right
++
+     def test_comparison_non_specifier(self):
+         assert SpecifierSet("==1.0") != 12
+         assert not SpecifierSet("==1.0") == 12
+diff --git a/tests/test_sf182_staged.py b/tests/test_sf182_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf182_staged.py
+@@ -0,0 +1,27 @@
++
++from packaging.specifiers import Specifier, SpecifierSet
++
++def test_colliding_hashes_do_not_define_equality():
++    class Collision(Specifier):
++        def __hash__(self):
++            return 7
++    a, b = Collision('>=1'), Collision('>=2')
++    assert hash(a) == hash(b)
++    assert not (a == b)
++    assert len({a, b}) == 2
++
++def test_normalized_inequality_complements_equality():
++    a, b = Specifier('==1.0'), Specifier('==1.0.0')
++    assert a == b and not (a != b)
++    assert a == '==1.0.0' and not (a != '==1.0.0')
++    assert hash(a) == hash(b)
++    assert a.__eq__(object()) is NotImplemented
++
++def test_compatible_release_precision_kept_in_keys():
++    broad, narrow = Specifier('~=1.0'), Specifier('~=1.0.0')
++    assert broad.contains('1.5') and not narrow.contains('1.5')
++    assert broad != narrow and not (broad == narrow)
++    assert len({broad, narrow}) == 2
++    combined = SpecifierSet('~=1.0,~=1.0.0')
++    assert len(combined) == 2
++    assert combined.contains('1.0.5') and not combined.contains('1.5')

@@ -1,0 +1,1 @@
+Please check this too: Notification errors must not hide the timeout: if on_timeout raises an ordinary Exception, raise TimeoutError with that exception as its explicit cause. Ignore a normal callback return value; it cannot suppress the timeout. The callback executes outside the expired inner scope, so a still-active outer deadline remains observable.

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: Review and update which characters should be percent escaped when parsing & normalising URLs. Based on the URL living standard... Prompted by

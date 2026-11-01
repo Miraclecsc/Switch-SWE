@@ -1,0 +1,1 @@
+Please check this too: How about aligning this structure with the base graph class approach: make a method of the matcher classes: And base the logic in the `__init__` off of that value. Part of me thinks it should just be a class attribute, but the method approach has worked well for the base classes -- it helps ensure that the attribute doesn't get changed.

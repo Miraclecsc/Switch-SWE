@@ -1,0 +1,1 @@
+One more thing: `pyyaml` is what `pre-commit` itself uses, which is also the reason I am using it. This is the type annotations package for mypy to be able to understand it without reporting errors in CI.

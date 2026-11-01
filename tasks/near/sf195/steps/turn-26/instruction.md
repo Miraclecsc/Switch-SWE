@@ -1,0 +1,1 @@
+One more thing: So this drops the check for it accepting a `task_status` parameter. If that's planned to be added back with `ParamSpec`/`TypeVarTuple` it probably warrants a `#TODO` explicitly mentioning that. Or is there a reason for dropping it?

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Indeed I run into a complexity case that socks5 not work: And my code with `requests` only work with socks5h too, if set to socks5, it will get an error: My code using both requests and

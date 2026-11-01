@@ -1,0 +1,1 @@
+Please check this too: Consider Poly cares about the domain; if the domains are not equal, it returns False. I replaced the purepoly with Poly, and some tests such as test_rootsum_independent failed even though the results were the same, because the domains were different.

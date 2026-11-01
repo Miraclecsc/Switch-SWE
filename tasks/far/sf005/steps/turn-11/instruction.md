@@ -1,0 +1,1 @@
+Please check this too: This should be defined on that type and not `BaseDatabaseCache`. As pointed out in the ticket the memcached and redis backend are also affected.

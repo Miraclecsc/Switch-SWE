@@ -1,0 +1,1 @@
+One more thing: We always do name resolution for both protocols, and I think the local addresses `(None, "::", "localhost")` should be special cased to skip that and do dual-stack binding instead, wouldn't you agree?

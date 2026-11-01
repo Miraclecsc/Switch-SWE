@@ -1,0 +1,397 @@
+diff --git a/tests/test_from_thread.py b/tests/test_from_thread.py
+index 735e82ea7..0c490a4f0 100644
+--- a/tests/test_from_thread.py
++++ b/tests/test_from_thread.py
+@@ -68,33 +68,28 @@ def thread_worker_sync(func: Callable[..., T_Retval], *args: Any) -> T_Retval:
+     return from_thread.run_sync(func, *args)
+ 
+ 
+-@pytest.mark.parametrize("cancel", [True, False])
+-async def test_thread_cancelled(cancel: bool) -> None:
++async def test_thread_cancelled() -> None:
+     event = threading.Event()
+-    thread_finished_future: Future[None] = Future()
++    started = finished = False
+ 
+     def sync_function() -> None:
++        nonlocal started, finished
++        started = True
+         event.wait(3)
+-        try:
+-            from_thread.check_cancelled()
+-        except BaseException as exc:
+-            thread_finished_future.set_exception(exc)
+-        else:
+-            thread_finished_future.set_result(None)
++        from_thread.check_cancelled()
++        finished = True
+ 
+-    async with create_task_group() as tg:
+-        tg.start_soon(to_thread.run_sync, sync_function)
++    async def canceller() -> None:
+         await wait_all_tasks_blocked()
+-        if cancel:
+-            tg.cancel_scope.cancel()
+-
++        tg.cancel_scope.cancel()
+         event.set()
+ 
+-    if cancel:
+-        with pytest.raises(get_cancelled_exc_class()):
+-            thread_finished_future.result(3)
+-    else:
+-        thread_finished_future.result(3)
++    async with create_task_group() as tg:
++        tg.start_soon(canceller)
++        await to_thread.run_sync(sync_function)
++
++    assert started
++    assert not finished
+ 
+ 
+ async def test_thread_cancelled_and_abandoned() -> None:
+diff --git a/tests/test_sf004_scope_owner_v1.py b/tests/test_sf004_scope_owner_v1.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf004_scope_owner_v1.py
+@@ -0,0 +1,340 @@
++"""Public v1 behavioral contract: cancellation belongs to its originating scope.
++
++All interactions use real AnyIO scopes, worker threads and event-loop callbacks.
++No test depends on a private marker type or on a particular source patch.
++"""
++from __future__ import annotations
++
++import asyncio
++import threading
++
++import pytest
++
++from anyio import CancelScope, from_thread, to_thread
++
++from .conftest import asyncio_params
++
++pytestmark = pytest.mark.anyio
++
++
++@pytest.fixture(params=asyncio_params)
++def anyio_backend(request):
++    return request.param
++
++
++def worker_cancellation(scope: CancelScope, reason: str = "worker requested stop"):
++    """Return a genuine cancellation without letting its original scope consume it."""
++    from_thread.run_sync(scope.cancel, reason)
++    try:
++        from_thread.check_cancelled()
++    except asyncio.CancelledError as exc:
++        return exc
++    pytest.fail("cancelled worker continued beyond check_cancelled")
++
++
++async def stale_cancellation():
++    with CancelScope(shield=True) as scope:
++        exc = await to_thread.run_sync(worker_cancellation, scope, "finished operation")
++    assert scope.cancel_called
++    assert not scope.cancelled_caught
++    return exc
++
++
++async def test_live_parent_cancellation_is_not_consumed_by_shielded_child():
++    # A prefix-only recognizer incorrectly credits the child's unrelated cancellation.
++    with CancelScope() as parent:
++        exc = await to_thread.run_sync(worker_cancellation, parent, "parent stop")
++        with CancelScope(shield=True) as child:
++            child.cancel("child stop")
++            raise exc
++    assert parent.cancelled_caught
++    assert not child.cancelled_caught
++
++
++async def test_exited_scope_cancellation_is_not_consumed_by_new_scope():
++    # Replaying a result from a finished worker operation must not cancel its receiver.
++    exc = await stale_cancellation()
++    with pytest.raises(asyncio.CancelledError) as caught:
++        with CancelScope() as receiver:
++            receiver.cancel("receiver stop")
++            raise exc
++    assert caught.value is exc
++    assert not receiver.cancelled_caught
++
++
++async def test_ordinary_prefix_lookalike_is_not_a_scope_cancellation():
++    # Message text alone must not grant ownership to an unrelated cancelled scope.
++    exc = asyncio.CancelledError("Cancelled via cancel scope 12345")
++    with pytest.raises(asyncio.CancelledError) as caught:
++        with CancelScope() as scope:
++            scope.cancel()
++            raise exc
++    assert caught.value is exc
++    assert not scope.cancelled_caught
++
++
++async def test_mixed_group_removes_only_the_receiving_scopes_cancellation():
++    # Stripping every AnyIO-looking leaf loses a foreign cancellation.
++    foreign = await stale_cancellation()
++    ordinary = ValueError("operation failed")
++    with pytest.raises(BaseExceptionGroup) as caught:
++        with CancelScope() as receiver:
++            own = await to_thread.run_sync(worker_cancellation, receiver)
++            raise BaseExceptionGroup("batch", [own, foreign, ordinary])
++    assert receiver.cancelled_caught
++    assert caught.value.exceptions == (foreign, ordinary)
++
++
++@pytest.mark.parametrize("foreign_first", [False, True])
++async def test_nested_group_preserves_foreign_leaf_and_shape(foreign_first):
++    foreign = await stale_cancellation()
++    error = RuntimeError("nested failure")
++    with pytest.raises(BaseExceptionGroup) as caught:
++        with CancelScope() as owner:
++            own = await to_thread.run_sync(worker_cancellation, owner)
++            branch = BaseExceptionGroup("inner", [foreign, error])
++            leaves = [branch, own] if foreign_first else [own, branch]
++            raise BaseExceptionGroup("outer", leaves)
++    assert owner.cancelled_caught
++    assert caught.value.message == "outer"
++    assert len(caught.value.exceptions) == 1
++    remaining = caught.value.exceptions[0]
++    assert isinstance(remaining, BaseExceptionGroup)
++    assert remaining.message == "inner"
++    assert remaining.exceptions == (foreign, error)
++
++
++async def test_wrapped_owned_cancellation_is_recognized():
++    # Frameworks can raise a replacement CancelledError with the original in context.
++    with CancelScope() as scope:
++        owned = await to_thread.run_sync(worker_cancellation, scope)
++        try:
++            raise owned
++        except asyncio.CancelledError:
++            raise asyncio.CancelledError("framework wrapper")
++    assert scope.cancelled_caught
++
++
++async def test_foreign_cancellation_wins_over_older_owned_context():
++    # An attributable foreign error must not borrow an older owned error's identity.
++    foreign = await stale_cancellation()
++    with pytest.raises(asyncio.CancelledError) as caught:
++        with CancelScope() as owner:
++            own = await to_thread.run_sync(worker_cancellation, owner)
++            try:
++                raise own
++            except asyncio.CancelledError:
++                raise foreign
++    assert caught.value is foreign
++    assert not owner.cancelled_caught
++
++
++async def test_worker_cancellation_keeps_first_reason():
++    # Losing origin metadata in the worker must not also erase the first public reason.
++    observed = []
++
++    def worker():
++        from_thread.run_sync(scope.cancel, "first request")
++        from_thread.run_sync(scope.cancel, "second request")
++        try:
++            from_thread.check_cancelled()
++        except asyncio.CancelledError as exc:
++            observed.append(str(exc))
++            raise
++
++    with CancelScope() as scope:
++        await to_thread.run_sync(worker)
++    assert scope.cancelled_caught
++    assert len(observed) == 1
++    assert "first request" in observed[0]
++    assert "second request" not in observed[0]
++
++
++@pytest.mark.parametrize("depth", [1, 2])
++@pytest.mark.parametrize("wrap", [False, True])
++async def test_owned_cancellation_survives_nested_worker_callback_roundtrips(depth, wrap):
++    # Stringifying a cancellation on a callback bridge destroys its scope ownership.
++    thread_ids = set()
++
++    async def descend(remaining: int):
++        def worker():
++            thread_ids.add(threading.get_ident())
++            if remaining:
++                return from_thread.run(descend, remaining - 1)
++            from_thread.run_sync(owner.cancel, "deep worker")
++            try:
++                from_thread.check_cancelled()
++            except asyncio.CancelledError:
++                if wrap:
++                    raise asyncio.CancelledError("framework wrapper")
++                raise
++            pytest.fail("deep cancelled worker returned")
++        await to_thread.run_sync(worker)
++
++    with CancelScope() as owner:
++        await descend(depth)
++    assert owner.cancelled_caught
++    assert len(thread_ids) == depth + 1
++
++
++async def test_worker_shield_hides_parent_until_unshielded():
++    # Ownership bookkeeping must still choose the nearest visible cancelled scope.
++    events = []
++
++    def worker():
++        from_thread.run_sync(parent.cancel, "outside shield")
++        from_thread.check_cancelled()
++        events.append("shielded worker kept running")
++        from_thread.run_sync(setattr, shield, "shield", False)
++        from_thread.check_cancelled()
++        pytest.fail("unshielded cancelled worker returned")
++
++    with CancelScope() as parent:
++        with CancelScope(shield=True) as shield:
++            await to_thread.run_sync(worker)
++    assert events == ["shielded worker kept running"]
++    assert parent.cancelled_caught
++    assert not shield.cancelled_caught
++
++
++async def test_reused_worker_does_not_transfer_cancelled_state():
++    # A cached worker thread must use each invocation's scope, not its previous owner.
++    first_thread = []
++
++    def first():
++        first_thread.append(threading.get_ident())
++        return worker_cancellation(old_scope)
++
++    with CancelScope() as old_scope:
++        old_exc = await to_thread.run_sync(first)
++    with CancelScope() as fresh:
++        def second():
++            from_thread.check_cancelled()
++            return threading.get_ident()
++        next_thread = await to_thread.run_sync(second)
++    assert next_thread == first_thread[0]
++    assert not fresh.cancel_called
++    with pytest.raises(asyncio.CancelledError):
++        with CancelScope() as receiver:
++            receiver.cancel()
++            raise old_exc
++    assert not receiver.cancelled_caught
++
++
++async def test_two_workers_cannot_exchange_cancellation_ownership():
++    # Concurrent operations maintain separate cancellation scopes and worker contexts.
++    from anyio import create_task_group
++
++    barrier = threading.Barrier(2, timeout=5)
++    errors = {}
++    identities = {}
++    scopes = {}
++
++    async def operation(label):
++        with CancelScope(shield=True) as scope:
++            scopes[label] = scope
++
++            def worker():
++                identities[label] = threading.get_ident()
++                barrier.wait()
++                return worker_cancellation(scope, label)
++            errors[label] = await to_thread.run_sync(worker)
++
++    async with create_task_group() as group:
++        group.start_soon(operation, "left")
++        group.start_soon(operation, "right")
++    assert identities["left"] != identities["right"]
++    assert scopes["left"] is not scopes["right"]
++    assert not any(s.cancelled_caught for s in scopes.values())
++    for label in ("left", "right"):
++        with pytest.raises(asyncio.CancelledError) as caught:
++            with CancelScope() as receiver:
++                receiver.cancel(label)
++                raise errors[label]
++        assert caught.value is errors[label]
++        assert not receiver.cancelled_caught
++
++
++@pytest.mark.parametrize("wrap", [False, True])
++async def test_worker_cancellation_transfers_to_cancelled_visible_ancestor(wrap):
++    # Strict issuer-only matching breaks AnyIO's existing level-cancellation handoff.
++    with CancelScope() as parent:
++        with CancelScope() as intermediate:
++            with CancelScope() as child:
++                own = await to_thread.run_sync(worker_cancellation, child)
++                try:
++                    try:
++                        raise own
++                    except asyncio.CancelledError:
++                        if wrap:
++                            raise asyncio.CancelledError("framework wrapper")
++                        raise
++                finally:
++                    parent.cancel("ancestor now owns cancellation")
++    assert parent.cancelled_caught
++    assert not child.cancelled_caught
++    assert not intermediate.cancelled_caught
++
++
++async def test_group_handoff_does_not_relabel_foreign_cancellation():
++    # Handoff must transfer only this child's leaves, not every cancellation in a group.
++    foreign = await stale_cancellation()
++    ordinary = LookupError("independent failure")
++    with pytest.raises(BaseExceptionGroup) as caught:
++        with CancelScope() as parent:
++            with CancelScope() as child:
++                own = await to_thread.run_sync(worker_cancellation, child)
++                try:
++                    raise BaseExceptionGroup("work batch", [own, foreign, ordinary])
++                finally:
++                    parent.cancel()
++    assert not child.cancelled_caught
++    assert parent.cancelled_caught
++    assert caught.value.exceptions == (foreign, ordinary)
++
++
++async def test_shielded_child_keeps_ownership_when_ancestor_cancels():
++    # A cancelled ancestor must not claim responsibility through a shield.
++    with CancelScope() as parent:
++        with CancelScope(shield=True) as child:
++            own = await to_thread.run_sync(worker_cancellation, child)
++            try:
++                raise own
++            finally:
++                parent.cancel()
++    assert child.cancelled_caught
++    assert not parent.cancelled_caught
++
++
++async def test_live_sibling_operations_reject_each_others_worker_cancellation():
++    # Two simultaneously active scopes must not confuse two worker cancellation results.
++    from anyio import Event, create_task_group
++
++    both_ready = Event()
++    barrier = threading.Barrier(2, timeout=5)
++    errors = {}
++    scopes = {}
++    threads = {}
++
++    async def operation(label, other):
++        with pytest.raises(asyncio.CancelledError) as caught:
++            with CancelScope(shield=True) as scope:
++                scopes[label] = scope
++
++                def worker():
++                    threads[label] = threading.get_ident()
++                    barrier.wait()
++                    return worker_cancellation(scope, label)
++                errors[label] = await to_thread.run_sync(worker)
++                if len(errors) == 2:
++                    both_ready.set()
++                with CancelScope(shield=True):
++                    await both_ready.wait()
++                raise errors[other]
++        assert caught.value is errors[other]
++        assert not scopes[label].cancelled_caught
++
++    async with create_task_group() as group:
++        group.start_soon(operation, "left", "right")
++        group.start_soon(operation, "right", "left")
++    assert threads["left"] != threads["right"]

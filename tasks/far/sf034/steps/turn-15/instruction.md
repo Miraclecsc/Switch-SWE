@@ -1,0 +1,1 @@
+Please check this too: In commit I added a couple tests in test_solvers.py test_issue_28331. In addition to the NotImplementedError being raised when it didn't need to be, some solutions weren't found with Min/Max, but were found after being rewritten to piecewise.

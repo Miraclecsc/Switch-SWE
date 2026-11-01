@@ -1,0 +1,1 @@
+One more thing: For some reason extend-identifiers does does not work as I intended and continues to try replacing it, so I added `spellchecker:disable-line` there to solve the issue. If there would be a way to get extend-identifiers to do ignore that one like I intended, that would be a better solution.

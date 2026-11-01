@@ -1,0 +1,3 @@
+And here, This check is now missing from `start()` on asyncio (but not Trio):
+
+Deliver callbacks in registration order and add remove_done_callback(callback), removing all still-pending registrations of that exact callable object and returning their count. During callback delivery, newly registered callbacks go after already-pending callbacks and removals affect callbacks not yet invoked. Duplicate registrations count separately.

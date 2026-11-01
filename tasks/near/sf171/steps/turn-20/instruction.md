@@ -1,0 +1,1 @@
+And here, Return_period=True uses exactly the same directedness, empty-graph and strong-connectivity restrictions as the boolean mode.

@@ -1,0 +1,1 @@
+Also, This approach breaks the laziness property of the iterator. That is a nice property to have so you can initialize and pay the generator cost only when needed (for example, for online systems). I'd suggest setting the value as None during init and add a check+initialization on the next call

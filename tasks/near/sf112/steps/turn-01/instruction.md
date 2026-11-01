@@ -1,0 +1,1 @@
+I have this in /work/w04: Added option to trace default resolvers as well Adding the option to trace default resolvers if someone want. This is actually very useful in tracing base field types for which resolvers are not explicitly set because those can be use in apollo studio to see which fields are being accessed and how much thereby helping api lifecycle management

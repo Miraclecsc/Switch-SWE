@@ -1,0 +1,1 @@
+And here, Is there a reason why you're not giving `SystemExit` the same treatment?

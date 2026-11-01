@@ -1,0 +1,1 @@
+I have this in /work/w00: Fix return value and type signature of `shell_completion.add_completion_class` function

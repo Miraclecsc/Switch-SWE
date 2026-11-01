@@ -1,0 +1,3 @@
+Please check this too: > I think this addresses the bugfix portion of #66007. Can you port the test and whatsnew from that Ah, good catch, those tests indeed pass now. Added
+
+Keep valid noncontiguous one-dimensional arrays working, along with the original timezone-aware ISO serialization regressions. Test custom extension hooks that raise or return invalid arrays, then verify a subsequent valid serialization still succeeds. Preserve all original JSON test partitions and rebuild the actual native source.

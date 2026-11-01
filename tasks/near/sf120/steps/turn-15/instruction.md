@@ -1,0 +1,1 @@
+Please check this too: (I cannot promise this will make it into 17.1 b/c I need to get it out ASAP but it’s possible. If you want to raise your chances, please double check CONTRIBUTING.rst; especially re: test docstrings.)

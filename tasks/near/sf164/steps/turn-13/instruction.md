@@ -1,0 +1,1 @@
+Also, I went for `Any` as dunder methods were typed with `Any`, but I guess it makes more sense to have `str` instead

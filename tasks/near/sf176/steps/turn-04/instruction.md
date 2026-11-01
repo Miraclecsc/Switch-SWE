@@ -1,0 +1,1 @@
+And here, Extend the PEP 451 PackageLoader implementation to multiple filesystem contributors of a namespace package. Search all contributors containing package_path in their namespace search order.

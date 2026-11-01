@@ -1,0 +1,1 @@
+Please check this too: I don't think defining it as a class method will work - at least in Python 2, you can't use a class method as a constructor and will get something like: But, this works to avoid the global lookup:

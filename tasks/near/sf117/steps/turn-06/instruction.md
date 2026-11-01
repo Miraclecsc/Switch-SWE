@@ -1,0 +1,1 @@
+One more thing: The prefix there is to indicate where in the changelog the change should go. I'll probably merge all the pylock related things, so `feat` might be okay. I'd consider it more of a fix, though. `fix` is a modification to behavior, rather than new behavior. There's also `chore`, `ci`, `refactor`, `perf`, and `docs`.

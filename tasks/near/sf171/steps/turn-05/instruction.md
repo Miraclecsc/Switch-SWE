@@ -1,0 +1,1 @@
+In the checkout at /work/w02, The paper refers to the actual Panther path similarity algorithm simply as "Panther" and the vector similarity algorithm as "Panther++" -- I wasn't sure about naming it `panther_plus_plus` (since can't do `panther++`), but I'm happy with whichever you prefer.

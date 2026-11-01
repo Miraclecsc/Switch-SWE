@@ -1,0 +1,1 @@
+I have this in /work/w00: Fixed wrong exception raised on sudden TLS stream end on receive() Fixes #379.

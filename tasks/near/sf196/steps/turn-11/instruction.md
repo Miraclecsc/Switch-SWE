@@ -1,0 +1,1 @@
+Please check this too: I was looking at whether ruff catches a forgotten prefix for fstrings like `"hello {name}"` and found `RUF027`. It seems to be under preview, so I'm for this change now! (at least for that specific lint, I'm not sure about everything else this has enabled since I haven't looked at the diff recently...)

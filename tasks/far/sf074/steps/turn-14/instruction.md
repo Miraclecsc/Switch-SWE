@@ -1,0 +1,1 @@
+One more thing: The Travis build for the python-nightly is failing with "ERROR: InvocationError for command /home/travis/build/pallets/jinja/.tox/py/bin/coverage run -p -m pytest (exited with code -11)". Looks like an unrelated issue.

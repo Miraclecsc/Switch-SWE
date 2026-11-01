@@ -1,0 +1,1 @@
+One more thing: > sympy/sympy/functions/elementary/integers.py Ok I've just finished implementing the various things presented inside of the work you mentioned. In particular, I've changed the structure of the Add case, implementing a new model that allow adding multiple numbers by separating them into two lists: simplified and non-simplified Ready for a review!

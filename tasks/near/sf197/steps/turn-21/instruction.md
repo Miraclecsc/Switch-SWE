@@ -1,0 +1,1 @@
+Also, the reason this special-cases `Cancelled` is to compress `BaseExceptionGroup(..., [ArbitraryError, Cancelled])` -> `ArbitraryError` without having to panic and raise `AssertionError`. Does that answer the question? If not then I'm not quite following

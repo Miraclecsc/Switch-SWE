@@ -1,0 +1,1 @@
+One more thing: For overlapping cycles use all cycle lengths, not only one traversal cycle. For example cycles of lengths four and six sharing only their root have period two.

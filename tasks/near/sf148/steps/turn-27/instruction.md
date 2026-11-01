@@ -1,0 +1,1 @@
+Please check this too: > I just applied the simplifications myself now. I sincerely apologize for the confusion my recent PR caused. When the mypy error appeared unexpectedly, I rushed to fix it and ended up introducing mistakes. I take full responsibility and will be much more thorough in reviewing changes in the future. Thank you for your patience and understanding.

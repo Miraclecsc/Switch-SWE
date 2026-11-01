@@ -1,0 +1,1 @@
+One more thing: I'm trying out the latest suggestion from @hauntsaninja since it might help something like Pydantic that might care about that type being real. If the tests all pass I'm good to merge this.

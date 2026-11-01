@@ -1,0 +1,91 @@
+{
+  "case_id": "sf076_switched",
+  "task_id": "ssb_v4_pypa__packaging_115",
+  "repo": "pypa/packaging",
+  "base_commit": "b7af5da73229b49f5fd340fea1b5f80b34414cfa",
+  "derived_fail_to_pass": [
+    "tests.test_requirements.TestRequirements::test_file_url",
+    "tests.test_sf076_extension::test_file_path_builder[/a/../b-file:///a/../b]",
+    "tests.test_sf076_extension::test_file_path_builder[/tmp/\\xe9-file:///tmp/%C3%A9]",
+    "tests.test_sf076_extension::test_file_path_builder[/tmp/a b#c?d%-file:///tmp/a%20b%23c%3Fd%25]",
+    "tests.test_sf076_extension::test_file_path_builder[/tmp/plugin-file:///tmp/plugin]",
+    "tests.test_sf076_extension::test_invalid_local_path[//server/share]",
+    "tests.test_sf076_extension::test_invalid_local_path[/bad\\x00path]",
+    "tests.test_sf076_extension::test_invalid_local_path[123]",
+    "tests.test_sf076_extension::test_invalid_local_path[None]",
+    "tests.test_sf076_extension::test_invalid_local_path[]",
+    "tests.test_sf076_extension::test_invalid_local_path[relative]",
+    "tests.test_sf076_extension::test_url_less_requirement",
+    "tests.test_sf076_extension::test_version_constraint_is_not_silently_lost"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_requirements.TestRequirements::test_complex_url_and_marker",
+    "tests.test_requirements.TestRequirements::test_empty_extras",
+    "tests.test_requirements.TestRequirements::test_extras",
+    "tests.test_requirements.TestRequirements::test_extras_and_url_and_marker",
+    "tests.test_requirements.TestRequirements::test_invalid_file_urls",
+    "tests.test_requirements.TestRequirements::test_invalid_marker",
+    "tests.test_requirements.TestRequirements::test_invalid_name",
+    "tests.test_requirements.TestRequirements::test_invalid_url",
+    "tests.test_requirements.TestRequirements::test_multiple_comparsion_markers",
+    "tests.test_requirements.TestRequirements::test_multiple_markers",
+    "tests.test_requirements.TestRequirements::test_name_with_multiple_versions",
+    "tests.test_requirements.TestRequirements::test_name_with_multiple_versions_and_whitespace",
+    "tests.test_requirements.TestRequirements::test_name_with_other_characters",
+    "tests.test_requirements.TestRequirements::test_name_with_version",
+    "tests.test_requirements.TestRequirements::test_repr",
+    "tests.test_requirements.TestRequirements::test_simple_names",
+    "tests.test_requirements.TestRequirements::test_string_specifier_marker",
+    "tests.test_requirements.TestRequirements::test_string_url",
+    "tests.test_requirements.TestRequirements::test_string_url_with_marker",
+    "tests.test_requirements.TestRequirements::test_sys_platform_linux_equal",
+    "tests.test_requirements.TestRequirements::test_sys_platform_linux_in",
+    "tests.test_requirements.TestRequirements::test_types",
+    "tests.test_requirements.TestRequirements::test_types_with_nothing",
+    "tests.test_requirements.TestRequirements::test_types_with_url",
+    "tests.test_requirements.TestRequirements::test_url",
+    "tests.test_requirements.TestRequirements::test_url_and_marker",
+    "tests.test_requirements.TestRequirements::test_version_with_parens_and_whitespace",
+    "tests.test_requirements.TestRequirements::test_with_legacy_version",
+    "tests.test_requirements.TestRequirements::test_with_legacy_version_and_marker"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "PYTEST_PLUGINS": "setuptools",
+      "SETUPTOOLS_USE_DISTUTILS": "local",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_requirements.py",
+    "tests/test_sf076_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_requirements.py",
+    "tests/test_sf076_extension.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "898c1d9eccb3b748a07a4e491af32f28cd650ce89740c7323b5b9971c6f6cbf9",
+    "config/recipes.json": "c8054167367e0790dea6c262fca036c2e2ae594ab88295d8ebbf0c6a2b51f1b2"
+  }
+}

@@ -1,0 +1,1 @@
+Also, I like methods to start with an adjective. Suggest `get`

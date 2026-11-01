@@ -1,0 +1,1 @@
+I have this in /work/w03: pylock: add filename property to PackageSdist and PackageWheel, more validation To implement `Pylock.select` we need a way to determine the filename of a `PackageWheel` from its `name` or `url` or `path`. So here I add a `filename` property to `PackageWheel` and `PackageSdist`. I also add validation of these names in `from_dict`.

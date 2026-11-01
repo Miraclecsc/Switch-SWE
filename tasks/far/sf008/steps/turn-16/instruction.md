@@ -1,0 +1,1 @@
+And here, The beginner may not realize they can delete the reference, but it arms them with more information when heading to a support channel.

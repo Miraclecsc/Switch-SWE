@@ -1,0 +1,1 @@
+One more thing: False: several AnyIO modules that are imported in `__init__.py` already import `warnings`.

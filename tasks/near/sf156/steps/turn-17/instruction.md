@@ -1,0 +1,1 @@
+Also, in the async methods of high-frequency primitives that construct `Event`s (`Lock.acquire`, `Semaphore.acquire`, `Condition.wait`, `MemoryObjectReceiveStream.receive`, `MemoryObjectSendStream.send`) would it be good to call `get_async_backend().create_event()` directly to avoid the overhead from adapters?

@@ -1,0 +1,69 @@
+diff --git a/networkx/algorithms/tests/test_distance_measures.py b/networkx/algorithms/tests/test_distance_measures.py
+index dc4e2c0..26b6f46 100644
+--- a/networkx/algorithms/tests/test_distance_measures.py
++++ b/networkx/algorithms/tests/test_distance_measures.py
+@@ -595,7 +595,7 @@ class TestCentroid:
+     """Test :func:`networkx.algorithms.distance_measures.centroid`."""
+ 
+     def centroid_as_subgraph(self, g, **kwargs):
+-        """Return the subgraph induced on the barycenter of g"""
++        """Return the subgraph induced on the centroid of g"""
+         b = nx.centroid(g, **kwargs)
+         assert isinstance(b, list)
+         assert set(b) <= set(g)
+@@ -604,6 +604,9 @@ class TestCentroid:
+     def test_must_be_connected(self):
+         pytest.raises(nx.NetworkXNoPath, nx.centroid, nx.empty_graph(5))
+ 
++    def test_barycenter_alias(self):
++        assert nx.barycenter is nx.centroid
++
+     def test_sp_kwarg(self):
+         # Complete graph K_5. Normally it works...
+         K_5 = nx.complete_graph(5)
+diff --git a/networkx/algorithms/tests/test_sf134_demand.py b/networkx/algorithms/tests/test_sf134_demand.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/tests/test_sf134_demand.py
+@@ -0,0 +1,41 @@
++import copy
++import networkx as nx
++import pytest
++
++@pytest.mark.parametrize("name", ["centroid", "barycenter"])
++def test_demand_tree_and_edge_lengths(name):
++    g = nx.path_graph(4)
++    g.nodes[3]["demand"] = 10
++    for a, b in g.edges: g[a][b]["cost"] = a + 1
++    fn = getattr(nx, name)
++    result = fn(g, node_weight="demand", weight="cost", attr="objective")
++    assert result == [3]
++    assert [g.nodes[i]["objective"] for i in g] == [64, 53, 35, 14]
++    assert fn(g, node_weight="demand") == [3]
++
++def test_cache_and_zero_demands():
++    g = nx.cycle_graph(4)
++    nx.set_node_attributes(g, 0, "demand")
++    cache = dict(nx.all_pairs_shortest_path_length(g))
++    before = copy.deepcopy(cache)
++    assert set(nx.barycenter(g, node_weight="demand", sp=cache, attr="obj")) == set(g)
++    assert all(g.nodes[n]["obj"] == 0 for n in g)
++    assert cache == before
++    assert nx.barycenter is nx.centroid
++
++@pytest.mark.parametrize("missing", ["source", "destination"])
++def test_cache_failure_does_not_publish(missing):
++    g = nx.path_graph(3)
++    nx.set_node_attributes(g, 99, "obj")
++    sp = dict(nx.all_pairs_shortest_path_length(g))
++    if missing == "source": del sp[2]
++    else: del sp[2][0]
++    with pytest.raises(nx.NetworkXNoPath): nx.centroid(g, sp=sp, attr="obj")
++    assert all(g.nodes[n]["obj"] == 99 for n in g)
++
++@pytest.mark.parametrize("bad", [-1, float("inf"), float("nan"), "heavy"])
++def test_invalid_demand_is_transactional(bad):
++    g = nx.path_graph(3)
++    g.nodes[2]["d"] = bad
++    with pytest.raises(ValueError): nx.barycenter(g, node_weight="d", attr="obj")
++    assert all("obj" not in g.nodes[n] for n in g)

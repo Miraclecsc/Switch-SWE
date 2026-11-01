@@ -1,0 +1,1 @@
+I have this in /work/w03: Raise error on symbol clash in Plane.equation

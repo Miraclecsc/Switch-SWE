@@ -1,0 +1,1 @@
+And here, Is it possible to make it more apparent where it fails? Print with color? It took me quite a bit to be able to make out that it's mypy that's failing. Though now that pre-commit is added, we should probably add to the repo? @A5rocks In my dream world that'd deprecate most/all of `check.sh`

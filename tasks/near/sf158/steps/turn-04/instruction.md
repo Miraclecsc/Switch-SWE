@@ -1,0 +1,1 @@
+And here, here's the change to lazy load httpcore and certifi Also, Update __version__.py Maintain existing version until we make a release PR.

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Fixed #30583 -- Fixed handling JSONFields in XML serializer. Fixes [ticket 30583]( Continue [original PR]( ). I've fixed the test as [comment]( ). , Do we need to change `JSONField` `to_python()` and `value_to_string()`.

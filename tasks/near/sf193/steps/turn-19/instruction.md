@@ -1,0 +1,1 @@
+Please check this too: Technically, mypy knows the types of VersionInfo…but if I import it, I get the errors…is there a way around here? Or do I have to either fix mypy for attrs or duplicate the information? are the new ones.

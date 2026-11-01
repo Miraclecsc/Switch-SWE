@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Fix `_encode_files` detection for `__getattr__`-based file wrappers

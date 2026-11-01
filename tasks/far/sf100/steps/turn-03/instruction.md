@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: Implement kernel computation for surjective homomorphisms of `FpGroup`s

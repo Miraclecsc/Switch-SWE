@@ -1,0 +1,1 @@
+I have this in /work/w03: fix: platform tag for GraalPy When running a 64-bit version of GraalPy (either x86_64 or aarch64), packaging returns the wrong platform tag (either i686 or armv8l). Fix this by using the same default implementation as found in stdlib platform.architecture fixes #710 cc @timfel

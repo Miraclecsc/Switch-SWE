@@ -1,0 +1,1 @@
+I have this in /work/w02: BUG: Preserve nullable index dtype in `_transform_index` Fixed `Index._transform_index()` to use `_cast_pointwise_result` when rebuilding the index. This preserves nullable extension dtypes instead of losing them through plain list inference.

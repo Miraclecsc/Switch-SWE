@@ -1,0 +1,1 @@
+Also, IIRC one of the concerns raised in the Discourse thread was regarding the total file size if `license_expression` would be added as a dependency or fully vendored. Just as example, the `scancode-licensedb-index.json` file is over 800kB. I believe that's one of the reasons @ofek went a slightly different route with #799.

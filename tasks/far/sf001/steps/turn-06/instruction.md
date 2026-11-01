@@ -1,0 +1,1 @@
+One more thing: This can be a module global, instead of being computed each time. Also, prefer using `sys.version` checks.

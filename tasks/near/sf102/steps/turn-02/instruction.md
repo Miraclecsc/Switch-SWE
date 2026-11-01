@@ -1,0 +1,1 @@
+For the checkout at /work/w00, Fixed horizontal form field alignment under <fieldset> in the admin.

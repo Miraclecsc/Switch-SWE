@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Allow namespaces to be used in asynchronously rendered templates. This fixes by allowing `Namespace` instances to undergo the type checks necessary for async compatibility.

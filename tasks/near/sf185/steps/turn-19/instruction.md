@@ -1,0 +1,1 @@
+Please check this too: uranusjr probably meant for the parts component to be a tuple, so that hash doesn’t get a generator with unique hash each time! (I don’t know if that means that _iter_parts should always return a tuple, or if \_\_hash\_\_ should call tuple, I can’t say if gen expr vs. tuple is a significant performance change for the methods)

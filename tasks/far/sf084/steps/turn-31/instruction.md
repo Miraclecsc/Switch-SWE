@@ -1,0 +1,1 @@
+Please check this too: My question was why not use EXT_SUFFIX? It is much more likely to be right, and it's suggested as the replacement for SO anyway, even though SOABI is a closer match. Then you don't have to do special processing to check to see if it's a malformed SOABI, you can just strip the extension suffix & leading dot and now you know it's a valid SOABI.

@@ -1,0 +1,1 @@
+Please check this too: Preserve the location when a ModelAdmin overrides get_actions(request, **kwargs) and forwards those keywords to super(). Public action choices for the change form must work without a legacy-signature deprecation warning in that case. Retain the compatibility behavior for genuinely old get_actions(request) overrides and all existing action tests.

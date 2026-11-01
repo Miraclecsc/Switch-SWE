@@ -1,0 +1,1 @@
+One more thing: now that it's generalized we should update the newsfragment as well, maybe something like

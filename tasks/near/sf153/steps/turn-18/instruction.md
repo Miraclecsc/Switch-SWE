@@ -1,0 +1,1 @@
+One more thing: We have plenty of tests that need ephemeral ports. Why do we have to add a new test dependency for this specific test? (I'd be happy to add such a fixture to anyio's pytest plugin though!)

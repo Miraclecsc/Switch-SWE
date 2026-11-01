@@ -1,0 +1,1 @@
+And here, I'm trying to give library developers a way to use AnyIO 2.x and 3.x in the same code base without running into deprecation warnings. With free functions you could just conditionally import them but with methods it's not as simple. Can you suggest a solution?

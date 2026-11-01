@@ -1,0 +1,1 @@
+One more thing: There seems to be a bit of a rendering glitch when toggling the `compact` reactive in this PR. <img width="268" alt="image" src=" If you press `c` in example below, you should see it. <details><summary>Example</summary> <p> </p> </details>

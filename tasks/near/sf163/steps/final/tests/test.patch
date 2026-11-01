@@ -1,0 +1,131 @@
+diff --git a/tests/test_responses.py b/tests/test_responses.py
+index a3cdcadcf..fa3c1009f 100644
+--- a/tests/test_responses.py
++++ b/tests/test_responses.py
+@@ -541,6 +541,13 @@ def test_streaming_response_known_size(test_client_factory: TestClientFactory) -
+     assert response.headers["content-length"] == "10"
+ 
+ 
++def test_streaming_response_memoryview(test_client_factory: TestClientFactory) -> None:
++    app = StreamingResponse(content=iter([memoryview(b"hello"), memoryview(b"world")]))
++    client: TestClient = test_client_factory(app)
++    response = client.get("/")
++    assert response.text == "helloworld"
++
++
+ @pytest.mark.anyio
+ async def test_streaming_response_stops_if_receiving_http_disconnect() -> None:
+     streamed = 0
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,108 @@
++import asyncio
++from array import array
++
++from starlette.responses import Response, StreamingResponse
++
++
++def capture_stream(chunks):
++    messages = []
++    async def send(message):
++        if message["type"] == "http.response.body":
++            # A byte-oriented ASGI consumer must be able to concatenate buffers.
++            message = dict(message, body=b"".join([message["body"]]))
++        messages.append(message)
++    asyncio.run(StreamingResponse(chunks).stream_response(send))
++    return messages
++
++
++def test_regular_response_accepts_memoryview_without_copy():
++    source = bytearray(b"_hello_")
++    response = Response(memoryview(source)[1:-1])
++    source[1] = ord("H")
++    assert bytes(response.body) == b"Hello"
++    assert response.headers["content-length"] == "5"
++
++
++def test_regular_response_typed_view_counts_wire_bytes():
++    source = array("I", [0x1234, 0x5678, 0x9ABC])
++    view = memoryview(source)
++    response = Response(view)
++    assert response.headers["content-length"] == str(view.nbytes)
++    assert b"".join([response.body]) == view.tobytes()
++    source[1] = 0
++    assert bytes(response.body) == view.tobytes()
++
++
++def test_regular_response_multidimensional_view_counts_wire_bytes():
++    source = bytearray(range(12))
++    view = memoryview(source).cast("B", (3, 4))
++    response = Response(view)
++    assert response.headers["content-length"] == "12"
++    assert bytes(response.body) == bytes(source)
++
++
++def test_noncontiguous_regular_response_uses_logical_order():
++    source = bytearray(b"0123456789")
++    for view in (memoryview(source)[::2], memoryview(source)[::-1]):
++        response = Response(view)
++        assert response.headers["content-length"] == str(view.nbytes)
++        assert b"".join([response.body]) == view.tobytes()
++
++
++def test_noncontiguous_typed_response_uses_logical_bytes():
++    view = memoryview(array("H", [1, 300, 500, 700]))[::2]
++    response = Response(view)
++    assert b"".join([response.body]) == view.tobytes()
++    assert response.headers["content-length"] == str(view.nbytes)
++
++
++def test_stream_noncontiguous_views_are_wire_consumable():
++    views = [memoryview(b"abcdef")[::2], memoryview(b"1234")[::-1]]
++    messages = capture_stream(iter(views))
++    bodies = [m["body"] for m in messages if m["type"] == "http.response.body"]
++    assert bodies == [b"ace", b"4321", b""]
++    assert messages[-1]["more_body"] is False
++
++
++def test_async_stream_preserves_zero_copy_and_yield_timing():
++    source = bytearray(b"_one_")
++    events = []
++    async def chunks():
++        events.append("yield-one")
++        yield memoryview(source)[1:-1]
++        events.append("yield-two")
++        source[1:4] = b"two"
++        yield memoryview(source)[1:-1]
++    bodies = []
++    async def send(message):
++        if message["type"] == "http.response.body" and message["more_body"]:
++            if not bodies:
++                assert events == ["yield-one"]
++                source[1] = ord("O")
++            bodies.append(bytes(message["body"]))
++    asyncio.run(StreamingResponse(chunks()).stream_response(send))
++    assert bodies == [b"One", b"two"]
++    assert events == ["yield-one", "yield-two"]
++
++
++def test_mixed_stream_and_empty_views():
++    messages = capture_stream(iter(["é", b":", memoryview(b""), memoryview(b"xy")]))
++    assert [m["body"] for m in messages if m["type"] == "http.response.body"] == [
++        "é".encode(), b":", b"", b"xy", b""]
++
++
++def test_memoryview_response_header_rules_remain_intact():
++    view = memoryview(array("H", [7, 8]))
++    assert Response(view, headers={"Content-Length": "99"}).headers["content-length"] == "99"
++    for status in (101, 204, 304):
++        assert "content-length" not in Response(view, status_code=status).headers
++    assert Response(memoryview(b"")).headers["content-length"] == "0"
++
++
++def test_readonly_views_and_noncontiguous_async_stream():
++    async def chunks():
++        yield memoryview(b"abcd").toreadonly()[::2]
++        yield memoryview(array("I", [1, 2, 3]))[::2]
++    messages = capture_stream(chunks())
++    actual = [m["body"] for m in messages if m["type"] == "http.response.body"]
++    assert actual == [b"ac", memoryview(array("I", [1, 3])).tobytes(), b""]

@@ -1,0 +1,1 @@
+One more thing: Per-call priorities must not mutate global backend configuration or enable unlisted fallbacks. Preserve scalar backend selection, graph conversion, backend-only metadata and all original dispatch tests.

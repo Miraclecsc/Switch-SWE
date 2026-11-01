@@ -1,0 +1,3 @@
+And here, is the idea to add it for just these arrays or all EAs? I think @rhshadrach would want all EAs
+
+Extend the in-place ExtensionArray.sort API with keyword-only key=None, including that type and ArrowStringArray. A supplied vectorized callable receives an independent copy of the array and returns one-dimensional array-like sort keys of the same length. Sort the original values by these keys while preserving the original array dtype and returning None. Key types can differ from the value dtype.

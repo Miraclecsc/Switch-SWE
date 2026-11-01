@@ -1,0 +1,1 @@
+And here, That is disappointing! I'm afraid the jump from 3.8 to 3.10 is too large, and we like to support Python's for a while after their EOL. It's a nice feature, and I'd hate to have to wait. How about we make it conditional on Python 3.10 or above?

@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Allow custom headers in multipart/form-data requests Multipart requests allow HTTP headers to be set on individual form items. This pull request allows multipart file uploads to specify those additional headers on a per-file basis. Similar pull request against the Starlette project: **Edit by @tomchristie**: Updated description

@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Fix `sphinx.writers.text.TextWrapper` For now this is a temporary fix because we're still unable to correctly process combining characters (as the tests show). But fixing those cases is much more complex and Consider we should rather do something in `TextWrapper` itself to determine what counts as a "breakable" character. Closes #13741

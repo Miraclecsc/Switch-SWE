@@ -1,0 +1,7 @@
+I have this in /work/w04: Pass along the received item to the next receiver if the task was cancelled
+
+Fixes #146.
+
+Pass along the received item to the next receiver if the task was cancelled Fixes #146.
+
+> At a quick skim I didn't notice any reasons why this can't work. It does seem more complicated than the "un-cancel" approach discussed in the issue thread though, and also less correct (because of the thing where this allows the buffer to overflow). The "un-cancel" approach is more accurately an "ignore cancel" approach though, isn't it? At least, that would be a fair way to describe the version I posted, it just continues past the cancellation — so I don't think it is fully correct either.

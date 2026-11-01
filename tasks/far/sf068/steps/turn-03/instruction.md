@@ -1,0 +1,1 @@
+Please check this too: Extend spring_layout with keyword-only auto_threshold=500. For method='auto', choose force when len(G) is below this positive integer cutoff and energy at or above it. This lets callers control algorithm selection without changing the explicit method API.

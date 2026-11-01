@@ -1,0 +1,1 @@
+For the checkout at /work/w04, Drop dependency on attrs - replace `tags.Tag` with a custom implementation instead of using `@attr.s` - add a sanity check for `__hash__()` - drop attrs from `setup.py` This fixes #178

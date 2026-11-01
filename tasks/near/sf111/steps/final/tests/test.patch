@@ -1,0 +1,295 @@
+diff --git a/tests/test_asgi.py b/tests/test_asgi.py
+index 2971506097..ccc5526678 100644
+--- a/tests/test_asgi.py
++++ b/tests/test_asgi.py
+@@ -92,7 +92,8 @@ async def test_asgi_transport_no_body():
+ 
+ @pytest.mark.anyio
+ async def test_asgi():
+-    async with httpx.AsyncClient(app=hello_world) as client:
++    transport = httpx.ASGITransport(app=hello_world)
++    async with httpx.AsyncClient(transport=transport) as client:
+         response = await client.get("http://www.example.org/")
+ 
+     assert response.status_code == 200
+@@ -101,7 +102,8 @@ async def test_asgi():
+ 
+ @pytest.mark.anyio
+ async def test_asgi_urlencoded_path():
+-    async with httpx.AsyncClient(app=echo_path) as client:
++    transport = httpx.ASGITransport(app=echo_path)
++    async with httpx.AsyncClient(transport=transport) as client:
+         url = httpx.URL("http://www.example.org/").copy_with(path="/user@example.org")
+         response = await client.get(url)
+ 
+@@ -111,7 +113,8 @@ async def test_asgi_urlencoded_path():
+ 
+ @pytest.mark.anyio
+ async def test_asgi_raw_path():
+-    async with httpx.AsyncClient(app=echo_raw_path) as client:
++    transport = httpx.ASGITransport(app=echo_raw_path)
++    async with httpx.AsyncClient(transport=transport) as client:
+         url = httpx.URL("http://www.example.org/").copy_with(path="/user@example.org")
+         response = await client.get(url)
+ 
+@@ -124,7 +127,8 @@ async def test_asgi_raw_path_should_not_include_querystring_portion():
+     """
+     See https://github.com/encode/httpx/issues/2810
+     """
+-    async with httpx.AsyncClient(app=echo_raw_path) as client:
++    transport = httpx.ASGITransport(app=echo_raw_path)
++    async with httpx.AsyncClient(transport=transport) as client:
+         url = httpx.URL("http://www.example.org/path?query")
+         response = await client.get(url)
+ 
+@@ -134,7 +138,8 @@ async def test_asgi_raw_path_should_not_include_querystring_portion():
+ 
+ @pytest.mark.anyio
+ async def test_asgi_upload():
+-    async with httpx.AsyncClient(app=echo_body) as client:
++    transport = httpx.ASGITransport(app=echo_body)
++    async with httpx.AsyncClient(transport=transport) as client:
+         response = await client.post("http://www.example.org/", content=b"example")
+ 
+     assert response.status_code == 200
+@@ -143,7 +148,8 @@ async def test_asgi_upload():
+ 
+ @pytest.mark.anyio
+ async def test_asgi_headers():
+-    async with httpx.AsyncClient(app=echo_headers) as client:
++    transport = httpx.ASGITransport(app=echo_headers)
++    async with httpx.AsyncClient(transport=transport) as client:
+         response = await client.get("http://www.example.org/")
+ 
+     assert response.status_code == 200
+@@ -160,14 +166,16 @@ async def test_asgi_headers():
+ 
+ @pytest.mark.anyio
+ async def test_asgi_exc():
+-    async with httpx.AsyncClient(app=raise_exc) as client:
++    transport = httpx.ASGITransport(app=raise_exc)
++    async with httpx.AsyncClient(transport=transport) as client:
+         with pytest.raises(RuntimeError):
+             await client.get("http://www.example.org/")
+ 
+ 
+ @pytest.mark.anyio
+ async def test_asgi_exc_after_response():
+-    async with httpx.AsyncClient(app=raise_exc_after_response) as client:
++    transport = httpx.ASGITransport(app=raise_exc_after_response)
++    async with httpx.AsyncClient(transport=transport) as client:
+         with pytest.raises(RuntimeError):
+             await client.get("http://www.example.org/")
+ 
+@@ -199,7 +207,8 @@ async def read_body(scope, receive, send):
+         message = await receive()
+         disconnect = message.get("type") == "http.disconnect"
+ 
+-    async with httpx.AsyncClient(app=read_body) as client:
++    transport = httpx.ASGITransport(app=read_body)
++    async with httpx.AsyncClient(transport=transport) as client:
+         response = await client.post("http://www.example.org/", content=b"example")
+ 
+     assert response.status_code == 200
+@@ -213,3 +222,13 @@ async def test_asgi_exc_no_raise():
+         response = await client.get("http://www.example.org/")
+ 
+         assert response.status_code == 500
++
++
++@pytest.mark.anyio
++async def test_deprecated_shortcut():
++    """
++    The `app=...` shortcut is now deprecated.
++    Use the explicit transport style instead.
++    """
++    with pytest.warns(DeprecationWarning):
++        httpx.AsyncClient(app=hello_world)
+diff --git a/tests/test_wsgi.py b/tests/test_wsgi.py
+index 3565a48c92..0134bee854 100644
+--- a/tests/test_wsgi.py
++++ b/tests/test_wsgi.py
+@@ -92,41 +92,47 @@ def log_to_wsgi_log_buffer(environ, start_response):
+ 
+ 
+ def test_wsgi():
+-    client = httpx.Client(app=application_factory([b"Hello, World!"]))
++    transport = httpx.WSGITransport(app=application_factory([b"Hello, World!"]))
++    client = httpx.Client(transport=transport)
+     response = client.get("http://www.example.org/")
+     assert response.status_code == 200
+     assert response.text == "Hello, World!"
+ 
+ 
+ def test_wsgi_upload():
+-    client = httpx.Client(app=echo_body)
++    transport = httpx.WSGITransport(app=echo_body)
++    client = httpx.Client(transport=transport)
+     response = client.post("http://www.example.org/", content=b"example")
+     assert response.status_code == 200
+     assert response.text == "example"
+ 
+ 
+ def test_wsgi_upload_with_response_stream():
+-    client = httpx.Client(app=echo_body_with_response_stream)
++    transport = httpx.WSGITransport(app=echo_body_with_response_stream)
++    client = httpx.Client(transport=transport)
+     response = client.post("http://www.example.org/", content=b"example")
+     assert response.status_code == 200
+     assert response.text == "example"
+ 
+ 
+ def test_wsgi_exc():
+-    client = httpx.Client(app=raise_exc)
++    transport = httpx.WSGITransport(app=raise_exc)
++    client = httpx.Client(transport=transport)
+     with pytest.raises(ValueError):
+         client.get("http://www.example.org/")
+ 
+ 
+ def test_wsgi_http_error():
+-    client = httpx.Client(app=partial(raise_exc, exc=RuntimeError))
++    transport = httpx.WSGITransport(app=partial(raise_exc, exc=RuntimeError))
++    client = httpx.Client(transport=transport)
+     with pytest.raises(RuntimeError):
+         client.get("http://www.example.org/")
+ 
+ 
+ def test_wsgi_generator():
+     output = [b"", b"", b"Some content", b" and more content"]
+-    client = httpx.Client(app=application_factory(output))
++    transport = httpx.WSGITransport(app=application_factory(output))
++    client = httpx.Client(transport=transport)
+     response = client.get("http://www.example.org/")
+     assert response.status_code == 200
+     assert response.text == "Some content and more content"
+@@ -134,7 +140,8 @@ def test_wsgi_generator():
+ 
+ def test_wsgi_generator_empty():
+     output = [b"", b"", b"", b""]
+-    client = httpx.Client(app=application_factory(output))
++    transport = httpx.WSGITransport(app=application_factory(output))
++    client = httpx.Client(transport=transport)
+     response = client.get("http://www.example.org/")
+     assert response.status_code == 200
+     assert response.text == ""
+@@ -170,7 +177,8 @@ def app(environ, start_response):
+         server_port = environ["SERVER_PORT"]
+         return hello_world_app(environ, start_response)
+ 
+-    client = httpx.Client(app=app)
++    transport = httpx.WSGITransport(app=app)
++    client = httpx.Client(transport=transport)
+     response = client.get(url)
+     assert response.status_code == 200
+     assert response.text == "Hello, World!"
+@@ -186,9 +194,19 @@ def app(environ, start_response):
+         start_response("200 OK", [("Content-Type", "text/plain")])
+         return [b"success"]
+ 
+-    with httpx.Client(app=app, base_url="http://testserver") as client:
++    transport = httpx.WSGITransport(app=app)
++    with httpx.Client(transport=transport, base_url="http://testserver") as client:
+         response = client.get("/")
+ 
+     assert response.status_code == 200
+     assert response.text == "success"
+     assert server_protocol == "HTTP/1.1"
++
++
++def test_deprecated_shortcut():
++    """
++    The `app=...` shortcut is now deprecated.
++    Use the explicit transport style instead.
++    """
++    with pytest.warns(DeprecationWarning):
++        httpx.Client(app=application_factory([b"Hello, World!"]))
+diff --git a/tests/client/test_staged_contract.py b/tests/client/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/client/test_staged_contract.py
+@@ -0,0 +1,84 @@
++import asyncio
++import warnings
++from pathlib import Path
++import pytest
++import httpx
++
++
++class App:
++    def __bool__(self):
++        raise AssertionError("application truth value must not be inspected")
++    def __call__(self, environ, start_response):
++        start_response("200 OK", [("Content-Type", "text/plain")])
++        return [b"ok"]
++
++
++async def asgi_app(scope, receive, send):
++    await send({"type": "http.response.start", "status": 200, "headers": []})
++    await send({"type": "http.response.body", "body": b"ok"})
++
++
++class AsyncApp:
++    def __bool__(self):
++        raise AssertionError("application truth value must not be inspected")
++    async def __call__(self, scope, receive, send):
++        await asgi_app(scope, receive, send)
++
++
++@pytest.mark.parametrize("client_type", [httpx.Client, httpx.AsyncClient])
++def test_application_presence_without_truth_testing(client_type):
++    app = AsyncApp() if client_type is httpx.AsyncClient else App()
++    with warnings.catch_warnings(record=True) as seen:
++        warnings.simplefilter("always")
++        client = client_type(app=app, trust_env=False)
++    if isinstance(client, httpx.AsyncClient):
++        async def use():
++            try:
++                assert (await client.get("http://test/")).text == "ok"
++            finally:
++                await client.aclose()
++        asyncio.run(use())
++    else:
++        assert client.get("http://test/").text == "ok"
++        client.close()
++    app_warnings = [w for w in seen if issubclass(w.category, DeprecationWarning) and "app" in str(w.message)]
++    assert len(app_warnings) == 1
++
++
++@pytest.mark.parametrize("client_type", [httpx.Client, httpx.AsyncClient])
++def test_warning_points_to_call_site(client_type):
++    with warnings.catch_warnings(record=True) as seen:
++        warnings.simplefilter("always")
++        client = client_type(app=asgi_app, trust_env=False)
++    if isinstance(client, httpx.AsyncClient):
++        asyncio.run(client.aclose())
++    else:
++        client.close()
++    app_warnings = [w for w in seen if issubclass(w.category, DeprecationWarning) and "app" in str(w.message)]
++    assert len(app_warnings) == 1
++    assert Path(app_warnings[0].filename).resolve() == Path(__file__).resolve()
++    assert "Transport" in str(app_warnings[0].message)
++
++
++def test_async_app_ignores_ambient_proxy_routes(monkeypatch):
++    monkeypatch.setenv("HTTP_PROXY", "http://unused.invalid:8080")
++    monkeypatch.setenv("HTTPS_PROXY", "http://unused.invalid:8080")
++    monkeypatch.setenv("ALL_PROXY", "http://unused.invalid:8080")
++    monkeypatch.setenv("NO_PROXY", "")
++    def forbidden(*args, **kwargs):
++        raise AssertionError("in-process app must not create a proxy transport")
++    monkeypatch.setattr(httpx.AsyncClient, "_init_proxy_transport", forbidden)
++    async def run():
++        with warnings.catch_warnings():
++            warnings.simplefilter("ignore", DeprecationWarning)
++            async with httpx.AsyncClient(app=asgi_app, base_url="http://test", trust_env=True) as client:
++                assert (await client.get("/")).text == "ok"
++    asyncio.run(run())
++
++
++def test_none_app_is_not_deprecated():
++    with warnings.catch_warnings(record=True) as seen:
++        warnings.simplefilter("always")
++        with httpx.Client(app=None, transport=httpx.MockTransport(lambda request: httpx.Response(200)), trust_env=False):
++            pass
++    assert not [w for w in seen if "app" in str(w.message) and issubclass(w.category, DeprecationWarning)]

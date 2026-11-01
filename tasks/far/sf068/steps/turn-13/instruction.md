@@ -1,0 +1,1 @@
+Also, The next two round-trip test cases are for success scenario to validate the type matches after GEXF conversion and no exception is thrown. I think these are still relevant.

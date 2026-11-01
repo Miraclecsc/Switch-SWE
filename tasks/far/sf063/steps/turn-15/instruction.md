@@ -1,0 +1,1 @@
+Please check this too: is the removal of `background` here intentional? We use `background` for both actual background tasks but also to detect when a streaming request was cancelled by the client (`request.is_disconnected` had some minor overhead).

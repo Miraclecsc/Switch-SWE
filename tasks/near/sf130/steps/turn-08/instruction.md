@@ -1,0 +1,1 @@
+I have this in /work/w01: Add a csp_nonce_attr template tag that renders a nonce attribute when csp_nonce is present in the template context and renders nothing otherwise.

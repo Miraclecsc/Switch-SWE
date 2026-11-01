@@ -1,0 +1,124 @@
+diff --git a/tests/test_formparsers.py b/tests/test_formparsers.py
+index 58f6a0c..f12b43b 100644
+--- a/tests/test_formparsers.py
++++ b/tests/test_formparsers.py
+@@ -801,3 +801,40 @@ def test_max_part_size_exceeds_custom_limit(
+         response = client.post("/", content=multipart_data, headers=headers)
+         assert response.status_code == 400
+         assert response.text == "Part exceeded maximum size of 10KB."
++
++
++def test_multipart_closes_tempfile_on_oserror(
++    test_client_factory: TestClientFactory,
++) -> None:
++    """Temporary files must be closed when an OSError (e.g. disk full) is raised during parsing."""
++    close_called = False
++
++    class FailingSpooledTemporaryFile(SpooledTemporaryFile[bytes]):
++        def write(self, s: Any) -> int:
++            raise OSError("disk full")
++
++        def close(self) -> None:
++            nonlocal close_called
++            close_called = True
++            super().close()
++
++    async def error_app(scope: Scope, receive: Receive, send: Send) -> None:
++        request = Request(scope, receive)
++        with mock.patch("starlette.formparsers.SpooledTemporaryFile", FailingSpooledTemporaryFile):
++            await request.form()
++
++    client = test_client_factory(error_app)
++    boundary = "a7f7ac8d4e2e437c877bb7b8d7cc549c"
++    content = (
++        f"--{boundary}\r\n"
++        f'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n'
++        f"Content-Type: text/plain\r\n\r\n"
++        f"file content\r\n"
++        f"--{boundary}--\r\n"
++    ).encode()
++    headers = {"Content-Type": f"multipart/form-data; boundary={boundary}"}
++
++    with pytest.raises(OSError, match="disk full"):
++        client.post("/", content=content, headers=headers)
++
++    assert close_called
+diff --git a/tests/test_sf131_cleanup.py b/tests/test_sf131_cleanup.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf131_cleanup.py
+@@ -0,0 +1,74 @@
++import asyncio
++import tempfile
++from unittest.mock import patch
++import pytest
++from starlette.formparsers import MultiPartParser
++from starlette.datastructures import Headers
++
++BODY=(b'--bound\r\nContent-Disposition: form-data; name="a"; filename="a.txt"\r\n\r\none\r\n'
++      b'--bound\r\nContent-Disposition: form-data; name="b"; filename="b.txt"\r\n\r\ntwo\r\n--bound--\r\n')
++HEADERS=Headers({"content-type":"multipart/form-data; boundary=bound"})
++
++def file_factory(files, fail_close):
++    class Tracked(tempfile.SpooledTemporaryFile):
++        def __init__(self,*args,**kwargs):
++            super().__init__(*args,**kwargs);self.calls=0;files.append(self)
++        def close(self):
++            self.calls+=1
++            super().close()
++            if fail_close and self is files[0]:raise OSError("close failure")
++    return Tracked
++
++@pytest.mark.parametrize("error_type", [OSError,ValueError])
++@pytest.mark.parametrize("fail_close", [False,True])
++def test_stream_failure_closes_all_preserving_original(error_type,fail_close):
++    files=[];primary=error_type("stream failure")
++    async def stream():
++        yield BODY
++        raise primary
++    async def run():
++        with patch("starlette.formparsers.SpooledTemporaryFile",file_factory(files,fail_close)):
++            with pytest.raises(error_type) as caught:await MultiPartParser(HEADERS,stream()).parse()
++        assert caught.value is primary
++        assert len(files)==2 and all(f.closed for f in files)
++        assert [f.calls for f in files]==[1,1]
++    asyncio.run(run())
++
++def test_task_cancellation_closes_all():
++    files=[]
++    async def run():
++        ready=asyncio.Event()
++        async def stream():
++            yield BODY
++            ready.set()
++            await asyncio.Event().wait()
++        with patch("starlette.formparsers.SpooledTemporaryFile",file_factory(files,True)):
++            task=asyncio.create_task(MultiPartParser(HEADERS,stream()).parse())
++            await ready.wait();task.cancel()
++            with pytest.raises(asyncio.CancelledError):await task
++        assert len(files)==2 and all(f.closed for f in files)
++        assert [f.calls for f in files]==[1,1]
++    asyncio.run(run())
++
++def test_finalize_exception_and_cleanup_failure():
++    import starlette.formparsers as fp
++    files=[];primary=RuntimeError("finalize failure")
++    async def stream():yield BODY
++    async def run():
++        with patch("starlette.formparsers.SpooledTemporaryFile",file_factory(files,True)), patch.object(fp.multipart.MultipartParser,"finalize",side_effect=primary):
++            with pytest.raises(RuntimeError) as caught:await MultiPartParser(HEADERS,stream()).parse()
++        assert caught.value is primary
++        assert len(files)==2 and all(f.closed for f in files)
++    asyncio.run(run())
++
++def test_success_transfers_ownership():
++    files=[]
++    async def stream():yield BODY
++    async def run():
++        with patch("starlette.formparsers.SpooledTemporaryFile",file_factory(files,False)):
++            form=await MultiPartParser(HEADERS,stream()).parse()
++        assert not any(f.closed for f in files)
++        assert await form["a"].read()==b"one" and await form["b"].read()==b"two"
++        await form.close()
++        assert all(f.closed for f in files)
++    asyncio.run(run())

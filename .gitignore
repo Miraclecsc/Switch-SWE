@@ -6,6 +6,7 @@ __pycache__/
 node_modules/
 dist/
 runs/
+jobs/
 .env
 .env.*
 !.env.example

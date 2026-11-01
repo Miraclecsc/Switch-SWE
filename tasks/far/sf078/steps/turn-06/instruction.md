@@ -1,0 +1,1 @@
+One more thing: I *think* I prefer the ``_version`` attribute with ``@property`` wrapping for one major reason, it makes the ``Version`` instance functionally immutable in it's public API. Another option could be to utilize attrs to handle that, but it would be a bit nonstandard use and would require a custom ``__init__`` method versus what attrs normally provides.

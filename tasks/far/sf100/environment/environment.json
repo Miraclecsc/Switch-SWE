@@ -1,0 +1,107 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+  ],
+  "case_id": "sf100_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c",
+      "python": "3.12.12",
+      "requirements": "requirements/959dd1f1db35c157-3.12.12-7f10686c.txt",
+      "source": "dependency-source/959dd1f1db35c157-3.12.12-7f10686c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "c1894a40f934d3afd30a74dedd17cf594256eb64",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "7d61bf9c6430ea84f3fcb077178383f30f3485f3",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "c42397116c0d80fb7ff16f571801f50a0bc89d20",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "243a72a01bcb064f893da009a6aafbf5e231457a",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "b04c196674465ff717dfb4c7b25a735991f7f250",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w04"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+index fbb3254..efa23d3 100644
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -8,6 +8,8 @@ Unreleased
+ -   Fix reconciliation of `default`, `flag_value` and `type` parameters for
+     flag options, as well as parsing and normalization of environment variables.
+     :issue:`2952` :pr:`2956`
++-   Fix completion for the Z shell (``zsh``) for completion items containing
++    colons. :issue:`2703` :pr:`2846`
+ 
+ Version 8.2.1
+ -------------
+diff --git a/src/click/shell_completion.py b/src/click/shell_completion.py
+index 6c39d5e..557cd54 100644
+--- a/src/click/shell_completion.py
++++ b/src/click/shell_completion.py
+@@ -124,6 +124,12 @@ _SOURCE_BASH = """\
+ %(complete_func)s_setup;
+ """
+ 
++# See ZshComplete.format_completion below, and issue #2703, before
++# changing this script.
++#
++# (TL;DR: _describe is picky about the format, but this Zsh script snippet
++# is already widely deployed.  So freeze this script, and use clever-ish
++# handling of colons in ZshComplet.format_completion.)
+ _SOURCE_ZSH = """\
+ #compdef %(prog_name)s
+ 
+@@ -373,7 +379,15 @@ class ZshComplete(ShellComplete):
+         return args, incomplete
+ 
+     def format_completion(self, item: CompletionItem) -> str:
+-        return f"{item.type}\n{item.value}\n{item.help if item.help else '_'}"
++        if any("\n" in field or "\r" in field for field in (item.type, item.value)):
++            raise ValueError("Zsh completion type and value must fit one protocol line")
++        help_ = re.sub(r"[\r\n]+", " ", item.help) if item.help else "_"
++        # _describe consumes backslash quoting while compadd consumes raw values.
++        value = (
++            item.value.replace("\\", "\\\\").replace(":", r"\:")
++            if help_ != "_" else item.value
++        )
++        return f"{item.type}\n{value}\n{help_}"
+ 
+ 
+ class FishComplete(ShellComplete):

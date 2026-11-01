@@ -1,0 +1,1 @@
+And here, Hm. Earlier you checked `ExpectedExceptionGroup(ValueError)` then checked `excinfo.value.exceptions[0] is exc` but wouldn't that be `ExpectedExceptionGroup(exc)` to be similar to this? Probably not because `is` vs `==`? (I am being very confused right now :( )

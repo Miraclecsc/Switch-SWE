@@ -1,0 +1,1 @@
+Please check this too: Okay, this makes even more sense: * Use `read(CHUNK_SIZE)` directly when available. * Otherwise use the iterator interface.

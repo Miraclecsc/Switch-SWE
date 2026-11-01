@@ -1,0 +1,1 @@
+And here, note: if having `start` internally depend on `strict_exception_groups=False` is unwanted, an alternative patch could be <details> <summary>click to expand</summary> ```diff

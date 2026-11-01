@@ -1,0 +1,134 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index bff403b..1b836f3 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -61,6 +61,9 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ - Changed ``CancelScope.deadline`` to be writable
+ - ``Lock`` and ``Condition`` can now only be released by the task that acquired them. This behavior
+   is now consistent on all backends whereas previously only Trio enforced this.
++- Changed the asyncio test runner to capture unhandled exceptions from asynchronous callbacks and
++  unbound native tasks which are then raised after the test function (or async fixture setup or
++  teardown) completes
+ 
+ **2.2.0**
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index b730f02..1246eed 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -837,7 +837,9 @@ class SocketStream(abc.SocketStream):
+             try:
+                 self._transport.write(item)
+             except RuntimeError as exc:
+-                if self._closed:
++                if self._protocol.write_future.exception():
++                    await self._protocol.write_future
++                elif self._closed:
+                     raise ClosedResourceError from None
+                 elif self._transport.is_closing():
+                     raise BrokenResourceError from exc
+@@ -1021,6 +1023,9 @@ class UNIXSocketStream(abc.SocketStream):
+ 
+ 
+ class TCPSocketListener(abc.SocketListener):
++    _accept_scope: Optional[CancelScope] = None
++    _closed = False
++
+     def __init__(self, raw_socket: socket.SocketType):
+         self.__raw_socket = raw_socket
+         self._loop = cast(asyncio.BaseEventLoop, get_running_loop())
+@@ -1031,30 +1036,40 @@ class TCPSocketListener(abc.SocketListener):
+         return self.__raw_socket
+ 
+     async def accept(self) -> abc.SocketStream:
++        if self._closed:
++            raise ClosedResourceError
++
+         with self._accept_guard:
+             await checkpoint()
+-            try:
+-                client_sock, _addr = await self._loop.sock_accept(self._raw_socket)
+-            except asyncio.CancelledError:
+-                # Workaround for https://bugs.python.org/issue41317
++            with CancelScope() as self._accept_scope:
+                 try:
+-                    self._loop.remove_reader(self._raw_socket)
+-                except (ValueError, NotImplementedError):
+-                    if self._raw_socket.fileno() == -1:
++                    client_sock, _addr = await self._loop.sock_accept(self._raw_socket)
++                except asyncio.CancelledError:
++                    # Workaround for https://bugs.python.org/issue41317
++                    try:
++                        self._loop.remove_reader(self._raw_socket)
++                    except (ValueError, NotImplementedError):
++                        pass
++
++                    if self._closed:
+                         raise ClosedResourceError from None
+ 
+-                raise
++                    raise
++                finally:
++                    self._accept_scope = None
+ 
+         client_sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+         transport, protocol = await self._loop.connect_accepted_socket(StreamProtocol, client_sock)
+         return SocketStream(cast(asyncio.Transport, transport), cast(StreamProtocol, protocol))
+ 
+     async def aclose(self) -> None:
+-        # Needed on Windows + Python < 3.8
+-        try:
+-            self._loop.remove_reader(self._raw_socket)
+-        except NotImplementedError:
+-            pass
++        if self._closed:
++            return
++
++        self._closed = True
++        if self._accept_scope:
++            self._accept_scope.cancel()
++            await sleep(0)
+ 
+         self._raw_socket.close()
+ 
+@@ -1432,7 +1447,8 @@ class _SignalReceiver:
+ 
+     def _deliver(self, signum: int) -> None:
+         self._signal_queue.append(signum)
+-        self._future.set_result(None)
++        if not self._future.done():
++            self._future.set_result(None)
+ 
+     def __aiter__(self):
+         return self
+@@ -1561,4 +1577,29 @@ class TestRunner(abc.TestRunner):
+             self._loop.close()
+ 
+     def call(self, func: Callable[..., Awaitable], *args, **kwargs):
+-        return self._loop.run_until_complete(func(*args, **kwargs))
++        def exception_handler(loop: asyncio.AbstractEventLoop, context: Dict[str, Any]) -> None:
++            exception = context.get('exception')
++            if isinstance(exception, Exception):
++                exceptions.append(exception)
++            elif previous_handler is not None:
++                previous_handler(loop, context)
++            else:
++                loop.default_exception_handler(context)
++
++        exceptions: List[Exception] = []
++        previous_handler = self._loop.get_exception_handler()
++        self._loop.set_exception_handler(exception_handler)
++        try:
++            retval = self._loop.run_until_complete(func(*args, **kwargs))
++        except Exception as exc:
++            retval = None
++            exceptions.append(exc)
++        finally:
++            self._loop.set_exception_handler(previous_handler)
++
++        if len(exceptions) == 1:
++            raise exceptions[0]
++        elif exceptions:
++            raise ExceptionGroup(exceptions)
++
++        return retval

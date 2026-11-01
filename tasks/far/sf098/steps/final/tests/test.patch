@@ -1,0 +1,61 @@
+diff --git a/sympy/geometry/tests/test_plane.py b/sympy/geometry/tests/test_plane.py
+index 77165bbd6f16..292c0ee77329 100644
+--- a/sympy/geometry/tests/test_plane.py
++++ b/sympy/geometry/tests/test_plane.py
+@@ -272,3 +272,10 @@ def test_parameter_value():
+     raises(ValueError, lambda: p.parameter_value((1, 0, 0), t))
+     raises(ValueError, lambda: p.parameter_value(Line(Point(0, 0), Point(1, 1)), t))
+     raises(ValueError, lambda: p.parameter_value((0, -3, 2), t, 1))
++
++
++def test_plane_equation_symbol_clash():
++    x, y, z, u, v, w = symbols('x y z u v w')
++
++    p = Plane(Point3D(x, y, z), normal_vector=(u, v, w))
++    raises(ValueError, lambda: p.equation(x, y, z))
+diff --git a/sympy/geometry/tests/test_sf098_extension.py b/sympy/geometry/tests/test_sf098_extension.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/geometry/tests/test_sf098_extension.py
+@@ -0,0 +1,41 @@
++import pytest
++from sympy import Symbol, symbols, Plane, Point3D, simplify
++
++def test_safe_symbols_preserve_parameters():
++    x,y,z,u,v,w=symbols("x y z u v w")
++    plane=Plane(Point3D(x,y,z),normal_vector=(u,v,w))
++    before=plane.free_symbols
++    equation,coords=plane.equation_with_symbols()
++    assert len({s.name for s in coords})==3
++    assert not ({s.name for s in coords} & {s.name for s in before})
++    assert all(s.is_real for s in coords)
++    assert simplify(equation.subs(dict(zip(coords,(x,y,z))))) == 0
++    X,Y,Z=coords
++    assert simplify(equation - (u*(X-x)+v*(Y-y)+w*(Z-z))) == 0
++    assert plane.free_symbols == before
++
++def test_explicit_binding_reserves_names():
++    plane=Plane(Point3D(1,2,3),normal_vector=(1,2,3))
++    explicit=Symbol("x",positive=True)
++    equation,coords=plane.equation_with_symbols(y=explicit,z="height")
++    assert coords[1] is explicit and coords[2].name == "height"
++    assert coords[0].name not in {"x","height"}
++    assert simplify(equation.subs(dict(zip(coords,(1,2,3))))) == 0
++
++def test_clash_by_name_with_different_assumptions():
++    parameter=Symbol("q",positive=True)
++    plane=Plane(Point3D(parameter,0,0),normal_vector=(1,1,1))
++    with pytest.raises(ValueError): plane.equation_with_symbols(Symbol("q",real=True))
++    with pytest.raises(ValueError): plane.equation_with_symbols("u",Symbol("u",positive=True))
++    with pytest.raises(TypeError): plane.equation_with_symbols(Symbol("t")+1)
++
++def test_default_names_and_repeatability():
++    plane=Plane(Point3D(0,0,0),normal_vector=(1,2,3))
++    first=plane.equation_with_symbols()
++    assert tuple(s.name for s in first[1]) == ("x","y","z")
++    assert first == plane.equation_with_symbols()
++
++def test_original_clash_still_rejected():
++    x,y,z=symbols("x y z")
++    plane=Plane(Point3D(x,y,z),normal_vector=(1,1,1))
++    with pytest.raises(ValueError):plane.equation(x,y,z)

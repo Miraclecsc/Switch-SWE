@@ -1,0 +1,1 @@
+One more thing: Did you give some thought to Simon's suggestion to use `.formfield()`. I expect some behavior differences, e.g.: look into this and add a test that will fail if the model field is used instead of the form field.

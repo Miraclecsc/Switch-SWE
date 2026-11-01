@@ -1,0 +1,1 @@
+Also, I think I covered most of the Path-returning methods now. I didn’t add more tests since I think it would basically repeat the same subclass-preservation check for each path returning method and be redundant.

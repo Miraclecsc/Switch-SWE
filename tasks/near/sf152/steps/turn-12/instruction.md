@@ -1,0 +1,1 @@
+And here, Asyncio raises a `NotImplementedError`. I wonder if we need a better error message. Maybe we'll cross that bridge when we come to it? It may be that nobody even cares :)

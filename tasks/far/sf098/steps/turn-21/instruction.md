@@ -1,0 +1,1 @@
+Also, You should probably set the`testing_mode` parameter of `from_encoded_cnf` to True for all these tests to reduce nondeterminism.

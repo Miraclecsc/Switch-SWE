@@ -1,0 +1,1 @@
+Please check this too: Apply ANSI-aware length handling in the shared wrapping path so wrap_text and HelpFormatter text, usage, definition-list, and paragraph output wrap consistently.

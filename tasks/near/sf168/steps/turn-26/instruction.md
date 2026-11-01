@@ -1,0 +1,1 @@
+One more thing: I'm not sure I agree that fewer than three vertices (side note: does NetworkX typically use nodes?) makes for an "instance without a feasible solution." I am open to being convinced though.

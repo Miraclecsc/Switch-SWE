@@ -1,0 +1,3 @@
+And here, Actually it should be opposite and `trace_default_resolver` call should only happen if `trace_default_resolver == False`.
+
+With default-resolver tracing enabled, distinguish actual GraphQL introspection from response aliases: aliased introspection queries must stay excluded, while an ordinary field aliased to a name such as __schema must still be traced. Preserve the existing introspection exclusions and all previous requirements.

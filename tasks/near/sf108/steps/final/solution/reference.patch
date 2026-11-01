@@ -1,0 +1,172 @@
+diff --git a/django/core/cache/backends/base.py b/django/core/cache/backends/base.py
+index f1b731aee1..70d260ab7b 100644
+--- a/django/core/cache/backends/base.py
++++ b/django/core/cache/backends/base.py
+@@ -1,9 +1,10 @@
++from inspect import isawaitable
+ "Base Cache class."
+ 
+ import time
+ import warnings
+ 
+-from asgiref.sync import sync_to_async
++from asgiref.sync import iscoroutinefunction, sync_to_async
+ 
+ from django.core.exceptions import ImproperlyConfigured
+ from django.utils.module_loading import import_string
+@@ -84,6 +85,15 @@ class BaseCache:
+         self.version = params.get("VERSION", 1)
+         self.key_func = get_key_func(params.get("KEY_FUNCTION"))
+ 
++    async def _async_backend_call(self, method, *args, **kwargs):
++        if iscoroutinefunction(method) or iscoroutinefunction(getattr(method, "__call__", None)):
++            result = method(*args, **kwargs)
++            return await result
++        result = await sync_to_async(method, thread_sensitive=True)(*args, **kwargs)
++        if isawaitable(result):
++            return await result
++        return result
++
+     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
+         """
+         Return the timeout value usable by this backend based upon the provided
+@@ -137,7 +147,7 @@ class BaseCache:
+         )
+ 
+     async def aadd(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+-        return await sync_to_async(self.add, thread_sensitive=True)(
++        return await self._async_backend_call(self.add, 
+             key, value, timeout, version
+         )
+ 
+@@ -149,7 +159,7 @@ class BaseCache:
+         raise NotImplementedError("subclasses of BaseCache must provide a get() method")
+ 
+     async def aget(self, key, default=None, version=None):
+-        return await sync_to_async(self.get, thread_sensitive=True)(
++        return await self._async_backend_call(self.get, 
+             key, default, version
+         )
+ 
+@@ -161,7 +171,7 @@ class BaseCache:
+         raise NotImplementedError("subclasses of BaseCache must provide a set() method")
+ 
+     async def aset(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+-        return await sync_to_async(self.set, thread_sensitive=True)(
++        return await self._async_backend_call(self.set, 
+             key, value, timeout, version
+         )
+ 
+@@ -175,7 +185,7 @@ class BaseCache:
+         )
+ 
+     async def atouch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+-        return await sync_to_async(self.touch, thread_sensitive=True)(
++        return await self._async_backend_call(self.touch, 
+             key, timeout, version
+         )
+ 
+@@ -189,7 +199,7 @@ class BaseCache:
+         )
+ 
+     async def adelete(self, key, version=None):
+-        return await sync_to_async(self.delete, thread_sensitive=True)(key, version)
++        return await self._async_backend_call(self.delete, key, version)
+ 
+     def get_many(self, keys, version=None):
+         """
+@@ -208,6 +218,10 @@ class BaseCache:
+ 
+     async def aget_many(self, keys, version=None):
+         """See get_many()."""
++        if getattr(self.get_many, "__func__", self.get_many) is not BaseCache.get_many:
++            return await self._async_backend_call(self.get_many, 
++                keys, version=version
++            )
+         d = {}
+         for k in keys:
+             val = await self.aget(k, self._missing_key, version=version)
+@@ -236,6 +250,10 @@ class BaseCache:
+ 
+     async def aget_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
+         """See get_or_set()."""
++        if getattr(self.get_or_set, "__func__", self.get_or_set) is not BaseCache.get_or_set:
++            return await self._async_backend_call(self.get_or_set, 
++                key, default, timeout=timeout, version=version
++            )
+         val = await self.aget(key, self._missing_key, version=version)
+         if val is self._missing_key:
+             if callable(default):
+@@ -255,6 +273,10 @@ class BaseCache:
+         )
+ 
+     async def ahas_key(self, key, version=None):
++        if getattr(self.has_key, "__func__", self.has_key) is not BaseCache.has_key:
++            return await self._async_backend_call(self.has_key, 
++                key, version=version
++            )
+         return (
+             await self.aget(key, self._missing_key, version=version)
+             is not self._missing_key
+@@ -274,6 +296,10 @@ class BaseCache:
+ 
+     async def aincr(self, key, delta=1, version=None):
+         """See incr()."""
++        if getattr(self.incr, "__func__", self.incr) is not BaseCache.incr:
++            return await self._async_backend_call(self.incr, 
++                key, delta=delta, version=version
++            )
+         value = await self.aget(key, self._missing_key, version=version)
+         if value is self._missing_key:
+             raise ValueError("Key '%s' not found" % key)
+@@ -317,6 +343,10 @@ class BaseCache:
+         return []
+ 
+     async def aset_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
++        if getattr(self.set_many, "__func__", self.set_many) is not BaseCache.set_many:
++            return await self._async_backend_call(self.set_many, 
++                data, timeout=timeout, version=version
++            )
+         for key, value in data.items():
+             await self.aset(key, value, timeout=timeout, version=version)
+         return []
+@@ -331,6 +361,10 @@ class BaseCache:
+             self.delete(key, version=version)
+ 
+     async def adelete_many(self, keys, version=None):
++        if getattr(self.delete_many, "__func__", self.delete_many) is not BaseCache.delete_many:
++            return await self._async_backend_call(self.delete_many, 
++                keys, version=version
++            )
+         for key in keys:
+             await self.adelete(key, version=version)
+ 
+@@ -341,7 +375,7 @@ class BaseCache:
+         )
+ 
+     async def aclear(self):
+-        return await sync_to_async(self.clear, thread_sensitive=True)()
++        return await self._async_backend_call(self.clear, )
+ 
+     def incr_version(self, key, delta=1, version=None):
+         """
+@@ -361,6 +395,10 @@ class BaseCache:
+ 
+     async def aincr_version(self, key, delta=1, version=None):
+         """See incr_version()."""
++        if getattr(self.incr_version, "__func__", self.incr_version) is not BaseCache.incr_version:
++            return await self._async_backend_call(self.incr_version, 
++                key, delta=delta, version=version
++            )
+         if version is None:
+             version = self.version
+ 
+@@ -387,7 +425,7 @@ class BaseCache:
+         pass
+ 
+     async def aclose(self, **kwargs):
+-        pass
++        return await self._async_backend_call(self.close, **kwargs)
+ 
+ 
+ memcached_error_chars_re = _lazy_re_compile(r"[\x00-\x20\x7f]")

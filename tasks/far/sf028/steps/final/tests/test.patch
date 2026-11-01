@@ -1,0 +1,108 @@
+diff --git a/sympy/printing/tests/test_pycode.py b/sympy/printing/tests/test_pycode.py
+index 53fa7d151c85..f5ed162c8b1c 100644
+--- a/sympy/printing/tests/test_pycode.py
++++ b/sympy/printing/tests/test_pycode.py
+@@ -512,3 +512,15 @@ def _print_Derivative_atan2(self, args, seq_orders):
+         assert '_print_Derivative(' in repr(e)
+     else:
+         assert False  # should have thrown
++
++def test_piecewise_assign_to():
++    x, a, b, c = symbols('x a b c')
++    pyprinter = PythonCodePrinter()
++    symprinter = SymPyPrinter()
++
++    expr = Piecewise((a + b, c), (0, True))
++    pyprint = pyprinter.doprint(expr, assign_to=x)
++    symprint = symprinter.doprint(expr, assign_to=x)
++
++    assert pyprint == 'x = ((a + b) if c else (0))'
++    assert symprint == 'x = ((a + b) if c else (0))'
+diff --git a/sympy/printing/tests/test_sf028_piecewise_loops.py b/sympy/printing/tests/test_sf028_piecewise_loops.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/printing/tests/test_sf028_piecewise_loops.py
+@@ -0,0 +1,83 @@
++import builtins
++import pytest
++from sympy import Add, Idx, IndexedBase, Piecewise, Symbol, symbols
++from sympy.printing.pycode import PythonCodePrinter, SymPyPrinter
++
++class Array:
++    def __init__(self, values=None):
++        self.values = dict(values or {})
++    def __getitem__(self, index):
++        return self.values[index]
++    def __setitem__(self, index, value):
++        self.values[index] = value
++
++class Forbidden:
++    def __getitem__(self, index):
++        raise AssertionError('inactive branch was read')
++
++def execute(printer, expr, target, **values):
++    code = printer({'contract': True}).doprint(expr, assign_to=target)
++    env = dict(values, builtins=builtins)
++    exec(compile(code, '<generated-piecewise>', 'exec'), env)
++    return env
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_free_index_offsets_and_lazy_branch(printer):
++    i = Idx('i', (1, 3))
++    a, b, out = map(IndexedBase, ('a', 'b', 'out'))
++    result = Array({0: 99, 4: 99})
++    execute(printer, Piecewise((a[i], i < 3), (7, True)), out[i],
++            a=Array({1: 11, 2: 12}), out=result)
++    assert result.values == {0: 99, 1: 11, 2: 12, 3: 7, 4: 99}
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_two_free_dimensions_and_broadcast(printer):
++    i, k = Idx('i', (0, 1)), Idx('k', (1, 2))
++    a, out = map(IndexedBase, ('a', 'out'))
++    result = Array()
++    execute(printer, Piecewise((a[i, k], i > 0), (5, True)), out[i, k],
++            a=Array({(1, 1): 8, (1, 2): 9}), out=result)
++    assert result.values == {(0, 1): 5, (0, 2): 5, (1, 1): 8, (1, 2): 9}
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_branch_local_reduction_and_offset(printer):
++    i, j = Idx('i', (0, 1)), Idx('j', (1, 3))
++    a, b, out = map(IndexedBase, ('a', 'b', 'out'))
++    result = Array()
++    expr = Piecewise((a[i,j]*b[j] + 10, i > 0), (-3, True))
++    execute(printer, expr, out[i], a=Array({(1,1):2,(1,2):3,(1,3):4}),
++            b=Array({1:5,2:6,3:7}),out=result)
++    assert result.values == {0:-3,1:66}
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_scalar_double_reduction_and_inactive_array(printer):
++    j, k = Idx('j', (0, 1)), Idx('k', (0, 1))
++    a, b, bad = map(IndexedBase, ('a','b','bad'))
++    flag, target = symbols('flag target')
++    expr = Piecewise((a[j,k]*b[j,k], flag > 0),(bad[j]*b[j],True))
++    env=execute(printer,expr,target,a=Array({(0,0):1,(0,1):2,(1,0):3,(1,1):4}),
++                b=Array({(0,0):2,(0,1):3,(1,0):4,(1,1):5}),bad=Forbidden(),flag=1)
++    assert env['target']==40
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_free_index_mismatch_rejected(printer):
++    i, j = Idx('i',2), Idx('j',2)
++    a,out=map(IndexedBase,('a','out'))
++    with pytest.raises(ValueError):
++        printer({'contract':True}).doprint(Piecewise((a[j],i>0),(0,True)),assign_to=out[i])
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_unbounded_indices_rejected(printer):
++    i=Idx('i'); a=IndexedBase('a',shape=(3,)); out=IndexedBase('out',shape=(3,)); flag=Symbol('flag')
++    with pytest.raises(ValueError):
++        printer({'contract':True}).doprint(Piecewise((a[i],flag>0),(0,True)),assign_to=out[i])
++
++@pytest.mark.parametrize('printer', [PythonCodePrinter, SymPyPrinter])
++def test_scalar_default_and_nested_lazy_regressions(printer):
++    x,y,target=symbols('x y target')
++    expr=Piecewise((Piecewise((1/x,x>0),(3,True)),y>0),(8,True))
++    env=dict(x=0,y=1)
++    exec(printer().doprint(expr,assign_to=target),env)
++    assert env['target']==3
++    exec(printer().doprint(Piecewise((1,x>0)),assign_to=target),env)
++    assert env['target'] is None

@@ -1,0 +1,1 @@
+One more thing: Not sure if we are on the same wavelength. When you call `mutate_reactive`, you are basically saying the value has changed. So I would expect everything to behave as if it has. All the watchers should fire, including any attached via `data_bind`. Other than that change, everything will behave as it always did.

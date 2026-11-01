@@ -1,0 +1,1 @@
+One more thing: > Does this not need to still support the old format so currently existing wheels can still work? I added tests to make sure that on that type the current SOABI and the future SOABI give the same value as they currently do. There should be no change here for CPython.

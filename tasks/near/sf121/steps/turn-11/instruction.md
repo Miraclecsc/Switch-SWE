@@ -1,0 +1,1 @@
+I have this in /work/w02: Define `trio.Event.__bool__()` to reduce bugs In this pull request, we implement `trio.Event.__bool__()` to reduce bugs. Closes #3238

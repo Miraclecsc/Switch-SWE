@@ -1,0 +1,1 @@
+I have this in /work/w04: I missed the `del` logic though, I think the reassignment needs to be done before it edit: no looks like its not needed

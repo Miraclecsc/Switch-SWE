@@ -1,0 +1,1 @@
+Also, I've pushed a fix to crawl the mro for `__getattr__` (via super). I've also switched to using `_make_method` as that seems to be the more consistent/preferred approach, though I needed a wrapper to get the closure working properly. To get the `original_getattr` closure picking up the new class, I put it on the class dictionary.

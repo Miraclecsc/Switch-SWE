@@ -1,0 +1,1 @@
+I have this in /work/w04: Also consider cancel counts for swallowing CancelledError on asyncio This fixes cases on Python 3.11+ where a third party library catches a `CancelledError` and raises another one without including the original message. At least asyncpg is [known to do this](

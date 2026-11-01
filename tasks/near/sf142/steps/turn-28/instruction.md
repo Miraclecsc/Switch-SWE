@@ -1,0 +1,1 @@
+And here, TBH I probably wouldn't set this in the constructor. It requires the dev to import `SyntaxHighlightRange`. I'd add a method to Syntax that adds a range, so that you can call it without importing anything other than `Syntax`

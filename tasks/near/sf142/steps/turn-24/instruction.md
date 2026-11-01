@@ -1,0 +1,1 @@
+And here, to make sure that we don't have regressions on this bugfix, before trying to solve it I started by writing a test that reproduce the issue : this test was crashing before the fix, and passes now :balloon:

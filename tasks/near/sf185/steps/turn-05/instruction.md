@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Can I ask what adding `_to_str` brings over directly defining `__str__`?

@@ -1,0 +1,1 @@
+One more thing: This PR needs someone motivated to check why the coverage dropped. Anyone that uses that type in their company, and wants to spend some engineers hours working on this, is welcome. Otherwise, you can try to sponsor @adriangb as an appreciation gesture for his efforts here, and maybe motivate him to continue the work here.

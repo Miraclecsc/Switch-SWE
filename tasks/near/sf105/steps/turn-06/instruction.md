@@ -1,0 +1,3 @@
+One more thing: The id for this Error check should follow the existing convention from the reference docs: I don't think we should use `E412` (since the `E4xx` are reserved for checks for the default `AdminSite`), Consider we should use the next one available within the `E1xx` list, which at the time of this writing it seems to be `E131`.
+
+Extend the list_display relation check to every to-many relation name recognized by model metadata, including reverse foreign-key query names and reverse many-to-many names as well as accessor descriptors. Report admin.E109 for each. Forward foreign keys and forward/reverse one-to-one relations remain allowed.

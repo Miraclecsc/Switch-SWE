@@ -1,0 +1,1 @@
+Please check this too: Alright generally applying `__reduce__` is simple and TBH it's probably fine. People could work around not having a public constructor anyways. The main point is the number of `type: ignore`s it uses but I assume that could be minimized if I actually cared to.

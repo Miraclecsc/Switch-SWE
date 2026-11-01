@@ -1,0 +1,7 @@
+datasets:
+  - path: tasks/near
+  - path: tasks/far
+agents:
+  - name: opencode
+    resume_trajectory: true
+n_concurrent_trials: 4

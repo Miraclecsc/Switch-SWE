@@ -1,0 +1,1 @@
+And here, Hmm typo here. I'm on the edge on whether this making a class really is worth it over just assigning a `None` and type ignoring it... (or... does it even need an assignment?)

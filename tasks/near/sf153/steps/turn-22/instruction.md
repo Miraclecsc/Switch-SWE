@@ -1,0 +1,1 @@
+One more thing: I could put it in conftest.py ? happy to have a utils.py

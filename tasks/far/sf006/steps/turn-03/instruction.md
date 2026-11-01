@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: Fixed #37047 -- Fixed crash in Query.orderby_issubset_groupby for descending and random order_by strings.

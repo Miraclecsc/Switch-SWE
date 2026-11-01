@@ -1,0 +1,3 @@
+Please check this too: Hi there! 👋 I’ve added tests to help increase coverage around typed `request.state` in #3049. This is my first contribution to Starlette (and to open source in general) I’d love to keep contributing in this area to help unblock and accelerate improvements.
+
+Validate that Request and WebSocket wrappers over the same scope state continue to observe each other mutations, while explicit copied States stay separate. Keep missing-key KeyError versus missing-attribute AttributeError behavior and all original typed-state/item-access regressions.

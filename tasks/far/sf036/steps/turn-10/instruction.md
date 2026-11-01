@@ -1,0 +1,1 @@
+One more thing: Hi, this PR [regressed this issue]( I've tested manually that commenting those two lines allowed `app_exc` not to be None and to be subsequently raised. _(I'm no expert in ASGI and starlette codebase, don't understand the root issue that this change was trying to fix and I'm then unable to propose a better fix...)_

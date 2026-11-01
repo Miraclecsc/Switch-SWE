@@ -1,0 +1,195 @@
+diff --git a/doc/source/reference/extensions.rst b/doc/source/reference/extensions.rst
+index c51989ca54..843bf1af49 100644
+--- a/doc/source/reference/extensions.rst
++++ b/doc/source/reference/extensions.rst
+@@ -65,6 +65,7 @@ objects.
+       api.extensions.ExtensionArray.repeat
+       api.extensions.ExtensionArray.searchsorted
+       api.extensions.ExtensionArray.shift
++      api.extensions.ExtensionArray.sort
+       api.extensions.ExtensionArray.take
+       api.extensions.ExtensionArray.unique
+       api.extensions.ExtensionArray.dtype
+diff --git a/doc/source/whatsnew/v3.1.0.rst b/doc/source/whatsnew/v3.1.0.rst
+index 9870d4469e..a3e41057e9 100644
+--- a/doc/source/whatsnew/v3.1.0.rst
++++ b/doc/source/whatsnew/v3.1.0.rst
+@@ -37,6 +37,7 @@ Other enhancements
+ - :meth:`ExtensionArray.map` now calls :meth:`ExtensionArray._cast_pointwise_result` to retain the dtype backend, e.g. Arrow-backed arrays now preserve their Arrow dtype through ``map`` (:issue:`57189`, :issue:`62164`)
+ - :func:`read_csv` now supports ``dtype="complex64"`` and ``dtype="complex128"`` with the C engine, enabling round-tripping of complex-number columns written by :meth:`DataFrame.to_csv` (:issue:`9379`)
+ - Added :meth:`ExtensionArray.count` (:issue:`64450`)
++- Added :meth:`ExtensionArray.sort` for in-place sorting of :class:`ExtensionArray` (:issue:`64977`)
+ - Added :meth:`Index.replace` method to support value replacement functionality similar to :meth:`Series.replace` (:issue:`19495`)
+ - Display formatting for float sequences in DataFrame cells now respects the ``display.precision`` option (:issue:`60503`).
+ - Improved the precision of float parsing in :func:`read_csv` (:issue:`64395`)
+diff --git a/pandas/core/arrays/_mixins.py b/pandas/core/arrays/_mixins.py
+index 182d0b41df..8f509dcd33 100644
+--- a/pandas/core/arrays/_mixins.py
++++ b/pandas/core/arrays/_mixins.py
+@@ -62,6 +62,7 @@ if TYPE_CHECKING:
+         ScalarIndexer,
+         SequenceIndexer,
+         Shape,
++        SortKind,
+         TakeIndexer,
+         npt,
+     )
+@@ -231,6 +232,21 @@ class NDArrayBackedExtensionArray(NDArrayBacked, ExtensionArray):
+         new_data = unique(self._ndarray)
+         return self._from_backing_data(new_data)
+ 
++    def sort(
++        self,
++        *,
++        ascending: bool = True,
++        kind: SortKind = "quicksort",
++        na_position: str = "last",
++        key=None,
++    ) -> None:
++        if self._readonly:
++            raise ValueError("Cannot modify read-only array")
++        sort_indices = self._sort_indices(
++            ascending=ascending, kind=kind, na_position=na_position, key=key
++        )
++        self._ndarray[:] = self._ndarray[sort_indices]
++
+     @classmethod
+     def _concat_same_type(
+         cls,
+diff --git a/pandas/core/arrays/arrow/array.py b/pandas/core/arrays/arrow/array.py
+index de6e0f2897..e8836a52a9 100644
+--- a/pandas/core/arrays/arrow/array.py
++++ b/pandas/core/arrays/arrow/array.py
+@@ -1408,6 +1408,25 @@ class ArrowExtensionArray(
+         np_result = result.to_numpy()
+         return np_result.astype(np.intp, copy=False)
+ 
++    def sort(
++        self,
++        *,
++        ascending: bool = True,
++        kind: SortKind = "quicksort",
++        na_position: str = "last",
++        key=None,
++    ) -> None:
++        # This override replaces self._pa_array directly, bypassing __setitem__,
++        # so enforce the read-only guard here to stay consistent with it and
++        # with the base ExtensionArray.sort.
++        if self._readonly:
++            raise ValueError("Cannot modify read-only array")
++        sort_indices = self._sort_indices(
++            ascending=ascending, kind=kind, na_position=na_position, key=key
++        )
++        sorted_array = self.take(sort_indices)
++        self._pa_array = sorted_array._pa_array
++
+     def _argmin_max(self, skipna: bool, method: str) -> int:
+         if self._pa_array.length() in (0, self._pa_array.null_count) or (
+             self._hasna and not skipna
+diff --git a/pandas/core/arrays/base.py b/pandas/core/arrays/base.py
+index b481c14467..1622cf5e7d 100644
+--- a/pandas/core/arrays/base.py
++++ b/pandas/core/arrays/base.py
+@@ -154,6 +154,7 @@ class ExtensionArray:
+     repeat
+     searchsorted
+     shift
++    sort
+     take
+     tolist
+     unique
+@@ -1070,6 +1071,65 @@ class ExtensionArray:
+             mask=np.asarray(self.isna()),
+         )
+ 
++    def sort(
++        self,
++        *,
++        ascending: bool = True,
++        kind: SortKind = "quicksort",
++        na_position: str = "last",
++        key=None,
++    ) -> None:
++        """
++        Sort the array in-place.
++
++        Reorders the elements of the array using :meth:`argsort` and writes the
++        sorted result back through ``self[:]``. Subclasses backed by immutable
++        storage may override this method to raise ``NotImplementedError``.
++
++        Parameters
++        ----------
++        ascending : bool, default True
++            Whether to sort in ascending order.
++        kind : {'quicksort', 'mergesort', 'heapsort', 'stable'}, default 'quicksort'
++            Sorting algorithm.
++        na_position : {'first', 'last'}, default 'last'
++            If 'first', put NaN values at the beginning.
++            If 'last', put NaN values at the end.
++
++        Returns
++        -------
++        None
++            This method mutates the array in place and does not return a value.
++
++        See Also
++        --------
++        ExtensionArray.argsort : Return the indices that would sort this array.
++
++        Examples
++        --------
++        >>> arr = pd.array([3, 1, 2, 5, 4])
++        >>> arr.sort()
++        >>> arr
++        <IntegerArray>
++        [1, 2, 3, 4, 5]
++        Length: 5, dtype: Int64
++        """
++        if self._readonly:
++            raise ValueError("Cannot modify read-only array")
++        sort_indices = self._sort_indices(
++            ascending=ascending, kind=kind, na_position=na_position, key=key
++        )
++        self[:] = self.take(sort_indices)
++
++    def _sort_indices(self, *, ascending, kind, na_position, key):
++        if key is None:
++            return self.argsort(ascending=ascending, kind=kind, na_position=na_position)
++        from pandas.core.sorting import nargsort
++        keys = np.asarray(key(self.copy()))
++        if keys.ndim != 1 or len(keys) != len(self):
++            raise ValueError("Sort key must return a one-dimensional array of the same length")
++        return nargsort(keys, ascending=ascending, kind=kind, na_position=na_position)
++
+     def argmin(self, skipna: bool = True) -> int:
+         """
+         Return the index of minimum value.
+diff --git a/pandas/core/arrays/sparse/array.py b/pandas/core/arrays/sparse/array.py
+index cb508a6f3d..4c99eaa064 100644
+--- a/pandas/core/arrays/sparse/array.py
++++ b/pandas/core/arrays/sparse/array.py
+@@ -127,6 +127,7 @@ if TYPE_CHECKING:
+         Scalar,
+         ScalarIndexer,
+         SequenceIndexer,
++        SortKind,
+         npt,
+     )
+ 
+@@ -614,6 +615,16 @@ class SparseArray(OpsMixin, PandasObject, ExtensionArray):
+         msg = "SparseArray does not support item assignment via setitem"
+         raise TypeError(msg)
+ 
++    def sort(
++        self,
++        *,
++        ascending: bool = True,
++        kind: SortKind = "quicksort",
++        na_position: str = "last",
++        key=None,
++    ) -> None:
++        raise NotImplementedError("SparseArray does not support in-place sort")
++
+     @classmethod
+     def _from_sequence(
+         cls, scalars, *, dtype: Dtype | None = None, copy: bool = False

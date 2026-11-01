@@ -1,0 +1,1 @@
+And here, Checking for nan is the wrong approach. The expression that numerically evaluates to nan should not be produced in the first place. Also, Why is this changed. Under what conditions does `solve_poly_system` return `None`.

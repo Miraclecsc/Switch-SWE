@@ -1,0 +1,1 @@
+One more thing: Try adding a `session.install("-e", ".")` go the docs function in the noxfile?

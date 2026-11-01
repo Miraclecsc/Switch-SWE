@@ -1,0 +1,1 @@
+Also, `pkgutil.get_loader` is used for both versions, but pytest doesn't define `get_filename` in either.

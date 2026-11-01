@@ -1,0 +1,23 @@
+diff --git a/django/contrib/admin/options.py b/django/contrib/admin/options.py
+index 1772638748..395ae4d314 100644
+--- a/django/contrib/admin/options.py
++++ b/django/contrib/admin/options.py
+@@ -2103,7 +2103,17 @@ class ModelAdmin(BaseModelAdmin):
+                 selected = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
+                 if len(selected) != 1 or selected[0] != str(obj.pk):
+                     raise BadRequest
+-                queryset = self.model._default_manager.get_queryset()
++                selected_action = actions.get(request.POST.get(action_form["action"].html_name))
++                if selected_action:
++                    func = selected_action[0] if isinstance(selected_action, tuple) else selected_action.func
++                    permissions = getattr(func, "allowed_permissions", ())
++                    if permissions and set(permissions) <= {"change", "view", "delete"}:
++                        if not any(
++                            getattr(self, "has_%s_permission" % permission)(request, obj)
++                            for permission in permissions
++                        ):
++                            raise PermissionDenied
++                queryset = self.get_queryset(request)
+                 if response := self.response_action(
+                     request, queryset, action_location=ActionLocation.CHANGE_FORM
+                 ):

@@ -1,0 +1,1 @@
+Also, Why do you need to generate a new code object here rather than adding `f.__code__` to the map?

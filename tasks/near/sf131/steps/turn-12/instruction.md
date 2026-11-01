@@ -1,0 +1,1 @@
+And here, Can't it be any number of spaces between the `;` and `charset`? If so, only checking if charset is included is fine:

@@ -1,0 +1,1 @@
+And here, This should be testable by monkeypatching `ctypes.CDLL()` to raise `OSError`.

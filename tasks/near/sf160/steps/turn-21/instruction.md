@@ -1,0 +1,3 @@
+Also, I think I was changing the internals of `iter_text` here with `itertools.chain` to keep coverage at 100%. I am not following what you mean by `iter_chain`. To merge this PR, would you like me to switch to a `pragma: no cover` comment instead of `itertools.chain`?
+
+The sync and async APIs must agree regardless of byte chunk boundaries, including splits inside UTF-8 characters. At end of input emit any final unterminated text or pending standalone CR once; an empty response emits no lines.

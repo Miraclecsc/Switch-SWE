@@ -1,0 +1,1 @@
+Please check this too: I've gone ahead and changed that hardcoded space to the `grid-gutter`. This caused multiple snapshot tests to fail despite no visual changes (example below) so I updated the snapshots. ![image](

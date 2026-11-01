@@ -1,0 +1,1 @@
+Please check this too: Apply the same rule to all generated ordering operators, including callable cmp shared between equality and ordering and separate eq/order keys. Respect order=False and preserve the absence of cmp deprecation warnings.

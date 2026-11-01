@@ -1,0 +1,1 @@
+One more thing: Consider only the command should re-raise a `CommandError`, not here. But we should definitely enrich the ValueError with whatever information we need. You can do that with [add_note()](

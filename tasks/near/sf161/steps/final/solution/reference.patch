@@ -1,0 +1,104 @@
+diff --git a/docs/templates.md b/docs/templates.md
+index 66f2f9c..ba9c425 100644
+--- a/docs/templates.md
++++ b/docs/templates.md
+@@ -58,6 +58,21 @@ templates = Jinja2Templates(directory='templates')
+ templates.env.filters['marked'] = marked_filter
+ ```
+ 
++
++## Using custom jinja2.Environment instance
++
++Starlette also accepts a preconfigured [`jinja2.Environment`](https://jinja.palletsprojects.com/en/3.0.x/api/#api) instance. 
++
++
++```python
++import jinja2
++from starlette.templating import Jinja2Templates
++
++env = jinja2.Environment(...)
++templates = Jinja2Templates(env=env)
++```
++
++
+ ## Context processors
+ 
+ A context processor is a function that returns a dictionary to be merged into a template context.
+diff --git a/starlette/templating.py b/starlette/templating.py
+index b9421cc..3bd1c57 100644
+--- a/starlette/templating.py
++++ b/starlette/templating.py
+@@ -1,4 +1,5 @@
+ import typing
++import warnings
+ from os import PathLike
+ 
+ from starlette.background import BackgroundTask
+@@ -62,19 +63,65 @@ class Jinja2Templates:
+     return templates.TemplateResponse("index.html", {"request": request})
+     """
+ 
++    @typing.overload
+     def __init__(
+         self,
+         directory: typing.Union[
+-            str, PathLike, typing.Sequence[typing.Union[str, PathLike]]
++            str,
++            PathLike,
++            typing.Sequence[typing.Union[str, PathLike]],
+         ],
++        *,
++        context_processors: typing.Optional[
++            typing.List[typing.Callable[[Request], typing.Dict[str, typing.Any]]]
++        ] = None,
++        **env_options: typing.Any,
++    ) -> None:
++        ...
++
++    @typing.overload
++    def __init__(
++        self,
++        *,
++        env: "jinja2.Environment",
++        context_processors: typing.Optional[
++            typing.List[typing.Callable[[Request], typing.Dict[str, typing.Any]]]
++        ] = None,
++    ) -> None:
++        ...
++
++    def __init__(
++        self,
++        directory: typing.Union[
++            str, PathLike, typing.Sequence[typing.Union[str, PathLike]], None
++        ] = None,
++        *,
+         context_processors: typing.Optional[
+             typing.List[typing.Callable[[Request], typing.Dict[str, typing.Any]]]
+         ] = None,
++        env: typing.Optional["jinja2.Environment"] = None,
+         **env_options: typing.Any,
+     ) -> None:
++        if env is not None and (directory is not None or env_options):
++            raise ValueError("env cannot be combined with directory or environment options")
++        if env_options:
++            warnings.warn(
++                "Extra environment options are deprecated. Use a preconfigured jinja2.Environment instead.",  # noqa: E501
++                DeprecationWarning,
++            )
+         assert jinja2 is not None, "jinja2 must be installed to use Jinja2Templates"
+-        self.env = self._create_env(directory, **env_options)
++        assert directory or env, "either 'directory' or 'env' arguments must be passed"
+         self.context_processors = context_processors or []
++        if directory is not None:
++            self.env = self._create_env(directory, **env_options)
++        elif env is not None:
++            self.env = env
++
++        @pass_context
++        def url_for(context: dict, name: str, **path_params: typing.Any) -> URL:
++            return context["request"].url_for(name, **path_params)
++
++        self.env.globals.setdefault("url_for", url_for)
+ 
+     def _create_env(
+         self,

@@ -1,0 +1,1 @@
+And here, The first change sets up [`vendoring`]( and the second change actually vendors the dependencies. license-expression is Apache-2.0, with a public domain vendored library of its own boolean.py is BSD-Clause-2 I believe these are compatible but am not 100% certain.

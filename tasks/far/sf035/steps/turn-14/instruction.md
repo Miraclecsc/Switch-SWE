@@ -1,0 +1,1 @@
+One more thing: Along these lines, Consider if another reason to avoid `IntegrityError` is so that we can surface *all* of the conflicts. This is in the post-migrate handler, so if one conflict errors out, the migration is still marked as completed, so after fixing the issue, there's no way to find out about the others that didn't get a chance to run.

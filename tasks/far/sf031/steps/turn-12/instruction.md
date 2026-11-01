@@ -1,0 +1,1 @@
+And here, It's not clear to me that the following are actually simpler: Actually, they seem more complicated to me. It would probably be to add in some simplifications that take advantage of periodicity. Don't worry about being perfect and getting every possible simplification.

@@ -1,0 +1,1 @@
+And here, I'd recommend against the `always_update`. Since it calls watchers you can get unintended side effects, such as re-sending messages. Better to factor out the specific functionality you need and call it directly. TBH I regret adding `always_update`. I know we've recommended it in the past, but this will rightly confuse anything not intimately familiar with reactives:

@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Fixed #36903 -- Fixed further NameErrors when inspecting functions with deferred annotations.

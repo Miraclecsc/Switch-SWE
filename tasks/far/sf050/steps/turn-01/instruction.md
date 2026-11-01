@@ -1,0 +1,1 @@
+I have this in /work/w03: Hm, I'm starting to see the logic behind the tests. Could they not use AnyIO APIs though, and also run on Trio?

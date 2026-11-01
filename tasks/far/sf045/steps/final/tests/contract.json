@@ -1,0 +1,58 @@
+{
+  "case_id": "sf045_switched",
+  "task_id": "ssb_v3_networkx__networkx_a9c8113b85",
+  "repo": "networkx/networkx",
+  "base_commit": "6bf5e809983be340c28540198786e706b11f944f",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.approximation.tests.test_dominating_set.TestMinWeightDominatingSet::test_cost_accounts_for_already_dominated",
+    "networkx.algorithms.approximation.tests.test_sf045_seeded_domination::test_already_dominating_seed_adds_nothing",
+    "networkx.algorithms.approximation.tests.test_sf045_seeded_domination::test_infeasible_constraints_are_explicit",
+    "networkx.algorithms.approximation.tests.test_sf045_seeded_domination::test_invalid_constraints_and_input_preservation",
+    "networkx.algorithms.approximation.tests.test_sf045_seeded_domination::test_seed_is_retained_and_coverage_is_removed",
+    "networkx.algorithms.approximation.tests.test_sf045_seeded_domination::test_zero_weight_and_forbidden_targets"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.approximation.tests.test_dominating_set.TestMinWeightDominatingSet::test_min_edge_dominating_set",
+    "networkx.algorithms.approximation.tests.test_dominating_set.TestMinWeightDominatingSet::test_min_weighted_dominating_set",
+    "networkx.algorithms.approximation.tests.test_dominating_set.TestMinWeightDominatingSet::test_null_graph",
+    "networkx.algorithms.approximation.tests.test_dominating_set.TestMinWeightDominatingSet::test_star_graph",
+    "networkx.algorithms.approximation.tests.test_sf045_seeded_domination::test_original_unconstrained_regression"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/approximation/tests/test_dominating_set.py",
+    "networkx/algorithms/approximation/tests/test_sf045_seeded_domination.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/approximation/tests/test_dominating_set.py",
+    "networkx/algorithms/approximation/tests/test_sf045_seeded_domination.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "827e3d23fdbb73cabea875731feb7ee988932d02f9f6709b8f41356e22cab1d5",
+    "config/recipes.json": "5173d66fd536a201eacf06a956fbce69496026252bf8177e0309f0122ac2db50"
+  }
+}

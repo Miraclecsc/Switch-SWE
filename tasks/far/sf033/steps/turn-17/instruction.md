@@ -1,0 +1,1 @@
+Also, refactor(lra_theory): Pass `Boundary` instead Reduce number of passed parameters by passing Boundary objects which contain all the relevant information instead.

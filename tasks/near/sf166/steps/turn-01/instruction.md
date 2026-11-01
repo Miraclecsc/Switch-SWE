@@ -1,0 +1,1 @@
+I have this in /work/w00: Do not add underscores in block capitals in identifiers Do not add an underscore, if the previous character was also upper case. This is useful if you have an acronym in an identifier. Specifically, I encountered this with the identifier `interfaceMACs`, which converted to `interface_m_a_cs`. With this change the identifier converts to `interface_macs`.

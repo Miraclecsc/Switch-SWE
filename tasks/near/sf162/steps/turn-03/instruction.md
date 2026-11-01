@@ -1,0 +1,1 @@
+For the checkout at /work/w00, handle multiple encodings when reading config files Fixes UnicodeDecodeError by trying utf-8, euc-kr, gbk, cp949, latin1 encodings sequentially until successful decode.

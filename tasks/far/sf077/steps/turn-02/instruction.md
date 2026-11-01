@@ -1,0 +1,1 @@
+For the checkout at /work/w00, Expose various function in `tags` publicly Closes #187 and should open the way for pip to start using packaging.tags.

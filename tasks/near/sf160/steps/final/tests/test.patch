@@ -1,0 +1,107 @@
+diff --git a/tests/test_decoders.py b/tests/test_decoders.py
+index 61c9a4acca..170a93453c 100644
+--- a/tests/test_decoders.py
++++ b/tests/test_decoders.py
+@@ -219,6 +219,17 @@ def test_text_decoder_empty_cases():
+     assert response.text == ""
+ 
+ 
++@pytest.mark.parametrize(
++    ["data", "expected"],
++    [((b"Hello,", b" world!"), ["Hello,", " world!"])],
++)
++def test_streaming_text_decoder(
++    data: typing.Iterable[bytes], expected: typing.List[str]
++) -> None:
++    response = httpx.Response(200, content=iter(data))
++    assert list(response.iter_text()) == expected
++
++
+ def test_line_decoder_nl():
+     response = httpx.Response(200, content=[b""])
+     assert list(response.iter_lines()) == []
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,32 @@
++import asyncio
++import httpx
++
++TEXT = 'a\r\nb\rc\n\nδ\u2028z\x85tail\r'
++class Sync(httpx.SyncByteStream):
++    def __iter__(self):
++        for byte in TEXT.encode():
++            yield b''
++            yield bytes([byte])
++class Async(httpx.AsyncByteStream):
++    async def __aiter__(self):
++        for byte in TEXT.encode():
++            yield b''
++            yield bytes([byte])
++
++def test_sync_line_endings_across_byte_boundaries():
++    r = httpx.Response(200, stream=Sync())
++    assert list(r.iter_lines(keepends=True)) == TEXT.splitlines(keepends=True)
++
++def test_async_line_endings_across_byte_boundaries():
++    async def run():
++        r = httpx.Response(200, stream=Async())
++        assert [line async for line in r.aiter_lines(keepends=True)] == TEXT.splitlines(keepends=True)
++    asyncio.run(run())
++
++def test_empty_and_unterminated():
++    for text in ('', 'tail', '\r', '\r\n', '\x0b\x0c\x1c\x1d\x1e'):
++        r = httpx.Response(200, content=text.encode())
++        assert list(r.iter_lines(keepends=True)) == text.splitlines(keepends=True)
++
++def test_default_line_behavior_unchanged():
++    assert list(httpx.Response(200, stream=Sync()).iter_lines()) == TEXT.splitlines()
+diff --git a/tests/test_incremental_contract_v2.py b/tests/test_incremental_contract_v2.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_incremental_contract_v2.py
+@@ -0,0 +1,43 @@
++import asyncio
++
++import httpx
++
++
++CASES = [
++    ([b"first\nsecond\n"], ["first\n", "second\n"]),
++    ([b"\xce", b"", b"\xb4\r", b"", b"\nnext\n"], ["δ\r\n", "next\n"]),
++]
++
++
++def test_sync_complete_lines_are_yielded_before_more_input():
++    for chunks, expected in CASES:
++        class Body(httpx.SyncByteStream):
++            def __iter__(self):
++                for chunk in chunks:
++                    yield chunk
++                raise AssertionError("A complete line must be yielded before requesting later input")
++
++        response = httpx.Response(200, stream=Body())
++        lines = response.iter_lines(keepends=True)
++        try:
++            assert [next(lines) for _ in expected] == expected
++        finally:
++            lines.close()
++
++
++def test_async_complete_lines_are_yielded_before_more_input():
++    async def scenario():
++        for chunks, expected in CASES:
++            class Body(httpx.AsyncByteStream):
++                async def __aiter__(self):
++                    for chunk in chunks:
++                        yield chunk
++                    raise AssertionError("A complete line must be yielded before requesting later input")
++
++            response = httpx.Response(200, stream=Body())
++            lines = response.aiter_lines(keepends=True)
++            try:
++                assert [await lines.__anext__() for _ in expected] == expected
++            finally:
++                await lines.aclose()
++    asyncio.run(scenario())

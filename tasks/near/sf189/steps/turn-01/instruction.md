@@ -1,0 +1,1 @@
+I have this in /work/w01: Cope with `field_transformer` being a generator This worked on 25.1.0 but was inadvertently broken by #1401 Fixes #1416 # Pull Request Check List

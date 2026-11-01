@@ -1,0 +1,1 @@
+And here, I think all the places where an instance was used in `MODES` or `SCREENS` in the docs have been fixed.

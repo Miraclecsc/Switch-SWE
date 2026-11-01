@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Update python_version definition This definition of python_version accommodates Python versions with more than two digits in the major or minor version. This implements an accompanying change in PEP 508. See GH issue #119 and . Fixes #119.

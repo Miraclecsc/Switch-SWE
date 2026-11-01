@@ -1,0 +1,1 @@
+I have this in /work/w02: _(discoverability comment)_ PSA: looks like using `NO_COLOR` for overriding `FORCE_COLOR` is currently broken: - -

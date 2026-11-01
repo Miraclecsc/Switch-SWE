@@ -1,0 +1,3 @@
+One more thing: I'm not sure there's much point, as this is an internal thing. And wouldn't I also have to do the same with `__new__()`?
+
+Make the Trio backend CapacityLimiter constructor modes explicit at runtime: total_tokens constructs a new limiter; original= wraps an existing trio.CapacityLimiter. Supplying neither, both non-None values, or an original of another type raises TypeError. Validate before modifying a supplied limiter. None denotes an omitted argument.

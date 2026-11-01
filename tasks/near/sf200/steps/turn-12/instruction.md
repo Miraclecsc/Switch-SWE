@@ -1,0 +1,1 @@
+And here, Revert "Fix casus irreducibilis crash. (#29085)" This reverts commit 1fdc9112629e0da6945e2dca6c62c7c299901561. Also, Revert "Fix casus irreducibilis crash." Reverts sympy/sympy#29085

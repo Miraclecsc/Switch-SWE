@@ -1,0 +1,3 @@
+Please check this too: I needed to fall back to using `scope["router"]` to support the case where a `Router` is directly fed to a `TestClient`, as happens in `test_routing.py`.
+
+Retain router precedence when both router and app are available. Presence means a non-None provider, not truthiness: a valid falsey router must still resolve its own routes. Keep path conversion, mount namespaces and root-path-aware absolute URLs intact.

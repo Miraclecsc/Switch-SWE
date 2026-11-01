@@ -1,0 +1,3 @@
+Also, You should probably set the`testing_mode` parameter of `from_encoded_cnf` to True for all these tests to reduce nondeterminism.
+
+Extend pop to pop(levels=1), restoring several saved levels at once. pop(0) is a no-op returning current depth. Reject negative or excessive counts with ValueError and noninteger counts with TypeError, validating before changing anything. A checkpoint may be taken while the solver is already in conflict and must restore that conflict if popped. State saved at one level must not be changed by later assertions, checks, backtracks or inner checkpoints. Preserve all original solver and backtrack tests.

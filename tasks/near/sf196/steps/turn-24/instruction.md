@@ -1,0 +1,1 @@
+And here, In this case, wouldn't `self` be an instance of `NoPublicConstructor`? If so, that would probably alleviate the `attr-defined` error on line 335

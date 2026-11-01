@@ -1,0 +1,3 @@
+Also, You mean you got OSError on disk full?
+
+Extend temporary-file ownership handling to every exceptional exit after uploads have been created: exceptions from the input async iterator, parser callbacks/finalization, file writes/seeks, and cancellation must close all parser-owned temporary files and propagate the original exception. On success, ownership transfers to the returned FormData and its uploads must remain readable until the caller closes it.

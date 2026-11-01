@@ -1,0 +1,271 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+  ],
+  "case_id": "sf125_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c",
+      "python": "3.12.12",
+      "requirements": "requirements/959dd1f1db35c157-3.12.12-7f10686c.txt",
+      "source": "dependency-source/959dd1f1db35c157-3.12.12-7f10686c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/959dd1f1db35c157-3.12.12-7f10686c"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "23d009afe7404d538a908aa9aeecd81009d6923f",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/core/expr.py",
+          "sha256": "3138594e8ab1f33260cc1428e97adb8f9406df72d40854e6da85a969642c32f4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/eigen.py",
+          "sha256": "222a2cff749a4ab28742650190f72a2f2af8066be085be0377975826897248c5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/tests/test_eigen.py",
+          "sha256": "4522cadf58587d6886177bdcfa2515d34d8cdc5e5415fe12cf22033edfa15663"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/utilities.py",
+          "sha256": "c4e346fdd1d3a941199d748debe90fefa2816669a0300fdcf6d6f084fafee445"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyroots.py",
+          "sha256": "1de4f1660bb5770dea23ea4a95baca088bb049a78bfa6cb8cb8d8e9e8e045ba5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polytools.py",
+          "sha256": "fa3450b5e83b54ce2e327d11f8e205442b93a040d54b08f0ffa90d03820a7ae9"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyutils.py",
+          "sha256": "b832e65bf5fa234addf698a4a2c7982e9bb7ecaf8ab93e88a756335e7d43a768"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/utilities/iterables.py",
+          "sha256": "44cdee3fc0674cbbdae11f1525b0dd8f3d36e9ae93fb08e4f642aaaffc4e95fc"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "494b9575c70ff8f1cef56386a6b471def9bbae88",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/core/expr.py",
+          "sha256": "99dc68274d48501f59b8579e8fead48bf3afe155a8c94455c873d52fbf0969ce"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/eigen.py",
+          "sha256": "222a2cff749a4ab28742650190f72a2f2af8066be085be0377975826897248c5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/tests/test_eigen.py",
+          "sha256": "765561d9a05f1c449efec9d10575c6a19c3f55117487132f5c0aae0f15463dbd"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/utilities.py",
+          "sha256": "c4e346fdd1d3a941199d748debe90fefa2816669a0300fdcf6d6f084fafee445"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyroots.py",
+          "sha256": "dcee4f0d17c3d5c753adcb367b09e97a95666db6e33f834aa2f5f35b49a056f5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polytools.py",
+          "sha256": "34bef3ae29ed8ae2dc14429d0b3ffd3f9152f3c9165370ee7ce71d12450eb982"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyutils.py",
+          "sha256": "d538e8f9dbd5d0bd22d75d59d3da23ea21bf9a91eb415286a27a3398407670b5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/utilities/iterables.py",
+          "sha256": "d86d4a88dbde100246c60dd7d671bf880d015f0496061bc119df2ccfbda5fcd5"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "fc709aa4c714869c16cc226b0656ee9b5c71e6c4",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/core/expr.py",
+          "sha256": "764303403cd66f2636a4482455ee616f87d2ca06d3a1072a0e58b8f1f68444b6"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/eigen.py",
+          "sha256": "e45c571352392a006a3614685baace0a47be953d6e3ae52d636697c1db281afc"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/tests/test_eigen.py",
+          "sha256": "dc3fb98e55196316dd2f7c957675912acbd3816b57d5313b4e876b2766c6d53c"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/utilities.py",
+          "sha256": "c4e346fdd1d3a941199d748debe90fefa2816669a0300fdcf6d6f084fafee445"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyroots.py",
+          "sha256": "22c9c2e7210925e9779b1b5a470b2ca79e0f80f536f47b744783a79d8f754421"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polytools.py",
+          "sha256": "a8bc49e29584a202018d341ee3831f46edfd04b863b540a1b97df9f0bc26cd23"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyutils.py",
+          "sha256": "d538e8f9dbd5d0bd22d75d59d3da23ea21bf9a91eb415286a27a3398407670b5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/utilities/iterables.py",
+          "sha256": "d86d4a88dbde100246c60dd7d671bf880d015f0496061bc119df2ccfbda5fcd5"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "2bc2d36ffc06d41f0c9520c52a2688289d6a02f2",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "sympy/core/expr.py",
+          "sha256": "3138594e8ab1f33260cc1428e97adb8f9406df72d40854e6da85a969642c32f4"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/eigen.py",
+          "sha256": "222a2cff749a4ab28742650190f72a2f2af8066be085be0377975826897248c5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/tests/test_eigen.py",
+          "sha256": "e7da281f9bba97caa0cb626739026837f33786c19bca54d1e225e82df99a61bd"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/matrices/utilities.py",
+          "sha256": "c4e346fdd1d3a941199d748debe90fefa2816669a0300fdcf6d6f084fafee445"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyroots.py",
+          "sha256": "1de4f1660bb5770dea23ea4a95baca088bb049a78bfa6cb8cb8d8e9e8e045ba5"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polytools.py",
+          "sha256": "29fae56b9d56ae797cb5dabd0b314433443f1f4b13ac180226cf4ec5e5b01989"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/polys/polyutils.py",
+          "sha256": "b832e65bf5fa234addf698a4a2c7982e9bb7ecaf8ab93e88a756335e7d43a768"
+        },
+        {
+          "mode": "100644",
+          "path": "sympy/utilities/iterables.py",
+          "sha256": "ec5b21c558e5246839bc3fffb5dd7d97c08a3363c1667da6025a24642f63e75a"
+        }
+      ],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "787c6888a1827027081cdd10338cf23060b72b94",
+      "overlays": [],
+      "repo": "sympy/sympy",
+      "url": "https://github.com/sympy/sympy.git",
+      "workspace": "w04"
+    }
+  ]
+}

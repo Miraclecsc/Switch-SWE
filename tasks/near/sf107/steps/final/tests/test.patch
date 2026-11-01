@@ -1,0 +1,82 @@
+diff --git a/tests/model_fields/test_jsonfield.py b/tests/model_fields/test_jsonfield.py
+index d0561e14d2ea..1afeef31eb1b 100644
+--- a/tests/model_fields/test_jsonfield.py
++++ b/tests/model_fields/test_jsonfield.py
+@@ -364,14 +364,14 @@ def setUpTestData(cls):
+                 "bax": {"foo": "bar"},
+             },
+         ]
+-        cls.objs = [NullableJSONModel.objects.create(value=value) for value in values]
++        objs = [NullableJSONModel(value=value) for value in values]
+         if connection.features.supports_primitives_in_json_field:
+-            cls.objs.extend(
+-                [
+-                    NullableJSONModel.objects.create(value=value)
+-                    for value in cls.primitives
+-                ]
+-            )
++            objs.extend([NullableJSONModel(value=value) for value in cls.primitives])
++        objs = NullableJSONModel.objects.bulk_create(objs)
++        # Some backends don't return primary keys after bulk_create.
++        if any(obj.pk is None for obj in objs):
++            objs = list(NullableJSONModel.objects.order_by("id"))
++        cls.objs = objs
+         cls.raw_sql = "%s::jsonb" if connection.vendor == "postgresql" else "%s"
+ 
+     def test_exact(self):
+@@ -782,6 +782,12 @@ def test_none_key(self):
+             [self.objs[4]],
+         )
+ 
++    def test_key_iexact_none(self):
++        self.assertSequenceEqual(
++            NullableJSONModel.objects.filter(value__j__iexact=None),
++            [self.objs[4]],
++        )
++
+     def test_none_key_exclude(self):
+         obj = NullableJSONModel.objects.create(value={"j": 1})
+         if connection.vendor == "oracle":
+diff --git a/tests/model_fields/test_staged_contract.py b/tests/model_fields/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/model_fields/test_staged_contract.py
+@@ -0,0 +1,38 @@
++from django.db import connection
++from django.db.models import JSONField, Value
++from django.test import TestCase
++from .models import NullableJSONModel
++
++
++class JSONKeyTypeTests(TestCase):
++    def rows(self, path, rhs, lookup):
++        return list(NullableJSONModel.objects.filter(**{"value__" + path + "__" + lookup: rhs}).order_by("pk").values_list("pk", flat=True))
++
++    def test_literal_null_excludes_string_and_missing(self):
++        null = NullableJSONModel.objects.create(value={"k": None})
++        for data in ({"k": "null"}, {}, None):
++            NullableJSONModel.objects.create(value=data)
++        for lookup in ("exact", "iexact"):
++            self.assertEqual(self.rows("k", None, lookup), [null.pk])
++
++    def test_null_nested_array_and_expression(self):
++        null = NullableJSONModel.objects.create(value={"items": [{"k": None}]})
++        for data in ({"items": [{"k": "null"}]}, {"items": [{}]}, {"items": []}):
++            NullableJSONModel.objects.create(value=data)
++        for rhs in (None, Value(None, output_field=JSONField())):
++            for lookup in ("exact", "iexact"):
++                self.assertEqual(self.rows("items__0__k", rhs, lookup), [null.pk])
++
++    def test_string_comparisons_preserve_json_type(self):
++        for primitive, text in ((None, "null"), (True, "true"), (False, "false"), (7, "7")):
++            NullableJSONModel.objects.all().delete()
++            NullableJSONModel.objects.create(value={"k": primitive})
++            string = NullableJSONModel.objects.create(value={"k": text})
++            for lookup in ("exact", "iexact"):
++                self.assertEqual(self.rows("k", text, lookup), [string.pk])
++            self.assertEqual(self.rows("k", text.upper(), "iexact"), [string.pk])
++
++    def test_regular_strings_keep_case_rules(self):
++        row = NullableJSONModel.objects.create(value={"k": "MiXeD"})
++        self.assertEqual(self.rows("k", "mixed", "exact"), [])
++        self.assertEqual(self.rows("k", "mixed", "iexact"), [row.pk])

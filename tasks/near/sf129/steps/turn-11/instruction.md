@@ -1,0 +1,1 @@
+Please check this too: Right, now I also ran into a case. Pushed a version now that ignores `BrokenPipeError` specifically

@@ -1,0 +1,1 @@
+And here, Numeric node-color vectors must use one normalization over the entire nodelist (respecting vmin/vmax), not a different scale per shape. Per-node alpha must remain aligned after color conversion. Keep scalar styles and single RGB/RGBA colors working.

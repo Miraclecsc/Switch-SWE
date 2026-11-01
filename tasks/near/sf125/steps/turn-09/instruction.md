@@ -1,0 +1,1 @@
+Also, Thanks, that makes sense. I updated the test to assert the ideal identities directly.

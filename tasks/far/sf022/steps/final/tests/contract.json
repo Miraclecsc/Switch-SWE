@@ -1,0 +1,68 @@
+{
+  "case_id": "sf022_switched",
+  "task_id": "ssb_v2_task_0188",
+  "repo": "getmoto/moto",
+  "base_commit": "95cd9fe04e55c801d15d34405f252b7de52c5cac",
+  "derived_fail_to_pass": [
+    "tests.test_athena.test_athena_database::test_create_database_if_not_exists",
+    "tests.test_athena.test_athena_database::test_create_database_schema_keyword",
+    "tests.test_athena.test_athena_database::test_create_database_via_ddl_and_get",
+    "tests.test_athena.test_athena_database::test_create_database_with_backticks",
+    "tests.test_athena.test_athena_database::test_create_database_with_catalog_context",
+    "tests.test_athena.test_athena_database::test_database_names_are_case_insensitive",
+    "tests.test_athena.test_athena_database::test_drop_database_via_ddl",
+    "tests.test_athena.test_athena_database::test_drop_schema_keyword",
+    "tests.test_athena.test_athena_database::test_get_database_default",
+    "tests.test_athena.test_athena_database::test_get_database_not_found",
+    "tests.test_athena.test_athena_database::test_list_databases",
+    "tests.test_athena.test_athena_database::test_list_databases_empty_catalog",
+    "tests.test_athena.test_athena_database::test_list_databases_pagination",
+    "tests.test_athena.test_database_ddl_v1::test_metadata_lifecycle_and_catalog_isolation",
+    "tests.test_athena.test_database_ddl_v1::test_quoted_ddl_metadata_is_visible_through_get_and_list",
+    "tests.test_athena.test_database_ddl_v1::test_unrecognized_or_multistatement_ddl_has_no_catalog_side_effects[CREATE DATABASE phantom COMMENT 'unfinished]",
+    "tests.test_athena.test_database_ddl_v1::test_unrecognized_or_multistatement_ddl_has_no_catalog_side_effects[CREATE DATABASE phantom WITH DBPROPERTIES ('owner'=oops)]",
+    "tests.test_athena.test_database_ddl_v1::test_unrecognized_or_multistatement_ddl_has_no_catalog_side_effects[CREATE DATABASE phantom trailing_garbage]",
+    "tests.test_athena.test_database_ddl_v1::test_unrecognized_or_multistatement_ddl_has_no_catalog_side_effects[CREATE DATABASE phantom; DROP DATABASE default]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_athena.test_athena_database::test_drop_database_if_exists",
+    "tests.test_athena.test_database_ddl_v1::test_plain_database_ddl_keeps_case_normalization"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_athena/test_athena_database.py",
+    "tests/test_athena/test_database_ddl_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_athena/test_athena_database.py",
+    "tests/test_athena/test_database_ddl_v1.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "c98ed3bd127eb8eecc6c792c1c142a8fb6c27eb78b9a027cde6dd2874366682a",
+    "config/recipes.json": "0920c943407dcfe8aee48d5e93a625891192f4f269193d53f3c781e34fe4f87a"
+  }
+}

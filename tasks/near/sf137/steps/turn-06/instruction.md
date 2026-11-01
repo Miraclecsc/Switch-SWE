@@ -1,0 +1,1 @@
+I have this in /work/w01: Make TextWrapper._wrap_chunks ANSI-aware so invisible terminal escape sequences do not inflate line-length accounting.

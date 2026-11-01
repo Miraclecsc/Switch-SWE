@@ -1,0 +1,1 @@
+For the checkout at /work/w03, FEAT: Add a describe method for some basic info about graphs Fixes Consider 3 years is the perfect time to get this done This adds a new function which computes some couple of stats as proposed in users can also hook into the describe function if they want to calculate more properties.

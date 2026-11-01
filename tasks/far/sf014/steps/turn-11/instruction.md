@@ -1,0 +1,1 @@
+Please check this too: Okay, Consider that should fix it. I'd had a quick look at the Boto tests, but I assumed it would be doing the right thing because it was Boto.

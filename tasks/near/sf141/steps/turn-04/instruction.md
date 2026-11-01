@@ -1,0 +1,3 @@
+And here, Could you change this to `get_default_changes` and add a brief docstring...
+
+Extend Progress construction with keyword-only columns_before=() and columns_after=(), each an iterable of ordinary string or ProgressColumn entries. Place them before and after the chosen columns. With no positional columns, obtain the middle from the subclass's get_default_columns; explicit columns must not invoke that factory.

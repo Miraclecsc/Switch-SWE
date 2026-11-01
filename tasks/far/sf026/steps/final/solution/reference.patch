@@ -1,0 +1,56 @@
+diff --git a/src/packaging/tags.py b/src/packaging/tags.py
+--- a/src/packaging/tags.py
++++ b/src/packaging/tags.py
+@@ -15,7 +15,6 @@
+ from importlib.machinery import EXTENSION_SUFFIXES
+ from typing import (
+     TYPE_CHECKING,
+-    Any,
+     Iterable,
+     Iterator,
+     Sequence,
+@@ -158,12 +157,38 @@
+     def __repr__(self) -> str:
+         return f"<{self} @ {id(self)}>"
+ 
+-    def __setstate__(self, state: tuple[None, dict[str, Any]]) -> None:
+-        # The cached _hash is wrong when unpickling.
+-        _, slots = state
+-        for k, v in slots.items():
+-            setattr(self, k, v)
+-        self._hash = hash((self._interpreter, self._abi, self._platform))
++    def __getstate__(self) -> tuple[str, str, str]:
++        # Return state as a 3-item tuple: (interpreter, abi, platform).
++        # Cache member _hash is excluded and will be recomputed.
++        return (self._interpreter, self._abi, self._platform)
++
++    def __setstate__(self, state: object) -> None:
++        slots = None
++        if isinstance(state, tuple) and len(state) == 3:
++            values = state
++        elif isinstance(state, dict):
++            slots = state
++        elif (
++            isinstance(state, tuple) and len(state) == 2
++            and state[0] is None and isinstance(state[1], dict)
++        ):
++            slots = state[1]
++        else:
++            raise TypeError(f"Cannot restore Tag from {state!r}")
++        if slots is not None:
++            try:
++                values = (slots["_interpreter"], slots["_abi"], slots["_platform"])
++            except KeyError:
++                raise TypeError(f"Cannot restore Tag from {state!r}") from None
++        if not all(isinstance(value, str) for value in values):
++            raise TypeError(f"Cannot restore Tag from {state!r}")
++        normalized = tuple(value.lower() for value in values)
++        if not all(isinstance(value, str) for value in normalized):
++            raise TypeError(f"Cannot restore Tag from {state!r}")
++        restored_hash = hash(normalized)
++        # Commit only after validating, normalizing and hashing the entire state.
++        self._interpreter, self._abi, self._platform = normalized
++        self._hash = restored_hash
+ 
+ 
+ def parse_tag(tag: str, *, validate_order: bool = False) -> frozenset[Tag]:

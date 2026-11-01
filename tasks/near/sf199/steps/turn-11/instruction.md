@@ -1,0 +1,1 @@
+Please check this too: There are good ways to use `try/except` but I see so many bad ways of doing it in SymPy code that Consider we should discourage all try/except unless absolutely necessary and even then insist that the scope of try/except be limited as much as possible.

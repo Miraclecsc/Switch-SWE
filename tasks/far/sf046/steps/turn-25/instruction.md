@@ -1,0 +1,1 @@
+Also, Test coverage for `nodes=` is currently limited to `nodes=[0, 1]` on K2,2. Given the intended that method-like behavior, add tests that `nodes` may be a singleton and/or include nodes from either partition (and that missing nodes are ignored rather than raising), to lock in the expected semantics.

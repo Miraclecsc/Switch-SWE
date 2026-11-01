@@ -1,0 +1,1 @@
+In the checkout at /work/w00, TST: test `max_iter` in `asyn_fluidc` Towards #8223. This PR improves the logic for handling the maximum number of iterations in `asyn_fluidc` and adds a test to verify `max_iter` is taken into account as expected.

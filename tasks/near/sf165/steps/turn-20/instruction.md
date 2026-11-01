@@ -1,0 +1,1 @@
+And here, As a note, we do the `build_middleware_stack` on the `Starlette`, but we don't do this "build" on the `Router`, and that's why calling the `scope["app"]` works here.

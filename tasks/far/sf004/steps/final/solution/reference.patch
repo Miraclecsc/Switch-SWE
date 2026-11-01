@@ -1,0 +1,204 @@
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -367,23 +367,64 @@
+ #
+ 
+ 
+-def is_anyio_cancellation(exc: CancelledError) -> bool:
++class _CancelScopeReason(str):
++    """Keep scope ownership when asyncio copies a cancellation's arguments."""
++
++    _scope_ref: weakref.ReferenceType[CancelScope]
++
++    def __new__(cls, message: str, scope: CancelScope) -> _CancelScopeReason:
++        reason = super().__new__(cls, message)
++        reason._scope_ref = weakref.ref(scope)
++        return reason
++
++
++class _ThreadCancellation(Exception):
++    """Carry cancellation and its context through concurrent.futures unchanged."""
++
++    def __init__(self, exception: CancelledError) -> None:
++        self.exception = exception
++
++
++def is_anyio_cancellation(
++    exc: CancelledError, scope: CancelScope | None = None
++) -> bool:
+     # Sometimes third party frameworks catch a CancelledError and raise a new one, so as
+     # a workaround we have to look at the previous ones in __context__ too for a
+-    # matching cancel message
++    # matching origin. The first attributable cancellation wins: a foreign
++    # cancellation must not borrow an older cancellation's ownership.
+     while True:
+         if (
+             exc.args
+-            and isinstance(exc.args[0], str)
+-            and exc.args[0].startswith("Cancelled via cancel scope ")
++            and isinstance(exc.args[0], _CancelScopeReason)
+         ):
+-            return True
++            origin = exc.args[0]._scope_ref()
++            return origin is not None and (scope is None or origin is scope)
+ 
+         if isinstance(exc.__context__, CancelledError):
+             exc = exc.__context__
+             continue
+ 
+         return False
++
++
++def _transfer_cancellation(
++    exc: BaseException | None, source: CancelScope, target: CancelScope
++) -> None:
++    """Transfer this scope's propagating cancellation to a cancelled ancestor."""
++    if isinstance(exc, BaseExceptionGroup):
++        for child in exc.exceptions:
++            _transfer_cancellation(child, source, target)
++    elif isinstance(exc, CancelledError):
++        while True:
++            if exc.args and isinstance(exc.args[0], _CancelScopeReason):
++                reason = exc.args[0]
++                if reason._scope_ref() is source:
++                    exc.args = (_CancelScopeReason(str(reason), target), *exc.args[1:])
++                return
++
++            if not isinstance(exc.__context__, CancelledError):
++                return
++            exc = exc.__context__
+ 
+ 
+ class CancelScope(BaseCancelScope):
+@@ -496,7 +537,7 @@
+                     cancelleds_caught, remaining = exc_val.split(
+                         lambda exc: (
+                             isinstance(exc, CancelledError)
+-                            and is_anyio_cancellation(exc)
++                            and is_anyio_cancellation(exc, self)
+                         )
+                     )
+ 
+@@ -519,13 +560,26 @@
+                         del context
+                 else:
+                     if isinstance(exc_val, CancelledError) and is_anyio_cancellation(
+-                        exc_val
++                        exc_val, self
+                     ):
+                         self._cancelled_caught = True
+                         return True
+                     else:
+                         return False
+             else:
++                if self._cancel_called and self._parent_cancellation_is_visible_to_us:
++                    # Existing level cancellation makes a cancelled, visible
++                    # ancestor responsible for this scope's escaping cancellation.
++                    # Transfer only this scope's actual leaves, never foreign ones.
++                    parent = self._parent_scope
++                    while parent is not None:
++                        if parent._cancel_called:
++                            _transfer_cancellation(exc_val, self, parent)
++                            break
++                        if parent.shield:
++                            break
++                        parent = parent._parent_scope
++
+                 if self._pending_uncancellations:
+                     assert self._parent_scope is not None
+                     assert self._parent_scope._pending_uncancellations is not None
+@@ -647,6 +701,8 @@
+ 
+             if reason:
+                 self._cancel_reason += f"; reason: {reason}"
++
++            self._cancel_reason = _CancelScopeReason(self._cancel_reason, self)
+ 
+             if self._host_task is not None:
+                 self._deliver_cancellation(self)
+@@ -2522,7 +2578,7 @@
+         scope: CancelScope | None = threadlocals.current_cancel_scope
+         while scope is not None:
+             if scope.cancel_called:
+-                raise CancelledError(f"Cancelled by cancel scope {id(scope):x}")
++                raise CancelledError(scope._cancel_reason)
+ 
+             if scope.shield:
+                 return
+@@ -2545,7 +2601,7 @@
+             try:
+                 return await func(*args)
+             except CancelledError as exc:
+-                raise concurrent.futures.CancelledError(str(exc)) from None
++                raise _ThreadCancellation(exc) from None
+             finally:
+                 if scope is not None:
+                     scope._tasks.discard(task)
+@@ -2562,7 +2618,17 @@
+         f: concurrent.futures.Future[T_Retval] = context.run(
+             asyncio.run_coroutine_threadsafe, task_wrapper(), loop=loop
+         )
+-        return f.result()
++        try:
++            return f.result()
++        except _ThreadCancellation as carrier:
++            exc = carrier.exception
++            exception_context = exc.__context__
++            try:
++                raise exc
++            finally:
++                # Raising inside this handler would otherwise replace the
++                # cancellation context with the transport exception.
++                exc.__context__ = exception_context
+ 
+     @classmethod
+     def run_sync_from_thread(
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -9,6 +9,9 @@
+   functions and classes
+ - Improved the error message when a known backend is not installed to suggest the install command
+   (`#1115 <https://github.com/agronholm/anyio/pull/1115>`_; PR by @EmmanuelNiyonshuti)
++- Fixed cancellation exception escaping a cancel scope when triggered via
++  ``check_cancelled()`` in a worker thread
++  (`#1113 <https://github.com/agronholm/anyio/issues/1113>`_)
+ 
+ **4.13.0**
+ 
+diff --git a/docs/threads.rst b/docs/threads.rst
+--- a/docs/threads.rst
++++ b/docs/threads.rst
+@@ -315,3 +315,31 @@
+     async def foo():
+         with move_on_after(3):
+             await to_thread.run_sync(sync_function)
++
++Scope-owned cancellation (benchmark extension v1)
++------------------------------------------------
++
++The ``sf004-cancellation-ownership-v1`` task extends the asyncio backend's
++cooperative cancellation contract. This section describes the benchmark
++extension, not a released upstream version.
++
++A cancellation raised by ``from_thread.check_cancelled()`` belongs to the scope
++responsible for it. A separately cancelled sibling or shielded child scope must
++not swallow that cancellation. Neither a saved exception from a finished
++operation nor an ordinary ``asyncio.CancelledError`` with similar text becomes
++the cancellation of a new scope. The first reason passed to the responsible
++scope's ``cancel()`` remains visible to the worker.
++
++Existing level cancellation still applies: when a cancelled child scope must
++propagate its cancellation to a visible cancelled ancestor during scope exit,
++the ancestor can take responsibility. A shield prevents that handoff.
++Unrelated cancellation leaves must not be relabelled during the transfer.
++
++Ownership and exception context are preserved through nested worker/coroutine
++round trips and framework cancellation wrappers. In a nested exception group,
++only owned cancellation leaves are consumed; foreign cancellations and ordinary
++errors remain in their original order and remaining group structure.
++
++Worker reuse does not transfer cancellation state to a fresh operation.
++Concurrent worker operations keep separate scope associations, and worker
++cancellation checks continue to respect the current shield state.

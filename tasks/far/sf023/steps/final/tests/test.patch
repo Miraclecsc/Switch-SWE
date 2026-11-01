@@ -1,0 +1,132 @@
+diff --git a/tests/test_wafv2/test_wafv2.py b/tests/test_wafv2/test_wafv2.py
+index 7589a53acedd..04760cae1b3b 100644
+--- a/tests/test_wafv2/test_wafv2.py
++++ b/tests/test_wafv2/test_wafv2.py
+@@ -153,7 +153,27 @@ def test_create_web_acl_with_all_arguments():
+ 
+ 
+ @mock_aws
+-def test_get_web_acl():
++def test_get_web_acl_by_arn():
++    conn = boto3.client("wafv2", region_name="us-east-1")
++    body = CREATE_WEB_ACL_BODY("John", "REGIONAL")
++    web_acl_arn = conn.create_web_acl(**body)["Summary"]["ARN"]
++    wacl = conn.get_web_acl(ARN=web_acl_arn)["WebACL"]
++    assert wacl["Name"] == "John"
++    assert wacl["LabelNamespace"] == f"awswaf:{ACCOUNT_ID}:webacl:John:"
++
++
++@mock_aws
++def test_get_non_existent_web_acl_by_arn():
++    conn = boto3.client("wafv2", region_name="us-east-1")
++    with pytest.raises(conn.exceptions.WAFNonexistentItemException) as error:
++        conn.get_web_acl(
++            ARN="arn:aws:wafv2:us-east-1:123456789012:regional/webacl/John/id"
++        )["WebACL"]
++    assert error
++
++
++@mock_aws
++def test_get_web_acl_by_id_and_name():
+     conn = boto3.client("wafv2", region_name="us-east-1")
+     body = CREATE_WEB_ACL_BODY("John", "REGIONAL")
+     web_acl_id = conn.create_web_acl(**body)["Summary"]["Id"]
+@@ -163,6 +183,19 @@ def test_get_web_acl():
+     assert wacl["LabelNamespace"] == f"awswaf:{ACCOUNT_ID}:webacl:John:"
+ 
+ 
++@mock_aws
++def test_get_web_acl_by_arn_has_priority():
++    conn = boto3.client("wafv2", region_name="us-east-1")
++    body = CREATE_WEB_ACL_BODY("John", "REGIONAL")
++    web_acl_arn = conn.create_web_acl(**body)["Summary"]["ARN"]
++    wacl = conn.get_web_acl(
++        ARN=web_acl_arn, Name="wrong-name", Scope="REGIONAL", Id="wrong-id"
++    )["WebACL"]
++    assert wacl["Name"] == "John"
++    assert wacl["Id"] != "wrong-id"
++    assert wacl["LabelNamespace"] == f"awswaf:{ACCOUNT_ID}:webacl:John:"
++
++
+ @mock_aws
+ def test_list_web_acl():
+     conn = boto3.client("wafv2", region_name="us-east-1")
+diff --git a/tests/test_wafv2/test_arn_identity_v1.py b/tests/test_wafv2/test_arn_identity_v1.py
+new file mode 100644
+index 000000000..50a811536
+--- /dev/null
++++ b/tests/test_wafv2/test_arn_identity_v1.py
+@@ -0,0 +1,73 @@
++import boto3
++import pytest
++from moto import mock_aws
++
++
++def client(region="us-east-1"):
++    return boto3.client("wafv2", region_name=region)
++
++
++def create(c, name, scope="REGIONAL"):
++    return c.create_web_acl(Name=name, Scope=scope, DefaultAction={"Allow":{}},
++        VisibilityConfig={"SampledRequestsEnabled":False, "CloudWatchMetricsEnabled":False,
++                          "MetricName":name})["Summary"]
++
++
++@mock_aws
++def test_regional_arn_overrides_endpoint_scope_name_and_id():
++    east, west = client(), client("us-west-2")
++    original = create(west, "regional")
++    decoy = create(east, "decoy", "CLOUDFRONT")
++    result = east.get_web_acl(ARN=original["ARN"], Name=decoy["Name"],
++                             Id=decoy["Id"], Scope="CLOUDFRONT")
++    assert result["WebACL"]["Id"] == original["Id"]
++    assert result["LockToken"] == west.get_web_acl(
++        Name=original["Name"], Id=original["Id"], Scope="REGIONAL")["LockToken"]
++
++
++@mock_aws
++def test_global_arn_works_from_non_global_endpoint_without_scope():
++    acl = create(client(), "global", "CLOUDFRONT")
++    assert client("us-west-2").get_web_acl(ARN=acl["ARN"])["WebACL"]["ARN"] == acl["ARN"]
++
++
++@mock_aws
++def test_no_arn_name_id_lookup_enforces_scope():
++    c = client()
++    acl = create(c, "global", "CLOUDFRONT")
++    with pytest.raises(c.exceptions.WAFNonexistentItemException):
++        c.get_web_acl(Name=acl["Name"], Id=acl["Id"], Scope="REGIONAL")
++    assert c.get_web_acl(Name=acl["Name"], Id=acl["Id"], Scope="CLOUDFRONT")["WebACL"]["Id"] == acl["Id"]
++
++
++@pytest.mark.parametrize("mutation", ["malformed", "service", "account", "partition", "missing"])
++@mock_aws
++def test_invalid_arn_never_falls_back_to_supplied_identity(mutation):
++    c = client()
++    acl = create(c, "real")
++    arn = acl["ARN"]
++    if mutation == "malformed": arn = "arn:aws:wafv2:malformed-identity"
++    elif mutation == "service": arn = arn.replace(":wafv2:", ":s3:")
++    elif mutation == "account": arn = arn.replace(":123456789012:", ":999999999999:")
++    elif mutation == "partition": arn = arn.replace("arn:aws:", "arn:aws-cn:")
++    else: arn = arn + "-missing"
++    with pytest.raises(c.exceptions.WAFNonexistentItemException):
++        c.get_web_acl(ARN=arn, Name=acl["Name"], Id=acl["Id"], Scope="REGIONAL")
++
++
++@mock_aws
++def test_arn_reads_follow_update_delete_recreate_lifecycle():
++    west, east = client("us-west-2"), client()
++    first = create(west, "live")
++    result = east.get_web_acl(ARN=first["ARN"])
++    west.update_web_acl(Name=first["Name"], Id=first["Id"], Scope="REGIONAL",
++        LockToken=result["LockToken"], DefaultAction={"Block":{}}, Description="updated",
++        VisibilityConfig={"SampledRequestsEnabled":False, "CloudWatchMetricsEnabled":False, "MetricName":"live"})
++    updated = east.get_web_acl(ARN=first["ARN"])
++    assert updated["WebACL"]["Description"] == "updated"
++    assert updated["WebACL"]["DefaultAction"] == {"Block":{}}
++    west.delete_web_acl(Name=first["Name"], Id=first["Id"], Scope="REGIONAL", LockToken=updated["LockToken"])
++    replacement = create(west, "live")
++    with pytest.raises(east.exceptions.WAFNonexistentItemException):
++        east.get_web_acl(ARN=first["ARN"], Name=replacement["Name"], Id=replacement["Id"], Scope="REGIONAL")
++    assert east.get_web_acl(ARN=replacement["ARN"])["WebACL"]["Id"] == replacement["Id"]

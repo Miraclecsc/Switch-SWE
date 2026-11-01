@@ -1,0 +1,1 @@
+Please check this too: Creating a cache key with `(args, frozenset(kwargs.items()))` will fail if `args` contains unhashable types like lists or dicts. The typed version wraps args in tuples but this untyped version doesn't handle unhashable arguments. Consider wrapping args in a try-except or documenting this limitation.

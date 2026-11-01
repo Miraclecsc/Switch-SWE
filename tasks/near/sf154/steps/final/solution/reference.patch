@@ -1,0 +1,48 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 475613a..5f6500b 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -3,6 +3,11 @@ Version history
+ 
+ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ 
++**UNRELEASED**
++
++- Added support for the Python 3.12 ``walk_up`` keyword argument in
++  ``anyio.Path.relative_to()`` (PR by Colin Taylor)
++
+ **4.2.0**
+ 
+ - Add support for ``byte``-based paths in ``connect_unix``, ``create_unix_listeners``,
+diff --git a/src/anyio/_core/_fileio.py b/src/anyio/_core/_fileio.py
+index dc22440..8b8a723 100644
+--- a/src/anyio/_core/_fileio.py
++++ b/src/anyio/_core/_fileio.py
+@@ -514,8 +514,25 @@ class Path:
+     ) -> str:
+         return await to_thread.run_sync(self._path.read_text, encoding, errors)
+ 
+-    def relative_to(self, *other: str | PathLike[str]) -> Path:
+-        return Path(self._path.relative_to(*other))
++    if sys.version_info >= (3, 12):
++
++        def relative_to(
++            self, *other: str | PathLike[str], walk_up: bool = False, max_up: int | None = None
++        ) -> Path:
++            if max_up is not None:
++                if isinstance(max_up, bool) or not isinstance(max_up, int):
++                    raise TypeError("max_up must be an integer or None")
++                if max_up < 0:
++                    raise ValueError("max_up must be non-negative")
++            result = self._path.relative_to(*other, walk_up=walk_up)
++            if max_up is not None and result.parts.count("..") > max_up:
++                raise ValueError("relative path exceeds max_up")
++            return Path(result)
++
++    else:
++
++        def relative_to(self, *other: str | PathLike[str]) -> Path:
++            return Path(self._path.relative_to(*other))
+ 
+     async def readlink(self) -> Path:
+         target = await to_thread.run_sync(os.readlink, self._path)

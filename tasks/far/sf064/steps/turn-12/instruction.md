@@ -1,0 +1,1 @@
+And here, This should be `List[Avatar]` where `Avatar` is dataclass.

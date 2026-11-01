@@ -1,0 +1,194 @@
+diff --git a/tests/test_subprocesses.py b/tests/test_subprocesses.py
+index e723c623b..45078cb6f 100644
+--- a/tests/test_subprocesses.py
++++ b/tests/test_subprocesses.py
+@@ -10,11 +10,12 @@
+ from typing import Any
+ 
+ import pytest
+-from pytest import FixtureRequest
+ 
+ from anyio import (
++    BrokenResourceError,
+     CancelScope,
+     ClosedResourceError,
++    EndOfStream,
+     create_task_group,
+     open_process,
+     run_process,
+@@ -236,10 +237,7 @@ async def test_process_aexit_cancellation_doesnt_orphan_process() -> None:
+     assert process.returncode != 0
+ 
+ 
+-async def test_process_aexit_cancellation_closes_standard_streams(
+-    request: FixtureRequest,
+-    anyio_backend_name: str,
+-) -> None:
++async def test_process_aexit_cancellation_closes_standard_streams() -> None:
+     """
+     Regression test for #669.
+ 
+@@ -248,12 +246,6 @@ async def test_process_aexit_cancellation_closes_standard_streams(
+     closed stream.
+ 
+     """
+-    if anyio_backend_name == "asyncio":
+-        # Avoid pytest.xfail here due to https://github.com/pytest-dev/pytest/issues/9027
+-        request.node.add_marker(
+-            pytest.mark.xfail(reason="#671 needs to be resolved first")
+-        )
+-
+     with CancelScope() as scope:
+         async with await open_process(
+             [sys.executable, "-c", "import time; time.sleep(1)"]
+@@ -276,6 +268,48 @@ async def test_process_aexit_cancellation_closes_standard_streams(
+         await process.stderr.receive(1)
+ 
+ 
++async def test_exceptions_after_subprocess_closes_standard_streams() -> None:
++    async with await open_process([sys.executable, "-c", ""]) as process:
++        await process.wait()
++        assert process.stdin is not None
++        assert process.stderr is not None
++        assert process.stdout is not None
++        with pytest.raises(BrokenResourceError):
++            # * On Trio, stdin.send() will always raise if the peer's end of the pipe is
++            #   closed.
++            # * On asyncio, even though process.wait() finished, some event loop
++            #   implementations do not yet inform us that the peer's end of the pipe is
++            #   closed; the event loop needs to run some rounds of callbacks before it
++            #   will get that information to us. In particular:
++            #   * On stdlib asyncio, stdin.send() will now always raise
++            #     BrokenResourceError.
++            #   * On uvloop, the second stdin.send() will raise BrokenResourceError.
++            #   * On Winloop 0.3.0, the third stdin.send() will raise
++            #     BrokenResourceError. The second also might, but it depends on
++            #     scheduling order.
++            #   * On Winloop 0.3.1, the second stdin() will raise BrokenResourceError.
++            for _ in range(3):
++                await process.stdin.send(b"foo")
++
++        with pytest.raises(BrokenResourceError):
++            await process.stdin.send(b"foo")
++
++        with pytest.raises(EndOfStream):
++            await process.stdout.receive(1)
++
++        with pytest.raises(EndOfStream):
++            await process.stderr.receive(1)
++
++    with pytest.raises(ClosedResourceError):
++        await process.stdin.send(b"foo")
++
++    with pytest.raises(ClosedResourceError):
++        await process.stdout.receive(1)
++
++    with pytest.raises(ClosedResourceError):
++        await process.stderr.receive(1)
++
++
+ @pytest.mark.parametrize(
+     "argname, argvalue_factory",
+     [
+diff --git a/tests/test_udp_close_ownership_v1.py b/tests/test_udp_close_ownership_v1.py
+new file mode 100644
+index 0000000..b4a51b6
+--- /dev/null
++++ b/tests/test_udp_close_ownership_v1.py
+@@ -0,0 +1,96 @@
++"""UDP local-close ownership, including delayed transport callbacks."""
++import asyncio
++from unittest.mock import Mock
++import anyio
++import pytest
++from anyio import BrokenResourceError, ClosedResourceError
++from anyio._backends._asyncio import ConnectedUDPSocket, DatagramProtocol, UDPSocket
++
++
++def endpoint(connected):
++    protocol = DatagramProtocol()
++    transport = Mock()
++    transport.is_closing.return_value = False
++    protocol.connection_made(transport)
++    transport.close.side_effect = lambda: setattr(transport.is_closing, "return_value", True)
++    socket = (ConnectedUDPSocket if connected else UDPSocket)(transport, protocol)
++    return socket, protocol, transport
++
++
++@pytest.mark.parametrize("connected", [False, True])
++def test_local_close_rejects_buffered_and_late_datagrams(connected):
++    async def scenario():
++        sock, protocol, transport = endpoint(connected)
++        protocol.datagram_received(b"before", ("127.0.0.1", 1234))
++        await sock.aclose()
++        protocol.datagram_received(b"late", ("127.0.0.1", 1234))
++        for _ in range(2):
++            with pytest.raises(ClosedResourceError):
++                await sock.receive()
++        await sock.aclose()
++        transport.close.assert_called_once()
++    anyio.run(scenario)
++
++
++@pytest.mark.parametrize("connected", [False, True])
++def test_close_wakes_pending_receive_without_connection_lost(connected):
++    async def scenario():
++        sock, protocol, _ = endpoint(connected)
++        task = asyncio.create_task(sock.receive())
++        await anyio.wait_all_tasks_blocked()
++        await sock.aclose()
++        with pytest.raises(ClosedResourceError):
++            await asyncio.wait_for(task, 1)
++    anyio.run(scenario)
++
++
++@pytest.mark.parametrize("connected", [False, True])
++def test_close_wakes_paused_sender_and_never_sends(connected):
++    async def scenario():
++        sock, protocol, transport = endpoint(connected)
++        protocol.pause_writing()
++        item = b"data" if connected else (b"data", ("127.0.0.1", 1234))
++        task = asyncio.create_task(sock.send(item))
++        await anyio.wait_all_tasks_blocked()
++        await sock.aclose()
++        with pytest.raises(ClosedResourceError):
++            await asyncio.wait_for(task, 1)
++        transport.sendto.assert_not_called()
++        protocol.resume_writing()
++        with pytest.raises(ClosedResourceError):
++            await sock.send(item)
++    anyio.run(scenario)
++
++
++@pytest.mark.parametrize("connected", [False, True])
++def test_external_close_drains_existing_data_until_locally_closed(connected):
++    async def scenario():
++        sock, protocol, transport = endpoint(connected)
++        protocol.datagram_received(b"buffered", ("127.0.0.1", 1234))
++        transport.is_closing.return_value = True
++        protocol.connection_lost(None)
++        value = await sock.receive()
++        assert value == (b"buffered" if connected else (b"buffered", ("127.0.0.1", 1234)))
++        with pytest.raises(BrokenResourceError):
++            await sock.receive()
++        await sock.aclose()
++        with pytest.raises(ClosedResourceError):
++            await sock.receive()
++    anyio.run(scenario)
++
++
++def test_real_udp_local_close_with_buffered_packet():
++    async def scenario():
++        receiver = await anyio.create_udp_socket(local_host="127.0.0.1")
++        sender = await anyio.create_udp_socket(local_host="127.0.0.1")
++        try:
++            address = receiver.extra(anyio.abc.SocketAttribute.local_address)
++            await sender.send((b"queued", address))
++            await anyio.wait_all_tasks_blocked()
++            await receiver.aclose()
++            with pytest.raises(ClosedResourceError):
++                await receiver.receive()
++        finally:
++            await receiver.aclose()
++            await sender.aclose()
++    anyio.run(scenario)

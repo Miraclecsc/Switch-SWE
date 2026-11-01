@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: Added "initial_node" param to generate_random_paths() to allow a starting node to be specified for generated walks Small modification to allow the user to specify an initial node to begin all walks from.

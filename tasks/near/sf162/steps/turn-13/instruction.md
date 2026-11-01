@@ -1,0 +1,1 @@
+Also, The lifespan parameter on `routing.py` doesn't get a parameter inside the `Lifespan`, is it intended? My IDE is more permissive than yours, so I don't have problems there, but knowing your configuration (:laughing:), your IDE is probably complaining over there.

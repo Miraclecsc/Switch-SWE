@@ -1,0 +1,1 @@
+I have this in /work/w02: Incorrect evaluation of numeric inequality when high precision is needed This inequality should evaluate to True:

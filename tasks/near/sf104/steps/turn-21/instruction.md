@@ -1,0 +1,1 @@
+Also, I added tests too for good measure. (used `EXPECTED_SVG.replace()` instead of duplicating the otherwise identical string)

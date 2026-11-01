@@ -1,0 +1,1 @@
+For the checkout at /work/w04, Quantum: Fix printing of tensor products of bras and kets. Tensor products of bras and kets were using additional symbols that, while needed to resolve ambiguities in operators, are not needed in the case of bras and kets.

@@ -1,0 +1,1 @@
+In the checkout at /work/w02, fix: restore ._version as a compat shim I was hoping this was not being used, but see The second commit adds a warning if `._version` is accessed. **fix: hatching uses and modifies _version** **fix: issue warnings if _version is used**

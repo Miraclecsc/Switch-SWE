@@ -1,0 +1,1 @@
+There's something to adjust in /work/w00: Fixed #37017 -- Fixed setting or clearing of request.user after alogin()/alogout().

@@ -1,0 +1,171 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+  ],
+  "case_id": "sf168_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902",
+      "python": "3.12.12",
+      "requirements": "requirements/34ebeb00cebfd28c-3.12.12-46181902.txt",
+      "source": "dependency-source/34ebeb00cebfd28c-3.12.12-46181902.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "f32dd409623285e0b67d0c07033b533414eb2bba",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "benchmarks/benchmarks/benchmark_algorithms.py",
+          "sha256": "be013f3df8a7de02f525ed770891d280769c2a6d9f4f25d49103cb44b77e1c9f"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/eigenvector.py",
+          "sha256": "0d83f1b47961aa546ec392a3b028d32537d8670c57f5b9cbbf96441e4130a38c"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/tests/test_eigenvector_centrality.py",
+          "sha256": "ce4fb6e869b54174e8192610b73c21108b4f7ff82e2950942315b740376239f9"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "24d3fe74230e5ed49d5ac8b723895493d5aafb0a",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "0a58c919651de6b130391328776f84449c6fe784",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "benchmarks/benchmarks/benchmark_algorithms.py",
+          "sha256": "be013f3df8a7de02f525ed770891d280769c2a6d9f4f25d49103cb44b77e1c9f"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/eigenvector.py",
+          "sha256": "e65b9152c6182245b3538aa7554a78026d72b994800c1750a6d6ff1c18e7be85"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/tests/test_eigenvector_centrality.py",
+          "sha256": "0592c2433e82a9b8e4fe3926985f42b41de3f2dd9aa988d5787f831002d5a4a2"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "65becad79fd10dff170b49fa003a6052c291d27d",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "benchmarks/benchmarks/benchmark_algorithms.py",
+          "sha256": "7db5240bbf19b98a0e9163410a29a4575a5c1c796b7be07755142c058801f77d"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/eigenvector.py",
+          "sha256": "e65b9152c6182245b3538aa7554a78026d72b994800c1750a6d6ff1c18e7be85"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/tests/test_eigenvector_centrality.py",
+          "sha256": "0592c2433e82a9b8e4fe3926985f42b41de3f2dd9aa988d5787f831002d5a4a2"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "06a9961904dc5c32a16ed8c868b377c6320ea635",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "benchmarks/benchmarks/benchmark_algorithms.py",
+          "sha256": "61eb69f6c479555e5afe705c85aadee3a09afc4222cb91fb4bce6838026d704c"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/eigenvector.py",
+          "sha256": "e65b9152c6182245b3538aa7554a78026d72b994800c1750a6d6ff1c18e7be85"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/centrality/tests/test_eigenvector_centrality.py",
+          "sha256": "0592c2433e82a9b8e4fe3926985f42b41de3f2dd9aa988d5787f831002d5a4a2"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w04"
+    }
+  ]
+}

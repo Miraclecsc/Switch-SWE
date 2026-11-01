@@ -1,0 +1,1 @@
+I have this in /work/w04: [syntax] add a `stylize_ranges` method to the Syntax class

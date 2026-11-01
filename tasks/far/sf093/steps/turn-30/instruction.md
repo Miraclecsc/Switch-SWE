@@ -1,0 +1,1 @@
+One more thing: > huh, why is `pyright --verifytypes` not complaining about missing docstrings. Neither `Matcher` nor that type has ~any opened an issue in pyright after debugging this. I'm pretty sure we'll get warnings for lots of random symbols if that gets fixed :sweat_smile:

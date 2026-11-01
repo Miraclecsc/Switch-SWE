@@ -1,0 +1,1 @@
+Also, Consider this doesn't work if failures has several elements without '%' Also, I've pushed a change to use `try`/`except` & added a CHANGES entry.

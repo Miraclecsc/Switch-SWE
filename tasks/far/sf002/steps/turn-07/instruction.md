@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Looks OK. Now if there was a semantic patching tool for Python I could use to autoreplace all the calls that actually refer to anyio objects (and *only* those) I'd be even more happy. :-/

@@ -1,0 +1,1 @@
+I have this in /work/w02: Consider you can work around that by the classic `self` parametrization with a method scoped type variable i.e. `def _set_return_value(self: TaskHandle[_T], val: _T) -> None:` . If T, which is scoped to class-level is covariant.

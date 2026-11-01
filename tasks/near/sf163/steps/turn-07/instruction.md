@@ -1,0 +1,1 @@
+I have this in /work/w04: tests: branches coverage in `responses.py`, `staticfiles.py`, `templating.py`, `middleware/wsgi.py` and `endpoints.py`

@@ -1,0 +1,1 @@
+And here, Might as well add the [multi-self-loop test]( as well while we're at it!

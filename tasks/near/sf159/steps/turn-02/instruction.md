@@ -1,0 +1,1 @@
+For the checkout at /work/w03, Implement and test this repository change: Add test cases for userinfo in URL

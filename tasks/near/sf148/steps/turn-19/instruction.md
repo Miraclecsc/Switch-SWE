@@ -1,0 +1,1 @@
+Please check this too: These make the earlier `isinstance` checks redundant.

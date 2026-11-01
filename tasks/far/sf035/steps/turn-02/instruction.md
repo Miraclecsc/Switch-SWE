@@ -1,0 +1,3 @@
+One more thing: > This change is **not** meant to silence those failures It doesn't look like this is tested somewhere, i.e. you should unskip the mentioned `test_alter_geom_field_dim` and assert that `self.alter_gis_model` still raises exception.
+
+Harden single-object change-form actions: the object identified by the change URL is authoritative. Resolve its action queryset through ModelAdmin.get_queryset(request) and restrict it to that object. Submitted _selected_action IDs (missing, duplicated, another object, or many objects) and select_across must never expand or redirect a change-form action to other rows. Preserve changelist selection semantics.

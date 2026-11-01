@@ -1,0 +1,128 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index af96d82f..0783de87 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
+ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
++## [Unreleased]
++
++### Fixed
++
++- Fall back to `sys.__stderr__` on POSIX systems when trying to get the terminal size (fix issues when Rich is piped to another process)
++
+ ## [12.2.0] - 2022-04-05
+ 
+ ### Changed
+diff --git a/CONTRIBUTORS.md b/CONTRIBUTORS.md
+index ab258d1e..c24f21b1 100644
+--- a/CONTRIBUTORS.md
++++ b/CONTRIBUTORS.md
+@@ -27,6 +27,7 @@ The following people have contributed to the development of Rich:
+ - [Nathan Page](https://github.com/nathanrpage97)
+ - [Avi Perl](https://github.com/avi-perl)
+ - [Laurent Peuch](https://github.com/psycojoker)
++- [Olivier Philippon](https://github.com/DrBenton)
+ - [Kylian Point](https://github.com/p0lux)
+ - [Kyle Pollina](https://github.com/kylepollina)
+ - [Clément Robert](https://github.com/neutrinoceros)
+diff --git a/rich/console.py b/rich/console.py
+index 2cdab428..f4a1e8ee 100644
+--- a/rich/console.py
++++ b/rich/console.py
+@@ -82,17 +82,21 @@ class NoChange:
+ 
+ NO_CHANGE = NoChange()
+ 
++try:
++    _STDIN_FILENO = sys.__stdin__.fileno()
++except Exception:
++    _STDIN_FILENO = 0
+ try:
+     _STDOUT_FILENO = sys.__stdout__.fileno()
+ except Exception:
+     _STDOUT_FILENO = 1
+-
+ try:
+     _STDERR_FILENO = sys.__stderr__.fileno()
+ except Exception:
+     _STDERR_FILENO = 2
+ 
+-_STD_STREAMS = (_STDOUT_FILENO, _STDERR_FILENO)
++_STD_STREAMS = (_STDIN_FILENO, _STDOUT_FILENO, _STDERR_FILENO)
++_STD_STREAMS_OUTPUT = (_STDOUT_FILENO, _STDERR_FILENO)
+ 
+ CONSOLE_HTML_FORMAT = """\
+ <!DOCTYPE html>
+@@ -809,11 +813,11 @@ class Console:
+         )
+         if width is None:
+             columns = self._environ.get("COLUMNS")
+-            if columns is not None and columns.isdigit():
++            if columns is not None and columns.isdigit() and int(columns) > 0:
+                 width = int(columns) - self.legacy_windows
+         if height is None:
+             lines = self._environ.get("LINES")
+-            if lines is not None and lines.isdigit():
++            if lines is not None and lines.isdigit() and int(lines) > 0:
+                 height = int(lines)
+ 
+         self.soft_wrap = soft_wrap
+@@ -1102,20 +1106,38 @@ class Console:
+             except OSError:  # Probably not a terminal
+                 pass
+         else:
++            descriptors = []
+             try:
+-                width, height = os.get_terminal_size(sys.__stdin__.fileno())
++                if self._file is not None:
++                    descriptors.append(self.file.fileno())
+             except (AttributeError, ValueError, OSError):
++                pass
++            descriptors.extend(_STD_STREAMS)
++            seen = set()
++            for file_descriptor in descriptors:
++                if file_descriptor in seen:
++                    continue
++                seen.add(file_descriptor)
+                 try:
+-                    width, height = os.get_terminal_size(sys.__stdout__.fileno())
++                    found_width, found_height = os.get_terminal_size(file_descriptor)
+                 except (AttributeError, ValueError, OSError):
+-                    pass
++                    continue
++                if width is None and found_width > 0:
++                    width = found_width
++                if height is None and found_height > 0:
++                    height = found_height
++                if width is not None and height is not None:
++                    break
++
++        def positive_dimension(name):
++            try:
++                value = int(self._environ.get(name, ""))
++            except (TypeError, ValueError):
++                return None
++            return value if value > 0 else None
+ 
+-        columns = self._environ.get("COLUMNS")
+-        if columns is not None and columns.isdigit():
+-            width = int(columns)
+-        lines = self._environ.get("LINES")
+-        if lines is not None and lines.isdigit():
+-            height = int(lines)
++        width = positive_dimension("COLUMNS") or width
++        height = positive_dimension("LINES") or height
+ 
+         # get_terminal_size can report 0, 0 if run from pseudo-terminal
+         width = width or 80
+@@ -2066,7 +2088,7 @@ class Console:
+                         if self.legacy_windows:
+                             try:
+                                 use_legacy_windows_render = (
+-                                    self.file.fileno() in _STD_STREAMS
++                                    self.file.fileno() in _STD_STREAMS_OUTPUT
+                                 )
+                             except (ValueError, io.UnsupportedOperation):
+                                 pass

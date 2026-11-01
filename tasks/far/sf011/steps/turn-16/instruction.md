@@ -1,0 +1,1 @@
+I have this in /work/w04: This is a good idea IMO, but, regardless of whether we need a specific exception subclass for this fix, I'd go with

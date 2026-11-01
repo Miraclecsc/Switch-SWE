@@ -1,0 +1,1 @@
+One more thing: This stemmed from a `mypy` complaint, but I think you're right – `TaskInfo` objects should never be created from completed tasks under any circumstances.

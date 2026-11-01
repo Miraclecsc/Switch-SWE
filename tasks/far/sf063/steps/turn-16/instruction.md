@@ -1,0 +1,1 @@
+And here, Support copy.copy and copy.deepcopy under the same contract. Preserve additional instance attributes and exception notes when present; deep copies and pickle roundtrips must not alias mutable metadata in the original.

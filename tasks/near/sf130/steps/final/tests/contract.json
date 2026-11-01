@@ -1,0 +1,63 @@
+{
+  "case_id": "sf130_switched",
+  "task_id": "ssb_v3_django__django_3f912ee418",
+  "repo": "django/django",
+  "base_commit": "60a9c70496e5d7b971928ce3da5b47c8836a4def",
+  "derived_fail_to_pass": [
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_set_choices_picks_up_new_files",
+    "forms_tests.field_tests.test_sf130_refresh.RefreshTests.test_bad_pattern_is_atomic_and_recoverable",
+    "forms_tests.field_tests.test_sf130_refresh.RefreshTests.test_callable_failure_keeps_snapshot",
+    "forms_tests.field_tests.test_sf130_refresh.RefreshTests.test_callable_path_and_pathlike",
+    "forms_tests.field_tests.test_sf130_refresh.RefreshTests.test_nonrecursive_failure_is_atomic",
+    "forms_tests.field_tests.test_sf130_refresh.RefreshTests.test_recursive_failure_after_partial_scan"
+  ],
+  "derived_pass_to_pass": [
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_allow_folders",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_clean",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_fix_os_paths",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_match",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_no_options",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_nonexistent_path",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_recursive",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_recursive_folders_without_files",
+    "forms_tests.field_tests.test_filepathfield.FilePathFieldTest.test_recursive_no_folders_or_files",
+    "forms_tests.field_tests.test_sf130_refresh.RefreshTests.test_form_instance_isolation_and_replacement"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/forms_tests/field_tests/test_filepathfield.py",
+    "tests/forms_tests/field_tests/test_sf130_refresh.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/forms_tests/field_tests/test_filepathfield.py",
+    "tests/forms_tests/field_tests/test_sf130_refresh.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "ed010149e1360231b100a9c5541f239891aff07f5cb753c8ac2085b03463d543",
+    "config/recipes.json": "8b6fde51fc1765111df9d10e03568e58efd4115a8777ffdedec0cdd659328c0e"
+  }
+}

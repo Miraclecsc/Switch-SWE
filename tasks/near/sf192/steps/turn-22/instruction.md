@@ -1,0 +1,1 @@
+One more thing: Also idle though: this could be made configurable if the need ever arises. As in you pass in exactly the exception you want to require.

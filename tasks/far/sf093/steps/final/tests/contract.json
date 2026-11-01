@@ -1,0 +1,89 @@
+{
+  "case_id": "sf093_switched",
+  "task_id": "ssb_v4_python-trio__trio_3321",
+  "repo": "python-trio/trio",
+  "base_commit": "c1e1167a3e2a9e953fb237656e5609b7bb2a9519",
+  "derived_fail_to_pass": [
+    "src.trio._tests.test_sync::test_CapacityLimiter",
+    "src.trio._tests.test_sync::test_CapacityLimiter_change_total_tokens",
+    "src.trio._tests.test_sync::test_CapacityLimiter_zero_limit_tokens",
+    "src.trio._tests.test_sf093_extension::test_cancelled_waiter_and_resize",
+    "src.trio._tests.test_sf093_extension::test_nested_pause_and_changed_zero_capacity",
+    "src.trio._tests.test_sf093_extension::test_pause_holds_existing_and_queued_borrowers"
+  ],
+  "derived_pass_to_pass": [
+    "src.trio._tests.test_sync::test_CapacityLimiter_inf",
+    "src.trio._tests.test_sync::test_CapacityLimiter_memleak_548",
+    "src.trio._tests.test_sync::test_Condition",
+    "src.trio._tests.test_sync::test_Event",
+    "src.trio._tests.test_sync::test_Lock_and_StrictFIFOLock[Lock]",
+    "src.trio._tests.test_sync::test_Lock_and_StrictFIFOLock[StrictFIFOLock]",
+    "src.trio._tests.test_sync::test_Semaphore",
+    "src.trio._tests.test_sync::test_Semaphore_bounded",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[CapacityLimiter(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[ChannelLock1(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[ChannelLock1(10)]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[ChannelLock2]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[ChannelLock3]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[Lock]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[Semaphore(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_acquire_nowait_blocks_acquire[StrictFIFOLock]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[CapacityLimiter(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[ChannelLock1(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[ChannelLock1(10)]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[ChannelLock2]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[ChannelLock3]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[Lock]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[Semaphore(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_exclusion[StrictFIFOLock]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[CapacityLimiter(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[ChannelLock1(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[ChannelLock1(10)]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[ChannelLock2]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[ChannelLock3]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[Lock]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[Semaphore(1)]",
+    "src.trio._tests.test_sync::test_generic_lock_fifo_fairness[StrictFIFOLock]",
+    "src.trio._tests.test_sync::test_lock_acquire_unowned_lock",
+    "src.trio._tests.test_sync::test_lock_handover",
+    "src.trio._tests.test_sync::test_lock_multiple_acquire",
+    "src.trio._tests.test_sf093_extension::test_original_zero_capacity"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "src/trio/_tests/test_sync.py",
+    "src/trio/_tests/test_sf093_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "src/trio/_tests/test_sf093_extension.py",
+    "src/trio/_tests/test_sync.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "aa903f5188a085368dc760ae3d4fe16db7940252b0a56fb2a59d1d8acf468ffe",
+    "config/recipes.json": "f2d93edfc941573b57b4a7bc79aac060c00ce79a9d7bd9852e8f136294e8c4cd"
+  }
+}

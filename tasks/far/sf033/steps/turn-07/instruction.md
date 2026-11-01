@@ -1,0 +1,1 @@
+Please check this too: just a clarification, Is the test above supposed to be correct. then shouldn't that imply `M ** 2` should return `[[oo, nan],[nan, oo]]` It works correctly when we use `M @ M`.

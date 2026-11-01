@@ -1,0 +1,1 @@
+Please check this too: There is a "plan on adding an API for writing metadata out to an external form" 🙂 (at least as `bytes`). I proposed using sets since the core metadata spec doesn't seem to suggest that order is important. Is that something we want to promote people potentially relying on?

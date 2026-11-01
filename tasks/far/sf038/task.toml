@@ -1,0 +1,76 @@
+schema_version = "1.4"
+multi_step_reward_strategy = "final"
+
+[metadata]
+split = "far"
+repository = "encode/starlette"
+source_id = "sf038"
+category = "software-engineering"
+tags = ["switch-swe", "multi-step", "far"]
+harbor_commit = "ac533ec72bc506c8a6bf6f296ba6ab80707fad89"
+
+[agent]
+timeout_sec = 900
+user = "agent"
+
+[environment]
+build_timeout_sec = 3600
+cpus = 4
+memory_mb = 16384
+storage_mb = 30720
+workdir = "/work"
+
+[verifier]
+timeout_sec = 30
+environment_mode = "shared"
+
+[[steps]]
+name = "turn-01"
+
+[[steps]]
+name = "turn-02"
+
+[[steps]]
+name = "turn-03"
+
+[[steps]]
+name = "turn-04"
+
+[[steps]]
+name = "turn-05"
+
+[[steps]]
+name = "turn-06"
+
+[[steps]]
+name = "turn-07"
+
+[[steps]]
+name = "turn-08"
+
+[[steps]]
+name = "turn-09"
+
+[[steps]]
+name = "turn-10"
+
+[[steps]]
+name = "turn-11"
+
+[[steps]]
+name = "turn-12"
+
+[[steps]]
+name = "turn-13"
+
+[[steps]]
+name = "final"
+
+[[steps.artifacts]]
+source = "/work/w02"
+destination = "focus"
+exclude = [".git", ".venv", "venv", "__pycache__", "*.pyc", ".pytest_cache", ".mypy_cache", ".ruff_cache"]
+
+[steps.verifier]
+environment_mode = "separate"
+timeout_sec = 10000

@@ -1,0 +1,78 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 9c22867..761be04 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -3,6 +3,11 @@ Version history
+ 
+ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ 
++**UNRELEASED**
++
++- Fixed a misleading ``ValueError`` in the context of DNS failures
++  (`#815 <https://github.com/agronholm/anyio/issues/815>`_; PR by @graingert)
++
+ **4.6.2**
+ 
+ - Fixed regression caused by (`#807 <https://github.com/agronholm/anyio/pull/807>`_)
+diff --git a/src/anyio/_core/_sockets.py b/src/anyio/_core/_sockets.py
+index 6070c64..60796ac 100644
+--- a/src/anyio/_core/_sockets.py
++++ b/src/anyio/_core/_sockets.py
+@@ -186,29 +186,39 @@ async def connect_tcp(
+     try:
+         addr_obj = ip_address(remote_host)
+     except ValueError:
+-        # getaddrinfo() will raise an exception if name resolution fails
+-        gai_res = await getaddrinfo(
+-            target_host, remote_port, family=family, type=socket.SOCK_STREAM
+-        )
++        addr_obj = None
+ 
+-        # Organize the list so that the first address is an IPv6 address (if available)
+-        # and the second one is an IPv4 addresses. The rest can be in whatever order.
+-        v6_found = v4_found = False
+-        target_addrs: list[tuple[socket.AddressFamily, str]] = []
+-        for af, *rest, sa in gai_res:
+-            if af == socket.AF_INET6 and not v6_found:
+-                v6_found = True
+-                target_addrs.insert(0, (af, sa[0]))
+-            elif af == socket.AF_INET and not v4_found and v6_found:
+-                v4_found = True
+-                target_addrs.insert(1, (af, sa[0]))
+-            else:
+-                target_addrs.append((af, sa[0]))
+-    else:
++    if addr_obj is not None:
+         if isinstance(addr_obj, IPv6Address):
+             target_addrs = [(socket.AF_INET6, addr_obj.compressed)]
+         else:
+             target_addrs = [(socket.AF_INET, addr_obj.compressed)]
++    else:
++        # getaddrinfo() will raise an exception if name resolution fails
++        gai_res = await getaddrinfo(
++            target_host, remote_port, family=family, type=socket.SOCK_STREAM
++        )
++
++        # Resolve each usable endpoint once, keeping resolver order within families.
++        candidates = []
++        seen = set()
++        for af, socktype, proto, canonname, sa in gai_res:
++            if af not in (socket.AF_INET, socket.AF_INET6):
++                continue
++            endpoint = (af, sa[0])
++            if endpoint not in seen:
++                seen.add(endpoint)
++                candidates.append(endpoint)
++        if not candidates:
++            raise socket.gaierror(socket.EAI_NONAME, "No usable TCP addresses")
++
++        preferred = []
++        for af in (socket.AF_INET6, socket.AF_INET):
++            for endpoint in candidates:
++                if endpoint[0] == af:
++                    preferred.append(endpoint)
++                    break
++        target_addrs = preferred + [item for item in candidates if item not in preferred]
+ 
+     oserrors: list[OSError] = []
+     async with create_task_group() as tg:

@@ -1,0 +1,1 @@
+Please check this too: This is a little strange, the decorator is just being used as a marker for `pyright`. The upstream spec specifies that the `__dataclass_transform__` decorator is defined on a per-project basis _either_ in the a `.py` or `.pyi` source file, essentially as a compatibility layer until this is moved into `typing_extensions`.

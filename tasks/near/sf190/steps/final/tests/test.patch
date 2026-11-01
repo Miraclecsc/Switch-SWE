@@ -1,0 +1,152 @@
+diff --git a/tests/test_slots.py b/tests/test_slots.py
+index a850575ae..b930b2ef1 100644
+--- a/tests/test_slots.py
++++ b/tests/test_slots.py
+@@ -13,6 +13,8 @@
+ 
+ import attr
+ 
++from attr._compat import PY2
++
+ 
+ @attr.s
+ class C1(object):
+@@ -30,6 +32,14 @@ def classmethod(cls):
+     def staticmethod():
+         return "staticmethod"
+ 
++    if not PY2:
++        def my_class(self):
++            return __class__  # NOQA: F821
++
++        def my_super(self):
++            """Just to test out the no-arg super."""
++            return super().__repr__()
++
+ 
+ @attr.s(slots=True, hash=True)
+ class C1Slots(object):
+@@ -47,6 +57,14 @@ def classmethod(cls):
+     def staticmethod():
+         return "staticmethod"
+ 
++    if not PY2:
++        def my_class(self):
++            return __class__  # NOQA: F821
++
++        def my_super(self):
++            """Just to test out the no-arg super."""
++            return super().__repr__()
++
+ 
+ def test_slots_being_used():
+     """
+@@ -298,3 +316,52 @@ class C2(C1Bare):
+     hash(c2)  # Just to assert it doesn't raise.
+ 
+     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
++
++
++@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
++def test_closure_cell_rewriting():
++    """
++    Slot classes support proper closure cell rewriting.
++
++    This affects features like `__class__` and the no-arg super().
++    """
++    non_slot_instance = C1(x=1, y="test")
++    slot_instance = C1Slots(x=1, y="test")
++
++    assert non_slot_instance.my_class() is C1
++    assert slot_instance.my_class() is C1Slots
++
++    # Just assert they return something, and not an exception.
++    assert non_slot_instance.my_super()
++    assert slot_instance.my_super()
++
++
++@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
++def test_closure_cell_rewriting_inheritance():
++    """
++    Slot classes support proper closure cell rewriting when inheriting.
++
++    This affects features like `__class__` and the no-arg super().
++    """
++    @attr.s
++    class C2(C1):
++        def my_subclass(self):
++            return __class__  # NOQA: F821
++
++    @attr.s
++    class C2Slots(C1Slots):
++        def my_subclass(self):
++            return __class__  # NOQA: F821
++
++    non_slot_instance = C2(x=1, y="test")
++    slot_instance = C2Slots(x=1, y="test")
++
++    assert non_slot_instance.my_class() is C1
++    assert slot_instance.my_class() is C1Slots
++
++    # Just assert they return something, and not an exception.
++    assert non_slot_instance.my_super()
++    assert slot_instance.my_super()
++
++    assert non_slot_instance.my_subclass() is C2
++    assert slot_instance.my_subclass() is C2Slots
+diff --git a/tests/test_sf190_staged.py b/tests/test_sf190_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf190_staged.py
+@@ -0,0 +1,51 @@
++
++import attr
++
++def test_classmethod_and_staticmethod_class_cells():
++    class Parent(object):
++        @classmethod
++        def identify(cls):
++            return cls
++    @attr.s(slots=True)
++    class Child(Parent):
++        @classmethod
++        def identify(cls):
++            return super().identify()
++        @staticmethod
++        def owner():
++            return __class__
++    assert Child.identify() is Child
++    assert Child.owner() is Child
++
++def test_property_accessors_rebind_class():
++    @attr.s(slots=True)
++    class Child(object):
++        stored = attr.ib(default=None)
++        @property
++        def owner(self):
++            return __class__
++        @owner.setter
++        def owner(self, value):
++            self.stored = (__class__, value)
++        @owner.deleter
++        def owner(self):
++            self.stored = (__class__, 'deleted')
++    instance = Child()
++    assert instance.owner is Child
++    instance.owner = 3
++    assert instance.stored == (Child,3)
++    del instance.owner
++    assert instance.stored == (Child,'deleted')
++
++def test_empty_and_unrelated_closure_cells_are_preserved():
++    token = object()
++    removed = object()
++    def empty(self):
++        return removed
++    del removed
++    class Child(object):
++        empty_cell = empty
++        def capture(self):
++            return token, __class__
++    Child = attr.s(slots=True)(Child)
++    assert Child().capture() == (token,Child)

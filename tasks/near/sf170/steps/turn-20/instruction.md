@@ -1,0 +1,1 @@
+And here, Nice intentionally adversarial example @dschult! I experimented using `Counter`, but it was slower than (or about the same as) sorting, so I wouldn't recommend using it for performance.

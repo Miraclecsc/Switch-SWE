@@ -1,0 +1,1 @@
+One more thing: i think removing the "tz" check above is going to cause this to change behavior on dt64tz cases?

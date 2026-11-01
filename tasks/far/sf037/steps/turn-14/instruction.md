@@ -1,0 +1,3 @@
+One more thing: Just so the pipeline can pass, but we shouldn't merge this here.
+
+Make State implement collections.abc.MutableMapping, including get, keys/items/values views, update, setdefault, pop and clear, while keeping existing item/attribute mutations backed by the same supplied dictionary. Mapping method names are methods; colliding data keys remain accessible via item syntax. Views must remain live after attribute mutations.

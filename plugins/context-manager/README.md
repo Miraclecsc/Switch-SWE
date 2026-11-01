@@ -54,4 +54,4 @@ python3 -B test/integration.py --mode x
 python3 -B test/integration.py --mode off
 ```
 
-[Validation results](VALIDATION.md) · [Source and version provenance](PROVENANCE.json) · [MIT license](LICENSE)
+[MIT license](LICENSE)

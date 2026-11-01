@@ -1,0 +1,1 @@
+And here, If we follow through with e.g. `from_email_headers()`, that method (and other `from_*` methods) is the only thing that needs to be able to understand the `2.0` version. In which case we do want to be strict in the enum so that people don't try to generate `2.0` metadata.

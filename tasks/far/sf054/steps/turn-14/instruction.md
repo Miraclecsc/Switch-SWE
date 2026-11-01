@@ -1,0 +1,1 @@
+One more thing: Somewhat off topic: If we are getting into `functools.reduce`/`itertools`, Consider that we should add `anyio.as_safe_stream` (a port of `trio.as_safe_channel`).

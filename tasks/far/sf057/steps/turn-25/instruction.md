@@ -1,0 +1,1 @@
+Also, Preserve startup exception identity, error delivery after readiness, cancellation cleanup, and task-parent bookkeeping. Keep the original TaskGroup and CancelScope reference-cycle regressions on all backends; the new live-handshake lifetime guarantee applies to asyncio and uvloop.

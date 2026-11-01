@@ -1,0 +1,1 @@
+One more thing: Please verify that separate instances have independent quotas and that one instance's quota survives task changes. Include the N=1 and repeated N=2/N=3 cases, and cancellation with and without contention. Tests must observe actual scheduling, rather than treating a wall-clock threshold as correctness.

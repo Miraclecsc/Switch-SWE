@@ -1,0 +1,1 @@
+Please check this too: OK, test coverage is as good as I can get it without writing tests for `fspath()` just for this PR.

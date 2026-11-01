@@ -1,0 +1,3 @@
+And here, Thanks for these changes! Can you remove the "pytest.approx(" on this line (217)? (and probably in the arf test too.)
+
+For spring_layout (and its alias) with iterations=0, scale=None and complete supplied positions, return independent per-node array copies with identical values, shape and dtype; do not advance the supplied random generator. Preserve node keys and store_pos_as behavior. Keep existing method/fixed-node/gravity/dimension validation.

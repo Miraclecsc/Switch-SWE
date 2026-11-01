@@ -1,0 +1,1 @@
+Also, DOC: avoid .at column-expansion warning in indexing.rst example The example used a new column ('E'), which now triggers the Pandas4Warning added in this branch and breaks the --warnings-are-errors doc build. Switch to an existing column.

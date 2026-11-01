@@ -1,0 +1,1 @@
+Also, I've reverted the commit that updated the snapshot tests. I wanted to check if #4675 might account now for these changes but unfortunately not.

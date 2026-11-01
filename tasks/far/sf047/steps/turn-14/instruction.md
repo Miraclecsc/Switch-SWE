@@ -1,0 +1,1 @@
+One more thing: However, during testing, I found an issue with structured MaskedArrays: Should this be addressed in a separate issue, or Evaluate whether to include the fix in this PR. For now, I'll ensure structured MaskedArrays preserve their existing behavior (mask ignored) to avoid regression.

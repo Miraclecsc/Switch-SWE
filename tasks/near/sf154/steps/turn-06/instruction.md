@@ -1,0 +1,1 @@
+One more thing: I understand that if the event is not created then it cannot be set, but should `is_set` actually create the event? `statistics` also doesn't need the event to be created (it could return empty statistics if it's not), yet it creates it.

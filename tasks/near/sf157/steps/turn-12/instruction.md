@@ -1,0 +1,1 @@
+And here, If we want this to be a general `Sequence`, let's also update the type annotation above and cast below.

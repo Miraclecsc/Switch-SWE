@@ -1,0 +1,1 @@
+Also, I've had a look at #350 and the new behaviour sounds like what @amjith describes in the comment The fix by @untitaker is still in place ( – now in the finally block, which should be even better. For me this works really well in all the situations I was able to come up with so far.

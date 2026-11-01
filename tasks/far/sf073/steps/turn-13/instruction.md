@@ -1,0 +1,1 @@
+Also, Extend the same generator with max_steps=None, counting transitions rather than yielded nodes. A nonnegative integer bound permits at most max_steps+1 yielded nodes; zero yields only start. Reject bool/non-integer bounds with TypeError and negative bounds with ValueError before the first yield.

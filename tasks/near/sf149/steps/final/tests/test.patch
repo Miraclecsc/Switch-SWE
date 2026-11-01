@@ -1,0 +1,308 @@
+diff --git a/tests/streams/test_memory.py b/tests/streams/test_memory.py
+index e1a4300fa..61778341d 100644
+--- a/tests/streams/test_memory.py
++++ b/tests/streams/test_memory.py
+@@ -1,6 +1,7 @@
+ import pytest
+ 
+-from anyio import create_task_group, wait_all_tasks_blocked, create_memory_object_stream
++from anyio import (
++    create_task_group, wait_all_tasks_blocked, create_memory_object_stream, fail_after)
+ from anyio.exceptions import EndOfStream, ClosedResourceError, BrokenResourceError, WouldBlock
+ 
+ pytestmark = pytest.mark.anyio
+@@ -56,6 +57,19 @@ async def test_send_then_receive_nowait():
+         assert await receive.receive_nowait() == 'hello'
+ 
+ 
++async def test_send_is_unblocked_after_receive_nowait():
++    send, receive = create_memory_object_stream(1)
++    await send.send_nowait('hello')
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(send.send, 'anyio')
++            await wait_all_tasks_blocked()
++            assert await receive.receive_nowait() == 'hello'
++
++    assert await receive.receive_nowait() == 'anyio'
++
++
+ async def test_send_nowait_then_receive_nowait():
+     send, receive = create_memory_object_stream(2)
+     await send.send_nowait('hello')
+diff --git a/tests/streams/test_receipts.py b/tests/streams/test_receipts.py
+new file mode 100644
+--- /dev/null
++++ b/tests/streams/test_receipts.py
+@@ -0,0 +1,270 @@
++"""Public API tests for sf149-handoff-v1; no private-state assertions."""
++import pytest
++
++from anyio import (
++    create_memory_object_stream, create_task_group, create_event,
++    open_cancel_scope, wait_all_tasks_blocked, fail_after,
++)
++from anyio.exceptions import BrokenResourceError, ClosedResourceError, WouldBlock
++
++pytestmark = pytest.mark.anyio
++
++
++@pytest.mark.parametrize("capacity", [0, 1, 3])
++@pytest.mark.parametrize("receive_method", ["receive", "receive_nowait", "__anext__"])
++async def test_receipt_waits_for_consumption(capacity, receive_method):
++    send, receive = create_memory_object_stream(capacity)
++    payload = object()
++    done = []
++
++    async def producer():
++        await send.send_and_wait(payload)
++        done.append("received")
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            assert done == []
++            assert await getattr(receive, receive_method)() is payload
++    assert done == ["received"]
++    with pytest.raises(WouldBlock):
++        await receive.receive_nowait()
++
++
++async def test_receipt_direct_to_waiting_receiver():
++    send, receive = create_memory_object_stream(0)
++    payload = object()
++    seen = []
++
++    async def consumer():
++        seen.append(await receive.receive())
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(consumer)
++            await wait_all_tasks_blocked()
++            await send.send_and_wait(payload)
++            assert seen == [payload]
++
++
++async def test_receipt_mixed_fifo_and_normal_send_still_buffers():
++    send, receive = create_memory_object_stream(1)
++    completed = []
++    await send.send("ordinary")
++
++    async def producer():
++        await send.send_and_wait("receipt")
++        completed.append("receipt")
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            assert await receive.receive_nowait() == "ordinary"
++            await wait_all_tasks_blocked()
++            assert completed == []
++            assert await receive.receive_nowait() == "receipt"
++    assert completed == ["receipt"]
++
++
++@pytest.mark.parametrize("capacity", [0, 1])
++async def test_cancel_retracts_undelivered_receipt(capacity):
++    send, receive = create_memory_object_stream(capacity)
++    scopes = []
++    done = []
++
++    async def producer():
++        async with open_cancel_scope() as scope:
++            scopes.append(scope)
++            await send.send_and_wait("withdrawn")
++            done.append("unexpected")
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            await scopes[0].cancel()
++    assert done == []
++    with pytest.raises(WouldBlock):
++        await receive.receive_nowait()
++    if capacity:
++        await send.send_nowait("next")
++        assert await receive.receive_nowait() == "next"
++
++
++async def test_cancel_buffered_receipt_promotes_waiting_sender():
++    send, receive = create_memory_object_stream(1)
++    scopes = []
++    ordinary_done = []
++
++    async def receipt_producer():
++        async with open_cancel_scope() as scope:
++            scopes.append(scope)
++            await send.send_and_wait("withdrawn")
++
++    async def ordinary_producer():
++        await send.send("survivor")
++        ordinary_done.append(True)
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(receipt_producer)
++            await wait_all_tasks_blocked()
++            await tg.spawn(ordinary_producer)
++            await wait_all_tasks_blocked()
++            await scopes[0].cancel()
++        assert ordinary_done == [True]
++        assert await receive.receive_nowait() == "survivor"
++
++
++async def test_equal_payloads_cancel_only_own_receipt():
++    class Payload:
++        def __eq__(self, other):
++            raise AssertionError("stream must not compare payloads")
++
++    send, receive = create_memory_object_stream(3)
++    left, removed, right = Payload(), Payload(), Payload()
++    scopes = []
++
++    async def producer():
++        async with open_cancel_scope() as scope:
++            scopes.append(scope)
++            await send.send_and_wait(removed)
++
++    await send.send(left)
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            await send.send(right)
++            await scopes[0].cancel()
++    assert await receive.receive_nowait() is left
++    assert await receive.receive_nowait() is right
++
++
++@pytest.mark.parametrize("capacity", [0, 1])
++async def test_last_receiver_close_breaks_undelivered_receipt(capacity):
++    send, receive = create_memory_object_stream(capacity)
++    clone = receive.clone()
++    failures = []
++
++    async def producer():
++        try:
++            await send.send_and_wait("never delivered")
++        except BrokenResourceError:
++            failures.append(True)
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            await receive.aclose()
++            await wait_all_tasks_blocked()
++            assert failures == []
++            await clone.aclose()
++    assert failures == [True]
++
++
++async def test_delivery_wins_close_before_producer_resumes():
++    send, receive = create_memory_object_stream(0)
++    done = []
++
++    async def producer():
++        await send.send_and_wait("committed")
++        done.append(True)
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            assert await receive.receive_nowait() == "committed"
++            await receive.aclose()
++    assert done == [True]
++
++
++async def test_delivery_wins_cancel_before_producer_resumes():
++    send, receive = create_memory_object_stream(1)
++    scopes, done = [], []
++
++    async def producer():
++        async with open_cancel_scope() as scope:
++            scopes.append(scope)
++            await send.send_and_wait("committed")
++            done.append(True)
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            assert await receive.receive_nowait() == "committed"
++            await scopes[0].cancel()
++    assert done == [True]
++    with pytest.raises(WouldBlock):
++        await receive.receive_nowait()
++
++
++async def test_closed_sender_rejects_new_receipt_but_clone_can_send():
++    send, receive = create_memory_object_stream(1)
++    clone = send.clone()
++    await send.aclose()
++    with pytest.raises(ClosedResourceError):
++        await send.send_and_wait("closed")
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(clone.send_and_wait, "clone")
++            await wait_all_tasks_blocked()
++            assert await receive.receive_nowait() == "clone"
++
++
++@pytest.mark.parametrize("capacity", [0, 1])
++async def test_cancelled_waiting_receiver_does_not_lose_receipt(capacity):
++    send, receive = create_memory_object_stream(capacity)
++    clone = receive.clone()
++    scopes, seen, done = [], [], []
++
++    async def cancelled_consumer():
++        async with open_cancel_scope() as scope:
++            scopes.append(scope)
++            seen.append(await receive.receive())
++
++    async def producer():
++        # Cancellation is requested while the first receiver is registered.
++        # The producer then assigns its item before that receiver resumes.
++        await scopes[0].cancel()
++        await send.send_and_wait("recoverable")
++        done.append(True)
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(cancelled_consumer)
++            await wait_all_tasks_blocked()
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            assert seen == []
++            assert done == []
++            assert await clone.receive_nowait() == "recoverable"
++    assert done == [True]
++
++
++async def test_cancelled_direct_receipt_does_not_report_eof():
++    send, receive = create_memory_object_stream(0)
++    seen = []
++
++    async def consumer():
++        seen.append(await receive.receive())
++
++    async def producer():
++        async with open_cancel_scope() as scope:
++            await scope.cancel()
++            await send.send_and_wait("withdrawn")
++
++    async with fail_after(1):
++        async with create_task_group() as tg:
++            await tg.spawn(consumer)
++            await wait_all_tasks_blocked()
++            await tg.spawn(producer)
++            await wait_all_tasks_blocked()
++            assert seen == []
++            await send.send("survivor")
++    assert seen == ["survivor"]

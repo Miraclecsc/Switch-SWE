@@ -1,0 +1,3 @@
+Please check this too: Strengthen isinstance and constancy checks for edge cases- Use ONLY isinstance(Integer) to prevent TypeError on symbolic integers- Use ONLY dexp.is_zero for strict constancy check
+
+The opt-in must compose over sums and ordered products and handle repeated differentiation (including mixed variables) by repeatedly applying the same ordered rule. Handle constants and exponent zero normally. Only concrete Integer exponents may be unrolled; symbolic integer, noninteger, or variable exponents remain conservatively unevaluated, without int-conversion errors or logarithmic scalar power rules. A constant exponent is established only by dexp.is_zero. Default behavior and commutative differentiation must stay compatible.

@@ -1,0 +1,1 @@
+In the checkout at /work/w01, Implement and test this repository change: Fix `HelpFormatter.write_usage` producing spurious characters.

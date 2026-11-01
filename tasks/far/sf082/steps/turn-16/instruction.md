@@ -1,0 +1,1 @@
+And here, Here this is an heuristic to determine the name from the path, as the spec does not enforce path separators.

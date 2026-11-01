@@ -1,0 +1,1 @@
+And here, Raising an exception here is a really good idea. We should add a test for it though.

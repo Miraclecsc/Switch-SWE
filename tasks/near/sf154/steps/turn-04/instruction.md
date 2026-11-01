@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: Unfortunately this patch doesn't fix anything on my system. Tested against anyio/fix-timeout-after-success and Trio/v0.22.2. Test run: using this code:

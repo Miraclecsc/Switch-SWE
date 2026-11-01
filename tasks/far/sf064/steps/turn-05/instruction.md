@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Benchmark Creating json files with data for benchmark example app. Measure time of post to localhost with simple and complex query. To start comparing execution times all you need to do start tests in folder benchmarks. It will show exectution times(min/max/avg) To refresh json files you need to run script ` json_data.py`

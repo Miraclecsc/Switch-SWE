@@ -1,0 +1,75 @@
+diff --git a/tests/test_exceptions.py b/tests/test_exceptions.py
+index 2f2b89167..735f2401e 100644
+--- a/tests/test_exceptions.py
++++ b/tests/test_exceptions.py
+@@ -144,6 +144,12 @@ async def app(scope, receive, send):
+     assert response.text == ""
+ 
+ 
++def test_http_str():
++    assert str(HTTPException(status_code=404)) == "404: Not Found"
++    assert str(HTTPException(404, "Not Found: foo")) == "404: Not Found: foo"
++    assert str(HTTPException(404, headers={"key": "value"})) == "404: Not Found"
++
++
+ def test_http_repr():
+     assert repr(HTTPException(404)) == (
+         "HTTPException(status_code=404, detail='Not Found')"
+@@ -160,6 +166,11 @@ class CustomHTTPException(HTTPException):
+     )
+ 
+ 
++def test_websocket_str():
++    assert str(WebSocketException(1008)) == "1008: "
++    assert str(WebSocketException(1008, "Policy Violation")) == "1008: Policy Violation"
++
++
+ def test_websocket_repr():
+     assert repr(WebSocketException(1008, reason="Policy Violation")) == (
+         "WebSocketException(code=1008, reason='Policy Violation')"
+diff --git a/tests/test_sf063_exception_roundtrip.py b/tests/test_sf063_exception_roundtrip.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf063_exception_roundtrip.py
+@@ -0,0 +1,41 @@
++
++import copy
++import pickle
++import pytest
++from starlette.exceptions import HTTPException, WebSocketException
++
++class CustomHTTP(HTTPException):
++    pass
++
++class CustomWebSocket(WebSocketException):
++    pass
++
++@pytest.mark.parametrize("cls,kwargs", [
++    (HTTPException, {"status_code": 404, "headers": {"X-Reason": "missing"}}),
++    (HTTPException, {"status_code": 400, "detail": ""}),
++    (CustomHTTP, {"status_code": 418, "detail": "雪", "headers": {"X": "Y"}}),
++    (WebSocketException, {"code": 1008, "reason": "policy"}),
++    (CustomWebSocket, {"code": 1001}),
++])
++@pytest.mark.parametrize("operation", ["pickle0", "pickle5", "copy", "deepcopy"])
++def test_keyword_exception_roundtrip(cls, kwargs, operation):
++    error = cls(**kwargs)
++    error.context_info = {"path": ["/test"]}
++    if hasattr(error, "add_note"):
++        error.add_note("request note")
++    if operation.startswith("pickle"):
++        restored = pickle.loads(pickle.dumps(error, protocol=int(operation[-1])))
++    else:
++        restored = getattr(copy, operation)(error)
++    assert restored is not error
++    assert type(restored) is cls
++    assert str(restored) == str(error)
++    assert repr(restored) == repr(error)
++    assert restored.__dict__ == error.__dict__
++    if operation != "copy":
++        restored.context_info["path"].append("/changed")
++        assert error.context_info["path"] == ["/test"]
++
++def test_positional_formatting_is_unchanged():
++    assert str(HTTPException(404, "custom")) == "404: custom"
++    assert str(WebSocketException(1008, "custom")) == "1008: custom"

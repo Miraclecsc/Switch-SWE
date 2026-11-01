@@ -1,0 +1,75 @@
+{
+  "case_id": "sf051_switched",
+  "task_id": "ssb_v4_agronholm__anyio_402",
+  "repo": "agronholm/anyio",
+  "base_commit": "59ae37602bf0b26f069bc9b7e997af3574ee877a",
+  "derived_fail_to_pass": [
+    "tests.test_subprocesses::test_process_new_session_sid[asyncio+uvloop]",
+    "tests.test_subprocesses::test_process_new_session_sid[asyncio]",
+    "tests.test_sf051_fd_handoff::test_empty_descriptor_set_preserves_default_session[asyncio]",
+    "tests.test_sf051_fd_handoff::test_empty_descriptor_set_preserves_default_session[uvloop]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[asyncio-fds0-ValueError]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[uvloop-fds0-ValueError]",
+    "tests.test_sf051_fd_handoff::test_pipe_inheritance_with_session_and_generator[asyncio-open]",
+    "tests.test_sf051_fd_handoff::test_pipe_inheritance_with_session_and_generator[asyncio-run]",
+    "tests.test_sf051_fd_handoff::test_pipe_inheritance_with_session_and_generator[uvloop-open]",
+    "tests.test_sf051_fd_handoff::test_pipe_inheritance_with_session_and_generator[uvloop-run]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_subprocesses::test_process_cwd[asyncio+uvloop]",
+    "tests.test_subprocesses::test_process_cwd[asyncio]",
+    "tests.test_subprocesses::test_process_env[asyncio+uvloop]",
+    "tests.test_subprocesses::test_process_env[asyncio]",
+    "tests.test_subprocesses::test_run_process[asyncio+uvloop-exec]",
+    "tests.test_subprocesses::test_run_process[asyncio+uvloop-shell]",
+    "tests.test_subprocesses::test_run_process[asyncio-exec]",
+    "tests.test_subprocesses::test_run_process[asyncio-shell]",
+    "tests.test_subprocesses::test_run_process_checked[asyncio+uvloop]",
+    "tests.test_subprocesses::test_run_process_checked[asyncio]",
+    "tests.test_subprocesses::test_terminate[asyncio+uvloop]",
+    "tests.test_subprocesses::test_terminate[asyncio]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[asyncio-fds1-TypeError]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[asyncio-fds2-TypeError]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[asyncio-fds3-TypeError]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[uvloop-fds1-TypeError]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[uvloop-fds2-TypeError]",
+    "tests.test_sf051_fd_handoff::test_invalid_descriptors_before_launch[uvloop-fds3-TypeError]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_subprocesses.py",
+    "tests/test_sf051_fd_handoff.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_sf051_fd_handoff.py",
+    "tests/test_subprocesses.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "8116dc7411ef8ad360ff4e391897bdb946e8e88c272218f7026e51c8f847cab7",
+    "config/recipes.json": "9295fb4cb2553db369454bd47f7c40498cbf052c3c39dad15ea3f4f1238c0dae"
+  }
+}

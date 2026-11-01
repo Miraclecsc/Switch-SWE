@@ -1,0 +1,1 @@
+Also, Did add test checking actual equality since I suspect some may rely even on that. (And also that things aren't imported twice in different namespaces)

@@ -1,0 +1,1 @@
+I have this in /work/w04: Make Expr.__add__ etc return NotImplemented for non-Expr Basic subclasses

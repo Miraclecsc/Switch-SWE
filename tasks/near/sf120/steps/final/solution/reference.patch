@@ -1,0 +1,83 @@
+diff --git a/changelog.d/1203.change.md b/changelog.d/1203.change.md
+new file mode 100644
+index 0000000..38c5c9f
+--- /dev/null
++++ b/changelog.d/1203.change.md
+@@ -0,0 +1,2 @@
++Added *class_body* argument to `attrs.make_class()` to provide additional attributes for newly created classes.
++It is, for example, now possible to attach methods.
+diff --git a/src/attr/__init__.pyi b/src/attr/__init__.pyi
+index 0f64150..37a2087 100644
+--- a/src/attr/__init__.pyi
++++ b/src/attr/__init__.pyi
+@@ -490,6 +490,7 @@ def make_class(
+     name: str,
+     attrs: Union[List[str], Tuple[str, ...], Dict[str, Any]],
+     bases: Tuple[type, ...] = ...,
++    class_body: Optional[Dict[str, Any]] = ...,
+     repr_ns: Optional[str] = ...,
+     repr: bool = ...,
+     cmp: Optional[_EqOrderType] = ...,
+diff --git a/src/attr/_make.py b/src/attr/_make.py
+index 9dd0e2e..ad9ebb0 100644
+--- a/src/attr/_make.py
++++ b/src/attr/_make.py
+@@ -2867,7 +2867,9 @@ _f = [
+ Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
+ 
+ 
+-def make_class(name, attrs, bases=(object,), **attributes_arguments):
++def make_class(
++    name, attrs, bases=(object,), class_body=None, **attributes_arguments
++):
+     r"""
+     A quick way to create a new class called *name* with *attrs*.
+ 
+@@ -2883,6 +2885,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
+ 
+     :param tuple bases: Classes that the new class will subclass.
+ 
++    :param dict class_body: An optional dictionary of class attributes for the new class.
++
+     :param attributes_arguments: Passed unmodified to `attr.s`.
+ 
+     :return: A new class with *attrs*.
+@@ -2890,9 +2894,11 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
+ 
+     .. versionadded:: 17.1.0 *bases*
+     .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
++    .. versionchanged:: 23.2.0 *class_body*
+     """
+-    if isinstance(attrs, dict):
+-        cls_dict = attrs
++    from collections.abc import Mapping
++    if isinstance(attrs, Mapping):
++        cls_dict = dict(attrs)
+     elif isinstance(attrs, (list, tuple)):
+         cls_dict = {a: attrib() for a in attrs}
+     else:
+@@ -2904,6 +2910,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
+     user_init = cls_dict.pop("__init__", None)
+ 
+     body = {}
++    if class_body is not None:
++        body.update(class_body)
+     if pre_init is not None:
+         body["__attrs_pre_init__"] = pre_init
+     if post_init is not None:
+@@ -2917,10 +2925,11 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
+     # frame where the class is created.  Bypass this step in environments where
+     # sys._getframe is not defined (Jython for example) or sys._getframe is not
+     # defined for arguments greater than 0 (IronPython).
+-    with contextlib.suppress(AttributeError, ValueError):
+-        type_.__module__ = sys._getframe(1).f_globals.get(
+-            "__name__", "__main__"
+-        )
++    if "__module__" not in body:
++        with contextlib.suppress(AttributeError, ValueError):
++            type_.__module__ = sys._getframe(1).f_globals.get(
++                "__name__", "__main__"
++            )
+ 
+     # We do it here for proper warnings with meaningful stacklevel.
+     cmp = attributes_arguments.pop("cmp", None)

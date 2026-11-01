@@ -1,0 +1,3 @@
+One more thing: Hi! It looks like the CI is waiting for a `type:` label. Could a maintainer please add the appropriate label (likely `type: feature`)? Thanks!
+
+Extend butterflies with keyword-only weight=None. With an edge attribute name, each K2,2 contributes the product of its four edge strengths to each of its four nodes; missing strengths default to 1. None retains the original unweighted counting and return shape. Node filtering still counts motifs in the full graph.

@@ -1,0 +1,2 @@
+I have this in /work/w01: Fix empty str(exception) when initialized with kwargs Add a `super().__init__` call to sub class of Python standard `Exception`, for two reasons: * It's convention to call it for sub class * Like the title says, when `HTTPException` is initialized with kwargs, `str(HTTPException)` is empty, which is just the case I met in this [pytest error case]( Thanks for your attention.
+HTTPException str should be '<status_code>: <detail>'; WebSocketException str should be '<code>: <reason>'. Retain their existing repr formats.

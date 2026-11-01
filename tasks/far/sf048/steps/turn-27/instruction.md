@@ -1,0 +1,1 @@
+Please check this too: i think `self._from_pyarrow_array(result_pa)` would be idiomatic

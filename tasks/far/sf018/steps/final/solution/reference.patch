@@ -1,0 +1,100 @@
+diff --git a/moto/ram/models.py b/moto/ram/models.py
+--- a/moto/ram/models.py
++++ b/moto/ram/models.py
+@@ -1,5 +1,6 @@
+ import re
+ import string
++from copy import deepcopy
+ from datetime import datetime, timezone
+ from typing import Any, Optional
+ 
+@@ -12,6 +13,7 @@
+     organizations_backends,
+ )
+ from moto.ram.exceptions import (
++    IdempotentParameterMismatchException,
+     InvalidParameterException,
+     MalformedArnException,
+     OperationNotPermittedException,
+@@ -110,7 +112,10 @@
+                     f"OrganizationalUnit {match.group(2)} in unknown organization could not be found."
+                 )
+ 
+-            if not re.match(r"^\d{12}$", principal):
++            if not re.match(
++                r"^(\d{12}|arn:aws(-cn|-us-gov)?:iam::\d{12}:(root|role/.+|user/.+)|[a-z0-9-]+\.amazonaws\.com)$",
++                principal,
++            ):
+                 raise InvalidParameterException(
+                     f"Principal ID {principal} is malformed. Verify the ID and try again."
+                 )
+@@ -232,6 +237,9 @@
+     def __init__(self, region_name: str, account_id: str):
+         super().__init__(region_name, account_id)
+         self.resource_shares: list[ResourceShare] = []
++        self._create_resource_share_tokens: dict[
++            str, tuple[dict[str, Any], dict[str, Any]]
++        ] = {}
+         self.managed_permissions: list[ManagedPermission] = [
+             ManagedPermission(
+                 account_id=account_id,
+@@ -262,16 +270,40 @@
+         return organizations_backends[self.account_id][self.partition]
+ 
+     def create_resource_share(self, **kwargs: Any) -> dict[str, Any]:
+-        resource = ResourceShare(self.account_id, self.region_name, **kwargs)
+-        resource.add_principals(kwargs.get("principals", []))
+-        resource.add_resources(kwargs.get("resourceArns", []))
++        parameters = deepcopy(kwargs)
++        token = parameters.pop("clientToken", None)
++        if token is None:
++            token = str(random.uuid4())
++
++        parameters.setdefault("principals", [])
++        parameters.setdefault("resourceArns", [])
++        parameters.setdefault("allowExternalPrincipals", True)
++        previous = self._create_resource_share_tokens.get(token)
++        if previous is not None:
++            previous_parameters, previous_response = previous
++            if parameters != previous_parameters:
++                raise IdempotentParameterMismatchException(
++                    "The client token was previously used with different parameters."
++                )
++            return deepcopy(previous_response)
++
++        resource = ResourceShare(self.account_id, self.region_name, **parameters)
++        resource.add_principals(parameters["principals"])
++        resource.add_resources(parameters["resourceArns"])
+ 
+         self.resource_shares.append(resource)
+ 
+         response = resource.describe()
+         response.pop("featureSet")
+ 
+-        return {"resourceShare": response}
++        result = {"resourceShare": response, "clientToken": token}
++        # Record only successful creations. Keep an immutable creation snapshot,
++        # independent of later share updates and caller-owned dictionaries.
++        self._create_resource_share_tokens[token] = (
++            parameters,
++            deepcopy(result),
++        )
++        return result
+ 
+     def get_resource_shares(self, resource_owner: Optional[str]) -> dict[str, Any]:
+         if resource_owner not in ["SELF", "OTHER-ACCOUNTS"]:
+diff --git a/moto/ram/exceptions.py b/moto/ram/exceptions.py
+--- a/moto/ram/exceptions.py
++++ b/moto/ram/exceptions.py
+@@ -1,4 +1,11 @@
+ from moto.core.exceptions import JsonRESTError
++
++
++class IdempotentParameterMismatchException(JsonRESTError):
++    code = 400
++
++    def __init__(self, message: str):
++        super().__init__("IdempotentParameterMismatchException", message)
+ 
+ 
+ class InvalidParameterException(JsonRESTError):

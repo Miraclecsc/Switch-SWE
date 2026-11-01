@@ -1,0 +1,1 @@
+I have this in /work/w04: Always set _closed = True on asyncio UDP aclose This ensures that a closed UDPSocket will not raise BrokenResourceError. Consider whether this change is strictly necessary---it may be impossible for transport.is_closing to return True on UDP prior to AnyIO's aclose being called, in which case this change does nothing.

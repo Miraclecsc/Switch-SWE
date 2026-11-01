@@ -1,0 +1,56 @@
+{
+  "case_id": "sf198_switched",
+  "task_id": "ssb_v4_python-trio__trio_3205",
+  "repo": "python-trio/trio",
+  "base_commit": "a9f8abdef7ebea98517df042f7f35cb15d9e0e8a",
+  "derived_fail_to_pass": [
+    "src.trio._core._tests.test_mock_clock::test_initialization_doesnt_mutate_runner",
+    "tests.test_sf198_staged::test_inactive_clock_does_not_schedule_guest_work",
+    "tests.test_sf198_staged::test_active_clock_publishes_before_guest_notification"
+  ],
+  "derived_pass_to_pass": [
+    "src.trio._core._tests.test_mock_clock::test_mock_clock",
+    "src.trio._core._tests.test_mock_clock::test_mock_clock_autojump",
+    "src.trio._core._tests.test_mock_clock::test_mock_clock_autojump_0_and_wait_all_tasks_blocked_0",
+    "src.trio._core._tests.test_mock_clock::test_mock_clock_autojump_interference",
+    "src.trio._core._tests.test_mock_clock::test_mock_clock_autojump_preset",
+    "tests.test_sf198_staged::test_active_nonguest_updates_without_guest_tick"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "src/trio/_core/_tests/test_mock_clock.py",
+    "tests/test_sf198_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "src/trio/_core/_tests/test_mock_clock.py",
+    "tests/test_sf198_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "bc32690ff9b1c4e4f52a4a7848f677a3f2e6a2a76053f00a0c49a550b2951688",
+    "config/recipes.json": "7502238190470374525f1a25f417d106bfa422bf65deb36b8d49b76f37759343"
+  }
+}

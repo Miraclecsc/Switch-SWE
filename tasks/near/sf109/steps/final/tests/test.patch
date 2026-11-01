@@ -1,0 +1,101 @@
+diff --git a/tests/composite_pk/test_filter.py b/tests/composite_pk/test_filter.py
+index c4b393d6ea84..fdaa323fd872 100644
+--- a/tests/composite_pk/test_filter.py
++++ b/tests/composite_pk/test_filter.py
+@@ -607,3 +607,30 @@ def setUp(self):
+         )
+         self.enterContext(feature_patch_1)
+         self.enterContext(feature_patch_2)
++
++
++class CompositePKExcludeNoneTests(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        cls.tenant = Tenant.objects.create()
++        cls.user = User.objects.create(
++            tenant=cls.tenant, id=1, email="exclude@example.com"
++        )
++
++    def test_filter_pk_in_partial_none(self):
++        self.assertQuerySetEqual(
++            User.objects.filter(pk__in=[(self.user.pk[0], None)]), []
++        )
++
++    def test_filter_pk_in_full_none(self):
++        self.assertQuerySetEqual(User.objects.filter(pk__in=[(None, None)]), [])
++
++    def test_exclude_pk_in_partial_none(self):
++        self.assertQuerySetEqual(
++            User.objects.exclude(pk__in=[(self.user.pk[0], None)]), [self.user]
++        )
++
++    def test_exclude_pk_in_full_none(self):
++        self.assertQuerySetEqual(
++            User.objects.exclude(pk__in=[(None, None)]), [self.user]
++        )
+diff --git a/tests/queries/tests.py b/tests/queries/tests.py
+index f2136df2433e..c00a78e2edfd 100644
+--- a/tests/queries/tests.py
++++ b/tests/queries/tests.py
+@@ -3536,13 +3536,7 @@ def test_null_in_exclude_qs(self):
+         # into subquery above
+         self.assertIs(inner_qs._result_cache, None)
+ 
+-    @unittest.expectedFailure
+     def test_col_not_in_list_containing_null(self):
+-        """
+-        The following case is not handled properly because
+-        SQL's COL NOT IN (list containing null) handling is too weird to
+-        abstract away.
+-        """
+         self.assertQuerySetEqual(
+             NullableName.objects.exclude(name__in=[None]), ["i1"], attrgetter("name")
+         )
+diff --git a/tests/queries/test_staged_contract.py b/tests/queries/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/queries/test_staged_contract.py
+@@ -0,0 +1,43 @@
++from unittest.mock import patch
++from django.db import connection
++from django.db.models import CharField, Q, Value
++from django.test import TestCase
++from .models import NullableName
++
++
++class ExclusionInputTests(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        for name in (None, "alpha", "beta", "gamma"):
++            NullableName.objects.create(name=name)
++
++    def names(self, queryset):
++        return list(queryset.order_by("pk").values_list("name", flat=True))
++
++    def test_backend_in_list_splitting(self):
++        with patch.object(connection.ops, "max_in_list_size", return_value=1):
++            self.assertEqual(self.names(NullableName.objects.exclude(name__in=[None, "alpha", None, "beta"])), ["gamma"])
++            self.assertEqual(self.names(NullableName.objects.exclude(name__in=[None, None])), ["alpha", "beta", "gamma"])
++
++    def test_constant_value_entries(self):
++        rhs = [Value(None, output_field=CharField()), Value("alpha", output_field=CharField())]
++        self.assertEqual(self.names(NullableName.objects.exclude(name__in=rhs)), ["beta", "gamma"])
++        self.assertEqual(len(rhs), 2)
++        self.assertIsNone(rhs[0].value)
++
++    def test_one_shot_iterable_survives_cloning(self):
++        class Once:
++            def __init__(self):
++                self.items = iter([None, "alpha"])
++            def __iter__(self):
++                return self.items
++        query = NullableName.objects.exclude(name__in=Once())
++        str(query.query)
++        str(query.query)
++        self.assertEqual(self.names(query.all()), ["beta", "gamma"])
++        self.assertEqual(self.names(query), ["beta", "gamma"])
++
++    def test_generator_and_negated_q(self):
++        query = NullableName.objects.filter(~Q(name__in=(x for x in (None, "alpha"))))
++        self.assertEqual(self.names(query), ["beta", "gamma"])
++        self.assertEqual(self.names(NullableName.objects.exclude(name__in=[])), [None, "alpha", "beta", "gamma"])

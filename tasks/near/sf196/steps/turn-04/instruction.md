@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Any reason not to used `collections.abc.Callable`?

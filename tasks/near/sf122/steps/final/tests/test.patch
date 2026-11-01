@@ -1,0 +1,157 @@
+diff --git a/sympy/polys/tests/test_rootoftools.py b/sympy/polys/tests/test_rootoftools.py
+index de9dbcabd0a7..359261cbe612 100644
+--- a/sympy/polys/tests/test_rootoftools.py
++++ b/sympy/polys/tests/test_rootoftools.py
+@@ -185,6 +185,11 @@ def test_CRootOf_subs():
+     assert rootof(x**3 + x + 1, 0).subs(x, y) == rootof(y**3 + y + 1, 0)
+ 
+ 
++def test_CRootOf_xreplace():
++    r = CRootOf(x**2 + 2*x - 1, 0)
++    assert (x - r).xreplace({x: r}) == 0
++
++
+ def test_CRootOf_diff():
+     assert rootof(x**3 + x + 1, 0).diff(x) == 0
+     assert rootof(x**3 + x + 1, 0).diff(y) == 0
+@@ -286,7 +291,7 @@ def test_issue_24978():
+     # (factor of -1 is extracted), before being stored as CRootOf.poly.
+     f = -x**2 + 2
+     r = CRootOf(f, 0)
+-    assert r.poly.as_expr() == x**2 - 2
++    assert r.poly(x) == x**2 - 2
+     # An action that prompts calculation of an interval puts r.poly in
+     # the cache.
+     r.n()
+@@ -620,8 +625,6 @@ def test_pure_key_dict():
+     assert (1 in p) is False
+     p[x] = 1
+     assert x in p
+-    assert y in p
+-    assert p[y] == 1
+     raises(KeyError, lambda: p[1])
+     def dont(k):
+         p[k] = 2
+@@ -695,3 +698,9 @@ def test_issue_19113():
+         ) == '[CRootOf(x**3 - x + 1, 0)]'
+     assert str(Poly(eq.subs(y, tan(x))).real_roots()
+         ) == '[CRootOf(x**3 - x + 1, 0)]'
++
++
++def test_Poly_with_CRootOf():
++    r = RootOf(x**3 + x + 1, 0)
++    p = Poly(r, x)
++    assert p.as_expr() == CRootOf(x**3 + x + 1, 0)
+diff --git a/sympy/printing/pretty/tests/test_pretty.py b/sympy/printing/pretty/tests/test_pretty.py
+index 9c4ad9e4e37e..d25d11dd74b0 100644
+--- a/sympy/printing/pretty/tests/test_pretty.py
++++ b/sympy/printing/pretty/tests/test_pretty.py
+@@ -5168,12 +5168,12 @@ def test_pretty_RootSum():
+     ascii_str = \
+ """\
+        / 5           \\\n\
+-RootSum\\x  + 11*x - 2/\
++RootSum\\w  + 11*w - 2/\
+ """
+     ucode_str = \
+ """\
+        ⎛ 5           ⎞\n\
+-RootSum⎝x  + 11⋅x - 2⎠\
++RootSum⎝w  + 11⋅w - 2⎠\
+ """
+ 
+     assert pretty(expr) == ascii_str
+@@ -5181,15 +5181,11 @@ def test_pretty_RootSum():
+ 
+     expr = RootSum(x**5 + 11*x - 2, Lambda(z, exp(z)))
+     ascii_str = \
+-"""\
+-       / 5                   z\\\n\
+-RootSum\\x  + 11*x - 2, z -> e /\
+-"""
++"""       / 5                   w\\
++RootSum\\w  + 11*w - 2, w -> e /"""
+     ucode_str = \
+-"""\
+-       ⎛ 5                  z⎞\n\
+-RootSum⎝x  + 11⋅x - 2, z ↦ ℯ ⎠\
+-"""
++"""       ⎛ 5                  w⎞
++RootSum⎝w  + 11⋅w - 2, w ↦ ℯ ⎠"""
+ 
+     assert pretty(expr) == ascii_str
+     assert upretty(expr) == ucode_str
+diff --git a/sympy/printing/tests/test_latex.py b/sympy/printing/tests/test_latex.py
+index ef171021cd7d..d35176c14169 100644
+--- a/sympy/printing/tests/test_latex.py
++++ b/sympy/printing/tests/test_latex.py
+@@ -1803,8 +1803,8 @@ def test_latex_ComplexRootOf():
+ 
+ 
+ def test_latex_RootSum():
+-    assert latex(RootSum(x**5 + x + 3, sin)) == \
+-        r"\operatorname{RootSum} {\left(x^{5} + x + 3, \left( x \mapsto \sin{\left(x \right)} \right)\right)}"
++    assert latex(RootSum(w**5 + w + 3, sin)) == \
++        r"\operatorname{RootSum} {\left(w^{5} + w + 3, \left( w \mapsto \sin{\left(w \right)} \right)\right)}"
+ 
+ 
+ def test_settings():
+diff --git a/sympy/printing/tests/test_str.py b/sympy/printing/tests/test_str.py
+index 988643c83d89..84b90ba8ee7a 100644
+--- a/sympy/printing/tests/test_str.py
++++ b/sympy/printing/tests/test_str.py
+@@ -647,9 +647,9 @@ def test_RootSum():
+     f = x**5 + 2*x - 1
+ 
+     assert str(
+-        RootSum(f, Lambda(z, z), auto=False)) == "RootSum(x**5 + 2*x - 1)"
++        RootSum(f, Lambda(z, z), auto=False)) == "RootSum(w**5 + 2*w - 1)"
+     assert str(RootSum(f, Lambda(
+-        z, z**2), auto=False)) == "RootSum(x**5 + 2*x - 1, Lambda(z, z**2))"
++        z, z**2), auto=False)) == "RootSum(w**5 + 2*w - 1, Lambda(w, w**2))"
+ 
+ 
+ def test_GroebnerBasis():
+diff --git a/sympy/printing/tests/test_rootsum_binding_v1.py b/sympy/printing/tests/test_rootsum_binding_v1.py
+new file mode 100644
+index 0000000000..aa9b3b68c5
+--- /dev/null
++++ b/sympy/printing/tests/test_rootsum_binding_v1.py
+@@ -0,0 +1,37 @@
++from sympy import Lambda, RootSum, exp, sstr, symbols, sympify
++
++
++def roundtrip(expression, local_symbols):
++    restored = sympify(sstr(expression),locals={s.name:s for s in local_symbols})
++    assert restored == expression
++    assert restored.free_symbols == expression.free_symbols
++
++
++def test_free_function_symbol_named_w_is_not_captured():
++    x,w = symbols("x w")
++    expression = RootSum(x**3+x+1,Lambda(x,exp(x+w)),auto=False)
++    roundtrip(expression,[w])
++
++
++def test_multiple_colliding_print_names_are_avoided():
++    x,w,w0 = symbols("x w w0")
++    expression = RootSum(x**3+x+1,Lambda(x,exp(x+w+w0)),auto=False)
++    roundtrip(expression,[w,w0])
++
++
++def test_symbolic_polynomial_coefficients_keep_generator_identity():
++    x,w = symbols("x w")
++    expression = RootSum(x**3+w*x+1,Lambda(x,exp(x)),x=x,auto=False)
++    roundtrip(expression,[w])
++
++
++def test_noncolliding_symbolic_coefficient_roundtrip():
++    x,a = symbols("x a")
++    expression = RootSum(x**3+a*x+1,Lambda(x,exp(x)),x=x,auto=False)
++    roundtrip(expression,[a])
++
++
++def test_original_univariate_printing_is_unchanged():
++    x,z = symbols("x z")
++    assert str(RootSum(x**5+2*x-1,Lambda(z,z),auto=False)) == "RootSum(w**5 + 2*w - 1)"
++    assert str(RootSum(x**5+2*x-1,Lambda(z,z**2),auto=False)) == "RootSum(w**5 + 2*w - 1, Lambda(w, w**2))"

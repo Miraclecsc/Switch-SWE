@@ -1,0 +1,1 @@
+One more thing: > I'm not sure I agree with the the behavior here. A version like `2` and `2.0.0` are equivalent: > > > > I think I would expect `Version('2').minor` to return `0`, not `None`. Thanks for the review. Adjusted accordingly.

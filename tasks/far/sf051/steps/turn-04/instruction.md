@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: Switched start_blocking_portal() to use a daemon thread instead of ThreadPoolExecutor ThreadPoolExecutor used daemon threads in Python 3.8 and non-daemon threads in 3.9 onwards.

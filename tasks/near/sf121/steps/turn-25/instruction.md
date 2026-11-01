@@ -1,0 +1,1 @@
+Also, A really clean (IMO) implementation breaks certain features of `InteractiveConsole` intended to enable customization in subclasses. So I made it `final` to discourage people from trying and noted in comments which things won't work for future contributors to this class.

@@ -1,0 +1,3 @@
+One more thing: The comment says "We actually need to compute 1+x accurately, not x" but the code computes Add(S.NegativeOne, arg), which calculates arg The comment should be updated to say "We actually need to compute x-1 accurately" or "We compute (arg 1) to maintain precision" to match what the code actually does.
+
+Extend the cancellation fix to the principal logarithm on the negative real axis near -1. Compute the small real log-magnitude accurately on either side of -1 while preserving the +pi imaginary part. With adequate maxn, tiny nonzero real parts must keep their sign and requested significant digits, including unevaluated sums. Keep positive near-1 behavior and exact +/-1.

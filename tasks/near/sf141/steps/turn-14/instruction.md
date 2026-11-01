@@ -1,0 +1,1 @@
+One more thing: Remove the `print(spans)` debug output from this test; it will add noise to test runs/CI output and isn't needed for assertions.

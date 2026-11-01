@@ -1,0 +1,1 @@
+Also, > I don't think we should make `UNSET` public. It should remain an implementation detail to make the internal tracking work, but users should never be passing or receiving it. Good to me. I removed that mention and hide `UNSET` to the user everywhere I can. See:

@@ -1,0 +1,1 @@
+I have this in /work/w04: Shouldn't `fill_value` get replaces with `self._na_value` if it is None (which should probably better be `no_default`) Or is that done under the hood in the algos function.

@@ -1,0 +1,1 @@
+One more thing: I agree with @uranusjr, I think this is actually cleaner and more clear. And since they're doing essentially the same thing, I don't see any issue with relying on `hash` here (although maybe I'm missing something).

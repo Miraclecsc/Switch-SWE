@@ -1,0 +1,1 @@
+One more thing: Filtering must preserve the original exception tree structure: retain group messages, leaf objects, ordering and repeated occurrences; remove only cancellation leaves and empty branches. Do not flatten, reorder or deduplicate the errors. Preserve BaseExceptionGroup where non-Exception survivors require it. The source exception tree must not be mutated.

@@ -1,0 +1,1 @@
+One more thing: @dschult Following up - I've renamed the modules as requested (density.py and tests/test_density.py). Since I'm confident about implementing the other algorithms before the March/April release, would you have time to review/approve the current changes?

@@ -1,0 +1,1 @@
+Please check this too: Use known assumptions as well as literal values: a base known to be zero and a finite real exponent known positive, zero, or negative must follow the same rules, including symbolic exponents and floating values. Do not infer a sign from an unknown assumption or change nonzero-base decomposition. Both deep=True and deep=False must respect these cases.

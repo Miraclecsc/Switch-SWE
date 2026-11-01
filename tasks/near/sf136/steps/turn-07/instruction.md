@@ -1,0 +1,1 @@
+Please check this too: All this seems very thorough, I'm ok with it if you're sure it represents what you want to implement/maintain with this behavior. Once we document it more strongly like this, we're going to have a harder time changing it (which is fine, just be sure).

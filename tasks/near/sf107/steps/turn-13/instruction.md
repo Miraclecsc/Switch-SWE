@@ -1,0 +1,1 @@
+Also, I'd add a test case for this (invalid data raising an error) and document it in the release notes. Also, it should probably be caught and raised as `exceptions.ValidationError`.

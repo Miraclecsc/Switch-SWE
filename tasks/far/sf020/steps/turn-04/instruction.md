@@ -1,0 +1,1 @@
+And here, S3: support dualstack and FIPS endpoint URLs Closes #9832 Strip optional `dualstack.` and `fips.` prefixes when parsing region from S3 endpoint URLs in `REGION_URL_REGEX` Fix path-style detection in that method for dualstack/FIPS endpoints Add tests for both dualstack and FIPS URL variants (path-style and virtual-hosted)

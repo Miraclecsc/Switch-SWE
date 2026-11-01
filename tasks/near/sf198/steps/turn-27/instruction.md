@@ -1,0 +1,1 @@
+Please check this too: No clue! (and haven't looked into them yet) Regardless we should consider whether it's the best interface to have them differ, or if inner nurseries should be hidden in some cases (either by reraising, or running stuff with `strict_exception_groups=False`), or always wrap in an exception group.

@@ -1,0 +1,74 @@
+diff --git a/networkx/algorithms/tests/test_cycles.py b/networkx/algorithms/tests/test_cycles.py
+index dd21405ff39..1b43929aae0 100644
+--- a/networkx/algorithms/tests/test_cycles.py
++++ b/networkx/algorithms/tests/test_cycles.py
+@@ -1,6 +1,6 @@
++import random
+ from itertools import chain, islice, tee
+ from math import inf
+-from random import shuffle
+ 
+ import pytest
+ 
+@@ -277,7 +277,8 @@ def check_cycle_algorithm(
+         # enumeration algorithms
+ 
+         relabel = list(range(len(g)))
+-        shuffle(relabel)
++        rng = random.Random(42)
++        rng.shuffle(relabel)
+         label = dict(zip(g, relabel))
+         unlabel = dict(zip(relabel, g))
+         h = nx.relabel_nodes(g, label, copy=True)
+@@ -345,6 +346,15 @@ def test_directed_chordless_cycle_digons(self):
+         expected_cycles = [c for c in expected_cycles if len(c) < 2]
+         self.check_cycle_algorithm(g, expected_cycles, chordless=True, length_bound=1)
+ 
++    def test_chordless_cycles_multigraph_self_loops(self):
++        G = nx.MultiGraph([(1, 1), (2, 2), (1, 2), (1, 2)])
++        expected_cycles = [[1], [2]]
++        self.check_cycle_algorithm(G, expected_cycles, chordless=True)
++
++        G.add_edges_from([(2, 3), (3, 4), (3, 4), (1, 3)])
++        expected_cycles = [[1], [2], [3, 4]]
++        self.check_cycle_algorithm(G, expected_cycles, chordless=True)
++
+     def test_directed_chordless_cycle_undirected(self):
+         g = nx.DiGraph([(1, 2), (2, 3), (3, 4), (4, 5), (5, 0), (5, 1), (0, 2)])
+         expected_cycles = [(0, 2, 3, 4, 5), (1, 2, 3, 4, 5)]
+diff --git a/tests/test_sf169_staged.py b/tests/test_sf169_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf169_staged.py
+@@ -0,0 +1,31 @@
++import networkx as nx
++import pytest
++
++class Bound:
++    def __init__(self, value): self.value = value
++    def __index__(self): return self.value
++
++def test_index_bound_selfloops_and_parallel_edges():
++    for kind in (nx.MultiGraph, nx.MultiDiGraph):
++        graph = kind()
++        graph.add_edge("loop", "loop")
++        graph.add_edge("a", "b")
++        graph.add_edge("b", "a")
++        for bound in (0, 1, 2, 3):
++            expected = list(nx.chordless_cycles(graph, length_bound=bound))
++            assert list(nx.chordless_cycles(graph, length_bound=Bound(bound))) == expected
++
++def test_noninteger_bounds_rejected_before_yield():
++    for kind in (nx.Graph, nx.DiGraph, nx.MultiGraph, nx.MultiDiGraph):
++        for invalid in (1.5, 2.0, float("inf"), "2"):
++            graph = kind()
++            graph.add_edge(0, 0)
++            with pytest.raises(TypeError):
++                list(nx.chordless_cycles(graph, length_bound=invalid))
++
++def test_negative_index_bound_and_input_integrity():
++    graph = nx.MultiGraph([(0, 0), (0, 1), (0, 1)])
++    before = list(graph.edges(keys=True))
++    with pytest.raises(ValueError):
++        list(nx.chordless_cycles(graph, length_bound=Bound(-1)))
++    assert list(graph.edges(keys=True)) == before

@@ -1,0 +1,1 @@
+Please check this too: It's been waffled about a lot in various PR's, without a central decision actually getting taken: IMHO if we want runtime typing we should have tests for it, and enforce it with linter rules.

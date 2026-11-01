@@ -1,0 +1,62 @@
+diff --git a/moto/dynamodb/models/__init__.py b/moto/dynamodb/models/__init__.py
+index 126099732..c31deaa83 100644
+--- a/moto/dynamodb/models/__init__.py
++++ b/moto/dynamodb/models/__init__.py
+@@ -612,23 +612,34 @@ class DynamoDBBackend(BaseBackend):
+     def transact_write_items(self, transact_items: list[dict[str, Any]]) -> None:
+         if len(transact_items) > 100:
+             raise TooManyTransactionsException()
+-        # Create a backup in case any of the transactions fail
++        # Validate target identity before any condition evaluation or writes.
++        target_items: set[tuple[Any, ...]] = set()
+         original_table_state: dict[str, Table] = {}
+         for item in transact_items:
+-            _, op = next(iter(item.items()))
+-            table_name = op.get("TableName")
+-            if table_name and table_name in self.tables:
+-                original_table_state[table_name] = copy.deepcopy(
+-                    self.tables[table_name]
++            if len(item) != 1:
++                raise TransactWriteSingleOpException
++            op_type, op = next(iter(item.items()))
++            try:
++                table = self.get_table(op["TableName"])
++                if table.name not in original_table_state:
++                    original_table_state[table.name] = copy.deepcopy(table)
++                if op_type not in {"Put", "Delete", "Update", "ConditionCheck"}:
++                    continue
++                attrs = op["Item"] if op_type == "Put" else op["Key"]
++                identity = (
++                    table.name,
++                    DynamoType(attrs[table.hash_key_attr]),
++                    DynamoType(attrs[table.range_key_attr]) if table.range_key_attr else None,
+                 )
+-
+-        target_items: set[tuple[str, str]] = set()
+-
+-        def check_unicity(table_name: str, key: dict[str, Any]) -> None:
+-            item = (str(table_name), str(key))
+-            if item in target_items:
+-                raise MultipleTransactionsException()
+-            target_items.add(item)
++                if identity in target_items:
++                    raise MultipleTransactionsException()
++                target_items.add(identity)
++            except MultipleTransactionsException:
++                raise
++            except Exception:
++                # The existing execution path retains validation/condition
++                # error classification for malformed operations.
++                continue
+ 
+         errors: list[
+             Union[tuple[str, str, dict[str, Any]], tuple[None, None, None]]
+@@ -661,8 +672,6 @@ class DynamoDBBackend(BaseBackend):
+                 else:
+                     key = op["Key"]
+ 
+-                check_unicity(table_name, key)
+-
+                 current = self.get_item(table_name, key)
+                 if condition_expression is not None:
+                     condition_op = get_filter_expression(

@@ -1,0 +1,1 @@
+For the checkout at /work/w01, I would feel a lot safer if this swapped places with `send_event.set()`.

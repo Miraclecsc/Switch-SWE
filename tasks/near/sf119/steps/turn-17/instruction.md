@@ -1,0 +1,4 @@
+Also, Consider the spec needs to change. I've proposed an spec update in to allow this to move forward (with `platform_release` added to the "version-like" set for now, to avoid any real-world effect).
+
+Extend the key-directed marker comparison fix with left-to-right Boolean short circuiting. Respect parentheses and AND-before-OR precedence: once an AND group is false do not evaluate its remaining comparisons, and once an OR alternative is true do not evaluate later alternatives.
+This applies to nested groups and to environment lookups as well as comparisons. An unreachable invalid version comparison or an unavailable context-specific extras/dependency_groups variable must not raise an error. A reached comparison must keep the existing version/string semantics and existing exception behavior; do not convert reachable errors into False or substitute missing variables. Keep all original tests and marker parsing/formatting behavior unchanged.

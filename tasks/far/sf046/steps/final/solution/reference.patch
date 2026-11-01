@@ -1,0 +1,80 @@
+diff --git a/networkx/drawing/layout.py b/networkx/drawing/layout.py
+--- a/networkx/drawing/layout.py
++++ b/networkx/drawing/layout.py
+@@ -603,6 +603,16 @@
+         fixed = np.asarray(
+             [nfixed[node] for node in fixed if node in nfixed], dtype=int
+         )
++
++    if iterations == 0 and scale is None and pos is not None and all(node in pos for node in G):
++        if method == "energy" and gravity <= 0:
++            raise ValueError("the gravity must be positive.")
++        result = {node: np.asarray(pos[node]).copy() for node in G}
++        if any(value.shape != (dim,) for value in result.values()):
++            raise ValueError("positions must match the layout dimension")
++        if store_pos_as is not None:
++            nx.set_node_attributes(G, result, store_pos_as)
++        return result
+ 
+     if pos is not None:
+         # Determine size of existing domain to adjust initial positions
+@@ -824,6 +834,10 @@
+     if gravity <= 0:
+         raise ValueError(f"the gravity must be positive.")
+ 
++    # Zero iterations, return initial positions
++    if iterations == 0:
++        return pos.copy()
++
+     # make sure we have a Compressed Sparse Row format
+     try:
+         A = A.tocsr()
+@@ -1545,11 +1559,16 @@
+         msg = "The parameter a should be larger than 1"
+         raise ValueError(msg)
+ 
+-    pos_tmp = nx.random_layout(G, seed=seed)
+-    if pos is None:
+-        pos = pos_tmp
+-    else:
+-        for node in G.nodes():
++    pos = {} if pos is None else {node: np.asarray(pos[node]).copy() for node in G if node in pos}
++    if max_iter == 0 and len(pos) == len(G):
++        if any(value.shape != (2,) for value in pos.values()):
++            raise ValueError("positions must be two-dimensional")
++        if store_pos_as is not None:
++            nx.set_node_attributes(G, pos, store_pos_as)
++        return pos
++    if len(pos) != len(G):
++        pos_tmp = nx.random_layout(G, seed=seed)
++        for node in G:
+             if node not in pos:
+                 pos[node] = pos_tmp[node].copy()
+ 
+@@ -1568,7 +1587,7 @@
+             K[idx, jdx] = a
+ 
+     # vectorize values
+-    p = np.asarray(list(pos.values()))
++    p = np.asarray([pos[node] for node in G])
+ 
+     # equation 10 in [1]
+     rho = scaling * np.sqrt(N)
+@@ -1576,7 +1595,7 @@
+     # looping variables
+     error = etol + 1
+     n_iter = 0
+-    while error > etol:
++    while error > etol and n_iter < max_iter:
+         diff = p[:, np.newaxis] - p[np.newaxis]
+         A = np.linalg.norm(diff, axis=-1)[..., np.newaxis]
+         # attraction_force - repulsions force
+@@ -1589,8 +1608,6 @@
+         p += change * dt
+ 
+         error = np.linalg.norm(change, axis=-1).sum()
+-        if n_iter > max_iter:
+-            break
+         n_iter += 1
+ 
+     pos = dict(zip(G.nodes(), p))

@@ -1,0 +1,3 @@
+And here, I'm reconsidering the copy. It's not clear what the dev would expect when modifying a child attribute that has been bound. I'm not sure if they would expect the changes to be reflected on the parent. But I don't know if they would expect the inverse either. Going to remove the copy, until I have a better idea what it would fix (if anything)
+
+Notify each distinct reactive at most once per batch, in order of its first mutate_reactive call, using its latest value at flush time. Distinct reactive properties sharing the same mutable object still receive separate notifications. Preserve the original mutable-object identity through data bindings.

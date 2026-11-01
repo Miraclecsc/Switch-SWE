@@ -1,0 +1,1 @@
+Please check this too: The option decorator can be applied to the command `self` and popped from `self.params` # apply help_option decorator and pop resulting option help_option(*help_option_names)(self) return self.params.pop() # type: ignore[return-value]

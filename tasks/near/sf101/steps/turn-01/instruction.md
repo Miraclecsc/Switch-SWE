@@ -1,0 +1,1 @@
+I have this in /work/w01: Add validate=True to base64.b64decode() calls Following the recent Python CVE the security team agreed there is no reason (to our knowledge) we shouldn't be using `validate=True` in our `base64.b64decode()` calls.

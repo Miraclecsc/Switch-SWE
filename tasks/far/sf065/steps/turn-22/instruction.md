@@ -1,0 +1,1 @@
+One more thing: Anchoring must compose with inferred position dimensionality, node_size, linlog, distributed_action and strong_gravity. Keep all original ForceAtlas2, ARF and drawing behavior and tests.

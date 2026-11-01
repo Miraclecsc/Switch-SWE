@@ -1,0 +1,1 @@
+In the checkout at /work/w02, Make Expr.__add__ etc return NotImplemented for non-Expr Basic subclasses

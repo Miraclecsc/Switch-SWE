@@ -1,0 +1,61 @@
+diff --git a/tests/federation/test_utils.py b/tests/federation/test_utils.py
+index 851ccc7be..d6ef51ef5 100644
+--- a/tests/federation/test_utils.py
++++ b/tests/federation/test_utils.py
+@@ -121,6 +121,12 @@ def test_purge_directives_remove_custom_directives_with_single_line_description(
+     )
+ 
+ 
++def test_purge_directives_without_leading_whitespace():
++    type_defs = "#\ndirective @custom on FIELD"
++
++    assert sic(purge_schema_directives(type_defs)) == ""
++
++
+ def test_get_entity_types_with_key_directive():
+     type_defs = """
+         type Query {
+diff --git a/tests/federation/test_sf064_syntax_purge.py b/tests/federation/test_sf064_syntax_purge.py
+new file mode 100644
+--- /dev/null
++++ b/tests/federation/test_sf064_syntax_purge.py
+@@ -0,0 +1,39 @@
++
++import pytest
++from graphql import parse, GraphQLSyntaxError
++from graphql.utilities import strip_ignored_characters as sic
++from ariadne.contrib.federation.utils import purge_schema_directives as purge
++
++def test_nested_arguments_and_adjacent_directives():
++    removed = '@custom(config: {values: [") @key", "(", {nested: "x"}]})'
++    source = 'type Query{field: String' + removed + '@deprecated(reason:"literal ) @custom")}'
++    expected = 'type Query{field: String@deprecated(reason:"literal ) @custom")}'
++    assert purge(source) == expected
++    parse(purge(source))
++
++def test_descriptions_comments_and_defaults_are_untouched():
++    source = ('# @custom must stay in this comment\n'
++              '"""description @custom and directive @fake on FIELD"""\n'
++              'type Query { field(arg: String = "@custom(x: 1)"): String @custom }')
++    assert purge(source) == source.replace(': String @custom }', ': String  }')
++
++def test_repeatable_definition_with_complex_defaults_and_description():
++    definition = ('"""custom directive description"""\n'
++        'directive @custom(config: Input = {items: [")", "("]}) repeatable on FIELD_DEFINITION | OBJECT')
++    source = definition + '\ninput Input { items: [String] }\ntype Query @custom { x: String @custom }'
++    result = purge(source)
++    assert sic(result) == sic('input Input { items: [String] }\ntype Query { x: String }')
++    parse(result)
++
++def test_allowed_directive_arguments_and_definition_removal():
++    definition = 'directive @tag(name: String!) repeatable on FIELD_DEFINITION'
++    source = definition + '\ntype Query { x: String @tag(name: "a ) @unknown") @unknown }'
++    assert purge(source) == '\ntype Query { x: String @tag(name: "a ) @unknown")  }'
++
++@pytest.mark.parametrize("source", ["", " \n # @custom\n", "type Query { x: String }"])
++def test_empty_and_already_clean_are_unchanged(source):
++    assert purge(source) == source
++
++def test_invalid_graphql_is_not_silently_repaired():
++    with pytest.raises(GraphQLSyntaxError):
++        purge('type Query { x: String @custom(value: [) }')

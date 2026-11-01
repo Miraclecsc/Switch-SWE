@@ -1,0 +1,1 @@
+And here, Fixed #37021 -- Added Permission.user_perm_str property. For use in checking user permissions via has_perm().

@@ -1,0 +1,90 @@
+{
+  "case_id": "sf101_switched",
+  "task_id": "ssb_v2_task_0002",
+  "repo": "django/django",
+  "base_commit": "50bbf71bbd51616e2ce48785336ca3746fbe5f24",
+  "derived_fail_to_pass": [
+    "file_uploads.tests.FileUploadTests.test_base64_invalid_upload",
+    "model_fields.test_staged_contract.CanonicalBinaryTests.test_custom_message_on_noncanonical_string",
+    "model_fields.test_staged_contract.CanonicalBinaryTests.test_reject_noncanonical_base64",
+    "model_fields.test_staged_contract.CanonicalBinaryTests.test_reject_other_python_values"
+  ],
+  "derived_pass_to_pass": [
+    "file_uploads.tests.DirectoryCreationTests.test_not_a_directory",
+    "file_uploads.tests.FileUploadTests.test_base64_upload",
+    "file_uploads.tests.FileUploadTests.test_big_base64_newlines_upload",
+    "file_uploads.tests.FileUploadTests.test_big_base64_upload",
+    "file_uploads.tests.FileUploadTests.test_broken_custom_upload_handler",
+    "file_uploads.tests.FileUploadTests.test_custom_upload_handler",
+    "file_uploads.tests.FileUploadTests.test_file_content",
+    "file_uploads.tests.FileUploadTests.test_filename_traversal_upload",
+    "file_uploads.tests.FileUploadTests.test_fileupload_getlist",
+    "file_uploads.tests.FileUploadTests.test_fileuploads_closed_at_request_end",
+    "file_uploads.tests.FileUploadTests.test_large_upload",
+    "file_uploads.tests.FileUploadTests.test_no_parsing_triggered_by_fd_closing",
+    "file_uploads.tests.FileUploadTests.test_non_printable_chars_in_file_names",
+    "file_uploads.tests.FileUploadTests.test_simple_upload",
+    "file_uploads.tests.FileUploadTests.test_stop_upload_temporary_file_handler",
+    "file_uploads.tests.FileUploadTests.test_unicode_file_name",
+    "file_uploads.tests.FileUploadTests.test_unicode_file_name_rfc2231_with_double_quotes",
+    "file_uploads.tests.FileUploadTests.test_unicode_name_rfc2231_with_double_quotes",
+    "file_uploads.tests.FileUploadTests.test_upload_header_fields_too_large",
+    "file_uploads.tests.FileUploadTests.test_upload_interrupted_temporary_file_handler",
+    "file_uploads.tests.FileUploadTests.test_upload_large_header_fields",
+    "file_uploads.tests.FileUploadTests.test_upload_name_is_validated",
+    "file_uploads.tests.MultiParserTests.test_bad_type_content_length",
+    "file_uploads.tests.MultiParserTests.test_empty_upload_handlers",
+    "file_uploads.tests.MultiParserTests.test_invalid_content_type",
+    "file_uploads.tests.MultiParserTests.test_negative_content_length",
+    "file_uploads.tests.MultiParserTests.test_sanitize_file_name",
+    "file_uploads.tests.MultiParserTests.test_sanitize_invalid_file_name",
+    "model_fields.test_binaryfield.BinaryFieldTests.test_editable",
+    "model_fields.test_binaryfield.BinaryFieldTests.test_filter",
+    "model_fields.test_binaryfield.BinaryFieldTests.test_filter_bytearray",
+    "model_fields.test_binaryfield.BinaryFieldTests.test_filter_memoryview",
+    "model_fields.test_binaryfield.BinaryFieldTests.test_max_length",
+    "model_fields.test_binaryfield.BinaryFieldTests.test_set_and_retrieve",
+    "model_fields.test_staged_contract.CanonicalBinaryTests.test_valid_and_passthrough_values"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/file_uploads/tests.py",
+    "tests/model_fields/test_binaryfield.py",
+    "tests/urlpatterns/converters.py",
+    "tests/model_fields/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/file_uploads/tests.py",
+    "tests/model_fields/test_binaryfield.py",
+    "tests/model_fields/test_staged_contract.py",
+    "tests/urlpatterns/converters.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "e1fc7bd7a37f74ec6e3dd4f98049306a12b8737ae9b243984c0ad08571604336",
+    "config/recipes.json": "7cb19d86001a78d36fb0e8a0f31790a4d3f2d6558ea6a6a4e62a1501ef93dd66"
+  }
+}

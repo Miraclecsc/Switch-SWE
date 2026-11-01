@@ -1,0 +1,161 @@
+diff --git a/tests/test_applications.py b/tests/test_applications.py
+index 20ff063..30e1d75 100644
+--- a/tests/test_applications.py
++++ b/tests/test_applications.py
+@@ -4,6 +4,7 @@ import os
+ from collections.abc import AsyncGenerator, AsyncIterator, Callable, Generator
+ from contextlib import asynccontextmanager
+ from pathlib import Path
++from typing import TypedDict
+ 
+ import anyio.from_thread
+ import pytest
+@@ -95,6 +96,19 @@ def custom_ws_exception_handler(websocket: WebSocket, exc: CustomWSException) ->
+     anyio.from_thread.run(websocket.close, status.WS_1013_TRY_AGAIN_LATER)
+ 
+ 
++class CustomState(TypedDict):
++    count: int
++
++
++@asynccontextmanager
++async def lifespan(app: Starlette) -> AsyncGenerator[CustomState]:
++    yield {"count": 1}
++
++
++async def state_count(request: Request[CustomState]) -> JSONResponse:
++    return JSONResponse({"count": request.state["count"]}, status_code=200)
++
++
+ users = Router(
+     routes=[
+         Route("/", endpoint=all_users_page),
+@@ -122,6 +136,7 @@ app = Starlette(
+         Route("/func", endpoint=func_homepage),
+         Route("/async", endpoint=async_homepage),
+         Route("/class", endpoint=Homepage),
++        Route("/state", endpoint=state_count),
+         Route("/500", endpoint=runtime_error),
+         WebSocketRoute("/ws", endpoint=websocket_endpoint),
+         WebSocketRoute("/ws-raise-websocket", endpoint=websocket_raise_websocket_exception),
+@@ -132,6 +147,7 @@ app = Starlette(
+     ],
+     exception_handlers=exception_handlers,  # type: ignore
+     middleware=middleware,
++    lifespan=lifespan,
+ )
+ 
+ 
+@@ -216,6 +232,12 @@ def test_500(test_client_factory: TestClientFactory) -> None:
+     assert response.json() == {"detail": "Server Error"}
+ 
+ 
++def test_request_state(client: TestClient) -> None:
++    response = client.get("/state")
++    assert response.status_code == 200
++    assert response.json() == {"count": 1}
++
++
+ def test_websocket_raise_websocket_exception(client: TestClient) -> None:
+     with client.websocket_connect("/ws-raise-websocket") as session:
+         response = session.receive()
+@@ -256,6 +278,7 @@ def test_routes() -> None:
+         Route("/func", endpoint=func_homepage, methods=["GET"]),
+         Route("/async", endpoint=async_homepage, methods=["GET"]),
+         Route("/class", endpoint=Homepage),
++        Route("/state", endpoint=state_count, methods=["GET"]),
+         Route("/500", endpoint=runtime_error, methods=["GET"]),
+         WebSocketRoute("/ws", endpoint=websocket_endpoint),
+         WebSocketRoute("/ws-raise-websocket", endpoint=websocket_raise_websocket_exception),
+diff --git a/tests/test_requests.py b/tests/test_requests.py
+index a2fa384..c17fac5 100644
+--- a/tests/test_requests.py
++++ b/tests/test_requests.py
+@@ -302,6 +302,28 @@ def test_request_state_object() -> None:
+     with pytest.raises(AttributeError):
+         s.new
+ 
++    # Test dictionary-style methods
++    # Test __setitem__
++    s["dict_key"] = "dict_value"
++    assert s["dict_key"] == "dict_value"
++    assert s.dict_key == "dict_value"
++
++    # Test __iter__
++    s["another_key"] = "another_value"
++    keys = list(s)
++    assert "old" in keys
++    assert "dict_key" in keys
++    assert "another_key" in keys
++
++    # Test __len__
++    assert len(s) == 3
++
++    # Test __delitem__
++    del s["dict_key"]
++    assert len(s) == 2
++    with pytest.raises(KeyError):
++        s["dict_key"]
++
+ 
+ def test_request_state(test_client_factory: TestClientFactory) -> None:
+     async def app(scope: Scope, receive: Receive, send: Send) -> None:
+diff --git a/tests/test_sf037_state_mapping_copy.py b/tests/test_sf037_state_mapping_copy.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf037_state_mapping_copy.py
+@@ -0,0 +1,54 @@
++import copy
++from collections.abc import MutableMapping
++from starlette.datastructures import State
++from starlette.requests import Request
++from starlette.websockets import WebSocket
++
++def test_mapping_views_update_and_attribute_alias():
++    raw={'a':1};state=State(raw)
++    assert isinstance(state,MutableMapping)
++    keys,items=state.keys(),state.items()
++    state.b=2
++    assert set(keys)=={'a','b'} and ('b',2) in items
++    state.update(c=3);assert raw['c']==3
++    assert state.setdefault('a',9)==1
++    assert state.pop('b')==2 and 'b' not in raw
++    assert dict(state)=={'a':1,'c':3}
++    state.clear();assert raw=={}
++
++def test_mapping_method_name_collision():
++    state=State({'items':'payload','keys':3})
++    assert state['items']=='payload' and state['keys']==3
++    assert dict(state.items())=={'items':'payload','keys':3}
++
++def test_shallow_copy_preserves_nested_alias_only():
++    class Derived(State):pass
++    source=Derived({'value':[1]});result=copy.copy(source)
++    assert type(result) is Derived and result is not source
++    result['other']=2;assert 'other' not in source
++    result['value'].append(3);assert source['value']==[1,3]
++
++def test_deep_copy_preserves_cycles_and_isolation():
++    source=State({'value':[1]});source['self']=source
++    result=copy.deepcopy(source)
++    assert result is not source and result['self'] is result
++    result['value'].append(2);assert source['value']==[1]
++
++def test_typed_websocket_and_request_share_scope_state():
++    shared={}
++    async def channel(*args):return {'type':'websocket.connect'}
++    websocket=WebSocket[dict[str,int]]({'type':'websocket','state':shared},channel,channel)
++    request=Request({'type':'http','state':shared})
++    websocket.state['count']=4
++    assert request.state.count==4
++    request.state.extra=5
++    assert websocket.state['extra']==5
++
++def test_missing_key_and_attribute_remain_distinct():
++    state=State()
++    try:state['missing']
++    except KeyError:pass
++    else:assert False
++    try:state.missing
++    except AttributeError:pass
++    else:assert False

@@ -1,0 +1,1 @@
+And here, I'd prefer to document that `write`s may be deferred until the widget is fully mounted rather than attempting copying, since renderables could be any object at all. They may not support copying or it may be expensive.

@@ -1,0 +1,1 @@
+Also, I updated the code to use the newer `_normalize_relations` function.

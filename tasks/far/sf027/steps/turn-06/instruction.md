@@ -1,0 +1,1 @@
+I have this in /work/w02: Warn on all redirects if ``linkcheck_allowed_redirects`` is an empty dictionary ## Purpose See discussion in #13439, cc . #13439

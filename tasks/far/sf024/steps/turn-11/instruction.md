@@ -1,0 +1,1 @@
+Please check this too: Done — renamed `vertices` to `uncovered_nodes`, replaced vertex/vertices with node/nodes throughout the docstring and comments. Also shortened a couple of comment lines that were wrapping.

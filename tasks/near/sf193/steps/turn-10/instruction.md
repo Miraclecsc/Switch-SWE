@@ -1,0 +1,1 @@
+One more thing: Should we translate the `ValueError` (1) and `KeyError` (2) into a clearer `TypeError` as Python would emit? Not a fan of doing too much error handling, but here we're making it worse (i.e. if you don't comply with a signature that the function no longer spells out, you crash somewhere inside the function).

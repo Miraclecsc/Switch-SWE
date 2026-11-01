@@ -1,0 +1,66 @@
+{
+  "case_id": "sf064_switched",
+  "task_id": "ssb_v4_mirumee__ariadne_1049",
+  "repo": "mirumee/ariadne",
+  "base_commit": "9474c8f59ed9a0fc8f46822ae7b0131e632a0427",
+  "derived_fail_to_pass": [
+    "tests.federation.test_utils::test_purge_directives_without_leading_whitespace",
+    "tests.federation.test_sf064_syntax_purge::test_allowed_directive_arguments_and_definition_removal",
+    "tests.federation.test_sf064_syntax_purge::test_descriptions_comments_and_defaults_are_untouched",
+    "tests.federation.test_sf064_syntax_purge::test_empty_and_already_clean_are_unchanged[ \\n # @custom\\n]",
+    "tests.federation.test_sf064_syntax_purge::test_invalid_graphql_is_not_silently_repaired",
+    "tests.federation.test_sf064_syntax_purge::test_nested_arguments_and_adjacent_directives",
+    "tests.federation.test_sf064_syntax_purge::test_repeatable_definition_with_complex_defaults_and_description"
+  ],
+  "derived_pass_to_pass": [
+    "tests.federation.test_utils::test_add_typename_to_dict",
+    "tests.federation.test_utils::test_add_typename_to_object",
+    "tests.federation.test_utils::test_gather_directives",
+    "tests.federation.test_utils::test_get_entity_types_with_key_directive",
+    "tests.federation.test_utils::test_includes_directive",
+    "tests.federation.test_utils::test_purge_directives_remove_custom_directives",
+    "tests.federation.test_utils::test_purge_directives_remove_custom_directives_with_block_string_description",
+    "tests.federation.test_utils::test_purge_directives_remove_custom_directives_with_single_line_description",
+    "tests.federation.test_utils::test_purge_directives_retain_builtin_directives",
+    "tests.federation.test_utils::test_purge_directives_retain_federation_directives",
+    "tests.federation.test_sf064_syntax_purge::test_empty_and_already_clean_are_unchanged[]",
+    "tests.federation.test_sf064_syntax_purge::test_empty_and_already_clean_are_unchanged[type Query { x: String }]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/federation/test_utils.py",
+    "tests/federation/test_sf064_syntax_purge.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/federation/test_sf064_syntax_purge.py",
+    "tests/federation/test_utils.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "973e8d90dd38ebd1587624349a668caebefdc607cd35b95365fb34d52a1f77fd",
+    "config/recipes.json": "e6490df016d50c332e2198c67540b95a1eb17deca406ccd977f652df033107d5"
+  }
+}

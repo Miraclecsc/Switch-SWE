@@ -1,0 +1,37 @@
+diff --git a/starlette/responses.py b/starlette/responses.py
+index 15292f0..7130bb1 100644
+--- a/starlette/responses.py
++++ b/starlette/responses.py
+@@ -41,9 +41,11 @@ class Response:
+         self.body = self.render(content)
+         self.init_headers(headers)
+ 
+-    def render(self, content: typing.Any) -> bytes:
++    def render(self, content: typing.Any) -> bytes | memoryview:
+         if content is None:
+             return b""
++        if isinstance(content, memoryview):
++            return content.cast("B") if content.c_contiguous else content.tobytes()
+         if isinstance(content, bytes):
+             return content
+         return content.encode(self.charset)  # type: ignore
+@@ -207,7 +209,7 @@ class RedirectResponse(Response):
+         self.headers["location"] = quote(str(url), safe=":/%#?=@[]!$&'()*+,;")
+ 
+ 
+-Content = typing.Union[str, bytes]
++Content = typing.Union[str, bytes, memoryview]
+ SyncContentStream = typing.Iterable[Content]
+ AsyncContentStream = typing.AsyncIterable[Content]
+ ContentStream = typing.Union[AsyncContentStream, SyncContentStream]
+@@ -248,7 +250,9 @@ class StreamingResponse(Response):
+             }
+         )
+         async for chunk in self.body_iterator:
+-            if not isinstance(chunk, bytes):
++            if isinstance(chunk, memoryview) and not chunk.c_contiguous:
++                chunk = chunk.tobytes()
++            if not isinstance(chunk, (bytes, memoryview)):
+                 chunk = chunk.encode(self.charset)
+             await send({"type": "http.response.body", "body": chunk, "more_body": True})
+ 

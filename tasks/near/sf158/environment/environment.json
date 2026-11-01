@@ -1,0 +1,342 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-ce12168a",
+    "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-34329fd1",
+    "/opt/ssb/deps/ee202af858882255-3.10.20-7ef7dffa",
+    "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-ccc60078",
+    "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-f4ba6955",
+    "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-231b4234"
+  ],
+  "case_id": "sf158_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-231b4234",
+      "python": "3.10.20",
+      "requirements": "requirements/ada6bd1a99b99462-3.10.20-231b4234.txt",
+      "source": "dependency-source/ada6bd1a99b99462-3.10.20-231b4234.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-f4ba6955",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-f4ba6955.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-f4ba6955.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-ccc60078",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-ccc60078.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-ccc60078.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-7ef7dffa",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-7ef7dffa.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-7ef7dffa.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-34329fd1",
+      "python": "3.10.20",
+      "requirements": "requirements/0972bfcd89d0a8db-3.10.20-34329fd1.txt",
+      "source": "dependency-source/0972bfcd89d0a8db-3.10.20-34329fd1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-ce12168a",
+      "python": "3.10.20",
+      "requirements": "requirements/e13bf23f019a3f4c-3.10.20-ce12168a.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.10.20-ce12168a.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+      "python": "3.10.20",
+      "requirements": "requirements/31017cf037b1fecb-3.10.20-99aa8d22.txt",
+      "source": "dependency-source/31017cf037b1fecb-3.10.20-99aa8d22.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-0e40fc79",
+      "python": "3.10.20",
+      "requirements": "requirements/ada6bd1a99b99462-3.10.20-0e40fc79.txt",
+      "source": "dependency-source/ada6bd1a99b99462-3.10.20-0e40fc79.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-c634fb04",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-c634fb04.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-c634fb04.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-7f3bb9d5",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-7f3bb9d5.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-7f3bb9d5.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-4da47b75",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-4da47b75.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-4da47b75.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-1b12c648",
+      "python": "3.10.20",
+      "requirements": "requirements/0972bfcd89d0a8db-3.10.20-1b12c648.txt",
+      "source": "dependency-source/0972bfcd89d0a8db-3.10.20-1b12c648.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8da0142d328773cf-3.10.20-61009064",
+      "python": "3.10.20",
+      "requirements": "requirements/8da0142d328773cf-3.10.20-61009064.txt",
+      "source": "dependency-source/8da0142d328773cf-3.10.20-61009064.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/65bbbdf7cfc505d1-3.10.20-9d2b1f21",
+      "python": "3.10.20",
+      "requirements": "requirements/65bbbdf7cfc505d1-3.10.20-9d2b1f21.txt",
+      "source": "dependency-source/65bbbdf7cfc505d1-3.10.20-9d2b1f21.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-a7296e6d",
+      "python": "3.10.20",
+      "requirements": "requirements/ada6bd1a99b99462-3.10.20-a7296e6d.txt",
+      "source": "dependency-source/ada6bd1a99b99462-3.10.20-a7296e6d.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-eb331e27",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-eb331e27.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-eb331e27.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-35489e6b",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-35489e6b.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-35489e6b.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-47a765f7",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-47a765f7.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-47a765f7.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-d64464b3",
+      "python": "3.10.20",
+      "requirements": "requirements/0972bfcd89d0a8db-3.10.20-d64464b3.txt",
+      "source": "dependency-source/0972bfcd89d0a8db-3.10.20-d64464b3.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-cdcabdfd",
+      "python": "3.10.20",
+      "requirements": "requirements/e13bf23f019a3f4c-3.10.20-cdcabdfd.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.10.20-cdcabdfd.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-664aad51",
+      "python": "3.10.20",
+      "requirements": "requirements/0972bfcd89d0a8db-3.10.20-664aad51.txt",
+      "source": "dependency-source/0972bfcd89d0a8db-3.10.20-664aad51.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-83e4115e",
+      "python": "3.10.20",
+      "requirements": "requirements/ada6bd1a99b99462-3.10.20-83e4115e.txt",
+      "source": "dependency-source/ada6bd1a99b99462-3.10.20-83e4115e.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-c39e0eb8",
+      "python": "3.10.20",
+      "requirements": "requirements/88db298fa3d1f31e-3.10.20-c39e0eb8.txt",
+      "source": "dependency-source/88db298fa3d1f31e-3.10.20-c39e0eb8.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-9d726240",
+      "python": "3.10.20",
+      "requirements": "requirements/89ab5796b5d9c4c6-3.10.20-9d726240.txt",
+      "source": "dependency-source/89ab5796b5d9c4c6-3.10.20-9d726240.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/ee202af858882255-3.10.20-d4630f11",
+      "python": "3.10.20",
+      "requirements": "requirements/ee202af858882255-3.10.20-d4630f11.txt",
+      "source": "dependency-source/ee202af858882255-3.10.20-d4630f11.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-1bd6dd0c",
+      "python": "3.10.20",
+      "requirements": "requirements/0972bfcd89d0a8db-3.10.20-1bd6dd0c.txt",
+      "source": "dependency-source/0972bfcd89d0a8db-3.10.20-1bd6dd0c.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+        "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-0e40fc79",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-c634fb04",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-7f3bb9d5",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-4da47b75",
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-1b12c648",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-ce12168a"
+      ],
+      "python": "3.10.20"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/8da0142d328773cf-3.10.20-61009064",
+        "/opt/ssb/deps/65bbbdf7cfc505d1-3.10.20-9d2b1f21",
+        "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-a7296e6d",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-eb331e27",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-35489e6b",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-47a765f7",
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-d64464b3",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-cdcabdfd"
+      ],
+      "python": "3.10.20"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-231b4234",
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-664aad51",
+        "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-83e4115e",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-c39e0eb8",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-9d726240",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-d4630f11",
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-1bd6dd0c",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-ce12168a"
+      ],
+      "python": "3.10.20"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+        "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-0e40fc79",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-c634fb04",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-7f3bb9d5",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-4da47b75",
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-1b12c648",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-ce12168a"
+      ],
+      "python": "3.10.20"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/31017cf037b1fecb-3.10.20-99aa8d22",
+        "/opt/ssb/deps/ada6bd1a99b99462-3.10.20-0e40fc79",
+        "/opt/ssb/deps/88db298fa3d1f31e-3.10.20-c634fb04",
+        "/opt/ssb/deps/89ab5796b5d9c4c6-3.10.20-7f3bb9d5",
+        "/opt/ssb/deps/ee202af858882255-3.10.20-4da47b75",
+        "/opt/ssb/deps/0972bfcd89d0a8db-3.10.20-1b12c648",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.10.20-ce12168a"
+      ],
+      "python": "3.10.20"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "eeb5e3c2a3ff2403ec47b5926715ecd61143d92d",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "8f5049536c5d8d169456be96ca4de8a030fccfb753d788a6c31c91672ddb4188"
+        },
+        {
+          "mode": "100644",
+          "path": "httpx/_transports/asgi.py",
+          "sha256": "f83c952ce5a3bc0879f1595198b22fb19376a01f18a76b761ff2b39632d2a44a"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_asgi.py",
+          "sha256": "655cb833cb3f4c53f7c0fe6bb737cc1545260e792de3f68fdc02884ed4ce229e"
+        }
+      ],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "c24bbb85a6efd83beb2ed6aab37913e4e0d44418",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "f9abbbbb4898cac96420e5c5b9d34036a94d46bf",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "e9cabc8e1deb6548c5c5e2f453e343d39a2a5321",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "b3b80a58092bb6dea4f09838d046733e1395807ebbeafbc86c4426328efb68b6"
+        },
+        {
+          "mode": "100644",
+          "path": "httpx/_transports/asgi.py",
+          "sha256": "f83c952ce5a3bc0879f1595198b22fb19376a01f18a76b761ff2b39632d2a44a"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_asgi.py",
+          "sha256": "655cb833cb3f4c53f7c0fe6bb737cc1545260e792de3f68fdc02884ed4ce229e"
+        }
+      ],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "2763690e1b2c0f72505397f34fc3c7dc2971955a",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "CHANGELOG.md",
+          "sha256": "8b4dca1a6e53cae84f52b9412717a8452e3f76c22eb74eb7f5d114205c2525a7"
+        },
+        {
+          "mode": "100644",
+          "path": "httpx/_transports/asgi.py",
+          "sha256": "f83c952ce5a3bc0879f1595198b22fb19376a01f18a76b761ff2b39632d2a44a"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_asgi.py",
+          "sha256": "655cb833cb3f4c53f7c0fe6bb737cc1545260e792de3f68fdc02884ed4ce229e"
+        }
+      ],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w04"
+    }
+  ]
+}

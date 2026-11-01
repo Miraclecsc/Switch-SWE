@@ -1,0 +1,84 @@
+diff --git a/networkx/drawing/tests/test_layout.py b/networkx/drawing/tests/test_layout.py
+index 76b7a11..d76b136 100644
+--- a/networkx/drawing/tests/test_layout.py
++++ b/networkx/drawing/tests/test_layout.py
+@@ -202,6 +202,24 @@ class TestLayout:
+         pos = nx.circular_layout(self.Gi)
+         npos = nx.arf_layout(self.Gi, pos=pos)
+ 
++    @pytest.mark.parametrize("method", ("force", "energy"))
++    @pytest.mark.parametrize(
++        "layout_fn", (nx.spring_layout, nx.fruchterman_reingold_layout)
++    )
++    def test_zero_iterations_fruchterman_reingold(self, method, layout_fn):
++        pos = nx.circular_layout(self.Gi)
++        npos = layout_fn(self.Gi, pos=pos, method=method, iterations=0, scale=None)
++        assert pos.keys() == npos.keys()
++        for node, p in npos.items():
++            assert np.allclose(pos[node], p)
++
++    def test_zero_iterations_arf(self):
++        pos = nx.circular_layout(self.Gi)
++        npos = nx.arf_layout(self.Gi, pos=pos, max_iter=0)
++        assert pos.keys() == npos.keys()
++        for node, p in npos.items():
++            assert np.allclose(pos[node], p)
++
+     def test_fixed_node_fruchterman_reingold(self):
+         # Dense version (numpy based)
+         pos = nx.circular_layout(self.Gi)
+diff --git a/networkx/drawing/tests/test_sf046_layout_identity.py b/networkx/drawing/tests/test_sf046_layout_identity.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/drawing/tests/test_sf046_layout_identity.py
+@@ -0,0 +1,50 @@
++import networkx as nx
++import numpy as np
++import pytest
++
++@pytest.mark.parametrize('method',['force','energy'])
++def test_spring_zero_steps_preserve_arrays_and_rng(method):
++    graph=nx.path_graph(3)
++    pos={n:np.array([n+0.125,n+0.25],dtype=np.float32) for n in graph}
++    rng=np.random.RandomState(4);state=rng.get_state()
++    result=nx.spring_layout(graph,pos=pos,iterations=0,scale=None,seed=rng,method=method,store_pos_as='coords')
++    assert np.array_equal(rng.get_state()[1],state[1]) and rng.get_state()[2]==state[2]
++    for n in graph:
++        assert result[n].dtype==pos[n].dtype and np.array_equal(result[n],pos[n])
++        assert not np.shares_memory(result[n],pos[n])
++        assert np.array_equal(graph.nodes[n]['coords'],pos[n])
++
++def test_arf_zero_steps_preserve_keyed_mapping_and_rng():
++    graph=nx.path_graph(['a','b','c'])
++    pos={n:np.array([i+0.3,i+0.7],dtype=np.float32) for i,n in enumerate(reversed(list(graph)))}
++    rng=np.random.RandomState(2);state=rng.get_state()
++    result=nx.arf_layout(graph,pos=pos,max_iter=0,seed=rng)
++    assert np.array_equal(rng.get_state()[1],state[1]) and rng.get_state()[2]==state[2]
++    for n in graph:
++        assert np.array_equal(result[n],pos[n]) and result[n].dtype==pos[n].dtype
++        assert not np.shares_memory(result[n],pos[n])
++
++def test_partial_arf_input_is_unchanged_and_extras_ignored():
++    graph=nx.path_graph(3);value=np.array([0.2,0.4]);value.flags.writeable=False
++    pos={1:value,'extra':np.array([99.,99.])}
++    result=nx.arf_layout(graph,pos=pos,max_iter=0,seed=7)
++    assert set(result)==set(graph) and set(pos)=={1,'extra'}
++    assert np.array_equal(result[1],value) and not np.shares_memory(result[1],value)
++
++def test_positive_arf_iterations_ignore_dict_order():
++    graph=nx.path_graph(3);pos={0:np.array([0.,0.]),1:np.array([1.,0.]),2:np.array([0.,1.])}
++    reverse=dict(reversed(list(pos.items())))
++    first=nx.arf_layout(graph,pos=pos,max_iter=2,seed=2)
++    second=nx.arf_layout(graph,pos=reverse,max_iter=2,seed=2)
++    assert all(np.allclose(first[n],second[n]) for n in graph)
++    assert np.array_equal(pos[1],[1.,0.])
++
++def test_zero_step_validation_is_not_bypassed():
++    graph=nx.path_graph(2);pos={0:[0.,0.],1:[1.,1.]}
++    with pytest.raises(ValueError):nx.spring_layout(graph,pos=pos,iterations=0,scale=None,method='energy',gravity=0)
++    with pytest.raises(ValueError):nx.arf_layout(graph,pos=pos,max_iter=0,a=1)
++
++def test_spring_alias_zero_step_regression():
++    graph=nx.path_graph(2);pos={0:[0.,0.],1:[1.,1.]}
++    result=nx.fruchterman_reingold_layout(graph,pos=pos,iterations=0,scale=None)
++    assert all(np.array_equal(result[n],pos[n]) for n in graph)

@@ -1,0 +1,104 @@
+diff --git a/tests/model_formsets/tests.py b/tests/model_formsets/tests.py
+index 02c928cba230..9436642573fe 100644
+--- a/tests/model_formsets/tests.py
++++ b/tests/model_formsets/tests.py
+@@ -1773,6 +1773,46 @@ def test_model_formset_with_initial_queryset(self):
+         formset = FormSet(initial=[{"authors": Author.objects.all()}], data=data)
+         self.assertFalse(formset.extra_forms[0].has_changed())
+ 
++    def test_get_queryset_falls_back_to_pk_when_no_ordering_defined(self):
++        # Product has no Meta.ordering, so the default queryset is not
++        # totally ordered.
++        self.assertIs(Product._default_manager.get_queryset().totally_ordered, False)
++
++        ProductFormSet = modelformset_factory(Product, fields="__all__")
++        formset = ProductFormSet()
++
++        queryset = formset.get_queryset()
++        self.assertEqual(queryset.query.order_by, ("pk",))
++
++    def test_get_queryset_appends_pk_to_explicit_queryset_ordering(self):
++        # Author.name is non-unique, so order_by("name") is not totally
++        # ordered.
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet(queryset=Author.objects.order_by("name"))
++
++        queryset = formset.get_queryset()
++        self.assertEqual(queryset.query.order_by, ("name", "pk"))
++
++    def test_get_queryset_appends_pk_to_meta_ordering(self):
++        # Author has Meta.ordering = ("name",) which is not deterministic
++        # by itself.
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet()
++
++        queryset = formset.get_queryset()
++        self.assertEqual(queryset.query.order_by, ("name", "pk"))
++
++    def test_get_queryset_unchanged_when_already_totally_ordered(self):
++        # Ordering by pk is already totally ordered; pk must not be
++        # appended again.
++        AuthorFormSet = modelformset_factory(Author, fields="__all__")
++        formset = AuthorFormSet(queryset=Author.objects.order_by("pk"))
++
++        queryset = formset.get_queryset()
++        # Must be exactly ("pk",), not ("pk", "pk").
++        self.assertEqual(queryset.query.order_by, ("pk",))
++        self.assertIs(queryset.totally_ordered, True)
++
+     def test_prevent_duplicates_from_with_the_same_formset(self):
+         FormSet = modelformset_factory(Product, fields="__all__", extra=2)
+         data = {
+diff --git a/tests/model_formsets/test_ordering_provenance_v1.py b/tests/model_formsets/test_ordering_provenance_v1.py
+new file mode 100644
+index 0000000000..64424e268b
+--- /dev/null
++++ b/tests/model_formsets/test_ordering_provenance_v1.py
+@@ -0,0 +1,47 @@
++from django.db import connection
++from django.forms import modelformset_factory
++from django.test import TestCase
++from .models import Author
++
++
++class FormsetOrderingProvenanceTests(TestCase):
++    def setUp(self):
++        self.first = Author.objects.create(name="zeta")
++        self.second = Author.objects.create(name="alpha")
++        self.third = Author.objects.create(name="zeta")
++        self.factory = modelformset_factory(Author, fields=["name"], extra=0)
++
++    def ids(self, queryset):
++        return list(self.factory(queryset=queryset).get_queryset().values_list("pk", flat=True))
++
++    def test_explicitly_cleared_ordering_uses_pk_without_reviving_meta(self):
++        qs = Author.objects.order_by()
++        self.assertEqual(self.ids(qs), [self.first.pk, self.second.pk, self.third.pk])
++        self.assertFalse(qs.ordered)
++
++    def test_reversed_cleared_ordering_keeps_direction(self):
++        self.assertEqual(self.ids(Author.objects.order_by().reverse()),
++                         [self.third.pk, self.second.pk, self.first.pk])
++
++    def test_default_ordering_is_still_used_when_not_explicitly_cleared(self):
++        self.assertEqual(self.ids(Author.objects.all()),
++                         [self.second.pk, self.first.pk, self.third.pk])
++
++    def test_extra_ordering_receives_a_real_pk_tie_breaker(self):
++        # Give the database a legitimate covering index whose unconstrained tie
++        # order is opposite to the promised tie breaker.
++        table = connection.ops.quote_name(Author._meta.db_table)
++        index = connection.ops.quote_name("formset_ordering_contract")
++        with connection.cursor() as cursor:
++            cursor.execute(f"CREATE INDEX {index} ON {table} (name DESC, id DESC)")
++        try:
++            qs = Author.objects.extra(order_by=["-name"])
++            self.assertEqual(self.ids(qs), [self.first.pk, self.third.pk, self.second.pk])
++        finally:
++            with connection.cursor() as cursor:
++                cursor.execute(f"DROP INDEX {index}")
++
++    def test_already_total_order_and_input_queryset_are_preserved(self):
++        qs = Author.objects.order_by("-pk")
++        self.assertEqual(self.ids(qs), [self.third.pk, self.second.pk, self.first.pk])
++        self.assertEqual(list(qs.values_list("pk", flat=True)), [self.third.pk, self.second.pk, self.first.pk])

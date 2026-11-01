@@ -1,0 +1,3 @@
+And here, Can you do something like `result_frame = ...`, `result_func = ...`, and `expected = DataFrame(...)` to check the result is correct and not just consistent.
+
+Keep duplicate-column selection and arithmetic equivalent to df[label], preserving every matching column in its original order and dtype. Handle backtick-quoted labels, named row indexes, and mixed duplicate/nonduplicate labels without mutating the source for expression-only evaluation.

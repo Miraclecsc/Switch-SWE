@@ -1,0 +1,328 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index 0439377ac..74d40a546 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -1694,3 +1694,28 @@ def test_pickle() -> None:
+     # Make sure equality works between a pickle/unpickle round trip.
+     tag = tags.Tag("py3", "none", "any")
+     assert pickle.loads(pickle.dumps(tag)) == tag
++
++
++@pytest.mark.parametrize(
++    ("supported", "things", "expected"),
++    [
++        (["t1", "t2"], ["t1", "t2"], ["t1", "t2"]),
++        (["t1", "t2"], ["t3", "t4"], []),
++        (["t1", "t2"], ["t2", "t1"], ["t1", "t2"]),
++        (["t1", "t2", "t1"], ["t2", "t1"], ["t1", "t2"]),
++        (["t1", "t3"], ["t2", "t1"], ["t1"]),
++        (["t1", "t3"], ["t2.t3", "t1"], ["t1", "t2.t3"]),
++        (["t1"], ["t2", "t1"], ["t1"]),
++    ],
++)
++def test_create_compatible_tags_selector(
++    supported: list[str], things: list[str], expected: list[str]
++) -> None:
++    def t_to_tag(t: str) -> tags.Tag:
++        return tags.Tag("py3", "none", t)
++
++    def t_to_tags(t: str) -> frozenset[tags.Tag]:
++        return tags.parse_tag(f"py3-none-{t}")
++
++    selector = tags.create_compatible_tags_selector([t_to_tag(t) for t in supported])
++    assert list(selector([(t, t_to_tags(t)) for t in things])) == expected
+diff --git a/tests/test_selector_stateful.py b/tests/test_selector_stateful.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_selector_stateful.py
+@@ -0,0 +1,290 @@
++"""Public state/laziness contracts; tests observe behavior, not code structure."""
++from __future__ import annotations
++
++import pytest
++
++from packaging import tags
++
++
++def tag(name):
++    return tags.Tag("py3", "none", name)
++
++
++def item(name, *names):
++    return name, {tag(n) for n in names}
++
++
++class Source:
++    def __init__(self, names, error=None):
++        self.values = [tag(n) for n in names]
++        self.position = self.iterations = self.advances = 0
++        self.error = error
++
++    def __iter__(self):
++        self.iterations += 1
++        return self
++
++    def __next__(self):
++        self.advances += 1
++        if self.position == len(self.values):
++            if self.error is not None:
++                raise self.error
++            raise StopIteration
++        value = self.values[self.position]
++        self.position += 1
++        return value
++
++
++class CandidateInput:
++    def __init__(self, entries):
++        self.entries = entries
++        self.iterations = 0
++
++    def __iter__(self):
++        self.iterations += 1
++        assert self.iterations == 1
++        return iter(self.entries)
++
++
++def test_factory_and_query_creation_do_not_touch_inputs():
++    source = Source(["a"])
++    candidates = CandidateInput([item("chosen", "a")])
++    select = tags.create_compatible_tags_selector(source)
++    query = select(candidates)
++    assert (source.iterations, source.advances, candidates.iterations) == (0, 0, 0)
++    assert list(query) == ["chosen"]
++    assert (source.iterations, source.advances, candidates.iterations) == (1, 1, 1)
++
++
++def test_empty_candidates_do_not_touch_supported_source():
++    source = Source([], RuntimeError("must not be reached"))
++    select = tags.create_compatible_tags_selector(source)
++    assert list(select(iter([]))) == []
++    assert source.iterations == source.advances == 0
++
++
++def test_limit_zero_does_not_touch_either_input():
++    source = Source([], RuntimeError("must not be reached"))
++    candidates = CandidateInput([item("a", "a")])
++    select = tags.create_compatible_tags_selector(source)
++    assert list(select(candidates, limit=0)) == []
++    assert source.iterations == source.advances == candidates.iterations == 0
++
++
++@pytest.mark.parametrize("bad,error", [(-1, ValueError), (1.5, TypeError), ("1", TypeError)])
++def test_invalid_limit_fails_at_call_without_consumption(bad, error):
++    source = Source(["a"])
++    candidates = CandidateInput([item("a", "a")])
++    select = tags.create_compatible_tags_selector(source)
++    with pytest.raises(error):
++        select(candidates, limit=bad)
++    assert source.iterations == source.advances == candidates.iterations == 0
++
++
++def test_all_matches_stop_before_poisoned_source_tail():
++    source = Source(["a"], RuntimeError("overconsumed"))
++    select = tags.create_compatible_tags_selector(source)
++    assert list(select([item("first", "a"), item("second", "a")])) == ["first", "second"]
++    assert source.advances == 1
++
++
++def test_limit_stops_with_unmatched_candidates_remaining():
++    source = Source(["a"], RuntimeError("overconsumed"))
++    select = tags.create_compatible_tags_selector(source)
++    assert list(select([item("miss", "b"), item("winner", "a")], limit=1)) == ["winner"]
++    assert source.advances == 1
++
++
++def test_interleaved_queries_replay_tags_consumed_by_the_other_query():
++    source = Source(["a", "b", "c"])
++    select = tags.create_compatible_tags_selector(source)
++    left = select([item("left-a", "a"), item("left-b", "b"), item("left-c", "c")])
++    right = select([item("right-b", "b"), item("right-c", "c")])
++    assert next(left) == "left-a"
++    assert next(right) == "right-b"
++    assert next(left) == "left-b"
++    assert next(right) == "right-c"
++    assert list(left) == ["left-c"]
++    assert list(right) == []
++    assert source.advances == 3
++    assert source.iterations == 1
++
++
++def test_late_query_can_finish_from_cache_after_another_advances_further():
++    source = Source(["a", "b", "c"])
++    select = tags.create_compatible_tags_selector(source)
++    early = select([item("early-a", "a"), item("early-b", "b")])
++    assert next(early) == "early-a"
++    assert list(select([item("later-c", "c")])) == ["later-c"]
++    before = source.advances
++    assert list(early) == ["early-b"]
++    assert list(select([item("again-b", "b"), item("again-a", "a")])) == ["again-a", "again-b"]
++    assert source.advances == before
++
++
++def test_closing_one_query_does_not_close_shared_source():
++    source = Source(["a", "b"], RuntimeError("overconsumed"))
++    select = tags.create_compatible_tags_selector(source)
++    abandoned = select([item("a", "a"), item("b", "b")])
++    assert next(abandoned) == "a"
++    abandoned.close()
++    assert list(select([item("b", "b")])) == ["b"]
++    assert source.advances == 2
++
++
++def test_first_advance_snapshots_candidates_and_mutable_tag_sets():
++    source = Source(["a", "b", "c"])
++    first_tags, second_tags = {tag("a")}, {tag("b")}
++    entries = [("first", first_tags), ("second", second_tags)]
++    select = tags.create_compatible_tags_selector(source)
++    query = select(entries)
++    entries.append(item("before-first-next", "c"))
++    assert next(query) == "first"
++    second_tags.clear()
++    entries.append(item("after-first-next", "b"))
++    assert list(query) == ["second", "before-first-next"]
++
++
++def test_each_query_takes_its_own_candidate_snapshot():
++    source = Source(["a", "b"])
++    shared = {tag("b")}
++    select = tags.create_compatible_tags_selector(source)
++    old = select([item("first", "a"), ("old", shared)])
++    assert next(old) == "first"
++    shared.clear()
++    shared.add(tag("a"))
++    assert list(select([("new", shared)])) == ["new"]
++    assert list(old) == ["old"]
++
++
++def test_stable_ties_duplicate_source_tags_and_unhashable_payloads():
++    source = Source(["a", "a", "b"])
++    repeated = []
++    different = {}
++    select = tags.create_compatible_tags_selector(source)
++    query = select([(repeated, {tag("b")}), (different, {tag("a"), tag("b")}),
++                    (repeated, {tag("a")}), (repeated, {tag("a")})])
++    result = list(query)
++    assert len(result) == 4
++    assert result[0] is different
++    assert all(x is repeated for x in result[1:])
++    assert source.advances == 3
++
++
++def test_cache_state_is_readonly_snapshot_and_exhaustion_is_observed_only():
++    source = Source(["a", "a", "b"])
++    select = tags.create_compatible_tags_selector(source)
++    assert isinstance(select, tags.CompatibleTagsSelector)
++    empty = select.cached_tags
++    assert empty == () and select.exhausted is False
++    assert list(select([item("a", "a")])) == ["a"]
++    first = select.cached_tags
++    assert first == (tag("a"),)
++    assert select.exhausted is False
++    assert list(select([item("b", "b")])) == ["b"]
++    assert first == (tag("a"),) and empty == ()
++    assert select.cached_tags == (tag("a"), tag("b"))
++    assert select.exhausted is False
++    assert list(select([item("unmatched", "z")])) == []
++    assert select.exhausted is True
++    assert source.advances == 4
++    with pytest.raises(AttributeError):
++        select.cached_tags = ()
++    with pytest.raises(AttributeError):
++        select.exhausted = False
++
++
++def test_exhausted_source_is_not_polled_again_and_cache_remains_useful():
++    source = Source(["a"])
++    select = tags.create_compatible_tags_selector(source)
++    assert list(select([item("miss", "z")])) == []
++    calls = source.advances
++    assert list(select([item("miss-again", "z")])) == []
++    assert list(select([item("hit", "a")])) == ["hit"]
++    assert source.advances == calls
++
++
++def test_source_error_is_replayed_at_same_cache_boundary():
++    source = Source(["a"], ValueError("broken supported stream"))
++    select = tags.create_compatible_tags_selector(source)
++    first = select([item("a", "a"), item("miss", "b")])
++    assert next(first) == "a"
++    with pytest.raises(ValueError, match="broken supported stream"):
++        next(first)
++    calls = source.advances
++    # A query satisfied entirely by the cached prefix must not see the error.
++    assert list(select([item("cached", "a")])) == ["cached"]
++    second = select([item("again-a", "a"), item("again-miss", "b")])
++    assert next(second) == "again-a"
++    with pytest.raises(ValueError, match="broken supported stream"):
++        next(second)
++    assert source.advances == calls
++    assert select.exhausted is False
++
++
++def test_iter_source_error_is_deferred_and_memoized():
++    class Broken:
++        calls = 0
++        def __iter__(self):
++            self.calls += 1
++            raise LookupError("cannot open tag stream")
++    source = Broken()
++    select = tags.create_compatible_tags_selector(source)
++    assert source.calls == 0
++    for _ in range(2):
++        query = select([item("missing", "a")])
++        with pytest.raises(LookupError, match="cannot open tag stream"):
++            next(query)
++    assert source.calls == 1
++
++
++def test_source_failure_is_not_triggered_by_limit_or_empty_query():
++    source = Source([], RuntimeError("unavailable"))
++    select = tags.create_compatible_tags_selector(source)
++    with pytest.raises(RuntimeError, match="unavailable"):
++        next(select([item("a", "a")]))
++    calls = source.advances
++    assert list(select([])) == []
++    assert list(select([item("a", "a")], limit=0)) == []
++    assert source.advances == calls
++
++
++def test_candidate_input_failure_does_not_poison_supported_source():
++    source = Source(["a"])
++    select = tags.create_compatible_tags_selector(source)
++    def broken_candidates():
++        yield item("partial", "a")
++        raise RuntimeError("candidate enumeration failed")
++    query = select(broken_candidates())
++    with pytest.raises(RuntimeError, match="candidate enumeration failed"):
++        next(query)
++    assert source.advances == 0
++    assert list(select([item("healthy", "a")])) == ["healthy"]
++
++
++def test_limit_preserves_ties_and_can_be_larger_than_match_count():
++    select = tags.create_compatible_tags_selector([tag("a"), tag("b")])
++    entries = [item("b", "b"), item("first-a", "a"), item("second-a", "a")]
++    assert list(select(entries, limit=2)) == ["first-a", "second-a"]
++    assert list(select(entries, limit=10)) == ["first-a", "second-a", "b"]
++
++
++@pytest.mark.parametrize("schedule", ["LLRLRR", "RRLLRL", "LRLRLR"])
++def test_interleaving_has_same_results_as_independent_queries(schedule):
++    source = Source(["a", "b", "c"], RuntimeError("no overread"))
++    select = tags.create_compatible_tags_selector(source)
++    left = select([item("c", "c"), item("a", "a"), item("b", "b")])
++    right = select([item("b", "b"), item("a", "a"), item("c", "c")])
++    outputs = {"L": [], "R": []}
++    queries = {"L": left, "R": right}
++    for key in schedule:
++        outputs[key].append(next(queries[key]))
++    assert outputs == {"L": ["a", "b", "c"], "R": ["a", "b", "c"]}
++    assert list(left) == list(right) == []
++    assert source.advances == 3
++
++
++def test_supported_source_preference_is_not_recomputed_from_tag_names():
++    select = tags.create_compatible_tags_selector([tag("z"), tag("a")])
++    assert list(select([item("lexically-first", "a"), item("preferred", "z")])) == [
++        "preferred", "lexically-first"]

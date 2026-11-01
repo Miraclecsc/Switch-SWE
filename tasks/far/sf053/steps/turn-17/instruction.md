@@ -1,0 +1,1 @@
+Also, Exception copying is not generally safe. What's on the table is disallowing users from waiting on the same task handle twice, but Consider if such a thing is warranted in the first place.

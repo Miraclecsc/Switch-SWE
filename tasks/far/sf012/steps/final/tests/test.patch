@@ -1,0 +1,154 @@
+diff --git a/tests/signing/tests.py b/tests/signing/tests.py
+index 0aadba12a123..963e8db52b57 100644
+--- a/tests/signing/tests.py
++++ b/tests/signing/tests.py
+@@ -4,6 +4,7 @@
+ from django.test import SimpleTestCase, override_settings
+ from django.test.utils import freeze_time
+ from django.utils.crypto import InvalidAlgorithm
++from django.utils.deprecation import RemovedInDjango70Warning
+ 
+ 
+ class TestSigner(SimpleTestCase):
+@@ -43,6 +44,15 @@ def test_signature_with_salt(self):
+             signing.Signer(key="predictable-secret", salt="two").signature("hello"),
+         )
+ 
++    def test_base64_hmac_default_algorithm_deprecation(self):
++        msg = (
++            "The default argument for algorithm in base64_hmac() will change "
++            "from 'sha1' to 'sha256' in Django 7.0. Pass an explicit "
++            "algorithm to silence this warning."
++        )
++        with self.assertWarnsMessage(RemovedInDjango70Warning, msg):
++            signing.base64_hmac("salt", "value", "key")
++
+     def test_custom_algorithm(self):
+         signer = signing.Signer(key="predictable-secret", algorithm="sha512")
+         self.assertEqual(
+diff --git a/tests/utils_tests/test_crypto.py b/tests/utils_tests/test_crypto.py
+index 6fb4bfa4534c..61d9bb047896 100644
+--- a/tests/utils_tests/test_crypto.py
++++ b/tests/utils_tests/test_crypto.py
+@@ -8,6 +8,7 @@
+     pbkdf2,
+     salted_hmac,
+ )
++from django.utils.deprecation import RemovedInDjango70Warning
+ 
+ 
+ class TestUtilsCryptoMisc(SimpleTestCase):
+@@ -24,20 +25,30 @@ def test_constant_time_compare(self):
+ 
+     def test_salted_hmac(self):
+         tests = [
+-            ((b"salt", b"value"), {}, "b51a2e619c43b1ca4f91d15c57455521d71d61eb"),
+-            (("salt", "value"), {}, "b51a2e619c43b1ca4f91d15c57455521d71d61eb"),
++            (
++                (b"salt", b"value"),
++                {"algorithm": "sha1"},
++                "b51a2e619c43b1ca4f91d15c57455521d71d61eb",
++            ),
+             (
+                 ("salt", "value"),
+-                {"secret": "abcdefg"},
++                {"algorithm": "sha1"},
++                "b51a2e619c43b1ca4f91d15c57455521d71d61eb",
++            ),
++            (
++                ("salt", "value"),
++                {"secret": "abcdefg", "algorithm": "sha1"},
+                 "8bbee04ccddfa24772d1423a0ba43bd0c0e24b76",
+             ),
+             (
+                 ("salt", "value"),
+-                {"secret": "x" * hashlib.sha1().block_size},
++                {"secret": "x" * hashlib.sha1().block_size, "algorithm": "sha1"},
+                 "bd3749347b412b1b0a9ea65220e55767ac8e96b0",
+             ),
+             (
+                 ("salt", "value"),
++                # RemovedInDjango70Warning: Remove the explicit algorithm to
++                # test the new default value.
+                 {"algorithm": "sha256"},
+                 "ee0bf789e4e009371a5372c90f73fcf17695a8439c9108b0480f14e347b3f9ec",
+             ),
+@@ -56,6 +67,15 @@ def test_salted_hmac(self):
+             with self.subTest(args=args, kwargs=kwargs):
+                 self.assertEqual(salted_hmac(*args, **kwargs).hexdigest(), digest)
+ 
++    def test_salted_hmac_default_algorithm_deprecation(self):
++        msg = (
++            "The default argument for algorithm in salted_hmac() will change "
++            "from 'sha1' to 'sha256' in Django 7.0. Pass an explicit "
++            "algorithm to silence this warning."
++        )
++        with self.assertWarnsMessage(RemovedInDjango70Warning, msg):
++            salted_hmac("salt", "value")
++
+     def test_invalid_algorithm(self):
+         msg = "'whatever' is not an algorithm accepted by the hashlib module."
+         with self.assertRaisesMessage(InvalidAlgorithm, msg):
+diff --git a/tests/signing/test_algorithm_migration_v1.py b/tests/signing/test_algorithm_migration_v1.py
+new file mode 100644
+index 0000000000..0289b384fa
+--- /dev/null
++++ b/tests/signing/test_algorithm_migration_v1.py
+@@ -0,0 +1,57 @@
++from unittest.mock import patch
++from django.core import signing
++from django.test import SimpleTestCase
++
++
++class AlgorithmMigrationTests(SimpleTestCase):
++    def migrating(self, cls=signing.Signer, **kwargs):
++        try:
++            return cls(**kwargs)
++        except TypeError as exc:
++            self.fail(f"Explicit algorithm migration configuration is required: {exc}")
++
++    def test_old_algorithm_and_old_key_combinations_verify(self):
++        reader = self.migrating(key="new-key", fallback_keys=["old-key"],
++            algorithm="sha256", fallback_algorithms=["sha1"], salt="migration")
++        for key in ["new-key", "old-key"]:
++            for algorithm in ["sha256", "sha1"]:
++                value = signing.Signer(key=key, algorithm=algorithm, salt="migration").sign("payload")
++                self.assertEqual(reader.unsign(value), "payload")
++
++    def test_signing_uses_primary_algorithm_and_copies_fallback_configuration(self):
++        algorithms = ["sha1"]
++        signer = self.migrating(key="key", salt="migration", algorithm="sha256",
++                               fallback_algorithms=algorithms)
++        algorithms.clear()
++        old = signing.Signer(key="key", salt="migration", algorithm="sha1").sign("value")
++        self.assertEqual(signer.unsign(old), "value")
++        self.assertEqual(signer.sign("value"), signing.Signer(
++            key="key", salt="migration", algorithm="sha256").sign("value"))
++
++    def test_fallback_does_not_accept_tampering_wrong_salt_or_unlisted_algorithm(self):
++        reader = self.migrating(key="key", salt="migration", fallback_algorithms=["sha1"])
++        for value in [
++            signing.Signer(key="key", salt="different", algorithm="sha1").sign("value"),
++            signing.Signer(key="key", salt="migration", algorithm="sha512").sign("value"),
++            signing.Signer(key="key", salt="migration", algorithm="sha1").sign("value") + "x",
++        ]:
++            with self.assertRaises(signing.BadSignature):
++                reader.unsign(value)
++
++    def test_timestamp_and_compressed_object_checks_still_apply(self):
++        old = signing.TimestampSigner(key="key", salt="migration", algorithm="sha1")
++        reader = self.migrating(signing.TimestampSigner, key="key", salt="migration",
++                                fallback_algorithms=["sha1"])
++        obj = {"message": "repeated-" * 100}
++        with patch("django.core.signing.time.time", return_value=1000):
++            signed = old.sign_object(obj, compress=True)
++        with patch("django.core.signing.time.time", return_value=1005):
++            self.assertEqual(reader.unsign_object(signed, max_age=10), obj)
++        with patch("django.core.signing.time.time", return_value=1011):
++            with self.assertRaises(signing.SignatureExpired):
++                reader.unsign_object(signed, max_age=10)
++
++    def test_default_signer_does_not_implicitly_accept_sha1(self):
++        old = signing.Signer(key="key", salt="migration", algorithm="sha1")
++        with self.assertRaises(signing.BadSignature):
++            signing.Signer(key="key", salt="migration").unsign(old.sign("value"))

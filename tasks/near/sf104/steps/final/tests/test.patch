@@ -1,0 +1,187 @@
+diff --git a/tests/test_progress.py b/tests/test_progress.py
+index db2e825d3a..d3c6171c9c 100644
+--- a/tests/test_progress.py
++++ b/tests/test_progress.py
+@@ -1,11 +1,14 @@
+ # encoding=utf-8
+ 
+ import io
++import os
++import tempfile
+ from time import sleep
+ from types import SimpleNamespace
+ 
+ import pytest
+ 
++import rich.progress
+ from rich.progress_bar import ProgressBar
+ from rich.console import Console
+ from rich.highlighter import NullHighlighter
+@@ -549,6 +552,84 @@ def test_no_output_if_progress_is_disabled() -> None:
+     assert result == expected
+ 
+ 
++def test_open() -> None:
++    console = Console(
++        file=io.StringIO(),
++        force_terminal=True,
++        width=60,
++        color_system="truecolor",
++        legacy_windows=False,
++        _environ={},
++    )
++    progress = Progress(
++        console=console,
++    )
++
++    fd, filename = tempfile.mkstemp()
++    with os.fdopen(fd, "wb") as f:
++        f.write(b"Hello, World!")
++    try:
++        with rich.progress.open(filename) as f:
++            assert f.read() == "Hello, World!"
++        assert f.closed
++    finally:
++        os.remove(filename)
++
++
++def test_open_text_mode() -> None:
++    fd, filename = tempfile.mkstemp()
++    with os.fdopen(fd, "wb") as f:
++        f.write(b"Hello, World!")
++    try:
++        with rich.progress.open(filename, "r") as f:
++            assert f.read() == "Hello, World!"
++        assert f.closed
++    finally:
++        os.remove(filename)
++
++
++def test_wrap_file() -> None:
++    fd, filename = tempfile.mkstemp()
++    with os.fdopen(fd, "wb") as f:
++        total = f.write(b"Hello, World!")
++    try:
++        with open(filename, "rb") as file:
++            with rich.progress.wrap_file(file, total=total) as f:
++                assert f.read() == b"Hello, World!"
++            assert f.closed
++            assert not f.handle.closed
++            assert not file.closed
++        assert file.closed
++    finally:
++        os.remove(filename)
++
++
++def test_wrap_file_task_total() -> None:
++    console = Console(
++        file=io.StringIO(),
++        force_terminal=True,
++        width=60,
++        color_system="truecolor",
++        legacy_windows=False,
++        _environ={},
++    )
++    progress = Progress(
++        console=console,
++    )
++
++    fd, filename = tempfile.mkstemp()
++    with os.fdopen(fd, "wb") as f:
++        total = f.write(b"Hello, World!")
++    try:
++        with progress:
++            with open(filename, "rb") as file:
++                task_id = progress.add_task("Reading", total=total)
++                with progress.wrap_file(file, task_id=task_id) as f:
++                    assert f.read() == b"Hello, World!"
++    finally:
++        os.remove(filename)
++
++
+ if __name__ == "__main__":
+     _render = render_progress()
+     print(_render)
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,78 @@
++import io
++import pytest
++import rich.progress as progress_module
++from rich.progress import Progress
++
++
++@pytest.mark.parametrize("operation", [
++    lambda r: r.read(), lambda r: r.readinto(bytearray(2)), lambda r: r.readline(),
++    lambda r: r.readlines(), lambda r: next(r), lambda r: r.seek(0), lambda r: r.tell(),
++    lambda r: r.fileno(), lambda r: r.isatty(), lambda r: r.readable(),
++    lambda r: r.seekable(), lambda r: r.__enter__(),
++])
++def test_closed_wrapper(operation):
++    raw = io.BytesIO(b"abc\ndef")
++    progress = Progress(disable=True)
++    reader = progress.wrap_file(raw, total=7)
++    reader.close()
++    reader.close()
++    assert not raw.closed
++    with pytest.raises(ValueError):
++        operation(reader)
++    assert progress.tasks[0].completed == 0
++
++
++def test_nonblocking_read_and_readinto():
++    class Nonblocking(io.BytesIO):
++        unavailable = True
++        def read(self, size=-1):
++            return None if self.unavailable else super().read(size)
++        def readinto(self, target):
++            return None if self.unavailable else super().readinto(target)
++    raw = Nonblocking(b"abcd")
++    progress = Progress(disable=True)
++    reader = progress.wrap_file(raw, total=4)
++    assert reader.read(2) is None
++    assert reader.readinto(bytearray(2)) is None
++    assert progress.tasks[0].completed == 0
++    raw.unavailable = False
++    assert reader.read(2) == b"ab"
++    target = bytearray(4)
++    assert reader.readinto(target) == 2
++    assert target[:2] == b"cd"
++    assert reader.read() == b""
++    assert reader.readinto(target) == 0
++    assert progress.tasks[0].completed == 4
++
++
++def test_context_enter_failure_stops_progress(monkeypatch):
++    lifecycle = []
++    monkeypatch.setattr(Progress, "start", lambda self: lifecycle.append("started"))
++    monkeypatch.setattr(Progress, "stop", lambda self: lifecycle.append("stopped"))
++    class BrokenEnter(io.BytesIO):
++        def __enter__(self):
++            raise RuntimeError("enter failed")
++    raw = BrokenEnter(b"abc")
++    with pytest.raises(RuntimeError, match="enter failed"):
++        with progress_module.wrap_file(raw, total=3):
++            pytest.fail("must not enter body")
++    assert lifecycle == ["started", "stopped"]
++    assert not raw.closed
++
++
++def test_context_close_failure_stops_progress(monkeypatch, tmp_path):
++    lifecycle = []
++    monkeypatch.setattr(Progress, "start", lambda self: lifecycle.append("started"))
++    monkeypatch.setattr(Progress, "stop", lambda self: lifecycle.append("stopped"))
++    class BrokenClose(io.BytesIO):
++        def close(self):
++            super().close()
++            raise RuntimeError("close failed")
++    raw = BrokenClose(b"abc")
++    path = tmp_path / "content"
++    path.write_bytes(b"abc")
++    monkeypatch.setattr(progress_module.io, "open", lambda *a, **kw: raw)
++    with pytest.raises(RuntimeError, match="close failed"):
++        with progress_module.open(path, "rb") as reader:
++            assert reader.read() == b"abc"
++    assert lifecycle == ["started", "stopped"]

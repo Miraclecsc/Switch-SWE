@@ -1,0 +1,123 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 0590e49..547b597 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -10,6 +10,12 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ - Added support for use as a context manager to ``anyio.lowlevel.RunVar``
+ - Added ``__all__`` declarations to public submodules (``anyio.lowlevel`` etc.)
+   (`#1009 <https://github.com/agronholm/anyio/pull/1009>`_)
++- Fixed ``Process.stdin.send()`` not raising ``ClosedResourceError`` and
++  ``BrokenResourceError`` on asyncio. Previously, a non-AnyIO exception was raised in
++  such cases (`#671 <https://github.com/agronholm/anyio/issues/671>`_; PR by
++  @gschaffner)
++- Fixed ``Process.stdin.send()`` not checkpointing before writing data on asyncio
++  (`#1002 <https://github.com/agronholm/anyio/issues/1002>`_; PR by @gschaffner)
+ 
+ .. _winloop: https://github.com/Vizonex/Winloop
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index 2075814..f3402ca 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -34,7 +34,7 @@ from collections.abc import (
+ from concurrent.futures import Future
+ from contextlib import AbstractContextManager, suppress
+ from contextvars import Context, copy_context
+-from dataclasses import dataclass
++from dataclasses import dataclass, field
+ from functools import partial, wraps
+ from inspect import (
+     CORO_RUNNING,
+@@ -1052,12 +1052,30 @@ class StreamReaderWrapper(abc.ByteReceiveStream):
+ @dataclass(eq=False)
+ class StreamWriterWrapper(abc.ByteSendStream):
+     _stream: asyncio.StreamWriter
++    _closed: bool = field(init=False, default=False)
+ 
+     async def send(self, item: bytes) -> None:
+-        self._stream.write(item)
+-        await self._stream.drain()
++        await AsyncIOBackend.checkpoint_if_cancelled()
++        stream_paused = self._stream._protocol._paused  # type: ignore[attr-defined]
++        try:
++            self._stream.write(item)
++            await self._stream.drain()
++        except (ConnectionResetError, BrokenPipeError, RuntimeError) as exc:
++            # If closed by us and/or the peer:
++            # * on stdlib, drain() raises ConnectionResetError or BrokenPipeError
++            # * on uvloop and Winloop, write() eventually starts raising RuntimeError
++            if self._closed:
++                raise ClosedResourceError from exc
++            elif self._stream.is_closing():
++                raise BrokenResourceError from exc
++
++            raise
++
++        if not stream_paused:
++            await AsyncIOBackend.cancel_shielded_checkpoint()
+ 
+     async def aclose(self) -> None:
++        self._closed = True
+         self._stream.close()
+         await AsyncIOBackend.checkpoint()
+ 
+@@ -1599,19 +1617,28 @@ class UDPSocket(abc.UDPSocket):
+         return self._transport.get_extra_info("socket")
+ 
+     async def aclose(self) -> None:
++        self._closed = True
++        self._protocol.read_queue.clear()
++        self._protocol.read_event.set()
++        self._protocol.write_event.set()
+         if not self._transport.is_closing():
+-            self._closed = True
+             self._transport.close()
+ 
+     async def receive(self) -> tuple[bytes, IPSockAddrType]:
+         with self._receive_guard:
+             await AsyncIOBackend.checkpoint()
+ 
++            if self._closed:
++                raise ClosedResourceError
++
+             # If the buffer is empty, ask for more data
+             if not self._protocol.read_queue and not self._transport.is_closing():
+                 self._protocol.read_event.clear()
+                 await self._protocol.read_event.wait()
+ 
++            if self._closed:
++                raise ClosedResourceError
++
+             try:
+                 return self._protocol.read_queue.popleft()
+             except IndexError:
+@@ -1647,19 +1674,28 @@ class ConnectedUDPSocket(abc.ConnectedUDPSocket):
+         return self._transport.get_extra_info("socket")
+ 
+     async def aclose(self) -> None:
++        self._closed = True
++        self._protocol.read_queue.clear()
++        self._protocol.read_event.set()
++        self._protocol.write_event.set()
+         if not self._transport.is_closing():
+-            self._closed = True
+             self._transport.close()
+ 
+     async def receive(self) -> bytes:
+         with self._receive_guard:
+             await AsyncIOBackend.checkpoint()
+ 
++            if self._closed:
++                raise ClosedResourceError
++
+             # If the buffer is empty, ask for more data
+             if not self._protocol.read_queue and not self._transport.is_closing():
+                 self._protocol.read_event.clear()
+                 await self._protocol.read_event.wait()
+ 
++            if self._closed:
++                raise ClosedResourceError
++
+             try:
+                 packet = self._protocol.read_queue.popleft()
+             except IndexError:

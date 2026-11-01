@@ -1,0 +1,1 @@
+Also, Yes, so for the following example Users cannot be prevented from doing something like this, right. What should be the type of `item` here. In true [PEP560]( fashion, this should be a class attribute, which means it is the _CountingAttr type here instead of `attr.Attribute`.

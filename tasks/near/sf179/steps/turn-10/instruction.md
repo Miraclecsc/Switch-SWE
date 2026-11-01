@@ -1,0 +1,1 @@
+One more thing: I'm fine with deferring, but then when can we definitely take out these legacy classes? I just want to make sure that if we are postponing for pip that we do make sure pip is able to update appropriately so we don't drag this out (we do have people accidentally using these classes still, so extended delay wouldn't be great).

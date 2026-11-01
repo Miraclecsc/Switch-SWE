@@ -1,0 +1,1 @@
+For the checkout at /work/w02, fix(polys): Handle `0*oo` in SDM scalar multiplication fix(polys): Handle `0*oo` in SDM scalar multiplication

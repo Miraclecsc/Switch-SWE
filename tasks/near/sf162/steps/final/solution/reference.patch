@@ -1,0 +1,103 @@
+diff --git a/docs/templates.md b/docs/templates.md
+index ba9c425..01f3432 100644
+--- a/docs/templates.md
++++ b/docs/templates.md
+@@ -22,7 +22,7 @@ from starlette.staticfiles import StaticFiles
+ templates = Jinja2Templates(directory='templates')
+ 
+ async def homepage(request):
+-    return templates.TemplateResponse('index.html', {'request': request})
++    return templates.TemplateResponse(request, 'index.html')
+ 
+ routes = [
+     Route('/', endpoint=homepage),
+diff --git a/starlette/templating.py b/starlette/templating.py
+index ec9ca19..549b9cf 100644
+--- a/starlette/templating.py
++++ b/starlette/templating.py
+@@ -140,22 +140,81 @@ class Jinja2Templates:
+     def get_template(self, name: str) -> "jinja2.Template":
+         return self.env.get_template(name)
+ 
++    @typing.overload
+     def TemplateResponse(
+         self,
++        request: Request,
+         name: str,
+-        context: dict,
++        context: typing.Optional[dict] = None,
++        status_code: int = 200,
++        headers: typing.Optional[typing.Mapping[str, str]] = None,
++        media_type: typing.Optional[str] = None,
++        background: typing.Optional[BackgroundTask] = None,
++    ) -> _TemplateResponse:
++        ...
++
++    @typing.overload
++    def TemplateResponse(
++        self,
++        name: str,
++        context: typing.Optional[dict] = None,
+         status_code: int = 200,
+         headers: typing.Optional[typing.Mapping[str, str]] = None,
+         media_type: typing.Optional[str] = None,
+         background: typing.Optional[BackgroundTask] = None,
+     ) -> _TemplateResponse:
+-        if "request" not in context:
+-            raise ValueError('context must include a "request" key')
++        # Deprecated usage
++        ...
+ 
+-        request = typing.cast(Request, context["request"])
++    def TemplateResponse(
++        self, *args: typing.Any, **kwargs: typing.Any
++    ) -> _TemplateResponse:
++        legacy = bool(args and isinstance(args[0], str)) or (
++            not args and "request" not in kwargs
++        )
++        parameters = ("name", "context", "status_code", "headers", "media_type", "background")
++        if not legacy:
++            parameters = ("request",) + parameters
++        if len(args) > len(parameters):
++            raise TypeError("Too many positional arguments to TemplateResponse")
++        values = dict(zip(parameters, args))
++        for key, value in kwargs.items():
++            if key not in parameters:
++                raise TypeError("Unexpected argument: " + key)
++            if key in values:
++                raise TypeError("Multiple values for argument: " + key)
++            values[key] = value
++        if "name" not in values:
++            raise TypeError("Missing required argument: name")
++        name = values["name"]
++        context = values.get("context")
++        if context is None:
++            context = {}
++        if legacy:
++            if args:
++                message = (
++                    "The `name` is not the first parameter anymore. "
++                    "The first parameter should be the `Request` instance."
++                )
++            else:
++                message = "The `TemplateResponse` now requires the `request` argument."
++            warnings.warn(message, DeprecationWarning, stacklevel=2)
++            if "request" not in context:
++                raise ValueError('context must include a "request" key')
++            request = context["request"]
++        else:
++            request = values["request"]
++        status_code = values.get("status_code", 200)
++        headers = values.get("headers")
++        media_type = values.get("media_type")
++        background = values.get("background")
++
++        context = dict(context)
++        context["request"] = request
+         for context_processor in self.context_processors:
+             context.update(context_processor(request))
+ 
++        context["request"] = request
+         template = self.get_template(name)
+         return _TemplateResponse(
+             template,

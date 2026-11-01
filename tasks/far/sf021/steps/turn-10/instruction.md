@@ -1,0 +1,1 @@
+One more thing: This resource is kind unique, status is stored as `current_state` (CurrentState), but the managed state class works with the attribute `status`.

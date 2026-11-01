@@ -1,0 +1,3 @@
+One more thing: Can you add a reference to the GitHub issue as a comment on the first line of these tests. #
+
+Apply ascending, kind and na_position to the returned sort keys. Missing keys follow na_position; stable and mergesort must retain the original relative order of equal-key values in either direction. key=None retains existing behavior and SparseArray retains its documented NotImplementedError.

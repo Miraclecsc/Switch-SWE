@@ -1,0 +1,1 @@
+Also, feat: option to validate compressed tag set sort order in `parse_wheel_filename` ## Summary Fixes #909. `parse_wheel_filename` accepted wheel filenames where compressed tag sets had components in unsorted order, even though [PEP Also, Did you consider putting this under `parse_tag` directly, instead of being here.

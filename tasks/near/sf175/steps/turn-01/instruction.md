@@ -1,0 +1,1 @@
+I have this in /work/w03: Merge `stable` into `main` after `CHANGES` rST to Markdown conversion

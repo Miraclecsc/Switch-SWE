@@ -1,0 +1,1 @@
+Please check this too: Another improvement would be to add tests to ensure the weighted `harmonic_diameter` is correct!

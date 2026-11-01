@@ -1,0 +1,1 @@
+Also, Keep all preceding requirements for eigenvector centrality cumulative; graph inputs and their attributes must remain unchanged by centrality computation.

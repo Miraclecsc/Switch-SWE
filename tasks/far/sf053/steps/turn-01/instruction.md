@@ -1,0 +1,1 @@
+I have this in /work/w03: Fix MemoryObjectReceiveStream.receive() cancellation on asyncio so receiving an already-delivered item does not leave the task in an incorrectly cancelled state. Preserve proper cancellation propagation and do not silently discard queued items. Retain the original memory-stream and cancellation regression behavior.

@@ -1,0 +1,1 @@
+Please check this too: Oh duh, that makes sense. I was thinking about this the wrong way around: you want to check for the inputs, not the outputs. Can we remove the `(_generated)?` bit entirely?

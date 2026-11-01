@@ -1,0 +1,1 @@
+Also, We still need #7569 and #7571 it before the final bit of work, ensuring we remove the position attribute if the user gave us a function or we used the default action of computing a spring layout and helping get the position attribute onto the graph in the event of a layout function.

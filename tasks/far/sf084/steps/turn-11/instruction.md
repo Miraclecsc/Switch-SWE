@@ -1,0 +1,1 @@
+Please check this too: This would make it ~impossible for downstream tools to implement the following behaviour from PEP 751's specification update: > Outside of the context of lock files, these two variables should result in an error like all other unknown variables.

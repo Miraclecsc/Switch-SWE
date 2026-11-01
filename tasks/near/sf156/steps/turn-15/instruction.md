@@ -1,0 +1,1 @@
+Please check this too: I'm not sure there's much point, as this is an internal thing. And wouldn't I also have to do the same with `__new__()`?

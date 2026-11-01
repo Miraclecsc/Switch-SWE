@@ -1,0 +1,1 @@
+Also, Retain existing cancellation, successful connection cleanup, local binding, TLS and Happy Eyeballs behavior, plus every original socket regression.

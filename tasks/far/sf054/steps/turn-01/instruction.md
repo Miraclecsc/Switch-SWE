@@ -1,0 +1,1 @@
+I have this in /work/w01: Fixed task group getting cancelled if start() gets cancelled This change fixes the problem by special casing the situation where the Future backing `task_status` was cancelled which only happens when the host task is cancelled. Fixes #685. Fixes #710.

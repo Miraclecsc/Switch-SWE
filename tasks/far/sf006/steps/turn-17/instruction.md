@@ -1,0 +1,1 @@
+Also, We normally don't include links to tickets in test comments, and avoid using `we` and similar. Maybe:

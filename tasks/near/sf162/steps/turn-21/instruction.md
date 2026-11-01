@@ -1,0 +1,3 @@
+Also, This error is being raised with the warning above, can we make sure we only have the warning if this doesn't raise?
+
+Complete the compatibility argument binder: reject duplicate positional/keyword assignments, unknown keywords, excess positional arguments and a missing template name with TypeError before context processors or template loading run. A legacy name-first call cannot also supply a request keyword. Keep the existing legacy missing-request ValueError and its deprecation warning required by the compatibility tests.

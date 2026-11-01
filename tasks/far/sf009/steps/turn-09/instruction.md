@@ -1,0 +1,1 @@
+Also, > Alternatively, I think it's worth running the whole `TestCase` with `USE_TZ=True`, e.g. Agreed. > Edit: but it seems `test_thousand_years_ago` needs adjustments to make this work. Is it not enough to base `t` on `self.t`? e.g. ```diff

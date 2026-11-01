@@ -1,0 +1,1 @@
+Also, Maybe you could just check `stf._rolled` to see if the rollover happened?

@@ -1,0 +1,72 @@
+diff --git a/moto/wafv2/models.py b/moto/wafv2/models.py
+index 7e0ddc43b..142244959 100644
+--- a/moto/wafv2/models.py
++++ b/moto/wafv2/models.py
+@@ -574,9 +574,17 @@ class WAFV2Backend(BaseBackend):
+             raise WAFOptimisticLockException()
+         self.wacls.pop(arn)
+ 
+-    def get_web_acl(self, name: str, _id: str) -> FakeWebACL:
++    def get_web_acl(
++        self, arn: Optional[str], name: Optional[str], _id: Optional[str], scope: Optional[str] = None
++    ) -> FakeWebACL:
++        if arn:
++            wacl = self.wacls.get(arn)
++            if wacl is None:
++                raise WAFNonexistentItemException
++            return wacl
++
+         for wacl in self.wacls.values():
+-            if wacl.name == name and wacl.id == _id:
++            if wacl.name == name and wacl.id == _id and (scope is None or wacl.arn.split(":", 5)[5].split("/", 1)[0] == {"REGIONAL": "regional", "CLOUDFRONT": "global"}.get(scope)):
+                 return wacl
+         raise WAFNonexistentItemException
+ 
+@@ -620,7 +628,7 @@ class WAFV2Backend(BaseBackend):
+         token_domains: Optional[list[str]],
+         association_config: Optional[dict[str, Any]],
+     ) -> str:
+-        acl = self.get_web_acl(name, _id)
++        acl = self.get_web_acl(None, name, _id)
+         if acl.lock_token != lock_token:
+             raise WAFOptimisticLockException()
+         rule_objs = (
+diff --git a/moto/wafv2/responses.py b/moto/wafv2/responses.py
+index 4086a333b..c30743dfe 100644
+--- a/moto/wafv2/responses.py
++++ b/moto/wafv2/responses.py
+@@ -81,12 +81,32 @@ class WAFV2Response(BaseResponse):
+         return 200, response_headers, "{}"
+ 
+     def get_web_acl(self) -> TYPE_RESPONSE:
++        import re
++        from moto.utilities.utils import get_partition
++        from .exceptions import WAFNonexistentItemException
++
++        arn = self._get_param("ARN")
+         scope = self._get_param("Scope")
+-        if scope == "CLOUDFRONT":
++        if arn:
++            match = re.fullmatch(
++                r"arn:([^:]+):wafv2:([^:]+):(\d{12}):(regional|global)/webacl/([^/]+)/([^/]+)",
++                arn,
++            )
++            if not match:
++                raise WAFNonexistentItemException()
++            partition, region, account, kind, _, _ = match.groups()
++            if (account != self.current_account
++                or partition != get_partition(self.region)
++                or partition != get_partition(region)
++                or (kind == "global" and region != "us-east-1")):
++                raise WAFNonexistentItemException()
++            self.region = GLOBAL_REGION if kind == "global" else region
++            scope = None
++        elif scope == "CLOUDFRONT":
+             self.region = GLOBAL_REGION
+         name = self._get_param("Name")
+         _id = self._get_param("Id")
+-        web_acl = self.wafv2_backend.get_web_acl(name, _id)
++        web_acl = self.wafv2_backend.get_web_acl(arn, name, _id, scope)
+         response = {"WebACL": web_acl.to_dict(), "LockToken": web_acl.lock_token}
+         response_headers = {"Content-Type": "application/json"}
+         return 200, response_headers, json.dumps(response)

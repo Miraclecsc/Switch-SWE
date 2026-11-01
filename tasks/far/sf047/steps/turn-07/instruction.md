@@ -1,0 +1,1 @@
+Please check this too: Shouldn't we short circuit if `is_expanding` was `True` from the first check iteration.

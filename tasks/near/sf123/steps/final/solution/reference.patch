@@ -1,0 +1,107 @@
+diff --git a/sympy/logic/algorithms/dpll2.py b/sympy/logic/algorithms/dpll2.py
+index 60aa1061a3..1a7fd9b791 100644
+--- a/sympy/logic/algorithms/dpll2.py
++++ b/sympy/logic/algorithms/dpll2.py
+@@ -19,7 +19,7 @@
+ from sympy.logic.algorithms.lra_theory import LRASolver
+ 
+ 
+-def dpll_satisfiable(expr, all_models=False, use_lra_theory=False):
++def dpll_satisfiable(expr, all_models=False, use_lra_theory=False, *, assumptions=()):
+     """
+     Check satisfiability of a propositional sentence.
+     It returns a model rather than True when it succeeds.
+@@ -36,10 +36,22 @@ def dpll_satisfiable(expr, all_models=False, use_lra_theory=False):
+     False
+ 
+     """
++    from sympy.core import S, Symbol, sympify
++    from sympy.core.relational import Relational
++    from sympy.logic.boolalg import Not
++    assumptions = tuple(sympify(value) for value in assumptions)
++    for literal in assumptions:
++        atom = literal.args[0] if isinstance(literal, Not) else literal
++        if atom not in (S.true, S.false) and not isinstance(atom, (Symbol, Relational)):
++            raise ValueError("Assumptions must be Boolean or relational literals")
+     if not isinstance(expr, EncodedCNF):
+         exprs = EncodedCNF()
+         exprs.add_prop(expr)
+         expr = exprs
++    else:
++        expr = expr.copy()
++    for literal in assumptions:
++        expr.add_prop(literal)
+ 
+     # Return UNSAT when False (encoded as 0) is present in the CNF
+     if {0} in expr.data:
+@@ -240,8 +252,16 @@ def _find_model(self):
+                     else:
+                         self._simple_add_learned_clause(res[1])
+ 
+-                        # backtrack until we unassign one of the literals causing the conflict
+-                        while not any(-lit in res[1] for lit in self._current_level.var_settings):
++                        # Backtrack until reaching a level with one of the conflict causing literals.
++                        inconsistent_literals = [-lit for lit in res[1]]
++                        while True:
++                            if len(self.levels) == 1:
++                                # If theory-inconsistent literals were set right off the bat
++                                # at level 0, the formula is unsat.
++                                return
++
++                            if any(inconsistent_lit in self._current_level.var_settings for inconsistent_lit in inconsistent_literals):
++                                break
+                             self._undo()
+ 
+                     while self._current_level.flipped:
+@@ -427,6 +447,9 @@ def _undo(self):
+         (0, {1}, False)
+ 
+         """
++        if len(self.levels) == 1:
++            raise IndexError("Cannot pop base decision level 0.")
++
+         # Undo the variable settings
+         for lit in self._current_level.var_settings:
+             self.var_settings.remove(lit)
+@@ -687,3 +710,7 @@ def __init__(self, decision, flipped=False):
+         self.decision = decision
+         self.var_settings = set()
+         self.flipped = flipped
++
++    def __repr__(self):
++        return "<Level decision=%s, flipped=%s, var_settings=%s>" % (
++            self.decision, self.flipped, self.var_settings)
+diff --git a/sympy/logic/inference.py b/sympy/logic/inference.py
+index b1112604e2..70618d3411 100644
+--- a/sympy/logic/inference.py
++++ b/sympy/logic/inference.py
+@@ -31,7 +31,7 @@ def literal_symbol(literal):
+         raise ValueError("Argument must be a boolean literal.")
+ 
+ 
+-def satisfiable(expr, algorithm=None, all_models=False, minimal=False, use_lra_theory=False):
++def satisfiable(expr, algorithm=None, all_models=False, minimal=False, use_lra_theory=False, *, assumptions=()):
+     """
+     Check satisfiability of a propositional sentence.
+     Returns a model when it succeeds.
+@@ -73,6 +73,11 @@ def satisfiable(expr, algorithm=None, all_models=False, minimal=False, use_lra_t
+     UNSAT
+ 
+     """
++    assumptions = tuple(assumptions)
++    if assumptions:
++        if algorithm not in (None, "dpll2"):
++            raise ValueError("Nonempty assumptions require the dpll2 backend")
++        algorithm = "dpll2"
+     if use_lra_theory:
+         if algorithm is not None and algorithm != "dpll2":
+             raise ValueError(f"Currently only dpll2 can handle using lra theory. {algorithm} is not handled.")
+@@ -104,7 +109,7 @@ def satisfiable(expr, algorithm=None, all_models=False, minimal=False, use_lra_t
+         return dpll_satisfiable(expr)
+     elif algorithm == "dpll2":
+         from sympy.logic.algorithms.dpll2 import dpll_satisfiable
+-        return dpll_satisfiable(expr, all_models, use_lra_theory=use_lra_theory)
++        return dpll_satisfiable(expr, all_models, use_lra_theory=use_lra_theory, assumptions=assumptions)
+     elif algorithm == "pycosat":
+         from sympy.logic.algorithms.pycosat_wrapper import pycosat_satisfiable
+         return pycosat_satisfiable(expr, all_models)

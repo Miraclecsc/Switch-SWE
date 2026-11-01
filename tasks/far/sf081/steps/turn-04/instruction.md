@@ -1,0 +1,1 @@
+And here, Is it possible to do exceptiongroups. (Haven't checked the code yet, but just a quick thought). I have an errors.py I could go ahead and put in, though, if that makes sense here.

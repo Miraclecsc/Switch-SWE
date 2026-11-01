@@ -1,0 +1,1 @@
+Please check this too: I believe the problem is that this is handled unusually: if both NO_COLOR and FORCE_COLOR are set, instead of avoiding ANSI escapes, it instead makes everything black and white, but still uses ANSI escapes for things like bold text. (Personally, I prefer controlling color by the value of FORCE_COLOR; in plumbum I use the value for the color mode).

@@ -1,0 +1,107 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+  ],
+  "case_id": "sf132_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902",
+      "python": "3.12.12",
+      "requirements": "requirements/34ebeb00cebfd28c-3.12.12-46181902.txt",
+      "source": "dependency-source/34ebeb00cebfd28c-3.12.12-46181902.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "1af2820e3710526248c64d981488f83c3c32e056",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "dc49e2f37df6687e6922a690805879d326904c55",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "f32dd409623285e0b67d0c07033b533414eb2bba",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "24d3fe74230e5ed49d5ac8b723895493d5aafb0a",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "06a9961904dc5c32a16ed8c868b377c6320ea635",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w04"
+    }
+  ]
+}

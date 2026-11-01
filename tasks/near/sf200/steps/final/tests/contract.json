@@ -1,0 +1,58 @@
+{
+  "case_id": "sf200_switched",
+  "task_id": "ssb_v4_sympy__sympy_29369",
+  "repo": "sympy/sympy",
+  "base_commit": "135ac5b7c1dca4fb8a5da291cc27f560d73b22f9",
+  "derived_fail_to_pass": [
+    "sympy.solvers.tests.test_simplex::test_29368",
+    "tests.test_sf200_staged::test_sparse_bounds_are_reusable_and_preserved_on_failure",
+    "tests.test_sf200_staged::test_empty_matrix_shape_and_constraint_pairs_are_validated"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.solvers.tests.test_simplex::test_28089",
+    "sympy.solvers.tests.test_simplex::test_28104",
+    "sympy.solvers.tests.test_simplex::test_linprog",
+    "sympy.solvers.tests.test_simplex::test_lp",
+    "sympy.solvers.tests.test_simplex::test_lpmin_lpmax",
+    "sympy.solvers.tests.test_simplex::test_simplex",
+    "tests.test_sf200_staged::test_bounds_only_returns_complete_decision_vector",
+    "tests.test_sf200_staged::test_equality_only_exact_arithmetic"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/solvers/tests/test_simplex.py",
+    "tests/test_sf200_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/solvers/tests/test_simplex.py",
+    "tests/test_sf200_staged.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "90083db383a86ea2e535f757ba9d9fdced2bcbdd6355415f3eca2e4746846275",
+    "config/recipes.json": "4de3b70ebc8c4adb14c4b901fc465589636659c9b635664dbd6a036fbb5a9bdc"
+  }
+}

@@ -1,0 +1,1 @@
+One more thing: If you create a test that uses the wrong type, it should fail static type checking, right?

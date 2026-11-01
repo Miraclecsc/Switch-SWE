@@ -1,0 +1,1 @@
+I have this in /work/w01: Implement the original WebP fix: recognize .webp case-insensitively, enable image/webp to image/png conversion, and resolve local binary-header detection relative to the Sphinx source directory. Preserve all existing tests and conversion behavior.

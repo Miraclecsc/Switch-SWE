@@ -1,0 +1,46 @@
+diff --git a/CHANGELOG.rst b/CHANGELOG.rst
+index 58aa51a..a56d646 100644
+--- a/CHANGELOG.rst
++++ b/CHANGELOG.rst
+@@ -4,7 +4,8 @@ Changelog
+ *unreleased*
+ ~~~~~~~~~~~~
+ 
+-No changes yet.
++* Fix a bug that caused a 32-bit OS that runs on a 64-bit ARM CPU (e.g. ARM-v8,
++  aarch64), to report the wrong bitness.
+ 
+ 20.1 - 2020-01-24
+ ~~~~~~~~~~~~~~~~~~~
+diff --git a/packaging/tags.py b/packaging/tags.py
+index 60a69d8..8072239 100644
+--- a/packaging/tags.py
++++ b/packaging/tags.py
+@@ -636,8 +636,11 @@ def _have_compatible_manylinux_abi(arch):
+ def _linux_platforms(is_32bit=_32_BIT_INTERPRETER):
+     # type: (bool) -> Iterator[str]
+     linux = _normalize_string(distutils.util.get_platform())
+-    if linux == "linux_x86_64" and is_32bit:
+-        linux = "linux_i686"
++    if is_32bit:
++        if linux == "linux_x86_64":
++            linux = "linux_i686"
++        elif linux in ("linux_aarch64", "linux_armv8l"):
++            linux = "linux_armv7l"
+     manylinux_support = []
+     _, arch = linux.split("_", 1)
+     if _have_compatible_manylinux_abi(arch):
+@@ -659,6 +662,13 @@ def _linux_platforms(is_32bit=_32_BIT_INTERPRETER):
+             break
+     # Support for a later manylinux implies support for an earlier version.
+     for name, _ in manylinux_support_iter:
++        try:
++            import _manylinux
++        except ImportError:
++            pass
++        else:
++            if getattr(_manylinux, name + "_compatible", None) is False:
++                continue
+         yield linux.replace("linux", name)
+     yield linux
+ 

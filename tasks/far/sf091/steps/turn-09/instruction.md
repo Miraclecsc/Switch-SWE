@@ -1,0 +1,1 @@
+Also, xn--caf is both in extend-identifiers in pyproject.toml and has `spellchecker:disable-line`?

@@ -1,0 +1,100 @@
+diff --git a/networkx/utils/tests/test_backends.py b/networkx/utils/tests/test_backends.py
+index ad006f00f7a..a5b246d46f4 100644
+--- a/networkx/utils/tests/test_backends.py
++++ b/networkx/utils/tests/test_backends.py
+@@ -168,3 +168,27 @@ def test_fallback_to_nx():
+         assert nx._dispatchable._fallback_to_nx == nx.config.fallback_to_nx
+         # Check as instance property
+         assert nx.pagerank.__wrapped__._fallback_to_nx == nx.config.fallback_to_nx
++
++
++def test_not_implemented_by_nx():
++    @nx._dispatchable(implemented_by_nx=False)
++    def _stub_func(G):
++        raise NotImplementedError("_stub_func is a stub")
++
++    assert "networkx" in nx.pagerank.backends
++    assert "networkx" not in _stub_func.backends
++
++    if "nx_loopback" in nx.config.backends:
++        from networkx.classes.tests.dispatch_interface import LoopbackBackendInterface
++
++        def stub_func_implementation(G):
++            return True
++
++        LoopbackBackendInterface._stub_func = staticmethod(stub_func_implementation)
++        try:
++            assert _stub_func(nx.Graph()) is True
++        finally:
++            del LoopbackBackendInterface._stub_func
++
++    with pytest.raises(NotImplementedError):
++        _stub_func(nx.Graph())
+diff --git a/networkx/utils/tests/test_sf066_backend_priority.py b/networkx/utils/tests/test_sf066_backend_priority.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/utils/tests/test_sf066_backend_priority.py
+@@ -0,0 +1,63 @@
++
++from types import SimpleNamespace
++import pytest
++import networkx as nx
++import networkx.utils.backends as routing
++
++@pytest.fixture
++def dispatch(monkeypatch):
++    calls = []
++    name = "_sf066_probe"
++    def decline(value):
++        calls.append(("decline", value))
++        raise NotImplementedError("unsupported")
++    def success(value):
++        calls.append(("success", value))
++        return value * 2
++    def fatal(value):
++        calls.append(("fatal", value))
++        raise ValueError("backend computation failed")
++    implementations = {"decline": decline, "success": success, "fatal": fatal}
++    loaded = {key: SimpleNamespace(**{name: func},
++              can_run=lambda *args: True, should_run=lambda *args: True)
++              for key, func in implementations.items()}
++    monkeypatch.setattr(routing, "backends", {key: object() for key in loaded})
++    monkeypatch.setattr(routing, "_loaded_backends", loaded)
++    monkeypatch.setattr(routing, "backend_info",
++        {"networkx": {}, **{key: {"functions": {name: {}}} for key in loaded}})
++    monkeypatch.setattr(routing, "_registered_algorithms", dict(routing._registered_algorithms))
++    @nx._dispatchable(name=name, graphs=None, implemented_by_nx=False)
++    def stub(value):
++        pytest.fail("backend-only stub was executed")
++    return stub, calls
++
++def test_priority_order_deduplicates_and_skips_uninstalled(dispatch):
++    stub, calls = dispatch
++    config = repr(nx.config.backend_priority)
++    assert stub(7, backend=["absent", "networkx", "decline", "decline", "success"]) == 14
++    assert calls == [("decline", 7), ("success", 7)]
++    assert repr(nx.config.backend_priority) == config
++
++def test_exhaustion_does_not_execute_stub(dispatch):
++    stub, calls = dispatch
++    with pytest.raises(NotImplementedError):
++        stub(2, backend=("absent", "decline", "networkx"))
++    assert calls == [("decline", 2)]
++
++def test_operational_errors_do_not_fall_through(dispatch):
++    stub, calls = dispatch
++    with pytest.raises(ValueError, match="computation failed"):
++        stub(2, backend=["fatal", "success"])
++    assert calls == [("fatal", 2)]
++
++@pytest.mark.parametrize("choices,exc", [([], ValueError), ([None], TypeError),
++                                      (["success", ""], TypeError), ([["success"]], TypeError)])
++def test_validate_entire_priority_before_calling(dispatch, choices, exc):
++    stub, calls = dispatch
++    with pytest.raises(exc):
++        stub(2, backend=choices)
++    assert calls == []
++
++def test_single_backend_behavior_remains(dispatch):
++    stub, calls = dispatch
++    assert stub(3, backend="success") == 6

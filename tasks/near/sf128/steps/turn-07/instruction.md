@@ -1,0 +1,1 @@
+Please check this too: Support show_default string in prompts When `show_default` is set to a string on an option with `prompt=True`, use that string in the prompt instead of the actual default value, matching the behavior of the help text. Squashed from pallets/click#2837 by Josh Cannon ( ).

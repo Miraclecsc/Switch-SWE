@@ -1,0 +1,143 @@
+diff --git a/src/trio/_tests/test_channel.py b/src/trio/_tests/test_channel.py
+index f1556a153c..85cd982a41 100644
+--- a/src/trio/_tests/test_channel.py
++++ b/src/trio/_tests/test_channel.py
+@@ -625,3 +625,73 @@ async def agen(events: list[str]) -> AsyncGenerator[None]:
+                         events.append("body cancel")
+                         raise
+     assert events == ["body cancel", "agen cancel"]
++
++
++async def test_as_safe_channel_genexit_exception_group() -> None:
++    @as_safe_channel
++    async def agen() -> AsyncGenerator[None]:
++        try:
++            async with trio.open_nursery():
++                yield
++        except BaseException as e:
++            assert pytest.RaisesGroup(GeneratorExit).matches(e)  # noqa: PT017
++            raise
++
++    async with agen() as g:
++        async for _ in g:
++            break
++
++
++async def test_as_safe_channel_does_not_suppress_nested_genexit() -> None:
++    @as_safe_channel
++    async def agen() -> AsyncGenerator[None]:
++        yield
++
++    with pytest.RaisesGroup(GeneratorExit):
++        async with agen() as g, trio.open_nursery():
++            await g.receive()  # this is for coverage reasons
++            raise GeneratorExit
++
++
++async def test_as_safe_channel_genexit_filter() -> None:
++    async def wait_then_raise() -> None:
++        try:
++            await trio.sleep_forever()
++        except trio.Cancelled:
++            raise ValueError from None
++
++    @as_safe_channel
++    async def agen() -> AsyncGenerator[None]:
++        async with trio.open_nursery() as nursery:
++            nursery.start_soon(wait_then_raise)
++            yield
++
++    with pytest.RaisesGroup(ValueError):
++        async with agen() as g:
++            async for _ in g:
++                break
++
++
++async def test_as_safe_channel_swallowing_extra_exceptions() -> None:
++    async def wait_then_raise(ex: type[BaseException]) -> None:
++        try:
++            await trio.sleep_forever()
++        except trio.Cancelled:
++            raise ex from None
++
++    @as_safe_channel
++    async def agen(ex: type[BaseException]) -> AsyncGenerator[None]:
++        async with trio.open_nursery() as nursery:
++            nursery.start_soon(wait_then_raise, ex)
++            nursery.start_soon(wait_then_raise, GeneratorExit)
++            yield
++
++    with pytest.RaisesGroup(AssertionError):
++        async with agen(GeneratorExit) as g:
++            async for _ in g:
++                break
++
++    with pytest.RaisesGroup(ValueError, AssertionError):
++        async with agen(ValueError) as g:
++            async for _ in g:
++                break
+diff --git a/src/trio/_tests/test_sf094_extension.py b/src/trio/_tests/test_sf094_extension.py
+new file mode 100644
+--- /dev/null
++++ b/src/trio/_tests/test_sf094_extension.py
+@@ -0,0 +1,60 @@
++import pytest
++import trio
++
++def leaves(error):
++    if isinstance(error,BaseExceptionGroup):
++        return [leaf for child in error.exceptions for leaf in leaves(child)]
++    return [error]
++
++def test_all_generator_exits_suppressed_and_closed_once():
++    async def main():
++        cleaned=[]
++        @trio.as_safe_channel(generator_exit_policy="all")
++        async def source(value):
++            try: yield value
++            finally:
++                cleaned.append(True)
++                raise BaseExceptionGroup("cleanup",[GeneratorExit(),BaseExceptionGroup("nested",[GeneratorExit()])])
++        async with source(5) as channel:
++            assert await channel.receive() == 5
++        assert cleaned == [True]
++    trio.run(main)
++
++def test_real_cleanup_failure_preserved():
++    failure=ValueError("real cleanup")
++    async def main():
++        async def source():
++            try: yield 1
++            finally: raise BaseExceptionGroup("cleanup",[GeneratorExit(),BaseExceptionGroup("nested",[GeneratorExit(),failure])])
++        wrapped=trio.as_safe_channel(source,generator_exit_policy="all")
++        with pytest.raises(BaseExceptionGroup) as caught:
++            async with wrapped() as channel: assert await channel.receive() == 1
++        assert leaves(caught.value) == [failure]
++        assert leaves(caught.value)[0] is failure
++    trio.run(main)
++
++def test_body_and_cleanup_failures_both_survive():
++    cleanup=ValueError("cleanup");body=RuntimeError("body")
++    async def main():
++        @trio.as_safe_channel(generator_exit_policy="all")
++        async def source():
++            try: yield 1
++            finally: raise BaseExceptionGroup("cleanup",[GeneratorExit(),GeneratorExit(),cleanup])
++        with pytest.raises(BaseExceptionGroup) as caught:
++            async with source() as channel:
++                await channel.receive();raise body
++        result=leaves(caught.value)
++        assert len(result)==2 and any(e is body for e in result) and any(e is cleanup for e in result)
++    trio.run(main)
++
++def test_policy_validation():
++    with pytest.raises(ValueError): trio.as_safe_channel(generator_exit_policy="unknown")
++
++def test_ordinary_exhaustion():
++    async def main():
++        @trio.as_safe_channel(generator_exit_policy="all")
++        async def source():
++            yield 1;yield 2
++        async with source() as channel:
++            assert [value async for value in channel] == [1,2]
++    trio.run(main)

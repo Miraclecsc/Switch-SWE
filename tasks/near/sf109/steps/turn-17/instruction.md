@@ -1,0 +1,3 @@
+Also, It's unfortunate that we have to hardcode this logic here but hopefully #16817 [would allow us]( ) to revisit this properly by having `lookups.In.exclude_nulls` return the proper constraint.
+
+For ordinary scalar-field exclude(...__in=...), accept constant Value(...) entries with the field's matching output type as their literal counterparts, including Value(None, output_field=...). Mixing such constants with Python literals must preserve None-aware exclusion. This requirement does not turn row-dependent expressions into constants.

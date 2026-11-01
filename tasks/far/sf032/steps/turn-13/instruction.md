@@ -1,0 +1,3 @@
+Also, The comment says "We actually need to compute 1+x accurately, not x" but the code computes Add(S.NegativeOne, arg), which calculates arg The comment should be updated to say "We actually need to compute x-1 accurately" or Also, When are these conditions not satisfied and what happens in that case.
+
+Propagate the accuracy of the near-unit correction. If strict=True and maxn cannot resolve that correction to the requested precision, raise PrecisionExhausted; do not label a rounded zero or a low-accuracy residual as a full-precision answer. With strict=False retain uncertainty rather than inventing exactness. Test against an independent rational Taylor bound for log(1+t), with both correction signs and multiple magnitudes.

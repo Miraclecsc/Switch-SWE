@@ -1,0 +1,1 @@
+One more thing: Populate standard AttributeError.name and .obj metadata for removed and unrelated missing attributes on both modules, including direct __getattr__ calls. Preserve hasattr=False, getattr(..., default), normal missing-name messages, and omission of the removed name from dir and wildcard exports.

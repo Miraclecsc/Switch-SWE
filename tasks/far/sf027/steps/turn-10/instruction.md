@@ -1,0 +1,1 @@
+One more thing: Perhaps we should update the [default `linkcheck_allowed_redirects` value in the documentation]( ) to `None`. (since it's not really a default of an empty-dict anymore)

@@ -1,0 +1,1 @@
+Please check this too: Yes, you're right. My point was if we were using this `child_scope` as the new scope for inner routers, but it seems actually that it's always merged with the root `scope`.

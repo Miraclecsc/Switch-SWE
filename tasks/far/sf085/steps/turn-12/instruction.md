@@ -1,0 +1,1 @@
+And here, Thanks, that fixed it. I spent ages trying to work out why there was an older version of packaging present. (I'm still not clear why that's happening, or how the other doctests didn't fail when they were added, but it's working now, so 🤷

@@ -1,0 +1,69 @@
+diff --git a/moto/s3/responses.py b/moto/s3/responses.py
+index 8b17565e6..1940a37e9 100644
+--- a/moto/s3/responses.py
++++ b/moto/s3/responses.py
+@@ -278,15 +278,12 @@ class S3Response(BaseResponse):
+             if match:
+                 return False
+ 
+-        path_based = (
+-            host == "s3.amazonaws.com"
+-            or re.match(r"s3[\.\-]([^.]*)\.amazonaws\.com", host)
+-            or any(
+-                re.match(r"s3[\.\-]([^.]*)\." + suffix, host)
+-                for suffix in ALT_DOMAIN_SUFFIXES
+-            )
+-        )
+-        return not path_based
++        from .utils import _s3_endpoint
++
++        endpoint = _s3_endpoint(urlparse("//" + host).hostname or "")
++        if endpoint is not None:
++            return endpoint[0] is not None
++        return True
+ 
+     def is_delete_keys(self) -> bool:
+         qs = parse_qs(urlparse(self.path).query, keep_blank_values=True)
+diff --git a/moto/s3/utils.py b/moto/s3/utils.py
+index fb10f46e5..6f1e323bb 100644
+--- a/moto/s3/utils.py
++++ b/moto/s3/utils.py
+@@ -80,18 +80,30 @@ def bucket_and_name_from_url(url: str) -> Union[tuple[str, str], tuple[None, Non
+ 
+ 
+ REGION_URL_REGEX = re.compile(
+-    r"^https?://(s3[-\.](?P<region1>.+)\.amazonaws\.com/(.+)|"
+-    r"(.+)\.s3[-\.](?P<region2>.+)\.amazonaws\.com)/?"
++    r"^https?://(s3[-\.](?:(?:dualstack|fips)[.\-])?(?P<region1>.+)\.amazonaws\.com/(.+)|"
++    r"(.+)\.s3[-\.](?:(?:dualstack|fips)[.\-])?(?P<region2>.+)\.amazonaws\.com)/?"
+ )
+ 
+ 
+-def parse_region_from_url(url: str, use_default_region: bool = True) -> str:
+-    match = REGION_URL_REGEX.search(url)
++def _s3_endpoint(host: str) -> Optional[tuple[Optional[str], Optional[str]]]:
++    from moto.core.utils import ALT_DOMAIN_SUFFIXES
++
++    suffixes = "|".join(re.escape(s) for s in ["amazonaws.com", *ALT_DOMAIN_SUFFIXES])
++    match = re.fullmatch(
++        rf"(?:(?P<bucket>.+)\.)?s3(?:[.-](?:fips[.-])?(?:dualstack[.-])?"
++        rf"(?P<region>[a-z]{{2}}(?:-[a-z0-9]+)+-\d+))?\.(?:{suffixes})",
++        host.lower(),
++    )
+     if match:
+-        region = match.group("region1") or match.group("region2")
+-    else:
+-        region = "us-east-1" if use_default_region else None
+-    return region
++        return match.group("bucket"), match.group("region")
++    return None
++
++
++def parse_region_from_url(url: str, use_default_region: bool = True) -> str:
++    endpoint = _s3_endpoint(urlparse(url).hostname or "")
++    if endpoint and endpoint[1]:
++        return endpoint[1]
++    return "us-east-1" if use_default_region else None
+ 
+ 
+ def metadata_from_headers(headers: dict[str, Any]) -> CaseInsensitiveDict:  # type: ignore

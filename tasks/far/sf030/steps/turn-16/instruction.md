@@ -1,0 +1,3 @@
+And here, Consider what happens if the exception has no cause or context. Then does `anyio.EndOfStream` become the new cause / context.
+
+Preserve a non-None original application __context__ object by identity across the stream handoff as well as the chosen cause. This must hold through one or multiple stacked BaseHTTPMiddleware layers, retaining the same outer exception object, custom attributes and notes. Do not mutate the context/cause objects themselves. An application with no original context may retain the suppressed transport context required by the existing tests. Add behavioral tests for explicit cause, explicit suppression and implicit chaining.

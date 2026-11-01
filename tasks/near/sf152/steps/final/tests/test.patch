@@ -1,0 +1,97 @@
+diff --git a/tests/test_taskgroups.py b/tests/test_taskgroups.py
+index 17abb5660..7b3bc2d37 100644
+--- a/tests/test_taskgroups.py
++++ b/tests/test_taskgroups.py
+@@ -884,3 +884,44 @@ async def exit_scope(scope):
+     with pytest.raises(RuntimeError):
+         async with create_task_group() as tg:
+             tg.start_soon(exit_scope, scope)
++
++
++def test_unhandled_exception_group(caplog):
++    def crash():
++        raise KeyboardInterrupt
++
++    async def nested():
++        async with anyio.create_task_group() as tg:
++            tg.start_soon(anyio.sleep, 5)
++            await anyio.sleep(5)
++
++    async def main():
++        async with anyio.create_task_group() as tg:
++            tg.start_soon(nested)
++            await wait_all_tasks_blocked()
++            asyncio.get_event_loop().call_soon(crash)
++            await anyio.sleep(5)
++
++        pytest.fail('Execution should never reach this point')
++
++    with pytest.raises(KeyboardInterrupt):
++        anyio.run(main, backend='asyncio')
++
++    assert not caplog.messages
++
++
++@pytest.mark.skipif(sys.version_info < (3, 9),
++                    reason='Cancel messages are only supported on py3.9+')
++@pytest.mark.parametrize('anyio_backend', ['asyncio'])
++async def test_cancellederror_combination_with_message():
++    async def taskfunc(*, task_status):
++        task_status.started(asyncio.current_task())
++        await sleep(5)
++        pytest.fail('Execution should never reach this point')
++
++    with pytest.raises(asyncio.CancelledError, match='blah'):
++        async with create_task_group() as tg:
++            task = await tg.start(taskfunc)
++            tg.start_soon(sleep, 5)
++            await wait_all_tasks_blocked()
++            task.cancel('blah')
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,43 @@
++import asyncio
++import pytest
++import anyio
++from anyio._backends._asyncio import ExceptionGroup
++
++def propagate(group):
++    async def scenario():
++        async with anyio.create_task_group():
++            raise group
++    with pytest.raises(BaseException) as caught:
++        anyio.run(scenario, backend='asyncio')
++    return caught.value
++
++def test_filter_nested_multiple_survivors():
++    left, right = ValueError('left'), RuntimeError('right')
++    cancelled = asyncio.CancelledError()
++    original = ExceptionGroup([cancelled, left, right])
++    result = propagate(original)
++    assert list(result.exceptions) == [left, right]
++    assert list(original.exceptions) == [cancelled, left, right]
++
++def test_nested_cause_and_message_cancellation():
++    error = ValueError('leaf')
++    messaged = asyncio.CancelledError('keep me')
++    cancelled = asyncio.CancelledError()
++    cause = LookupError('cause')
++    inner = ExceptionGroup([cancelled, messaged, error])
++    inner.__cause__ = cause
++    outer_leaf = RuntimeError('outer')
++    outer = ExceptionGroup([inner, outer_leaf])
++    result = propagate(outer)
++    assert list(result.exceptions[0].exceptions) == [messaged, error]
++    assert result.exceptions[0].__cause__ is cause
++    assert result.exceptions[1] is outer_leaf
++    assert list(inner.exceptions) == [cancelled, messaged, error]
++    again = propagate(outer)
++    assert list(again.exceptions[0].exceptions) == [messaged, error]
++
++def test_single_survivor_identity():
++    leaf = ValueError('same')
++    original = ExceptionGroup([asyncio.CancelledError(), leaf])
++    assert propagate(original) is leaf
++    assert len(original.exceptions) == 2

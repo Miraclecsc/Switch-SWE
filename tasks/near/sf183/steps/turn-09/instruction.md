@@ -1,0 +1,1 @@
+I have this in /work/w00: Refactor ELF parsing logic to standlone class This makes it easier to reuse the same code for manylinux, musllinux, and test code.

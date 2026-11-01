@@ -1,0 +1,3 @@
+Also, This was explicitly avoided in #56170, but perhaps that was just to avoid a warning which is no longer issued? cc @jorisvandenbossche If this is safe, it should be safe when there aren't duplicates and then we can just do: which I'm seeing is a bit faster than the current code.
+
+Extend duplicate-column eval resolution to detect ambiguous cleaned identifiers: if two distinct original labels normalize to the same eval identifier, raise ValueError mentioning ambiguity before evaluating or writing data. Repeated occurrences of the same original label remain one DataFrame-valued group, not an ambiguity.

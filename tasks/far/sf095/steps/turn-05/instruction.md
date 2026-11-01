@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Well, actually mypy is correct. If someone did `trio.lowlevel.reschedule()`, `sleep_forever()` could succeed. That's totally incorrect to do of course. We could just add a `raise TrioInternalError("Should never have been rescheduled!")` after the `await`, which will quiet the type error and make sure you can't do that any more.

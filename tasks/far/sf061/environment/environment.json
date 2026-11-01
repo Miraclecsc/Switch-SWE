@@ -1,0 +1,208 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-683908b1",
+    "/opt/ssb/deps/2d892d94372761e5-3.12.12-f28cdc4d"
+  ],
+  "case_id": "sf061_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/2d892d94372761e5-3.12.12-f28cdc4d",
+      "python": "3.12.12",
+      "requirements": "requirements/2d892d94372761e5-3.12.12-f28cdc4d.txt",
+      "source": "dependency-source/2d892d94372761e5-3.12.12-f28cdc4d.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-683908b1",
+      "python": "3.12.12",
+      "requirements": "requirements/e13bf23f019a3f4c-3.12.12-683908b1.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.12.12-683908b1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8b469e04fecee512-3.12.12-c36e6d16",
+      "python": "3.12.12",
+      "requirements": "requirements/8b469e04fecee512-3.12.12-c36e6d16.txt",
+      "source": "dependency-source/8b469e04fecee512-3.12.12-c36e6d16.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/2d892d94372761e5-3.12.12-360463e1",
+      "python": "3.12.12",
+      "requirements": "requirements/2d892d94372761e5-3.12.12-360463e1.txt",
+      "source": "dependency-source/2d892d94372761e5-3.12.12-360463e1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-39bed512",
+      "python": "3.12.12",
+      "requirements": "requirements/e13bf23f019a3f4c-3.12.12-39bed512.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.12.12-39bed512.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/13d2384210ca0c25-3.12.12-091bbd23",
+      "python": "3.12.12",
+      "requirements": "requirements/13d2384210ca0c25-3.12.12-091bbd23.txt",
+      "source": "dependency-source/13d2384210ca0c25-3.12.12-091bbd23.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5c03055ef68dc509-3.12.12-c153580d",
+      "python": "3.12.12",
+      "requirements": "requirements/5c03055ef68dc509-3.12.12-c153580d.txt",
+      "source": "dependency-source/5c03055ef68dc509-3.12.12-c153580d.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/65bbbdf7cfc505d1-3.12.12-b70ed813",
+      "python": "3.12.12",
+      "requirements": "requirements/65bbbdf7cfc505d1-3.12.12-b70ed813.txt",
+      "source": "dependency-source/65bbbdf7cfc505d1-3.12.12-b70ed813.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/2d892d94372761e5-3.12.12-52159c75",
+      "python": "3.12.12",
+      "requirements": "requirements/2d892d94372761e5-3.12.12-52159c75.txt",
+      "source": "dependency-source/2d892d94372761e5-3.12.12-52159c75.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-2760ae3d",
+      "python": "3.12.12",
+      "requirements": "requirements/e13bf23f019a3f4c-3.12.12-2760ae3d.txt",
+      "source": "dependency-source/e13bf23f019a3f4c-3.12.12-2760ae3d.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {
+        "PYTEST_ADDOPTS": "-W \"ignore:'cgi' is deprecated:DeprecationWarning\""
+      },
+      "paths": [
+        "/opt/ssb/deps/8b469e04fecee512-3.12.12-c36e6d16",
+        "/opt/ssb/deps/2d892d94372761e5-3.12.12-360463e1",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-39bed512"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/13d2384210ca0c25-3.12.12-091bbd23",
+        "/opt/ssb/deps/2d892d94372761e5-3.12.12-360463e1",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-39bed512"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5c03055ef68dc509-3.12.12-c153580d",
+        "/opt/ssb/deps/2d892d94372761e5-3.12.12-360463e1",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-39bed512"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/5c03055ef68dc509-3.12.12-c153580d",
+        "/opt/ssb/deps/2d892d94372761e5-3.12.12-360463e1",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-39bed512"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {
+        "PYTEST_ADDOPTS": "-W \"ignore:'cgi' is deprecated:DeprecationWarning\""
+      },
+      "paths": [
+        "/opt/ssb/deps/65bbbdf7cfc505d1-3.12.12-b70ed813",
+        "/opt/ssb/deps/2d892d94372761e5-3.12.12-52159c75",
+        "/opt/ssb/deps/e13bf23f019a3f4c-3.12.12-2760ae3d"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "2814fd379c4738d402e57f9560194b42adee8ebf",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "770d4f2254acd5f4c67eaf25634f70ec1640c443",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "f9abbbbb4898cac96420e5c5b9d34036a94d46bf",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "httpx/_multipart.py",
+          "sha256": "6417c2d5231c6dde34202b29857f44d57c5ede2f3e49a669b4ba502dc0955cd9"
+        },
+        {
+          "mode": "100644",
+          "path": "httpx/_types.py",
+          "sha256": "636fa2dedd73502248260fdf7cad06704a42edf3da3dbf216b5c47f12d447e19"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_multipart.py",
+          "sha256": "88aff1158468b1f3a77add26dc0311e7b110c0c8270c3b130b3e6ab92e34a189"
+        }
+      ],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "fcf1bc73dbe13bc61d18a6e998237a5021d3341c",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "httpx/_multipart.py",
+          "sha256": "6417c2d5231c6dde34202b29857f44d57c5ede2f3e49a669b4ba502dc0955cd9"
+        },
+        {
+          "mode": "100644",
+          "path": "httpx/_types.py",
+          "sha256": "636fa2dedd73502248260fdf7cad06704a42edf3da3dbf216b5c47f12d447e19"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_multipart.py",
+          "sha256": "88aff1158468b1f3a77add26dc0311e7b110c0c8270c3b130b3e6ab92e34a189"
+        }
+      ],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "c24bbb85a6efd83beb2ed6aab37913e4e0d44418",
+      "overlays": [],
+      "repo": "encode/httpx",
+      "url": "https://github.com/encode/httpx.git",
+      "workspace": "w04"
+    }
+  ]
+}

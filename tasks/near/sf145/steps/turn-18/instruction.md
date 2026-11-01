@@ -1,0 +1,3 @@
+One more thing: I don't think that's the case. This wrapper is only ever used in binding to force an update, so it wouldn't change the behavior of `always_update`...
+
+Support nested batches and instance isolation. Flush at outermost exit even when the body raises, because mutations are not rolled back; then propagate the body exception normally. Following calls outside a batch must notify immediately, and subsequent batches must start with an empty pending list.

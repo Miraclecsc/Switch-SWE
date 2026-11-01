@@ -1,0 +1,1 @@
+One more thing: Ok probably not worth worrying about too much. It seems like we’re just abusing `__iter__` for little benefit, but changing it would be a breaking change or at least larger refactor that’s not worth doing in this PR. Any is okay for now.

@@ -1,0 +1,1 @@
+Please check this too: Amazing, thanks for this. I didn't need to have the `- U`. I think I still need to keep the `U.remove(best_node)` line though as the `- C` in the previous line only removes it from the `G[best_node].keys()` set, not from `U`. Unless there is a better way to update `U`?

@@ -1,0 +1,1 @@
+One more thing: Since this comes after the `is_tree` check, you could in principle do away with the 1, 2 checking entirely Not even better IMO, just different :upside_down_face:

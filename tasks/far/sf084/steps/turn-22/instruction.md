@@ -1,0 +1,1 @@
+One more thing: I can keep the double warning from occurring: But hatchling's usage will still trigger twice because it is also creating a `_Version` object directly. And the above patch is not great for threaded code. If we had #1011 I could just not list `_Version` in `__all__`, which would make type checkers not see it.

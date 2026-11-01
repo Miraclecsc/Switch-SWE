@@ -1,0 +1,1 @@
+In the checkout at /work/w04, How bout we remove `assoc`? I think we're passed 2018 by now. 😇

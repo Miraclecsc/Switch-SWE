@@ -1,0 +1,1 @@
+One more thing: Looks like that traceback cleanup trick only works on 3.11 later. Either we could find a different trick or only assert it on recent python versions!

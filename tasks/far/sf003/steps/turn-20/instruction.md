@@ -1,0 +1,1 @@
+And here, I think cancel scopes need to store the current task.cancelling() value and compare to that rather than 0 like asyncio.timeout does in 3.11.4

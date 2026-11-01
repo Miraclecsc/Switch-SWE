@@ -1,0 +1,1 @@
+And here, split of `mask.any()` into two cases: when the mask is all False, just use `asarray`.

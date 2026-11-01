@@ -1,0 +1,152 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487"
+  ],
+  "case_id": "sf185_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_ADDOPTS": "-W ignore::pytest.PytestRemovedIn10Warning",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487",
+      "python": "3.12.12",
+      "requirements": "requirements/7e1219e7e6ea87e2-3.12.12-5eadd487.txt",
+      "source": "dependency-source/7e1219e7e6ea87e2-3.12.12-5eadd487.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/7e1219e7e6ea87e2-3.12.12-5eadd487"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "b20096ccce1ca389fa1d3c4290065ab4ede370cc",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/packaging/tags.py",
+          "sha256": "7a8bb7422448fb74afd5e637914dc49710f919de354a722dbb61287afa6183bd"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_tags.py",
+          "sha256": "a7a21d6f6f869ab423318abcbf9fafca6ad46fe276aa959150716f0bae1c54bd"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "33cc1f75a0b91113ca1feb0751416ec4a165e3f4",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/packaging/tags.py",
+          "sha256": "673e6e798acc57c2aa86ae667f6197d3edf1790801d1d94ceef46489d8917b45"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_tags.py",
+          "sha256": "81089f08145ced04ed805d9afe2e9b55fb2f90101ce196c5889402778b3374cc"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "538cd15c7d73d5a7466f8343e256923e77ab7113",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/packaging/tags.py",
+          "sha256": "ba1ce7532f26ddadc72879b7f4d88c57386c9468b35fb3e90a61630ec7fb943e"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_tags.py",
+          "sha256": "18dd985f697beb656f90127cc3f5ae026694318004ac18d640ba2097eebf2421"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "c7d859d1333887226f521f59b1304257c04eeca2",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/packaging/tags.py",
+          "sha256": "c0ea55b31f5a8e5df0fbc7dc9a94933a86e608881791e746d6c5d6f6603748df"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_tags.py",
+          "sha256": "9c9142aaa33392e1f352b760a2c9a904c843ce35d4683e21852b128560a3a756"
+        }
+      ],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "97db7175675a618b78838ccdf4b78108d3eca6f3",
+      "overlays": [],
+      "repo": "pypa/packaging",
+      "url": "https://github.com/pypa/packaging.git",
+      "workspace": "w04"
+    }
+  ]
+}

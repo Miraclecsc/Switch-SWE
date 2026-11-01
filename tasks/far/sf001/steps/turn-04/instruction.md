@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Use ``urllib.request.DataHandler`` in ``parse_data_uri`` The previous code that manually parsed data URIs had a bug: Exception is raised when parsing non-base64 encoded data URIs. Using urllib completely avoids these problems and simplifies the project.

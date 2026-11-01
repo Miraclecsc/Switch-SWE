@@ -1,0 +1,1 @@
+Also, There also seems to be way too many context managers and levels of indirection for the pager machinery at this point. I'm not sure how we got here, but I'd sure love to refactor and simplify it somehow.

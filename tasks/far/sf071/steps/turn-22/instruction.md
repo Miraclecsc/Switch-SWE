@@ -1,0 +1,1 @@
+One more thing: Reject unknown anchor endpoints and non-injective anchor values with ValueError. Structurally or attribute-incompatible anchors produce no mappings. With symmetry=False, results must equal filtering the complete unconstrained mapping set.

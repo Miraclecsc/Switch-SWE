@@ -1,0 +1,492 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -12,6 +12,8 @@
+ - Added `App.clipboard` https://github.com/Textualize/textual/pull/5352
+ - Added standard cut/copy/paste (ctrl+x, ctrl+c, ctrl+v) bindings to Input / TextArea https://github.com/Textualize/textual/pull/5352
+ - Added `system` boolean to Binding, which hides the binding from the help panel https://github.com/Textualize/textual/pull/5352
++- Added support for double/triple/etc clicks via `chain` attribute on `Click` events https://github.com/Textualize/textual/pull/5369
++- Added `times` parameter to `Pilot.click` method, for simulating rapid clicks https://github.com/Textualize/textual/pull/5369
+   
+ ### Changed
+ 
+diff --git a/docs/events/click.md b/docs/events/click.md
+--- a/docs/events/click.md
++++ b/docs/events/click.md
+@@ -2,7 +2,15 @@
+     options:
+       heading_level: 1
+ 
+-See [MouseEvent][textual.events.MouseEvent] for the full list of properties and methods.
++## Double & triple clicks
++
++The `chain` attribute on the `Click` event can be used to determine the number of clicks that occurred in quick succession.
++A value of `1` indicates a single click, `2` indicates a double click, and so on.
++
++By default, clicks must occur within 500ms of each other for them to be considered a chain.
++You can change this value by setting the `CLICK_CHAIN_TIME_THRESHOLD` class variable on your `App` subclass.
++
++See [MouseEvent][textual.events.MouseEvent] for the list of properties and methods on the parent class.
+ 
+ ## See also
+ 
+diff --git a/docs/guide/testing.md b/docs/guide/testing.md
+--- a/docs/guide/testing.md
++++ b/docs/guide/testing.md
+@@ -138,6 +138,15 @@
+ await pilot.click(Button, offset=(0, -1))
+ ```
+ 
++### Double & triple clicks
++
++You can simulate double and triple clicks by setting the `times` parameter.
++
++```python
++await pilot.click(Button, times=2)  # Double click
++await pilot.click(Button, times=3)  # Triple click
++```
++
+ ### Modifier keys
+ 
+ You can simulate clicks in combination with modifier keys, by setting the `shift`, `meta`, or `control` parameters.
+diff --git a/pyproject.toml b/pyproject.toml
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -39,6 +39,9 @@
+ 
+ [tool.poetry.urls]
+ "Bug Tracker" = "https://github.com/Textualize/textual/issues"
++
++[tool.ruff]
++target-version = "py38"
+ 
+ [tool.poetry.dependencies]
+ python = "^3.8.1"
+diff --git a/src/textual/app.py b/src/textual/app.py
+--- a/src/textual/app.py
++++ b/src/textual/app.py
+@@ -437,6 +437,10 @@
+     ALLOW_IN_MAXIMIZED_VIEW: ClassVar[str] = "Footer"
+     """The default value of [Screen.ALLOW_IN_MAXIMIZED_VIEW][textual.screen.Screen.ALLOW_IN_MAXIMIZED_VIEW]."""
+ 
++    CLICK_CHAIN_TIME_THRESHOLD: ClassVar[float] = 0.5
++    """The maximum number of seconds between clicks to upgrade a single click to a double click, 
++    a double click to a triple click, etc."""
++
+     BINDINGS: ClassVar[list[BindingType]] = [
+         Binding(
+             "ctrl+q",
+@@ -590,6 +594,17 @@
+         self._mouse_down_widget: Widget | None = None
+         """The widget that was most recently mouse downed (used to create click events)."""
+ 
++        self._click_chain_last_offset: Offset | None = None
++        """The last offset at which a Click occurred, in screen-space."""
++
++        self._click_chain_last_time: float | None = None
++        """The last time at which a Click occurred."""
++
++        self._chained_clicks: int = 1
++        self._click_chain_last_target = None
++        self._mouse_down_button = None
++        """Counter which tracks the number of clicks received in a row."""
++
+         self._previous_cursor_position = Offset(0, 0)
+         """The previous cursor position"""
+ 
+@@ -766,8 +781,6 @@
+ 
+         self._previous_inline_height: int | None = None
+         """Size of previous inline update."""
+-
+-        self._hover_effects_timer: Timer | None = None
+ 
+         self._resize_event: events.Resize | None = None
+         """A pending resize event, sent on idle."""
+@@ -1912,7 +1925,7 @@
+             """Called when app is ready to process events."""
+             app_ready_event.set()
+ 
+-        async def run_app(app: App) -> None:
++        async def run_app(app: App[ReturnType]) -> None:
+             """Run the apps message loop.
+ 
+             Args:
+@@ -1986,7 +1999,7 @@
+         if auto_pilot is None and constants.PRESS:
+             keys = constants.PRESS.split(",")
+ 
+-            async def press_keys(pilot: Pilot) -> None:
++            async def press_keys(pilot: Pilot[ReturnType]) -> None:
+                 """Auto press keys."""
+                 await pilot.press(*keys)
+ 
+@@ -3691,15 +3704,14 @@
+         if isinstance(event, events.Compose):
+             await self._init_mode(self._current_mode)
+             await super().on_event(event)
+-
+         elif isinstance(event, events.InputEvent) and not event.is_forwarded:
+             if not self.app_focus and isinstance(event, (events.Key, events.MouseDown)):
+                 self.app_focus = True
+             if isinstance(event, events.MouseEvent):
+                 # Record current mouse position on App
+                 self.mouse_position = Offset(event.x, event.y)
+-
+                 if isinstance(event, events.MouseDown):
++                    self._mouse_down_button = event.button
+                     try:
+                         self._mouse_down_widget, _ = self.get_widget_at(
+                             event.x, event.y
+@@ -3710,18 +3722,47 @@
+ 
+                 self.screen._forward_event(event)
+ 
++                # If a MouseUp occurs at the same widget as a MouseDown, then we should
++                # consider it a click, and produce a Click event.
+                 if (
+                     isinstance(event, events.MouseUp)
+                     and self._mouse_down_widget is not None
+                 ):
+                     try:
+-                        if (
+-                            self.get_widget_at(event.x, event.y)[0]
+-                            is self._mouse_down_widget
+-                        ):
++                        screen_offset = event.screen_offset
++                        mouse_down_widget = self._mouse_down_widget
++                        mouse_down_button = self._mouse_down_button
++                        self._mouse_down_widget = None
++                        self._mouse_down_button = None
++                        mouse_up_widget, _ = self.get_widget_at(*screen_offset)
++                        if mouse_up_widget is mouse_down_widget and event.button == mouse_down_button:
++                            identity = (mouse_down_widget, event.button, event.shift, event.meta, event.ctrl)
++                            previous = self._click_chain_last_target
++                            same_target = (previous is not None and previous[0] is mouse_down_widget
++                                           and previous[1:] == identity[1:])
++                            same_offset = (
++                                self._click_chain_last_offset is not None
++                                and self._click_chain_last_offset == screen_offset
++                            )
++                            within_time_threshold = (
++                                self._click_chain_last_time is not None
++                                and event.time - self._click_chain_last_time
++                                <= self.CLICK_CHAIN_TIME_THRESHOLD
++                            )
++
++                            if same_offset and within_time_threshold and same_target:
++                                self._chained_clicks += 1
++                            else:
++                                self._chained_clicks = 1
++
+                             click_event = events.Click.from_event(
+-                                self._mouse_down_widget, event
++                                mouse_down_widget, event, chain=self._chained_clicks
+                             )
++
++                            self._click_chain_last_target = identity
++                            self._click_chain_last_time = event.time
++                            self._click_chain_last_offset = screen_offset
++
+                             self.screen._forward_event(click_event)
+                     except NoWidget:
+                         pass
+diff --git a/src/textual/events.py b/src/textual/events.py
+--- a/src/textual/events.py
++++ b/src/textual/events.py
+@@ -16,6 +16,7 @@
+ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import TYPE_CHECKING, Type, TypeVar
++from typing_extensions import Self
+ 
+ import rich.repr
+ from rich.style import Style
+@@ -556,7 +557,87 @@
+ 
+     - [X] Bubbles
+     - [ ] Verbose
+-    """
++
++    Args:
++        chain: The number of clicks in the chain. 2 is a double click, 3 is a triple click, etc.
++    """
++
++    def __init__(
++        self,
++        widget: Widget | None,
++        x: int,
++        y: int,
++        delta_x: int,
++        delta_y: int,
++        button: int,
++        shift: bool,
++        meta: bool,
++        ctrl: bool,
++        screen_x: int | None = None,
++        screen_y: int | None = None,
++        style: Style | None = None,
++        chain: int = 1,
++    ) -> None:
++        super().__init__(
++            widget,
++            x,
++            y,
++            delta_x,
++            delta_y,
++            button,
++            shift,
++            meta,
++            ctrl,
++            screen_x,
++            screen_y,
++            style,
++        )
++        self.chain = chain
++
++    @classmethod
++    def from_event(
++        cls: Type[Self],
++        widget: Widget,
++        event: MouseEvent,
++        chain: int = 1,
++    ) -> Self:
++        new_event = cls(
++            widget,
++            event.x,
++            event.y,
++            event.delta_x,
++            event.delta_y,
++            event.button,
++            event.shift,
++            event.meta,
++            event.ctrl,
++            event.screen_x,
++            event.screen_y,
++            event._style,
++            chain=chain,
++        )
++        return new_event
++
++    def _apply_offset(self, x: int, y: int) -> Self:
++        return self.__class__(
++            self.widget,
++            x=self.x + x,
++            y=self.y + y,
++            delta_x=self.delta_x,
++            delta_y=self.delta_y,
++            button=self.button,
++            shift=self.shift,
++            meta=self.meta,
++            ctrl=self.ctrl,
++            screen_x=self.screen_x,
++            screen_y=self.screen_y,
++            style=self.style,
++            chain=self.chain,
++        )
++
++    def __rich_repr__(self) -> rich.repr.Result:
++        yield from super().__rich_repr__()
++        yield "chain", self.chain
+ 
+ 
+ @rich.repr.auto
+diff --git a/src/textual/message_pump.py b/src/textual/message_pump.py
+--- a/src/textual/message_pump.py
++++ b/src/textual/message_pump.py
+@@ -810,7 +810,7 @@
+             message: A message (including Event).
+ 
+         Returns:
+-            `True` if the messages was processed, `False` if it wasn't.
++            `True` if the message was queued for processing, otherwise `False`.
+         """
+         _rich_traceback_omit = True
+         if not hasattr(message, "_prevent"):
+diff --git a/src/textual/pilot.py b/src/textual/pilot.py
+--- a/src/textual/pilot.py
++++ b/src/textual/pilot.py
+@@ -194,11 +194,14 @@
+         shift: bool = False,
+         meta: bool = False,
+         control: bool = False,
++        times: int = 1,
+     ) -> bool:
+         """Simulate clicking with the mouse at a specified position.
+ 
+         The final position to be clicked is computed based on the selector provided and
+         the offset specified and it must be within the visible area of the screen.
++
++        Implementation note: This method bypasses the normal event processing in `App.on_event`.
+ 
+         Example:
+             The code below runs an app and clicks its only button right in the middle:
+@@ -218,6 +221,7 @@
+             shift: Click with the shift key held down.
+             meta: Click with the meta key held down.
+             control: Click with the control key held down.
++            times: The number of times to click. 2 will double-click, 3 will triple-click, etc.
+ 
+         Raises:
+             OutOfBounds: If the position to be clicked is outside of the (visible) screen.
+@@ -235,9 +239,100 @@
+                 shift=shift,
+                 meta=meta,
+                 control=control,
++                times=times,
+             )
+         except OutOfBounds as error:
+             raise error from None
++
++    async def double_click(
++        self,
++        widget: Widget | type[Widget] | str | None = None,
++        offset: tuple[int, int] = (0, 0),
++        shift: bool = False,
++        meta: bool = False,
++        control: bool = False,
++    ) -> bool:
++        """Simulate double clicking with the mouse at a specified position.
++
++        Alias for `pilot.click(..., times=2)`.
++
++        The final position to be clicked is computed based on the selector provided and
++        the offset specified and it must be within the visible area of the screen.
++
++        Implementation note: This method bypasses the normal event processing in `App.on_event`.
++
++        Example:
++            The code below runs an app and double-clicks its only button right in the middle:
++            ```py
++            async with SingleButtonApp().run_test() as pilot:
++                await pilot.double_click(Button, offset=(8, 1))
++            ```
++
++        Args:
++            widget: A widget or selector used as an origin
++                for the click offset. If this is not specified, the offset is interpreted
++                relative to the screen. You can use this parameter to try to click on a
++                specific widget. However, if the widget is currently hidden or obscured by
++                another widget, the click may not land on the widget you specified.
++            offset: The offset to click. The offset is relative to the widget / selector provided
++                or to the screen, if no selector is provided.
++            shift: Click with the shift key held down.
++            meta: Click with the meta key held down.
++            control: Click with the control key held down.
++
++        Raises:
++            OutOfBounds: If the position to be clicked is outside of the (visible) screen.
++
++        Returns:
++            True if no selector was specified or if the clicks landed on the selected
++                widget, False otherwise.
++        """
++        return await self.click(widget, offset, shift, meta, control, times=2)
++
++    async def triple_click(
++        self,
++        widget: Widget | type[Widget] | str | None = None,
++        offset: tuple[int, int] = (0, 0),
++        shift: bool = False,
++        meta: bool = False,
++        control: bool = False,
++    ) -> bool:
++        """Simulate triple clicking with the mouse at a specified position.
++
++        Alias for `pilot.click(..., times=3)`.
++
++        The final position to be clicked is computed based on the selector provided and
++        the offset specified and it must be within the visible area of the screen.
++
++        Implementation note: This method bypasses the normal event processing in `App.on_event`.
++
++        Example:
++            The code below runs an app and triple-clicks its only button right in the middle:
++            ```py
++            async with SingleButtonApp().run_test() as pilot:
++                await pilot.triple_click(Button, offset=(8, 1))
++            ```
++
++        Args:
++            widget: A widget or selector used as an origin
++                for the click offset. If this is not specified, the offset is interpreted
++                relative to the screen. You can use this parameter to try to click on a
++                specific widget. However, if the widget is currently hidden or obscured by
++                another widget, the click may not land on the widget you specified.
++            offset: The offset to click. The offset is relative to the widget / selector provided
++                or to the screen, if no selector is provided.
++            shift: Click with the shift key held down.
++            meta: Click with the meta key held down.
++            control: Click with the control key held down.
++
++        Raises:
++            OutOfBounds: If the position to be clicked is outside of the (visible) screen.
++
++        Returns:
++            True if no selector was specified or if the clicks landed on the selected
++                widget, False otherwise.
++        """
++        return await self.click(widget, offset, shift, meta, control, times=3)
+ 
+     async def hover(
+         self,
+@@ -282,6 +377,7 @@
+         shift: bool = False,
+         meta: bool = False,
+         control: bool = False,
++        times: int = 1,
+     ) -> bool:
+         """Simulate a series of mouse events to be fired at a given position.
+ 
+@@ -302,7 +398,7 @@
+             shift: Simulate the events with the shift key held down.
+             meta: Simulate the events with the meta key held down.
+             control: Simulate the events with the control key held down.
+-
++            times: The number of times to click. 2 will double-click, 3 will triple-click, etc.
+         Raises:
+             OutOfBounds: If the position for the events is outside of the (visible) screen.
+ 
+@@ -336,22 +432,26 @@
+             )
+ 
+         widget_at = None
+-        for mouse_event_cls in events:
+-            # Get the widget under the mouse before the event because the app might
+-            # react to the event and move things around. We override on each iteration
+-            # because we assume the final event in `events` is the actual event we care
+-            # about and that all the preceding events are just setup.
+-            # E.g., the click event is preceded by MouseDown/MouseUp to emulate how
+-            # the driver works and emits a click event.
+-            widget_at, _ = app.get_widget_at(*offset)
+-            event = mouse_event_cls(**message_arguments)
+-            # Bypass event processing in App.on_event. Because App.on_event
+-            # is responsible for updating App.mouse_position, and because
+-            # that's useful to other things (tooltip handling, for example),
+-            # we patch the offset in there as well.
+-            app.mouse_position = offset
+-            app.screen._forward_event(event)
+-            await self.pause()
++        for chain in range(1, times + 1):
++            for mouse_event_cls in events:
++                # Get the widget under the mouse before the event because the app might
++                # react to the event and move things around. We override on each iteration
++                # because we assume the final event in `events` is the actual event we care
++                # about and that all the preceding events are just setup.
++                # E.g., the click event is preceded by MouseDown/MouseUp to emulate how
++                # the driver works and emits a click event.
++                kwargs = message_arguments.copy()
++                if mouse_event_cls is Click:
++                    kwargs["chain"] = chain
++                widget_at, _ = app.get_widget_at(*offset)
++                event = mouse_event_cls(**kwargs)
++                # Bypass event processing in App.on_event. Because App.on_event
++                # is responsible for updating App.mouse_position, and because
++                # that's useful to other things (tooltip handling, for example),
++                # we patch the offset in there as well.
++                app.mouse_position = offset
++                screen._forward_event(event)
++                await self.pause()
+ 
+         return widget is None or widget_at is target_widget
+ 

@@ -1,0 +1,1 @@
+Please check this too: This changes the exception from: to: It's not really clear to me how this improves the situation in Is the idea that `pip` will now parse this new message and display something more meaningful to the user? I'm not sure that the new message is actually more user-friendly than the old one.

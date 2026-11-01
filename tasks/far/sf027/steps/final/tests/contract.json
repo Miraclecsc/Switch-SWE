@@ -1,0 +1,62 @@
+{
+  "case_id": "sf027_switched",
+  "task_id": "ssb_v2_task_0313",
+  "repo": "sphinx-doc/sphinx",
+  "base_commit": "50895827ba551a5a8825e7af697bd1a3661de1a3",
+  "derived_fail_to_pass": [
+    "tests.test_transforms.test_transforms_post_transforms_images::test_guess_mimetype_webp",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_candidate_path_is_authoritative",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_encoded_wildcard_binary_file[picture%20one.dat#fragment]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_encoded_wildcard_binary_file[picture%20one.dat?cache=1#view]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_failed_conversion_preserves_destination[empty]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_failed_conversion_preserves_destination[exit]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_failed_conversion_preserves_destination[launch]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_failed_conversion_preserves_destination[missing]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_handle_resolves_same_encoded_candidate",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_remote_wildcard_never_opens_local_file[//example.com/image.webp]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_remote_wildcard_never_opens_local_file[data:image/webp;base64,AAAA]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_remote_wildcard_never_opens_local_file[https://example.com/image.webp]",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_successful_conversion_publishes_only_complete_output"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_existing_mime_and_nonlocal_marker_unchanged",
+    "tests.test_transforms.test_sf027_conversion_pipeline::test_webp_rule_still_available"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_transforms/test_transforms_post_transforms_images.py",
+    "tests/test_transforms/test_sf027_conversion_pipeline.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_transforms/test_sf027_conversion_pipeline.py",
+    "tests/test_transforms/test_transforms_post_transforms_images.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "dfc80b4f0721be2360b609197456393eb5a32f821dbd77002d3825c7e5a5bb18",
+    "config/recipes.json": "c184b65f3dd690ab6e470df22b540d5ac0e1ec68fe874d7af43db68dd470a47c"
+  }
+}

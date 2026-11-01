@@ -1,0 +1,1 @@
+One more thing: > This PR doesn't include changes to `BlockingPortal`. Perhaps it should? OTOH, nothing is breaking so it could be left to a follow-up. It will need a new `TaskHandle` variant designed for use outside of the event loop thread.

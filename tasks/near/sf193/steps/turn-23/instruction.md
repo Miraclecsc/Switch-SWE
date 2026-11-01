@@ -1,0 +1,1 @@
+Please check this too: Although: > src/attr/_make.py:1538: error: All conditional function variants must have identical signatures is complaining that the variable name changed in the 3rd instance

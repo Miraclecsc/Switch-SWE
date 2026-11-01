@@ -1,0 +1,1 @@
+One more thing: Add support for Mathematica Not operator (!) in parse_mathematica. Fixes a KeyError that occurred when trying to parse boolean string from Mathematica that contains a Not operator : '!'.

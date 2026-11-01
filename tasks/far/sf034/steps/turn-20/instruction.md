@@ -1,0 +1,1 @@
+And here, You cannot create a new top level test file for this. Look at the `sympy/parsing/tests/` directory, probably `test_lark_latex.py` is the file in which these tests have to be added. Also write the tests in the way the nearby tests are written in that file.

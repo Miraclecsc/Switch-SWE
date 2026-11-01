@@ -1,0 +1,1 @@
+Please check this too: , do you think it is a good idea to allow generator selection by integer when the input expression is not a Poly.

@@ -1,0 +1,1 @@
+Also, I've updated it to just be an `if`, that way the value set by `label_propagation_communities` gets checked as well.

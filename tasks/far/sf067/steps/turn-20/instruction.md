@@ -1,0 +1,1 @@
+And here, Tiny simplification: since the `G` fixture already parametrizes over `Graph` and `MultiGraph`, this loop adds another `MultiGraph` pass on top of that. I think this could be either fixture parametrization or a local loop, but probably does not need both.

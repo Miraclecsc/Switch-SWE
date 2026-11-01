@@ -1,0 +1,1 @@
+One more thing: Why the same name and email twice? Check the .mailmap instructions.

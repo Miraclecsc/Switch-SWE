@@ -1,0 +1,52 @@
+diff --git a/sympy/solvers/solveset.py b/sympy/solvers/solveset.py
+index a16bc73062..78ce322767 100644
+--- a/sympy/solvers/solveset.py
++++ b/sympy/solvers/solveset.py
+@@ -3603,7 +3603,13 @@ def _solve_using_known_values(result, solver):
+                             # corresponding complex soln.
+                             if not isinstance(soln, (ImageSet, ConditionSet)):
+                                 soln += solveset_complex(eq2, sym)  # might give ValueError with Abs
+-                    except (NotImplementedError, ValueError):
++
++                        if not isinstance(soln, (FiniteSet, ImageSet, ConditionSet, Union)) and soln is not S.EmptySet:
++                            raise NotImplementedError(
++                                f"nonlinsolve cannot handle solution of type {type(soln).__name__} "
++                                f"for symbol {sym}. Got {soln} from equation {eq2}."
++                            )
++                    except ValueError:
+                         # If solveset is not able to solve equation `eq2`. Next
+                         # time we may get soln using next equation `eq2`
+                         continue
+@@ -3900,7 +3906,31 @@ def _handle_poly(polys, symbols):
+     return poly_sol, poly_eqs
+ 
+ 
+-def nonlinsolve(system, *symbols):
++def nonlinsolve(system, *symbols, fallback="raise"):
++    """Solve a nonlinear system, optionally retaining unsupported cases as conditions."""
++    if fallback not in {"raise", "conditions"}:
++        raise ValueError("fallback must be raise or conditions")
++    if fallback == "raise":
++        return _nonlinsolve(system, *symbols)
++    equations = list(system)
++    ordered_symbols = tuple(symbols[0]) if symbols and hasattr(symbols[0], "__iter__") else symbols
++    try:
++        result = _nonlinsolve(equations, *ordered_symbols)
++    except NotImplementedError:
++        result = None
++    else:
++        if not (isinstance(result, FiniteSet) and any(
++            isinstance(value, Set) for row in result
++            for value in (row if isinstance(row, Tuple) else (row,))
++        )):
++            return result
++    from sympy.sets.sets import ProductSet
++    condition = And(*(eq if isinstance(eq, Eq) else Eq(eq, 0) for eq in equations))
++    return ConditionSet(Tuple(*map(_sympify, ordered_symbols)), condition,
++                        ProductSet(*([S.Complexes] * len(ordered_symbols))))
++
++
++def _nonlinsolve(system, *symbols):
+     r"""
+     Solve system of $N$ nonlinear equations with $M$ variables, which means both
+     under and overdetermined systems are supported. Positive dimensional

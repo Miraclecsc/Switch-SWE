@@ -1,0 +1,1 @@
+Also, Apply the same option validation to start_guest_run before registering callbacks or installing guest state. Invalid options must leave the host unchanged and must not execute the async function or done callback. A failed validation must not prevent a subsequent normal trio.run. Warning filters must not replace this TypeError with a deprecation exception.

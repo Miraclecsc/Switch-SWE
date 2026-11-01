@@ -1,0 +1,1 @@
+One more thing: That doesn't address my question, though. `Sentinel.UNSET` should be falsy then:

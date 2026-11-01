@@ -1,0 +1,481 @@
+diff --git a/docs/api.rst b/docs/api.rst
+index 9eb27eb..6c74785 100644
+--- a/docs/api.rst
++++ b/docs/api.rst
+@@ -92,6 +92,7 @@ Streams and stream wrappers
+ .. autoclass:: anyio.streams.file.FileWriteStream
+ .. autoclass:: anyio.streams.memory.MemoryObjectReceiveStream
+ .. autoclass:: anyio.streams.memory.MemoryObjectSendStream
++.. autoclass:: anyio.streams.memory.MemoryObjectStreamStatistics
+ .. autoclass:: anyio.streams.stapled.MultiListener
+ .. autoclass:: anyio.streams.stapled.StapledByteStream
+ .. autoclass:: anyio.streams.stapled.StapledObjectStream
+@@ -133,18 +134,24 @@ Subprocesses
+ Synchronization
+ ---------------
+ 
+-.. autofunction:: anyio.create_semaphore
+-.. autofunction:: anyio.create_lock
+ .. autofunction:: anyio.create_event
++.. autofunction:: anyio.create_lock
+ .. autofunction:: anyio.create_condition
++.. autofunction:: anyio.create_semaphore
+ .. autofunction:: anyio.create_capacity_limiter
+ 
+-.. autoclass:: anyio.abc.Semaphore
+-.. autoclass:: anyio.abc.Lock
++
+ .. autoclass:: anyio.abc.Event
++.. autoclass:: anyio.abc.Lock
+ .. autoclass:: anyio.abc.Condition
++.. autoclass:: anyio.abc.Semaphore
+ .. autoclass:: anyio.abc.CapacityLimiter
+ 
++.. autoclass:: anyio.LockStatistics
++.. autoclass:: anyio.EventStatistics
++.. autoclass:: anyio.ConditionStatistics
++.. autoclass:: anyio.CapacityLimiterStatistics
++
+ Operating system signals
+ ------------------------
+ 
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 1f72b7c..0170216 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -41,6 +41,9 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+   no longer returns a BlockingPortal, but a context manager that yields one)
+ - **BACKWARDS INCOMPATIBLE** Removed the ``BlockingPortal.stop_from_external_thread()`` method
+   (do ``portal.call(portal.stop)`` instead now)
++- **BACKWARDS INCOMPATIBLE** ``Lock`` and ``Condition`` can now only be released by the task that
++  acquired them. This behavior is now consistent on all backends whereas previously only Trio
++  enforced this.
+ - Dropped Curio as a backend (see the :doc:`FAQ <faq>` as for why)
+ - Added the ``run_sync_from_thread()`` function
+ - Added the ``FileReadStream`` and ``FileWriteStream`` classes
+@@ -49,6 +52,8 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+ - Added the ``max_value`` property to ``Semaphore``
+ - Added the ``Lock.acquire_nowait()``, ``Condition.acquire_nowait()`` and
+   ``Semaphore.acquire_nowait()`` methods
++- Added the ``statistics()`` method to ``Event``, ``Lock``, ``Condition``, ``Semaphore``,
++  ``CapacityLimiter``, ``MemoryObjectReceiveStream`` and ``MemoryObjectSendStream``
+ - Changed ``CancelScope.deadline`` to be writable
+ - ``Lock`` and ``Condition`` can now only be released by the task that acquired them. This behavior
+   is now consistent on all backends whereas previously only Trio enforced this.
+diff --git a/src/anyio/__init__.py b/src/anyio/__init__.py
+index 5dec719..fbb63f9 100644
+--- a/src/anyio/__init__.py
++++ b/src/anyio/__init__.py
+@@ -6,14 +6,15 @@ __all__ = ('maybe_async', 'maybe_async_cm', 'run', 'sleep', 'current_time', 'get
+            'create_tcp_listener', 'create_unix_listener', 'create_udp_socket',
+            'create_connected_udp_socket', 'getaddrinfo', 'getnameinfo', 'wait_socket_readable',
+            'wait_socket_writable', 'create_memory_object_stream', 'run_process', 'open_process',
+-           'create_lock', 'create_condition', 'create_event', 'create_semaphore',
+-           'create_capacity_limiter', 'open_cancel_scope', 'fail_after', 'move_on_after',
+-           'current_effective_deadline', 'TASK_STATUS_IGNORED', 'create_task_group', 'TaskInfo',
+-           'get_current_task', 'get_running_tasks', 'wait_all_tasks_blocked',
+-           'run_sync_in_worker_thread', 'run_async_from_thread', 'run_sync_from_thread',
+-           'current_default_worker_thread_limiter', 'create_blocking_portal',
+-           'start_blocking_portal', 'typed_attribute', 'TypedAttributeSet',
+-           'TypedAttributeProvider')
++           'create_lock', 'CapacityLimiterStatistics', 'ConditionStatistics', 'EventStatistics',
++           'LockStatistics', 'SemaphoreStatistics', 'create_condition', 'create_event',
++           'create_semaphore', 'create_capacity_limiter', 'open_cancel_scope', 'fail_after',
++           'move_on_after', 'current_effective_deadline', 'TASK_STATUS_IGNORED',
++           'create_task_group', 'TaskInfo', 'get_current_task', 'get_running_tasks',
++           'wait_all_tasks_blocked', 'run_sync_in_worker_thread', 'run_async_from_thread',
++           'run_sync_from_thread', 'current_default_worker_thread_limiter',
++           'create_blocking_portal', 'start_blocking_portal', 'typed_attribute',
++           'TypedAttributeSet', 'TypedAttributeProvider')
+ 
+ from ._core._compat import maybe_async, maybe_async_cm
+ from ._core._eventloop import current_time, get_all_backends, get_cancelled_exc_class, run, sleep
+@@ -29,7 +30,8 @@ from ._core._sockets import (
+ from ._core._streams import create_memory_object_stream
+ from ._core._subprocesses import open_process, run_process
+ from ._core._synchronization import (
+-    create_capacity_limiter, create_condition, create_event, create_lock, create_semaphore)
++    ConditionStatistics, LockStatistics, SemaphoreStatistics, create_capacity_limiter,
++    create_condition, create_event, create_lock, create_semaphore)
+ from ._core._tasks import (
+     TASK_STATUS_IGNORED, create_task_group, current_effective_deadline, fail_after, move_on_after,
+     open_cancel_scope)
+@@ -38,6 +40,7 @@ from ._core._threads import (
+     create_blocking_portal, current_default_worker_thread_limiter, run_async_from_thread,
+     run_sync_from_thread, run_sync_in_worker_thread, start_blocking_portal)
+ from ._core._typedattr import TypedAttributeProvider, TypedAttributeSet, typed_attribute
++from .abc._synchronization import CapacityLimiterStatistics, EventStatistics
+ 
+ # Re-export imports so they look like they live directly in this package
+ for key, value in list(locals().items()):
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index 2626e62..8b85c43 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -17,7 +17,7 @@ from typing import (
+     Tuple, Type, TypeVar, Union, cast)
+ from weakref import WeakKeyDictionary
+ 
+-from .. import TaskInfo, abc
++from .. import CapacityLimiterStatistics, EventStatistics, TaskInfo, abc
+ from .._core._eventloop import claim_worker_thread, threadlocals
+ from .._core._exceptions import (
+     BrokenResourceError, BusyResourceError, ClosedResourceError, EndOfStream)
+@@ -1114,6 +1114,9 @@ class Event(abc.Event):
+         await checkpoint()
+         await self._event.wait()
+ 
++    def statistics(self) -> EventStatistics:
++        return EventStatistics(len(self._event._waiters))
++
+ 
+ class CapacityLimiter(abc.CapacityLimiter):
+     _total_tokens: float = 0
+@@ -1209,6 +1212,10 @@ class CapacityLimiter(abc.CapacityLimiter):
+             event = self._wait_queue.popitem()[1]
+             event.set()
+ 
++    def statistics(self) -> CapacityLimiterStatistics:
++        return CapacityLimiterStatistics(self.borrowed_tokens, self.total_tokens,
++                                         tuple(self._borrowers), len(self._wait_queue))
++
+ 
+ def current_default_thread_limiter():
+     return _default_thread_limiter
+diff --git a/src/anyio/_core/_synchronization.py b/src/anyio/_core/_synchronization.py
+index abb548e..7e3731d 100644
+--- a/src/anyio/_core/_synchronization.py
++++ b/src/anyio/_core/_synchronization.py
+@@ -1,8 +1,9 @@
+ from collections import deque
++from dataclasses import dataclass
+ from types import TracebackType
+ from typing import Deque, Optional, Tuple, Type
+ 
+-from ..abc import CapacityLimiter, Event
++from .. import abc
+ from ._eventloop import get_asynclib
+ from ._exceptions import BusyResourceError, WouldBlock
+ from ._lowlevel import checkpoint
+@@ -10,11 +11,45 @@ from ._tasks import open_cancel_scope
+ from ._testing import TaskInfo, get_current_task
+ 
+ 
++@dataclass(frozen=True)
++class LockStatistics:
++    """
++    :ivar bool locked: flag indicating if this lock is locked or not
++    :ivar ~anyio.TaskInfo owner: task currently holding the lock (or ``None`` if the lock is not
++        held by any task)
++    :ivar int tasks_waiting: number of tasks waiting on :meth:`~.Lock.acquire`
++    """
++
++    locked: bool
++    owner: Optional[TaskInfo]
++    tasks_waiting: int
++
++
++@dataclass(frozen=True)
++class ConditionStatistics:
++    """
++    :ivar int tasks_waiting: number of tasks blocked on :meth:`~.Condition.wait`
++    :ivar ~anyio.LockStatistics lock_statistics: statistics of the underlying :class:`~.Lock`
++    """
++
++    tasks_waiting: int
++    lock_statistics: LockStatistics
++
++
++@dataclass(frozen=True)
++class SemaphoreStatistics:
++    """
++    :ivar int tasks_waiting: number of tasks waiting on :meth:`~.Semaphore.acquire`
++
++    """
++    tasks_waiting: int
++
++
+ class Lock:
+     _owner_task: Optional[TaskInfo] = None
+ 
+     def __init__(self):
+-        self._waiters: Deque[Tuple[TaskInfo, Event]] = deque()
++        self._waiters: Deque[Tuple[TaskInfo, abc.Event]] = deque()
+ 
+     async def __aenter__(self):
+         await self.acquire()
+@@ -75,13 +110,21 @@ class Lock:
+         """Return True if the lock is currently held."""
+         return self._owner_task is not None
+ 
++    def statistics(self) -> LockStatistics:
++        """
++        Return statistics about the current state of this lock.
++
++        .. versionadded:: 3.0
++        """
++        return LockStatistics(self.locked(), self._owner_task, len(self._waiters))
++
+ 
+ class Condition:
+     _owner_task: Optional[TaskInfo] = None
+ 
+     def __init__(self, lock: Optional[Lock] = None):
+         self._lock = lock or Lock()
+-        self._waiters: Deque[Event] = deque()
++        self._waiters: Deque[abc.Event] = deque()
+ 
+     async def __aenter__(self):
+         await self.acquire()
+@@ -154,6 +197,14 @@ class Condition:
+             with open_cancel_scope(shield=True):
+                 await self.acquire()
+ 
++    def statistics(self) -> ConditionStatistics:
++        """
++        Return statistics about the current state of this condition.
++
++        .. versionadded:: 3.0
++        """
++        return ConditionStatistics(len(self._waiters), self._lock.statistics())
++
+ 
+ class Semaphore:
+     def __init__(self, initial_value: int, *, max_value: Optional[int]):
+@@ -169,7 +220,7 @@ class Semaphore:
+ 
+         self._value = initial_value
+         self._max_value = max_value
+-        self._waiters: Deque[Event] = deque()
++        self._waiters: Deque[abc.Event] = deque()
+ 
+     async def __aenter__(self) -> 'Semaphore':
+         await self.acquire()
+@@ -205,7 +256,6 @@ class Semaphore:
+ 
+         """
+         if self._value == 0:
+-            assert not self._waiters
+             raise WouldBlock
+ 
+         self._value -= 1
+@@ -229,6 +279,14 @@ class Semaphore:
+         """The maximum value of the semaphore."""
+         return self._max_value
+ 
++    def statistics(self) -> SemaphoreStatistics:
++        """
++        Return statistics about the current state of this semaphore.
++
++        .. versionadded:: 3.0
++        """
++        return SemaphoreStatistics(len(self._waiters))
++
+ 
+ def create_lock() -> Lock:
+     """
+@@ -251,7 +309,7 @@ def create_condition(lock: Optional[Lock] = None) -> Condition:
+     return Condition(lock=lock)
+ 
+ 
+-def create_event() -> Event:
++def create_event() -> abc.Event:
+     """
+     Create an asynchronous event object.
+ 
+@@ -274,7 +332,7 @@ def create_semaphore(value: int, *, max_value: Optional[int] = None) -> Semaphor
+     return Semaphore(value, max_value=max_value)
+ 
+ 
+-def create_capacity_limiter(total_tokens: float) -> CapacityLimiter:
++def create_capacity_limiter(total_tokens: float) -> abc.CapacityLimiter:
+     """
+     Create a capacity limiter.
+ 
+diff --git a/src/anyio/abc/__init__.py b/src/anyio/abc/__init__.py
+index cc416df..d80852a 100644
+--- a/src/anyio/abc/__init__.py
++++ b/src/anyio/abc/__init__.py
+@@ -4,9 +4,9 @@ __all__ = ('AsyncResource', 'IPAddressType', 'IPSockAddrType', 'SocketAttribute'
+            'ObjectReceiveStream', 'ObjectSendStream', 'ObjectStream', 'ByteReceiveStream',
+            'ByteSendStream', 'ByteStream', 'AnyUnreliableByteReceiveStream',
+            'AnyUnreliableByteSendStream', 'AnyUnreliableByteStream', 'AnyByteReceiveStream',
+-           'AnyByteSendStream', 'AnyByteStream', 'Listener', 'Process', 'Event', 'Lock',
+-           'Condition', 'Semaphore', 'CapacityLimiter', 'CancelScope', 'TaskGroup', 'TaskStatus',
+-           'TestRunner', 'BlockingPortal')
++           'AnyByteSendStream', 'AnyByteStream', 'Listener', 'Process', 'Event',
++           'Condition', 'Lock', 'Semaphore', 'CapacityLimiter', 'CancelScope', 'TaskGroup',
++           'TaskStatus', 'TestRunner', 'BlockingPortal')
+ 
+ from ._resources import AsyncResource
+ from ._sockets import (
+diff --git a/src/anyio/abc/_synchronization.py b/src/anyio/abc/_synchronization.py
+index 09dc98d..7339e87 100644
+--- a/src/anyio/abc/_synchronization.py
++++ b/src/anyio/abc/_synchronization.py
+@@ -1,10 +1,37 @@
+ from abc import ABCMeta, abstractmethod
++from dataclasses import dataclass
+ from types import TracebackType
+-from typing import Optional, Type, TypeVar
++from typing import Optional, Tuple, Type, TypeVar
+ 
+ T_Retval = TypeVar('T_Retval')
+ 
+ 
++@dataclass(frozen=True)
++class EventStatistics:
++    """
++    :ivar int tasks_waiting: number of tasks waiting on :meth:`~.Event.wait`
++    """
++
++    tasks_waiting: int
++
++
++@dataclass(frozen=True)
++class CapacityLimiterStatistics:
++    """
++    :ivar int borrowed_tokens: number of tokens currently borrowed by tasks
++    :ivar float total_tokens: total number of available tokens
++    :ivar tuple borrowers: tasks or other objects currently holding tokens borrowed from this
++        limiter
++    :ivar int tasks_waiting: number of tasks waiting on :meth:`~.CapacityLimiter.acquire` or
++        :meth:`~.CapacityLimiter.acquire_on_behalf_of`
++    """
++
++    borrowed_tokens: int
++    total_tokens: float
++    borrowers: Tuple[object, ...]
++    tasks_waiting: int
++
++
+ class Event(metaclass=ABCMeta):
+     @abstractmethod
+     def set(self) -> None:
+@@ -22,6 +49,10 @@ class Event(metaclass=ABCMeta):
+         If the flag has already been set when this method is called, it returns immediately.
+         """
+ 
++    @abstractmethod
++    def statistics(self) -> EventStatistics:
++        """Return statistics about the current state of this event."""
++
+ 
+ class CapacityLimiter(metaclass=ABCMeta):
+     @abstractmethod
+@@ -102,3 +133,11 @@ class CapacityLimiter(metaclass=ABCMeta):
+ 
+         :raises RuntimeError: if the borrower has not borrowed a token from this limiter.
+         """
++
++    @abstractmethod
++    def statistics(self) -> CapacityLimiterStatistics:
++        """
++        Return statistics about the current state of this limiter.
++
++        .. versionadded:: 3.0
++        """
+diff --git a/src/anyio/streams/memory.py b/src/anyio/streams/memory.py
+index 39401fc..d6addeb 100644
+--- a/src/anyio/streams/memory.py
++++ b/src/anyio/streams/memory.py
+@@ -1,6 +1,6 @@
+ from collections import OrderedDict, deque
+ from dataclasses import dataclass, field
+-from typing import Deque, Generic, List, TypeVar
++from typing import Deque, Generic, List, NamedTuple, TypeVar
+ 
+ from .. import (
+     BrokenResourceError, ClosedResourceError, EndOfStream, WouldBlock, get_cancelled_exc_class)
+@@ -11,6 +11,15 @@ from ..abc import Event, ObjectReceiveStream, ObjectSendStream
+ T_Item = TypeVar('T_Item')
+ 
+ 
++class MemoryObjectStreamStatistics(NamedTuple):
++    current_buffer_used: int
++    max_buffer_size: float
++    open_send_streams: int
++    open_receive_streams: int
++    tasks_waiting_send: int
++    tasks_waiting_receive: int
++
++
+ @dataclass
+ class MemoryObjectStreamState(Generic[T_Item]):
+     max_buffer_size: float = field()
+@@ -21,6 +30,11 @@ class MemoryObjectStreamState(Generic[T_Item]):
+                                                                   default_factory=OrderedDict)
+     waiting_senders: 'OrderedDict[Event, T_Item]' = field(init=False, default_factory=OrderedDict)
+ 
++    def statistics(self) -> MemoryObjectStreamStatistics:
++        return MemoryObjectStreamStatistics(
++            len(self.buffer), self.max_buffer_size, self.open_send_channels,
++            self.open_receive_channels, len(self.waiting_senders), len(self.waiting_receivers))
++
+ 
+ @dataclass
+ class MemoryObjectReceiveStream(Generic[T_Item], ObjectReceiveStream[T_Item]):
+@@ -45,7 +59,8 @@ class MemoryObjectReceiveStream(Generic[T_Item], ObjectReceiveStream[T_Item]):
+         if self._closed:
+             raise ClosedResourceError
+ 
+-        if self._state.waiting_senders:
++        if (self._state.waiting_senders
++                and len(self._state.buffer) <= self._state.max_buffer_size):
+             # Get the item from the next sender
+             send_event, item = self._state.waiting_senders.popitem(last=False)
+             self._state.buffer.append(item)
+@@ -107,6 +122,14 @@ class MemoryObjectReceiveStream(Generic[T_Item], ObjectReceiveStream[T_Item]):
+                 for event in send_events:
+                     event.set()
+ 
++    def statistics(self) -> MemoryObjectStreamStatistics:
++        """
++        Return statistics about the current state of this stream.
++
++        .. versionadded:: 3.0
++        """
++        return self._state.statistics()
++
+ 
+ @dataclass
+ class MemoryObjectSendStream(Generic[T_Item], ObjectSendStream[T_Item]):
+@@ -159,6 +182,26 @@ class MemoryObjectSendStream(Generic[T_Item], ObjectSendStream[T_Item]):
+             if self._state.waiting_senders.pop(send_event, None):  # type: ignore[arg-type]
+                 raise BrokenResourceError
+ 
++    def set_max_buffer_size(self, max_buffer_size: float) -> None:
++        """Resize shared capacity and make newly admitted senders runnable.
++
++        Shrinking preserves buffered items; receivers drain excess occupancy
++        before admitting queued senders. Every clone observes the same capacity.
++        """
++        if self._closed:
++            raise ClosedResourceError
++        if not self._state.open_receive_channels:
++            raise BrokenResourceError
++        if (not isinstance(max_buffer_size, int) and max_buffer_size != float("inf")
++                or max_buffer_size < 0):
++            raise ValueError("Buffer size must be a nonnegative integer or infinity")
++        self._state.max_buffer_size = max_buffer_size
++        while (self._state.waiting_senders
++               and len(self._state.buffer) < max_buffer_size):
++            event, item = self._state.waiting_senders.popitem(last=False)
++            self._state.buffer.append(item)
++            event.set()
++
+     def clone(self) -> 'MemoryObjectSendStream':
+         """
+         Create a clone of this send stream.
+@@ -183,3 +226,11 @@ class MemoryObjectSendStream(Generic[T_Item], ObjectSendStream[T_Item]):
+                 self._state.waiting_receivers.clear()
+                 for event in receive_events:
+                     event.set()
++
++    def statistics(self) -> MemoryObjectStreamStatistics:
++        """
++        Return statistics about the current state of this stream.
++
++        .. versionadded:: 3.0
++        """
++        return self._state.statistics()

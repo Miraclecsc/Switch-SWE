@@ -1,0 +1,1 @@
+One more thing: It's tricky, since we're not actually entirely conforming - we switch to async of course, and automatically replace `pathlib.Path` → `trio.Path`. Perhaps the best way might be to do things like code generation to create the tests?

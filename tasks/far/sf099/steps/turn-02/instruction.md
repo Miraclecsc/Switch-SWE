@@ -1,0 +1,1 @@
+For the checkout at /work/w04, assumptions: Update `refine_sin_cos` to handle more simplifications

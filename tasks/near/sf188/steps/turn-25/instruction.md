@@ -1,0 +1,1 @@
+Also, The default value for the first parameter is already `NOTHING`, so `attrib()` and `attrib(default=a)` (when `a` is `NOTHING`) are equivalent. Also we can avoid the keyword call and just do `attrib(a)` for a tiny speedup.

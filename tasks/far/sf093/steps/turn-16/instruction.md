@@ -1,0 +1,1 @@
+And here, wait, I think this is the same thing as a lot of the other weird exceptions in the test - `inspect.getmembers` and `dir()` only gives us static class members - not runtime properties/members/attributes/etc, but the way we look it up with mypy gives us the runtime members. I feel a bit silly for not realizing this earlier.

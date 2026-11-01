@@ -1,0 +1,1 @@
+One more thing: Could you add a regression test that loops over `*Validator` in validators.py and checks they’ve hash=True?

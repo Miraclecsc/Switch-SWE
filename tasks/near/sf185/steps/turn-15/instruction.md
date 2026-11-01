@@ -1,0 +1,1 @@
+Please check this too: Maybe it’d be a good idea to make this `_iter_parts` and simply `yield` the parts. `__str__` would do `"".join(self._iter_parts(self.name))`. `__hash__` would `hash((..., self._iter_parts(canonicalize_name(self.name))))`.

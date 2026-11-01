@@ -1,0 +1,1 @@
+Also, Putting these `importorskip` at the top of the module will skip the whole module -- which is probably what we want here. Also, we only really need to check `scipy` because if that works, `numpy` must be installed too.

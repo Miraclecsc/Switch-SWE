@@ -1,0 +1,1 @@
+And here, I'd check `"Invalid URL" in str(e)` and `'gopher:/foo/com' in str(e)`

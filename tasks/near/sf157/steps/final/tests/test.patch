@@ -1,0 +1,59 @@
+diff --git a/tests/test_deprecations.py b/tests/test_deprecations.py
+new file mode 100644
+index 000000000..51b6ba76c
+--- /dev/null
++++ b/tests/test_deprecations.py
+@@ -0,0 +1,11 @@
++from __future__ import annotations
++
++import pytest
++
++import anyio
++
++
++def test_broken_worker_interpreter_deprecation() -> None:
++    with pytest.warns(DeprecationWarning):
++        DeprecatedClass = anyio.BrokenWorkerIntepreter
++    assert DeprecatedClass is anyio.BrokenWorkerInterpreter
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,37 @@
++import pickle
++from types import SimpleNamespace
++import warnings
++import pytest
++import anyio
++import anyio._core._exceptions as exceptions
++
++def test_legacy_core_alias_and_warnings():
++    for _ in range(2):
++        with pytest.warns(DeprecationWarning) as caught:
++            cls = exceptions.BrokenWorkerIntepreter
++        assert cls is anyio.BrokenWorkerInterpreter
++        assert caught[0].filename == __file__
++    with pytest.raises(AttributeError):
++        getattr(exceptions, 'NotAnException')
++
++def test_discovery_is_warning_free():
++    with warnings.catch_warnings(record=True) as caught:
++        warnings.simplefilter('always')
++        for module in (anyio, exceptions):
++            names = dir(module)
++            assert 'BrokenWorkerIntepreter' in names
++            assert 'BrokenWorkerInterpreter' in names
++    assert not caught
++
++def test_legacy_pickle_and_corrected_roundtrip():
++    for module in ('anyio', 'anyio._core._exceptions'):
++        payload = ('c' + module + '\nBrokenWorkerIntepreter\n.').encode()
++        with pytest.warns(DeprecationWarning):
++            assert pickle.loads(payload) is anyio.BrokenWorkerInterpreter
++    with warnings.catch_warnings(record=True) as caught:
++        warnings.simplefilter('always')
++        original = anyio.BrokenWorkerInterpreter(SimpleNamespace(formatted='worker stopped'))
++        restored = pickle.loads(pickle.dumps(original))
++        assert type(restored) is type(original)
++        assert restored.args == original.args
++    assert not caught

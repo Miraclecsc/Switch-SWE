@@ -1,0 +1,1 @@
+And here, Yes, that's the idea. I can update the docstring to make this interpretation clearer and add a `MultiDiGraph` test to cover the multigraph case.

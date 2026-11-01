@@ -1,0 +1,1 @@
+And here, In I proposed new APIs (`Field.serialize_to_xml()` and `deserialize_from_xml()`) which will allow removing the special casing of `JSONField` in XML serializer.

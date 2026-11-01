@@ -1,0 +1,3 @@
+And here, Thanks - going to assert it doesn't happen rather than implement. Let me know if you'd prefer an implementation.
+
+Extend the new public reduction APIs on one-dimensional pandas nullable numeric arrays, Arrow numeric arrays, StringArray and ArrowStringArray to accept keepdims=True. For min/max/sum on strings and sum/prod/min/max/mean/median/std/var/sem where supported on numeric arrays, return a length-one ExtensionArray containing the ordinary scalar reduction result. keepdims=False preserves the scalar API.

@@ -1,0 +1,1 @@
+One more thing: The other related bug I mentioned in has been fixed in an unrelated commit a while ago But use the opportunity to cover that case in the new test suite

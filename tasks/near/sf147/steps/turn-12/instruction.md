@@ -1,0 +1,1 @@
+And here, Another thing that I just noticed in the `lazygit` popup is that you can click the bindings and it runs the action, similar to our `Footer` widget.

@@ -1,0 +1,1 @@
+Also, Can we add notes for frozen, converters (both not supported at this time, IIUC) and wrapping `@define` (users wrapping need to also apply the `dataclass_transform` thing)?

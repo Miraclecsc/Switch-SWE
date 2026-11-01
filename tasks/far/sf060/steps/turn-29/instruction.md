@@ -1,0 +1,4 @@
+Also, It looks like these are not keyword-only in the stdlib version. Validate and we already give a clear `TypeError` when someone who isn't type-checking tries `lru_cache(10)`. We might want to add a test for this though, since currently this behavior relies on `10` getting dispatched to the stdlib as `stdlib.lru_cache(max_size=self._maxsize,...)(func=10)`, which gives the `TypeError`. If a future refactor/whatever caused `10` to get dispatched to `AsyncLRUCacheWrapper(10, maxsize=self._maxsize,...)` instead, it would result in a more cryptic error.
+
+Keep lru_cache(10)'s original clear TypeError and the original decorator signatures. Verify bounded LRU and cache_info after failures and clear: currsize counts completed stored values, not in-flight calls; failed calculations count as misses, and a clear discards earlier-generation statistics. Do not evade these semantics by disabling caching or serializing unrelated keys.
+Implement and validate this.

@@ -1,0 +1,1 @@
+Please check this too: It looks like the example from the paper had more constraints. In particular, it doesn't seem like `y` is anywhere even though that's a variable in the example from section 4.6. You might want to look at section 3 of the paper to better understand what the matrix `A` is and how it's constructed.

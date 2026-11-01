@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Bit of an aside, but I often find myself defining a `CenterMiddle`.

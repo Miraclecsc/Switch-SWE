@@ -1,0 +1,1 @@
+There's something to adjust in /work/w00: feat: add directed star graph While working on #8148, directed star graphs would have been useful to easily created directed graphs with many "leaf nodes" in their DFS tree. This PR implements adds that possibility and adds a test for it.

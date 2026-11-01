@@ -1,0 +1,1 @@
+Also, Every shape collection must use the existing node drawing z-order. Reject shape arrays that are not one-dimensional or do not provide one shape per selected node. Preserve the original return convention and all original drawing regressions.

@@ -1,0 +1,1 @@
+And here, hmm, given tuple works OOB, shouldn't a TypeError + `isinstance(cf, tuple)` work then?

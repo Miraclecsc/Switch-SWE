@@ -1,0 +1,55 @@
+{
+  "case_id": "sf161_switched",
+  "task_id": "ssb_v4_encode__starlette_2159",
+  "repo": "encode/starlette",
+  "base_commit": "fe1a9d8534140796c20d124834db725ae039b20b",
+  "derived_fail_to_pass": [
+    "tests.test_templates::test_templates_require_directory_or_environment",
+    "tests.test_templates::test_templates_with_environment",
+    "tests.test_templates::test_templates_with_environment_options_emit_warning",
+    "tests.test_staged_contract::test_supplied_environment_gets_request_aware_url_for",
+    "tests.test_staged_contract::test_conflicting_modes_leave_environment_unchanged"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_templates::test_template_response_requires_request",
+    "tests.test_templates::test_templates_with_directory",
+    "tests.test_staged_contract::test_existing_customization_is_preserved"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_templates.py",
+    "tests/test_staged_contract.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_staged_contract.py",
+    "tests/test_templates.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "7dcd10237712880d16e2841819d248c15c92ad3c966e86366d4beaca166be9de",
+    "config/recipes.json": "d3dd308f5849819e23747b16f414cd1c65137b5825feb2912e54cff40edbe0fd"
+  }
+}

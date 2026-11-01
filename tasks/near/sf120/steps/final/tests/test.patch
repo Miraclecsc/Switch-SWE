@@ -1,0 +1,77 @@
+diff --git a/tests/test_make.py b/tests/test_make.py
+index 45c35df6a..19f7a4cd4 100644
+--- a/tests/test_make.py
++++ b/tests/test_make.py
+@@ -1106,6 +1106,18 @@ class D:
+         assert D in cls.__mro__
+         assert isinstance(cls(), D)
+ 
++    def test_additional_class_body(self):
++        """
++        Additional class_body is added to newly created class.
++        """
++
++        def echo_func(cls, *args):
++            return args
++
++        cls = make_class("C", {}, class_body={"echo": classmethod(echo_func)})
++
++        assert ("a", "b") == cls.echo("a", "b")
++
+     def test_clean_class(self, slots):
+         """
+         Attribute definitions do not appear on the class body.
+diff --git a/tests/test_reusable_class_namespaces_v1.py b/tests/test_reusable_class_namespaces_v1.py
+new file mode 100644
+index 0000000..cc69a28
+--- /dev/null
++++ b/tests/test_reusable_class_namespaces_v1.py
+@@ -0,0 +1,48 @@
++import pickle
++import sys
++import types
++from types import MappingProxyType
++import attr
++
++
++def test_attribute_templates_keep_hooks_across_repeated_class_creation():
++    def post(self):
++        self.value += 1
++    attrs = {"value":attr.ib(default=1), "__attrs_post_init__":post}
++    first = attr.make_class("First",attrs)
++    second = attr.make_class("Second",attrs)
++    assert first().value == second().value == 2
++    assert attrs["__attrs_post_init__"] is post
++    assert list(attrs) == ["value","__attrs_post_init__"]
++
++
++def test_read_only_attribute_mapping_preserves_order():
++    attrs = MappingProxyType({"second":attr.ib(default=2),"first":attr.ib(default=1)})
++    cls = attr.make_class("ReadOnly",attrs,class_body=MappingProxyType({"label":"record"}))
++    assert [field.name for field in attr.fields(cls)] == ["second","first"]
++    assert attr.astuple(cls()) == (2,1)
++    assert cls.label == "record"
++
++
++def test_explicit_module_is_honored_for_pickle(monkeypatch):
++    module = types.ModuleType("_sf120_generated")
++    monkeypatch.setitem(sys.modules,module.__name__,module)
++    body = {"__module__":module.__name__,"label":"record"}
++    cls = attr.make_class("Generated",{"value":attr.ib()},class_body=body)
++    module.Generated = cls
++    assert cls.__module__ == module.__name__
++    assert pickle.loads(pickle.dumps(cls(3))) == cls(3)
++    assert body == {"__module__":module.__name__,"label":"record"}
++
++
++def test_body_descriptors_and_methods_remain_usable():
++    class Named:
++        def __set_name__(self,owner,name):
++            self.owner,self.name = owner,name
++        def __get__(self,instance,owner):
++            return self.owner,self.name
++    descriptor = Named()
++    cls = attr.make_class("Described",{"value":attr.ib()},class_body={
++        "description":descriptor, "double":lambda self:self.value*2})
++    assert cls(4).double() == 8
++    assert cls.description == (cls,"description")

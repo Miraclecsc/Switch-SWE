@@ -1,0 +1,1 @@
+I have this in /work/w04: lift up `keys = ...` and then check `... and not keys: return None`, perhaps improving the variable name `keys`). Your version has a terser if condition, but this code is touched so infrequently that Consider we should prioritize a smaller diff and more understandable blames over more readable if conditions.

@@ -1,0 +1,1 @@
+One more thing: i was working with a piecewise function where i needed to check if the value is integer or not. something like ` Piecewise((1, Contains(x, S.Integers)), (0, True)) ` so when i try to lambdify this to numpy it crashed. we also can manually do this like ` Eq(x%1, 0) ` but i thought contains as more natural symbolic way to write , so i just impemented it .

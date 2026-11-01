@@ -1,0 +1,1 @@
+And here, So it does! Thanks for the correction. (Misleading that it isn’t named something plural like `all_digits`.) in any case, it’s still not a complete implementation of “is_integer” if negatives should be supported: `'-1'.isdigit() == False`. Should they be? Docstring need to mention one way or the other?

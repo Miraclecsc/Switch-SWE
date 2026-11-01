@@ -1,0 +1,1 @@
+Please check this too: It might be better to annotate these as `Task | object`. It's redundant, but indicates to users that `Task` is primarily what's going to be passed in.

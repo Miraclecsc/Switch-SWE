@@ -1,0 +1,1 @@
+Also, Line 519 checks if `total_tokens` is not `math.inf` which is a `float`, so should this be reflected in its type?

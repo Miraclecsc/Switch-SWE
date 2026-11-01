@@ -1,0 +1,1 @@
+Also, @dschult Thank you!! I really appreciate it! I’m thinking of a class GeneralEmbedding for general embeddings on surfaces with face extraction. I’ll start working on it as soon as this is merged. Thanks again to @rossbar and @boothby! It’s been a really pleasant experience.

@@ -1,0 +1,1 @@
+For the checkout at /work/w00, Fixed #36810 -- Avoided __repr__ recursion in SimpleLazyObject. Detected when _setupfunc is a bound method of the instance and used a safe representation to prevent infinite recursion.

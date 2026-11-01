@@ -1,0 +1,1 @@
+One more thing: The width should never be 0. It's the not the width of the renderable, but the range that is covered by the gradient. Here it is the width of the renderable, and if that's 0, it won't render. I could put in an assert, to validate that.

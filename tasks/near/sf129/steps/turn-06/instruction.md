@@ -1,0 +1,1 @@
+One more thing: I'm not sure why `OSError` has been captured here; I think it's probably better to remove it and re-introduce it with a comment or a more specific solution if it causes a problem.

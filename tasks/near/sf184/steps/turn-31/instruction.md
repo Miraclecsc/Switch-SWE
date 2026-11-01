@@ -1,0 +1,1 @@
+Please check this too: I would directly compare the value from `hash()` when called on two different instances for the same inputs.

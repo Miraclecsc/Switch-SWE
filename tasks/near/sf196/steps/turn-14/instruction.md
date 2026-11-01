@@ -1,0 +1,1 @@
+One more thing: Probably missing something somewhere else that wasn't changed so it doesn't show up in the diff, but where exactly does `self._autojump_threshold` get set otherwise then? Shouldn't the code around line 122 in this diff use `__init__`'s `autojump_threshold` argument?

@@ -1,0 +1,1 @@
+I have this in /work/w03: Evaluate markers under environment with empty "extra" Closes #548. This required removing code that raised `UndefinedEnvironmentName` exception (see [comment]( The class declaration has been left as to not introduce a breaking change in the interface.

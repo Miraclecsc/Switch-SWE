@@ -1,0 +1,1 @@
+One more thing: this is not a great validator because, and I may blow your mind here ;), is instance takes a tuple! So you could write this: `attrs.validators.instance_of((int, str))` or even `attrs.validators.instance_of(int | str)` on modern Pythons. Just make up something with numbers I guess?

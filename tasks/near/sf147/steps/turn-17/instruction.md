@@ -1,0 +1,1 @@
+Also, Good catch, thanks Darren! I might be wrong but is the fix as simple as adding `layout=True` to the reactive? Let me know and I'm happy to add a snapshot test for this and update!

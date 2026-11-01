@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: fix: Need to canonicalize when deduplicating specifiers in `SpecifierSet` I overlooked some untested behavior in specifically the preexisting behavior is that `SpecifierSet(">1.0.0,>1.0")` and `SpecifierSet(">1.0")` would be considered equal.

@@ -1,0 +1,37 @@
+diff --git a/networkx/algorithms/planarity.py b/networkx/algorithms/planarity.py
+index 52f0b5760..594463038 100644
+--- a/networkx/algorithms/planarity.py
++++ b/networkx/algorithms/planarity.py
+@@ -1380,6 +1380,32 @@ class PlanarEmbedding(nx.DiGraph):
+ 
+         return face_nodes
+ 
++    def faces(self, half_edges=None, *, as_edges=False):
++        """Generate facial boundary walks, optionally selected by half-edge.
++
++        ``half_edges`` is an iterable of directed edges. Each incident face is
++        emitted once, in seed order; None enumerates every face. ``as_edges``
++        returns the consecutive directed edges including the closing edge.
++        Bridges occur in both directions. Isolated nodes have no boundaries.
++        All seeds are checked before any result is emitted.
++        """
++        if half_edges is None:
++            seeds = ((v, w) for v in self for w in self.neighbors_cw_order(v))
++        else:
++            seeds = list(half_edges)
++            for v, w in seeds:
++                if not self.has_edge(v, w):
++                    raise nx.NetworkXError(f"Half-edge {(v, w)!r} is not in the embedding")
++        visited = set()
++        for v, w in seeds:
++            if (v, w) in visited:
++                continue
++            face = self.traverse_face(v, w, mark_half_edges=visited)
++            if as_edges:
++                yield list(zip(face, face[1:] + face[:1]))
++            else:
++                yield face
++
+     def is_directed(self):
+         """A valid PlanarEmbedding is undirected.
+ 

@@ -1,0 +1,1 @@
+One more thing: Is `do_unique` exposed as part of Jinja's API. (templates containing `unique` as a filter called in a synchronous context continue to function when the `do_unique` method is declared `async`)

@@ -1,0 +1,1 @@
+And here, If we make it read-only, the only way to change the limiter is to construct a new Path from the old one with a different `limiter` argument. I don't quite see the problem with changing the `limiter` mid-operation.

@@ -1,0 +1,1 @@
+I have this in /work/w01: Improved error message in ParseException Hello, This PR will help to fix and It changes the string being passed in the `InvalidRequirement` to something like `Parse error: Expected stringEnd (at char 5), (line:1, col:6)` which can be easily used by `pip` to produce a nicer error message on parsing errors.

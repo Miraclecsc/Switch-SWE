@@ -1,0 +1,1 @@
+Also, Please also add a test for the import, using `with pytest.warns(DeprecationWarning, ...):`

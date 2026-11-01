@@ -1,0 +1,1 @@
+Also, coverage fail appears to be seems to be workarounds in there, though this is minor enough we could ofc just `# pragma: no cover`

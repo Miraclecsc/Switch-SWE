@@ -1,0 +1,3 @@
+And here, > Since these names are not the same as SemVer Well, any reason not to add `patch` as an equivalent of `micro` and make them support SemVer?
+
+Extend replace_release with reset_lower=False. When True and at least one component is supplied, zero all existing release components after the rightmost explicitly supplied component, including release components beyond micro. Explicit components take precedence; do not pad further than the rightmost edit requires. No edits is still a no-op. This release-editing API is independent of the proposed patch alias; retain the subsequent decision about that alias.

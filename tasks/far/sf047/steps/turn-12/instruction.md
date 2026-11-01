@@ -1,0 +1,1 @@
+And here, This was for defensive coding purposes. However, since the return value of this path always has a char attribute, it's unnecessary and will be removed.

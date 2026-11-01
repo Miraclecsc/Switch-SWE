@@ -1,0 +1,1 @@
+One more thing: in that case we should at least remove the non-functioning line in extend-identifiers, unless you wanna report it upstream.

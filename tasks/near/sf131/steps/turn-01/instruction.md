@@ -1,0 +1,1 @@
+I have this in /work/w02: Catch `OSError` alongside `MultiPartException` when closing temp files Improvements found during code review: added type annotations, improved error handling, fixed edge cases. All existing tests pass.

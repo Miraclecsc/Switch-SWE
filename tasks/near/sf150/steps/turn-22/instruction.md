@@ -1,0 +1,3 @@
+One more thing: Yeah but `Tuple[Any, ...]` is what we want and (I correct myself) `tuple` is equivalent to `Tuple[Any, ...]`. The difference between `object` and `Any` comes down to type substitution rules which are not relevant here. Bottom line is, `tuple` is correct.
+
+Reject resizing through a closed send endpoint with ClosedResourceError and through an endpoint whose receivers are all closed with BrokenResourceError. Invalid sizes leave capacity, items and waiters unchanged. Cancelled senders must not be revived by later growth. Preserve all original synchronization and stream-statistics tests.

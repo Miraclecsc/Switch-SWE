@@ -1,0 +1,1 @@
+And here, I agree that code littered with comments disabling linter looks bad, but I think it's more explicit and safer to work with than one that blanket-disables everything. I'm also using those as a reminder that our current `ResolverMap` API confuses the hell out of `PyLint` and we really need to change it, but that's tracked in #98

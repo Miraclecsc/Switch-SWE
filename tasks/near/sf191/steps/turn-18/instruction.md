@@ -1,0 +1,1 @@
+One more thing: Find the effective inherited __setattr__ using normal MRO precedence. If a nearer ancestor supplies a user-defined setter, preserve it rather than clearing it because a farther ancestor has an attrs-generated setter. Apply this rule to slotted and dict-backed subclasses and preserve normal assignment behavior for unrelated attributes.

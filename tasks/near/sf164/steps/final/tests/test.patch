@@ -1,0 +1,423 @@
+diff --git a/tests/middleware/test_base.py b/tests/middleware/test_base.py
+index 3ad1751a2..8e410cb15 100644
+--- a/tests/middleware/test_base.py
++++ b/tests/middleware/test_base.py
+@@ -5,6 +5,7 @@
+ from typing import (
+     Any,
+     AsyncGenerator,
++    AsyncIterator,
+     Generator,
+ )
+ 
+@@ -16,7 +17,7 @@
+ from starlette.background import BackgroundTask
+ from starlette.middleware import Middleware, _MiddlewareClass
+ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+-from starlette.requests import Request
++from starlette.requests import ClientDisconnect, Request
+ from starlette.responses import PlainTextResponse, Response, StreamingResponse
+ from starlette.routing import Route, WebSocketRoute
+ from starlette.testclient import TestClient
+@@ -260,7 +261,6 @@ async def homepage(request: Request) -> PlainTextResponse:
+ @pytest.mark.anyio
+ async def test_run_background_tasks_even_if_client_disconnects() -> None:
+     # test for https://github.com/encode/starlette/issues/1438
+-    request_body_sent = False
+     response_complete = anyio.Event()
+     background_task_run = anyio.Event()
+ 
+@@ -293,13 +293,7 @@ async def passthrough(
+     }
+ 
+     async def receive() -> Message:
+-        nonlocal request_body_sent
+-        if not request_body_sent:
+-            request_body_sent = True
+-            return {"type": "http.request", "body": b"", "more_body": False}
+-        # We simulate a client that disconnects immediately after receiving the response
+-        await response_complete.wait()
+-        return {"type": "http.disconnect"}
++        raise NotImplementedError("Should not be called!")  # pragma: no cover
+ 
+     async def send(message: Message) -> None:
+         if message["type"] == "http.response.body":
+@@ -313,7 +307,6 @@ async def send(message: Message) -> None:
+ 
+ @pytest.mark.anyio
+ async def test_do_not_block_on_background_tasks() -> None:
+-    request_body_sent = False
+     response_complete = anyio.Event()
+     events: list[str | Message] = []
+ 
+@@ -345,12 +338,7 @@ async def passthrough(
+     }
+ 
+     async def receive() -> Message:
+-        nonlocal request_body_sent
+-        if not request_body_sent:
+-            request_body_sent = True
+-            return {"type": "http.request", "body": b"", "more_body": False}
+-        await response_complete.wait()
+-        return {"type": "http.disconnect"}
++        raise NotImplementedError("Should not be called!")  # pragma: no cover
+ 
+     async def send(message: Message) -> None:
+         if message["type"] == "http.response.body":
+@@ -379,7 +367,6 @@ async def send(message: Message) -> None:
+ @pytest.mark.anyio
+ async def test_run_context_manager_exit_even_if_client_disconnects() -> None:
+     # test for https://github.com/encode/starlette/issues/1678#issuecomment-1172916042
+-    request_body_sent = False
+     response_complete = anyio.Event()
+     context_manager_exited = anyio.Event()
+ 
+@@ -424,13 +411,7 @@ async def passthrough(
+     }
+ 
+     async def receive() -> Message:
+-        nonlocal request_body_sent
+-        if not request_body_sent:
+-            request_body_sent = True
+-            return {"type": "http.request", "body": b"", "more_body": False}
+-        # We simulate a client that disconnects immediately after receiving the response
+-        await response_complete.wait()
+-        return {"type": "http.disconnect"}
++        raise NotImplementedError("Should not be called!")  # pragma: no cover
+ 
+     async def send(message: Message) -> None:
+         if message["type"] == "http.response.body":
+@@ -778,7 +759,9 @@ async def rcv() -> AsyncGenerator[Message, None]:
+         yield {"type": "http.request", "body": b"1", "more_body": True}
+         yield {"type": "http.request", "body": b"2", "more_body": True}
+         yield {"type": "http.request", "body": b"3"}
+-        await anyio.sleep(float("inf"))
++        raise AssertionError(  # pragma: no cover
++            "Should not be called, no need to poll for disconnect"
++        )
+ 
+     sent: list[Message] = []
+ 
+@@ -1033,3 +1016,139 @@ async def endpoint(request: Request) -> Response:
+     resp.raise_for_status()
+ 
+     assert bodies == [b"Hello, World!-foo"]
++
++
++@pytest.mark.anyio
++async def test_multiple_middlewares_stacked_client_disconnected() -> None:
++    class MyMiddleware(BaseHTTPMiddleware):
++        def __init__(self, app: ASGIApp, version: int, events: list[str]) -> None:
++            self.version = version
++            self.events = events
++            super().__init__(app)
++
++        async def dispatch(
++            self, request: Request, call_next: RequestResponseEndpoint
++        ) -> Response:
++            self.events.append(f"{self.version}:STARTED")
++            res = await call_next(request)
++            self.events.append(f"{self.version}:COMPLETED")
++            return res
++
++    async def sleepy(request: Request) -> Response:
++        try:
++            await request.body()
++        except ClientDisconnect:
++            pass
++        else:  # pragma: no cover
++            raise AssertionError("Should have raised ClientDisconnect")
++        return Response(b"")
++
++    events: list[str] = []
++
++    app = Starlette(
++        routes=[Route("/", sleepy)],
++        middleware=[
++            Middleware(MyMiddleware, version=_ + 1, events=events) for _ in range(10)
++        ],
++    )
++
++    scope = {
++        "type": "http",
++        "version": "3",
++        "method": "GET",
++        "path": "/",
++    }
++
++    async def receive() -> AsyncIterator[Message]:
++        yield {"type": "http.disconnect"}
++
++    sent: list[Message] = []
++
++    async def send(message: Message) -> None:
++        sent.append(message)
++
++    await app(scope, receive().__anext__, send)
++
++    assert events == [
++        "1:STARTED",
++        "2:STARTED",
++        "3:STARTED",
++        "4:STARTED",
++        "5:STARTED",
++        "6:STARTED",
++        "7:STARTED",
++        "8:STARTED",
++        "9:STARTED",
++        "10:STARTED",
++        "10:COMPLETED",
++        "9:COMPLETED",
++        "8:COMPLETED",
++        "7:COMPLETED",
++        "6:COMPLETED",
++        "5:COMPLETED",
++        "4:COMPLETED",
++        "3:COMPLETED",
++        "2:COMPLETED",
++        "1:COMPLETED",
++    ]
++
++    assert sent == [
++        {
++            "type": "http.response.start",
++            "status": 200,
++            "headers": [(b"content-length", b"0")],
++        },
++        {"type": "http.response.body", "body": b"", "more_body": False},
++    ]
++
++
++@pytest.mark.anyio
++@pytest.mark.parametrize("send_body", [True, False])
++async def test_poll_for_disconnect_repeated(send_body: bool) -> None:
++    async def app_poll_disconnect(scope: Scope, receive: Receive, send: Send) -> None:
++        for _ in range(2):
++            msg = await receive()
++            while msg["type"] == "http.request":
++                msg = await receive()
++            assert msg["type"] == "http.disconnect"
++        await Response(b"good!")(scope, receive, send)
++
++    class MyMiddleware(BaseHTTPMiddleware):
++        async def dispatch(
++            self, request: Request, call_next: RequestResponseEndpoint
++        ) -> Response:
++            return await call_next(request)
++
++    app = MyMiddleware(app_poll_disconnect)
++
++    scope = {
++        "type": "http",
++        "version": "3",
++        "method": "GET",
++        "path": "/",
++    }
++
++    async def receive() -> AsyncIterator[Message]:
++        # the key here is that we only ever send 1 htt.disconnect message
++        if send_body:
++            yield {"type": "http.request", "body": b"hello", "more_body": True}
++            yield {"type": "http.request", "body": b"", "more_body": False}
++        yield {"type": "http.disconnect"}
++        raise AssertionError("Should not be called, would hang")  # pragma: no cover
++
++    sent: list[Message] = []
++
++    async def send(message: Message) -> None:
++        sent.append(message)
++
++    await app(scope, receive().__anext__, send)
++
++    assert sent == [
++        {
++            "type": "http.response.start",
++            "status": 200,
++            "headers": [(b"content-length", b"5")],
++        },
++        {"type": "http.response.body", "body": b"good!", "more_body": True},
++        {"type": "http.response.body", "body": b"", "more_body": False},
++    ]
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,178 @@
++import anyio
++import pytest
++
++from starlette.background import BackgroundTask
++from starlette.middleware.base import BaseHTTPMiddleware, _StreamingResponse
++from starlette.responses import Response
++
++
++SCOPE = {"type": "http", "method": "GET", "path": "/", "headers": []}
++
++
++async def no_receive():
++    raise AssertionError("Response streaming must not poll receive")
++
++
++class Body:
++    def __init__(self, events, error=None, close_error=None):
++        self.events = events
++        self.error = error
++        self.close_error = close_error
++        self.iterated = False
++
++    def __aiter__(self):
++        return self
++
++    async def __anext__(self):
++        if not self.iterated:
++            self.iterated = True
++            return b"first"
++        if self.error:
++            raise self.error
++        raise StopAsyncIteration
++
++    async def aclose(self):
++        await anyio.sleep(0)
++        self.events.append("closed")
++        if self.close_error:
++            raise self.close_error
++
++
++def run_backends(scenario):
++    for backend in ("asyncio",):
++        anyio.run(scenario, backend=backend)
++
++
++def test_middleware_can_attach_background_to_call_next_response():
++    async def scenario():
++        events = []
++        async def downstream(scope, receive, send):
++            await Response(b"ok")(scope, receive, send)
++        async def dispatch(request, call_next):
++            response = await call_next(request)
++            assert response.background is None
++            response.background = BackgroundTask(events.append, "background")
++            return response
++        async def send(message):
++            if message["type"] == "http.response.body" and not message.get("more_body"):
++                events.append("terminal")
++        await BaseHTTPMiddleware(downstream, dispatch)(SCOPE, no_receive, send)
++        assert events == ["terminal", "background"]
++    run_backends(scenario)
++
++
++def test_success_closes_body_before_background():
++    async def scenario():
++        events = []
++        response = _StreamingResponse(Body(events), info={})
++        response.background = BackgroundTask(events.append, "background")
++        messages = []
++        async def send(message):
++            messages.append(message)
++        await response(SCOPE, no_receive, send)
++        assert events == ["closed", "background"]
++        assert [m["type"] for m in messages] == [
++            "http.response.debug", "http.response.start", "http.response.body", "http.response.body"]
++        assert messages[-1] == {"type": "http.response.body", "body": b"", "more_body": False}
++    run_backends(scenario)
++
++
++def test_send_failure_closes_body_and_emits_no_terminal_body():
++    async def scenario():
++        events = []
++        error = OSError("client gone")
++        response = _StreamingResponse(Body(events))
++        messages = []
++        async def send(message):
++            messages.append(message)
++            if message["type"] == "http.response.body":
++                raise error
++        with pytest.raises(OSError) as caught:
++            await response(SCOPE, no_receive, send)
++        assert caught.value is error
++        assert events == ["closed"]
++        assert not any(m.get("more_body") is False for m in messages)
++    run_backends(scenario)
++
++
++def test_send_failure_still_runs_attached_background_once():
++    async def scenario():
++        events = []
++        response = _StreamingResponse(Body(events))
++        response.background = BackgroundTask(events.append, "background")
++        async def send(message):
++            raise OSError("closed before start")
++        with pytest.raises(OSError):
++            await response(SCOPE, no_receive, send)
++        assert events == ["closed", "background"]
++    run_backends(scenario)
++
++
++def test_cancelled_send_waits_for_shielded_cleanup():
++    async def scenario():
++        events = []
++        entered = anyio.Event()
++        response = _StreamingResponse(Body(events))
++        async def background():
++            await anyio.sleep(0)
++            events.append("background")
++        response.background = background
++        async def send(message):
++            if message["type"] == "http.response.body":
++                entered.set()
++                await anyio.sleep_forever()
++        async with anyio.create_task_group() as tasks:
++            tasks.start_soon(response, SCOPE, no_receive, send)
++            await entered.wait()
++            tasks.cancel_scope.cancel()
++        assert events == ["closed", "background"]
++    run_backends(scenario)
++
++
++def test_original_stream_error_survives_failing_cleanup():
++    async def scenario():
++        events = []
++        original = ValueError("body failed")
++        response = _StreamingResponse(Body(events, original, RuntimeError("close failed")))
++        async def background():
++            events.append("background")
++            raise LookupError("background failed")
++        response.background = background
++        async def send(message):
++            pass
++        with pytest.raises(ValueError) as caught:
++            await response(SCOPE, no_receive, send)
++        assert caught.value is original
++        assert events == ["closed", "background"]
++    run_backends(scenario)
++
++
++def test_successful_stream_surfaces_cleanup_failure_and_runs_background():
++    async def scenario():
++        events = []
++        close_error = RuntimeError("close failed")
++        response = _StreamingResponse(Body(events, close_error=close_error))
++        response.background = BackgroundTask(events.append, "background")
++        async def send(message):
++            pass
++        with pytest.raises(RuntimeError) as caught:
++            await response(SCOPE, no_receive, send)
++        assert caught.value is close_error
++        assert events == ["closed", "background"]
++    run_backends(scenario)
++
++
++def test_async_iterable_without_aclose_remains_supported():
++    async def scenario():
++        class Chunks:
++            def __aiter__(self):
++                async def generate():
++                    yield b"data"
++                return generate()
++        response = _StreamingResponse(Chunks())
++        messages = []
++        async def send(message):
++            messages.append(message)
++        await response(SCOPE, no_receive, send)
++        assert [m["body"] for m in messages if m["type"] == "http.response.body"] == [b"data", b""]
++    run_backends(scenario)

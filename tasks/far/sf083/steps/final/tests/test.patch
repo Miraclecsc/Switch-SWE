@@ -1,0 +1,66 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index 4840e196d..0e445f2b7 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -389,6 +389,13 @@ def test_glibc_version_string_ctypes_missing(self, monkeypatch):
+         monkeypatch.setitem(sys.modules, "ctypes", None)
+         assert tags._glibc_version_string_ctypes() is None
+ 
++    def test_glibc_version_string_ctypes_raise_oserror(self, monkeypatch):
++        def patched_cdll(name):
++            raise OSError("Dynamic loading not supported")
++
++        monkeypatch.setattr(ctypes, "CDLL", patched_cdll)
++        assert tags._glibc_version_string_ctypes() is None
++
+     def test_get_config_var_does_not_log(self, monkeypatch):
+         debug = pretend.call_recorder(lambda *a: None)
+         monkeypatch.setattr(tags.logger, "debug", debug)
+diff --git a/tests/test_sf083_extension.py b/tests/test_sf083_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf083_extension.py
+@@ -0,0 +1,43 @@
++import ctypes
++from types import SimpleNamespace
++import pytest
++from packaging import tags
++
++@pytest.mark.parametrize("bad", [None, "", "not-a-version", b"\xff", 17])
++def test_invalid_primary_falls_back(monkeypatch, bad):
++    calls=[]
++    monkeypatch.setattr(tags,"_glibc_version_string_confstr",lambda:bad)
++    monkeypatch.setattr(tags,"_glibc_version_string_ctypes",lambda:calls.append(1) or b"2.31-vendor")
++    assert tags._glibc_version_string() == "2.31-vendor"
++    assert calls == [1]
++
++def test_primary_short_circuit(monkeypatch):
++    monkeypatch.setattr(tags,"_glibc_version_string_confstr",lambda:b"2.27-build")
++    monkeypatch.setattr(tags,"_glibc_version_string_ctypes",lambda:pytest.fail("unnecessary probe"))
++    assert tags._glibc_version_string() == "2.27-build"
++
++@pytest.mark.parametrize("value", [None,b"\xff",b"malformed",False])
++def test_invalid_ctypes_result(monkeypatch,value):
++    def fn(): return value
++    monkeypatch.setattr(ctypes,"CDLL",lambda _:SimpleNamespace(gnu_get_libc_version=fn))
++    assert tags._glibc_version_string_ctypes() is None
++
++@pytest.mark.parametrize("where", ["lookup","call"])
++def test_symbol_oserror(monkeypatch,where):
++    class Namespace:
++        @property
++        def gnu_get_libc_version(self):
++            if where == "lookup": raise OSError("missing symbol")
++            def fn(): raise OSError("unavailable")
++            return fn
++    monkeypatch.setattr(ctypes,"CDLL",lambda _:Namespace())
++    assert tags._glibc_version_string_ctypes() is None
++
++def test_no_evidence_and_unrelated_error(monkeypatch):
++    monkeypatch.setattr(tags,"_glibc_version_string_confstr",lambda:"invalid")
++    monkeypatch.setattr(tags,"_glibc_version_string_ctypes",lambda:None)
++    assert tags._glibc_version_string() is None
++    assert not tags._have_compatible_glibc(2,5)
++    def broken(): raise RuntimeError("bug")
++    monkeypatch.setattr(tags,"_glibc_version_string_ctypes",broken)
++    with pytest.raises(RuntimeError): tags._glibc_version_string()

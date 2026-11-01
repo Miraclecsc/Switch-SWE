@@ -1,0 +1,1 @@
+Also, can avoid the copy in `not shifted._hasna` case?

@@ -1,0 +1,1 @@
+For the checkout at /work/w01, Fixed #34243 -- Fixed timesince() crash with timezone-aware dates and interval longer than 1 month. Fixes ticket-34243.

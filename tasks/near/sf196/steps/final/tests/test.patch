@@ -1,0 +1,164 @@
+diff --git a/src/trio/_core/_tests/test_run.py b/src/trio/_core/_tests/test_run.py
+index b1011a4e1b..034792b35d 100644
+--- a/src/trio/_core/_tests/test_run.py
++++ b/src/trio/_core/_tests/test_run.py
+@@ -2551,6 +2551,9 @@ def _create_kwargs(strictness: bool | None) -> dict[str, bool]:
+     return {"strict_exception_groups": strictness}
+ 
+ 
++@pytest.mark.filterwarnings(
++    "ignore:.*strict_exception_groups=False:trio.TrioDeprecationWarning"
++)
+ @pytest.mark.parametrize("run_strict", [True, False, None])
+ @pytest.mark.parametrize("open_nursery_strict", [True, False, None])
+ @pytest.mark.parametrize("multiple_exceptions", [True, False])
+@@ -2591,6 +2594,9 @@ def run_main() -> None:
+             run_main()
+ 
+ 
++@pytest.mark.filterwarnings(
++    "ignore:.*strict_exception_groups=False:trio.TrioDeprecationWarning"
++)
+ @pytest.mark.parametrize("strict", [True, False, None])
+ async def test_nursery_collapse(strict: bool | None) -> None:
+     """
+@@ -2630,6 +2636,9 @@ async def test_cancel_scope_no_cancellederror() -> None:
+     assert not scope.cancelled_caught
+ 
+ 
++@pytest.mark.filterwarnings(
++    "ignore:.*strict_exception_groups=False:trio.TrioDeprecationWarning"
++)
+ @pytest.mark.parametrize("run_strict", [False, True])
+ @pytest.mark.parametrize("start_raiser_strict", [False, True, None])
+ @pytest.mark.parametrize("raise_after_started", [False, True])
+diff --git a/src/trio/_tests/test_deprecate_strict_exception_groups_false.py b/src/trio/_tests/test_deprecate_strict_exception_groups_false.py
+new file mode 100644
+index 0000000000..317672bf23
+--- /dev/null
++++ b/src/trio/_tests/test_deprecate_strict_exception_groups_false.py
+@@ -0,0 +1,61 @@
++from typing import Awaitable, Callable
++
++import pytest
++
++import trio
++
++
++async def test_deprecation_warning_open_nursery() -> None:
++    with pytest.warns(
++        trio.TrioDeprecationWarning, match="strict_exception_groups=False"
++    ) as record:
++        async with trio.open_nursery(strict_exception_groups=False):
++            ...
++    assert len(record) == 1
++    async with trio.open_nursery(strict_exception_groups=True):
++        ...
++    async with trio.open_nursery():
++        ...
++
++
++def test_deprecation_warning_run() -> None:
++    async def foo() -> None: ...
++
++    async def foo_nursery() -> None:
++        # this should not raise a warning, even if it's implied loose
++        async with trio.open_nursery():
++            ...
++
++    async def foo_loose_nursery() -> None:
++        # this should raise a warning, even if specifying the parameter is redundant
++        async with trio.open_nursery(strict_exception_groups=False):
++            ...
++
++    def helper(fun: Callable[..., Awaitable[None]], num: int) -> None:
++        with pytest.warns(
++            trio.TrioDeprecationWarning, match="strict_exception_groups=False"
++        ) as record:
++            trio.run(fun, strict_exception_groups=False)
++        assert len(record) == num
++
++    helper(foo, 1)
++    helper(foo_nursery, 1)
++    helper(foo_loose_nursery, 2)
++
++
++def test_deprecation_warning_start_guest_run() -> None:
++    # "The simplest possible "host" loop."
++    from .._core._tests.test_guest_mode import trivial_guest_run
++
++    async def trio_return(in_host: object) -> str:
++        await trio.lowlevel.checkpoint()
++        return "ok"
++
++    with pytest.warns(
++        trio.TrioDeprecationWarning, match="strict_exception_groups=False"
++    ) as record:
++        trivial_guest_run(
++            trio_return,
++            strict_exception_groups=False,
++        )
++    assert len(record) == 1
+diff --git a/src/trio/_tests/test_subprocess.py b/src/trio/_tests/test_subprocess.py
+index a4f07189e4..0a70e7a974 100644
+--- a/src/trio/_tests/test_subprocess.py
++++ b/src/trio/_tests/test_subprocess.py
+@@ -582,9 +582,6 @@ async def do_stuff() -> None:
+     with RaisesGroup(RaisesGroup(Matcher(ValueError, "^foo$"))):
+         _core.run(do_stuff, strict_exception_groups=True)
+ 
+-    with pytest.raises(ValueError, match="^foo$"):
+-        _core.run(do_stuff, strict_exception_groups=False)
+-
+ 
+ async def test_warn_on_failed_cancel_terminate(monkeypatch: pytest.MonkeyPatch) -> None:
+     original_terminate = Process.terminate
+diff --git a/tests/test_sf196_staged.py b/tests/test_sf196_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf196_staged.py
+@@ -0,0 +1,44 @@
++
++import warnings
++import pytest
++import trio
++
++class TruthTrap:
++    def __bool__(self):
++        raise AssertionError('invalid option truth value was queried')
++
++def test_run_rejects_nonboolean_before_work_or_warnings():
++    ran = []
++    async def work():
++        ran.append(True)
++    for value in (0, 1, 'False', TruthTrap()):
++        with warnings.catch_warnings():
++            warnings.simplefilter('error')
++            with pytest.raises(TypeError, match='strict_exception_groups'):
++                trio.run(work, strict_exception_groups=value)
++    assert ran == []
++    trio.run(work)
++    assert ran == [True]
++
++def test_nursery_rejects_invalid_option_without_truth_testing():
++    async def main():
++        for value in (0, 'False', TruthTrap()):
++            with warnings.catch_warnings():
++                warnings.simplefilter('error')
++                with pytest.raises(TypeError, match='strict_exception_groups'):
++                    async with trio.open_nursery(strict_exception_groups=value):
++                        raise AssertionError('invalid nursery entered')
++    trio.run(main)
++
++def test_guest_invalid_option_has_no_host_side_effects():
++    callbacks = []
++    async def work():
++        raise AssertionError('guest started')
++    with warnings.catch_warnings():
++        warnings.simplefilter('error')
++        with pytest.raises(TypeError, match='strict_exception_groups'):
++            trio.lowlevel.start_guest_run(work, run_sync_soon_threadsafe=callbacks.append, done_callback=callbacks.append, strict_exception_groups=TruthTrap())
++    assert callbacks == []
++    async def healthy():
++        return 7
++    assert trio.run(healthy) == 7

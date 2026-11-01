@@ -1,0 +1,141 @@
+diff --git a/tests/test_tags.py b/tests/test_tags.py
+index e9ea3343a..68b109a89 100644
+--- a/tests/test_tags.py
++++ b/tests/test_tags.py
+@@ -225,21 +225,37 @@ def test_architectures(self, arch, is_32bit, expected):
+     @pytest.mark.parametrize(
+         "version,arch,expected",
+         [
+-            ((10, 17), "x86_64", ["x86_64", "intel", "fat64", "fat32", "universal"]),
+-            ((10, 4), "x86_64", ["x86_64", "intel", "fat64", "fat32", "universal"]),
++            (
++                (10, 15),
++                "x86_64",
++                ["x86_64", "intel", "fat64", "fat32", "universal2", "universal"],
++            ),
++            (
++                (10, 4),
++                "x86_64",
++                ["x86_64", "intel", "fat64", "fat32", "universal2", "universal"],
++            ),
+             ((10, 3), "x86_64", []),
+-            ((10, 17), "i386", ["i386", "intel", "fat32", "fat", "universal"]),
++            ((10, 15), "i386", ["i386", "intel", "fat32", "fat", "universal"]),
+             ((10, 4), "i386", ["i386", "intel", "fat32", "fat", "universal"]),
+             ((10, 3), "i386", []),
+-            ((10, 17), "ppc64", []),
++            ((10, 15), "ppc64", []),
+             ((10, 6), "ppc64", []),
+             ((10, 5), "ppc64", ["ppc64", "fat64", "universal"]),
+             ((10, 3), "ppc64", []),
+-            ((10, 17), "ppc", []),
++            ((10, 15), "ppc", []),
+             ((10, 7), "ppc", []),
+             ((10, 6), "ppc", ["ppc", "fat32", "fat", "universal"]),
+             ((10, 0), "ppc", ["ppc", "fat32", "fat", "universal"]),
+-            ((11, 0), "riscv", ["riscv", "universal"]),
++            ((11, 0), "riscv", ["riscv"]),
++            (
++                (11, 0),
++                "x86_64",
++                ["x86_64", "intel", "fat64", "fat32", "universal2", "universal"],
++            ),
++            ((11, 0), "arm64", ["arm64", "universal2"]),
++            ((11, 1), "arm64", ["arm64", "universal2"]),
++            ((12, 0), "arm64", ["arm64", "universal2"]),
+         ],
+     )
+     def test_binary_formats(self, version, arch, expected):
+@@ -271,18 +287,52 @@ def test_mac_platforms(self):
+             "macosx_10_5_intel",
+             "macosx_10_5_fat64",
+             "macosx_10_5_fat32",
++            "macosx_10_5_universal2",
+             "macosx_10_5_universal",
+             "macosx_10_4_x86_64",
+             "macosx_10_4_intel",
+             "macosx_10_4_fat64",
+             "macosx_10_4_fat32",
++            "macosx_10_4_universal2",
+             "macosx_10_4_universal",
+         ]
+ 
+-        assert len(list(tags.mac_platforms((10, 17), "x86_64"))) == 14 * 5
++        assert len(list(tags.mac_platforms((10, 17), "x86_64"))) == 14 * 6
+ 
+         assert not list(tags.mac_platforms((10, 0), "x86_64"))
+ 
++    @pytest.mark.parametrize("major,minor", [(11, 0), (11, 3), (12, 0), (12, 3)])
++    def test_macos_11(self, major, minor):
++        platforms = list(tags.mac_platforms((major, minor), "x86_64"))
++        assert "macosx_11_0_arm64" not in platforms
++        assert "macosx_11_0_x86_64" in platforms
++        assert "macosx_11_3_x86_64" not in platforms
++        assert "macosx_11_0_universal" in platforms
++        assert "macosx_11_0_universal2" in platforms
++        # Mac OS "10.16" is the version number that binaries compiled against an old
++        # (pre 11.0) SDK will see.   It can also be enabled explicitly for a process
++        # with the environment variable SYSTEM_VERSION_COMPAT=1.
++        assert "macosx_10_16_x86_64" in platforms
++        assert "macosx_10_15_x86_64" in platforms
++        assert "macosx_10_4_x86_64" in platforms
++        assert "macosx_10_3_x86_64" not in platforms
++        if major >= 12:
++            assert "macosx_12_0_x86_64" in platforms
++            assert "macosx_12_0_universal" in platforms
++            assert "macosx_12_0_universal2" in platforms
++
++        platforms = list(tags.mac_platforms((major, minor), "arm64"))
++        assert "macosx_11_0_arm64" in platforms
++        assert "macosx_11_3_arm64" not in platforms
++        assert "macosx_11_0_universal" not in platforms
++        assert "macosx_11_0_universal2" in platforms
++        assert "macosx_10_15_x86_64" not in platforms
++        assert "macosx_10_4_x86_64" not in platforms
++        assert "macosx_10_3_x86_64" not in platforms
++        if major >= 12:
++            assert "macosx_12_0_arm64" in platforms
++            assert "macosx_12_0_universal2" in platforms
++
+ 
+ class TestManylinuxPlatform:
+     def teardown_method(self):
+diff --git a/tests/test_sf084_extension.py b/tests/test_sf084_extension.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf084_extension.py
+@@ -0,0 +1,34 @@
++from packaging import tags
++
++def test_big_sur_floor_normalization():
++    result=list(tags.mac_platforms((12,3), "x86_64", minimum_version=(11,7)))
++    assert result and result == [x for x in tags.mac_platforms((12,3),"x86_64") if x.startswith(("macosx_12_0_","macosx_11_0_"))]
++
++def test_legacy_floor():
++    result=list(tags.mac_platforms((11,1),"x86_64",minimum_version=(10,15),binary_formats="x86_64"))
++    assert result == ["macosx_11_0_x86_64","macosx_10_16_x86_64","macosx_10_15_x86_64"]
++    assert list(tags.mac_platforms((10,14),"x86_64",minimum_version=(10,15))) == []
++
++def test_explicit_target_without_host(monkeypatch):
++    def forbidden(): raise AssertionError("host queried for explicit target")
++    monkeypatch.setattr(tags.platform,"mac_ver",forbidden)
++    assert list(tags.mac_platforms((11,2),"riscv",minimum_version=(11,0))) == ["macosx_11_0_riscv"]
++
++def test_empty_filter_short_circuit(monkeypatch):
++    def forbidden(): raise AssertionError("host queried for empty stream")
++    monkeypatch.setattr(tags.platform,"mac_ver",forbidden)
++    assert list(tags.mac_platforms(binary_formats=[])) == []
++
++def test_one_shot_formats_and_order():
++    events=[]
++    def selection():
++        events.append("iterated")
++        yield "universal2"
++        yield "x86_64"
++    stream=tags.mac_platforms((12,1),"x86_64",minimum_version=(11,0),binary_formats=selection())
++    assert events == []
++    assert list(stream) == ["macosx_12_0_x86_64","macosx_12_0_universal2","macosx_11_0_x86_64","macosx_11_0_universal2"]
++    assert events == ["iterated"]
++
++def test_original_unknown_architecture():
++    assert list(tags.mac_platforms((11,0),"riscv")) == ["macosx_11_0_riscv"]

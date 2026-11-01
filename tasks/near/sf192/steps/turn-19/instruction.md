@@ -1,0 +1,1 @@
+Please check this too: Since this is only for pyright and doesn't currently get mypy to do the right thing (i.e. it doesn't tell mypy that this is an attrs class creator) perhaps it's best if we leave this only inside the pyi file. I might add a comment on here that says that this method doesn't actually exist at runtime.

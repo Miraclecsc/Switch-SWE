@@ -1,0 +1,1 @@
+Please check this too: add Tensor.get_symmetrized_forms Returns all the permutations of a Tensor's indices allowed by its index symmetries

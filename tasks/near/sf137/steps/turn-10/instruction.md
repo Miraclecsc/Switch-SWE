@@ -1,0 +1,1 @@
+One more thing: Failing test seems unrelated. Change looks good. I'm not entirely certain whether this makes more sense as a bug fix (exit wasn't capturing exception) vs feature (exit now captures exception). It's technically a change in behavior, but the old behavior was incomplete. I _think_ it's fine to target it at stable, just wanted to point out it's borderline.

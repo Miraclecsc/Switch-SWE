@@ -1,0 +1,1 @@
+Please check this too: Extend chordless_cycles length_bound handling: accept integer-like values implementing __index__, applying exactly the same cycle-length limit as the corresponding integer. This includes zero and bounds of one and two in graphs with self-loops and parallel edges.

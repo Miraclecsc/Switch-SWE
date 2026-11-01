@@ -1,0 +1,1 @@
+Also, After this restriction to strong connected graphs, can we replace lines 707-710 with `return g == 1`? I can't think of a case when `len(levels) != len(G)`.

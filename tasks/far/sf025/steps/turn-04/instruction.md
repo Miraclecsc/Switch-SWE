@@ -1,0 +1,1 @@
+There's something to adjust in /work/w01: Fix compatible version specifier incorrectly strip trailing '0' When comparing two specifier with the compatible operator, tailing zeros are incorrectly stripped. Closes #421

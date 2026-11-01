@@ -1,0 +1,1 @@
+Please check this too: I can keep the double warning from occurring: But hatchling's usage will still trigger twice because it is also creating a `_Version` object directly. And the above patch is not great for threaded code.

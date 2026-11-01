@@ -1,0 +1,1 @@
+Please check this too: > Should I hold off on merging this until 3.7 hits EOL, or at this point are we assuming the next release can drop 3.7 support regardless of when it comes out? Let's hold off, for now; unless what's suggested above works. :)

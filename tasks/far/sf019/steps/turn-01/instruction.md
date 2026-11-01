@@ -1,0 +1,1 @@
+I have this in /work/w03: Add support for S3 Dualstack Endpoints in moto Hi Team, If you follow the standard guide in but configure your `.aws/config` with:

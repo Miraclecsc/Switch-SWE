@@ -1,0 +1,1 @@
+And here, I see... could we catch the `KeyboardInterrupt` and basically tell trio that it got another Ctrl+C? It seems to be raised normally: (I also got this great error message in the REPL while playing around with this...) <details><summary>Funny error message I ran into in the REPL</summary> <p> Not the most clear :^) </p> </details>

@@ -1,0 +1,1 @@
+One more thing: Can you add both async and sync dataloaders to dev dependencies and add a `test_dataloaders.py` to the tests suite with two tests: - - Thanks!

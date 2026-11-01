@@ -1,0 +1,1 @@
+Please check this too: Accept read-only Mapping inputs while leaving the template's own globals writable. Preserve the live fallback to environment globals and apply ownership consistently through get_template, select_template, get_or_select_template and from_string.

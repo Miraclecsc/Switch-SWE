@@ -1,0 +1,1 @@
+And here, I made it a "should" statement for a reason. We could add a flag to `evaluate()` to specify the context and also clean things up for `extra` while we are at it, otherwise there's precedent of this code being sloppy/permissive in what it accepts.

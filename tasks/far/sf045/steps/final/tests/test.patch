@@ -1,0 +1,66 @@
+diff --git a/networkx/algorithms/approximation/tests/test_dominating_set.py b/networkx/algorithms/approximation/tests/test_dominating_set.py
+index 6b90d85..d0ae6f0 100644
+--- a/networkx/algorithms/approximation/tests/test_dominating_set.py
++++ b/networkx/algorithms/approximation/tests/test_dominating_set.py
+@@ -44,6 +44,22 @@ class TestMinWeightDominatingSet:
+         G = nx.Graph()
+         assert min_weighted_dominating_set(G) == set()
+ 
++    def test_cost_accounts_for_already_dominated(self):
++        """Tests that the greedy cost function considers nodes dominated by
++        neighbors of the dominating set, not just nodes in the set itself.
++
++        Regression test for #8523.
++        """
++        # K5 + path 4-5-6: nodes 0-4 form a clique, 5 and 6 hang off node 4.
++        # Any minimum dominating set has 2 nodes: one from the clique (0-4)
++        # and one from the tail (5 or 6). E.g. {0, 5}, {4, 6}, {2, 5}, etc.
++        graph = nx.complete_graph(5)
++        graph.add_edge(4, 5)
++        graph.add_edge(5, 6)
++        dom_set = min_weighted_dominating_set(graph)
++        assert nx.is_dominating_set(graph, dom_set)
++        assert len(dom_set) == 2
++
+     def test_min_edge_dominating_set(self):
+         graph = nx.path_graph(5)
+         dom_set = min_edge_dominating_set(graph)
+diff --git a/networkx/algorithms/approximation/tests/test_sf045_seeded_domination.py b/networkx/algorithms/approximation/tests/test_sf045_seeded_domination.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/approximation/tests/test_sf045_seeded_domination.py
+@@ -0,0 +1,34 @@
++import networkx as nx
++import pytest
++from networkx.algorithms.approximation import min_weighted_dominating_set as dominate
++
++def test_seed_is_retained_and_coverage_is_removed():
++    graph=nx.cycle_graph(5);seed=[0]
++    result=dominate(graph,start_with=seed,forbidden={1,2})
++    assert result=={0,3} and nx.is_dominating_set(graph,result)
++    assert seed==[0]
++
++def test_already_dominating_seed_adds_nothing():
++    graph=nx.star_graph(5)
++    assert dominate(graph,start_with=(node for node in [0]))=={0}
++
++def test_zero_weight_and_forbidden_targets():
++    graph=nx.path_graph(['a',1,'b',2]);nx.set_node_attributes(graph,1,'cost');graph.nodes[1]['cost']=0
++    result=dominate(graph,weight='cost',start_with={2},forbidden={'a','b'})
++    assert result=={1,2} and nx.is_dominating_set(graph,result)
++
++def test_infeasible_constraints_are_explicit():
++    graph=nx.empty_graph(2)
++    with pytest.raises(nx.NetworkXUnfeasible):dominate(graph,forbidden={1})
++    with pytest.raises(nx.NetworkXUnfeasible):dominate(nx.path_graph(3),forbidden={0,1,2})
++
++def test_invalid_constraints_and_input_preservation():
++    graph=nx.path_graph(3);saved=graph.copy()
++    with pytest.raises(nx.NetworkXError):dominate(graph,start_with={9})
++    with pytest.raises(nx.NetworkXError):dominate(graph,start_with={1},forbidden={1})
++    with pytest.raises(nx.NetworkXError):dominate(graph,forbidden={9})
++    assert nx.utils.graphs_equal(graph,saved)
++
++def test_original_unconstrained_regression():
++    graph=nx.path_graph(5)
++    assert nx.is_dominating_set(graph,dominate(graph))

@@ -1,0 +1,1 @@
+One more thing: Sorting only uses one method, `__lt__`. I think you'd get the same performance benefit with just that one override instead of all six.

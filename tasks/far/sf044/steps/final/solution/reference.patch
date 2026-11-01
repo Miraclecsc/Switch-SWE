@@ -1,0 +1,84 @@
+diff --git a/networkx/algorithms/tree/mst.py b/networkx/algorithms/tree/mst.py
+--- a/networkx/algorithms/tree/mst.py
++++ b/networkx/algorithms/tree/mst.py
+@@ -1045,7 +1045,7 @@
+                 self.mst_weight, self.partition_dict.copy()
+             )
+ 
+-    def __init__(self, G, weight="weight", minimum=True, ignore_nan=False):
++    def __init__(self, G, weight="weight", minimum=True, ignore_nan=False, *, partition=None):
+         """
+         Initialize the iterator
+ 
+@@ -1071,27 +1071,25 @@
+         self.minimum = minimum
+         self.ignore_nan = ignore_nan
+         # Randomly create a key for an edge attribute to hold the partition data
+-        self.partition_key = (
+-            "SpanningTreeIterators super secret partition attribute name"
+-        )
++        self.partition_key = object()
++        self.partition_queue = None
++        self._exhausted = False
++        self._initial_partition = {}
++        if partition:
++            if G.is_directed() or G.is_multigraph():
++                raise nx.NetworkXNotImplemented("initial partitions require a simple undirected graph")
++            edges = {frozenset(edge): edge for edge in G.edges}
++            for edge, state in partition.items():
++                key = frozenset(edge)
++                if len(edge) != 2 or key not in edges or state not in tuple(EdgePartition):
++                    raise ValueError("invalid initial edge partition")
++                canonical = edges[key]
++                if canonical in self._initial_partition and self._initial_partition[canonical] != state:
++                    raise ValueError("conflicting initial edge partition")
++                if state != EdgePartition.OPEN:
++                    self._initial_partition[canonical] = state
+ 
+     def __iter__(self):
+-        """
+-        Returns
+-        -------
+-        SpanningTreeIterator
+-            The iterator object for this graph
+-        """
+-        self.partition_queue = PriorityQueue()
+-        self._clear_partition(self.G)
+-        mst_weight = partition_spanning_tree(
+-            self.G, self.minimum, self.weight, self.partition_key, self.ignore_nan
+-        ).size(weight=self.weight)
+-
+-        self.partition_queue.put(
+-            self.Partition(mst_weight if self.minimum else -mst_weight, {})
+-        )
+-
+         return self
+ 
+     def __next__(self):
+@@ -1102,8 +1100,25 @@
+             The spanning tree of next greatest weight, which ties broken
+             arbitrarily.
+         """
++        if self._exhausted:
++            raise StopIteration
++        if self.partition_queue is None:
++            self.partition_queue = PriorityQueue()
++            initial = self.Partition(0, self._initial_partition.copy())
++            self._write_partition(initial)
++            included = nx.Graph([edge for edge, state in initial.partition_dict.items()
++                                 if state == EdgePartition.INCLUDED])
++            if not included.number_of_edges() or nx.is_forest(included):
++                tree = partition_spanning_tree(
++                    self.G, self.minimum, self.weight, self.partition_key, self.ignore_nan
++                )
++                if len(tree) and nx.is_connected(tree):
++                    cost = tree.size(weight=self.weight)
++                    initial.mst_weight = cost if self.minimum else -cost
++                    self.partition_queue.put(initial)
+         if self.partition_queue.empty():
+-            del self.G, self.partition_queue
++            self._exhausted = True
++            self.G = None
+             raise StopIteration
+ 
+         partition = self.partition_queue.get()

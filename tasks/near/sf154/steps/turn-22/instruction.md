@@ -1,0 +1,1 @@
+One more thing: I checked and it seems that the stdlib `async with asyncio.timeout(...):` suffers from the exact same issue, and for the exactly same reason.

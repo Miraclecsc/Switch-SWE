@@ -1,0 +1,1 @@
+One more thing: Fix coverage gaps in bedrockagentcorecontrol initial PR Remove unused ValidationException Remove unreachable ValueError fallback in _get_path_param Add tests for endpoint creation with tags and version, and endpoint version update

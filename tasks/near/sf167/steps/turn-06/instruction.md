@@ -1,0 +1,1 @@
+One more thing: should also include `graphql.document` as an attribute, but I'm not sure if that can be referenced at this function

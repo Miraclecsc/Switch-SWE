@@ -1,0 +1,1 @@
+Also, Would `except* GeneratorExit: pass` do what we want here?

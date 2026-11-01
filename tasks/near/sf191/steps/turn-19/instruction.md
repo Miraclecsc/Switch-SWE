@@ -1,0 +1,1 @@
+Please check this too: So this is on the embarrassing side: it's not very long that I learned that classes actually always have `__dict__` and I somewhat just kept writing this kind of defensive code although it's not necessary. I'll handle the `__bases__` case tho, thanks.

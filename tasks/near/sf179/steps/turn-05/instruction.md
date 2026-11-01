@@ -1,0 +1,1 @@
+Also, This is more a question, should `canonicalize_version` now raise an `InvalidVersion` exception rather than returning the legacy version string? --- I believe the docs need to be adjusted (I grepped for "legacy"):

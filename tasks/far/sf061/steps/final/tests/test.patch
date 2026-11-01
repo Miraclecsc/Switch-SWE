@@ -1,0 +1,100 @@
+diff --git a/tests/test_multipart.py b/tests/test_multipart.py
+index dc93d26505..a4e9796bd7 100644
+--- a/tests/test_multipart.py
++++ b/tests/test_multipart.py
+@@ -339,18 +339,37 @@ def test_multipart_encode_files_allows_bytes_content() -> None:
+         assert content == b"".join(stream)
+ 
+ 
+-def test_multipart_encode_files_raises_exception_with_str_content() -> None:
+-    files = {"file": ("test.txt", "<bytes content>", "text/plain")}
++def test_multipart_encode_files_allows_str_content() -> None:
++    files = {"file": ("test.txt", "<str content>", "text/plain")}
+     with mock.patch("os.urandom", return_value=os.urandom(16)):
++        boundary = os.urandom(16).hex()
+ 
+-        with pytest.raises(TypeError):
+-            encode_request(data={}, files=files)  # type: ignore
++        headers, stream = encode_request(data={}, files=files)
++        assert isinstance(stream, typing.Iterable)
++
++        content = (
++            '--{0}\r\nContent-Disposition: form-data; name="file"; '
++            'filename="test.txt"\r\n'
++            "Content-Type: text/plain\r\n\r\n<str content>\r\n"
++            "--{0}--\r\n"
++            "".format(boundary).encode("ascii")
++        )
++        assert headers == {
++            "Content-Type": f"multipart/form-data; boundary={boundary}",
++            "Content-Length": str(len(content)),
++        }
++        assert content == b"".join(stream)
+ 
+ 
+ def test_multipart_encode_files_raises_exception_with_StringIO_content() -> None:
+     files = {"file": ("test.txt", io.StringIO("content"), "text/plain")}
+-    with mock.patch("os.urandom", return_value=os.urandom(16)):
++    with pytest.raises(TypeError):
++        encode_request(data={}, files=files)  # type: ignore
++
+ 
++def test_multipart_encode_files_raises_exception_with_text_mode_file() -> None:
++    with tempfile.TemporaryFile(mode="w") as upload:
++        files = {"file": ("test.txt", upload, "text/plain")}
+         with pytest.raises(TypeError):
+             encode_request(data={}, files=files)  # type: ignore
+ 
+diff --git a/tests/test_sf061_buffer_content.py b/tests/test_sf061_buffer_content.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf061_buffer_content.py
+@@ -0,0 +1,48 @@
++
++import io
++from array import array
++import pytest
++from httpx._multipart import MultipartStream
++
++@pytest.mark.parametrize("factory", [bytearray, memoryview,
++    lambda b: memoryview(bytearray(b))[::2],
++    lambda b: memoryview(array("H", [1, 256, 65535]))])
++@pytest.mark.parametrize("arity", [0, 2, 3, 4])
++def test_binary_buffers_match_bytes_encoding_and_length(factory, arity):
++    buffer = factory(b"abcdef")
++    value = bytes(buffer)
++    def wrap(data):
++        return data if arity == 0 else {
++            2: ("file.bin", data), 3: ("file.bin", data, "application/octet-stream"),
++            4: ("file.bin", data, "application/octet-stream", {"X-Part": "yes"}),
++        }[arity]
++    stream = MultipartStream({}, {"file": wrap(buffer)}, boundary=b"fixed")
++    expected = MultipartStream({}, {"file": wrap(value)}, boundary=b"fixed")
++    body = b"".join(stream)
++    assert body == b"".join(expected)
++    assert int(stream.get_headers()["Content-Length"]) == len(body)
++    assert b"".join(stream) == body
++
++def test_buffers_and_part_headers_are_snapshotted_without_mutating_caller():
++    buffer = bytearray(b"initial")
++    headers = {"X-Part": "original"}
++    stream = MultipartStream({}, {"file": ("x.txt", memoryview(buffer), "text/plain", headers)}, boundary=b"x")
++    assert headers == {"X-Part": "original"}
++    buffer[:] = b"changed"
++    headers["X-Part"] = "changed"
++    body = b"".join(stream)
++    assert b"initial" in body and b"changed" not in body
++    assert b"X-Part: original" in body
++    assert int(stream.get_headers()["Content-Length"]) == len(body)
++
++def test_string_header_snapshot_and_utf8_length():
++    headers = {"Content-Type": "custom/type"}
++    stream = MultipartStream({}, {"file": ("x.txt", "雪", "text/plain", headers)}, boundary=b"x")
++    headers["Content-Type"] = "changed"
++    body = b"".join(stream)
++    assert "雪".encode() in body and b"custom/type" in body
++    assert int(stream.get_headers()["Content-Length"]) == len(body)
++
++def test_text_stream_still_rejected():
++    with pytest.raises(TypeError):
++        MultipartStream({}, {"file": io.StringIO("text")}, boundary=b"x")

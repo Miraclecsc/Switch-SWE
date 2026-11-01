@@ -1,0 +1,1 @@
+Please check this too: Those are named after [`graphql-extensions`]( which does `parsing`, `validation` and `execution`, but seeing how this API's not publish in Apollo Server, we may go for something else. I am not sure if I like `def validating` call `validation_started` & `validation_finished`

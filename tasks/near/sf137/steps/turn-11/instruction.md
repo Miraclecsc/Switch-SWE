@@ -1,0 +1,1 @@
+Please check this too: Also needed to make sure `stream.buffer` wouldn't close either, since `get_pager_file` would wrap `stream.buffer` instead of `stream`. This all seems a bit messy, probably something that can be cleaned up eventually.

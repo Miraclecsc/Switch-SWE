@@ -1,0 +1,76 @@
+{
+  "case_id": "sf123_switched",
+  "task_id": "ssb_v2_task_0352",
+  "repo": "sympy/sympy",
+  "base_commit": "39e29cd3ec2358e6c97b1ea275ba6df3460c0bf1",
+  "derived_fail_to_pass": [
+    "sympy.logic.tests.test_inference::test_issue_27733_second_fix",
+    "sympy.logic.tests.test_root_assumptions_v1::test_boolean_assumptions_constrain_the_returned_model",
+    "sympy.logic.tests.test_root_assumptions_v1::test_empty_assumptions_preserve_original_boolean_behavior",
+    "sympy.logic.tests.test_root_assumptions_v1::test_encoded_cnf_and_interleaved_generators_are_isolated",
+    "sympy.logic.tests.test_root_assumptions_v1::test_nonliteral_assumptions_and_unsupported_backend_are_explicit_errors",
+    "sympy.logic.tests.test_root_assumptions_v1::test_theory_inconsistent_assumptions_are_root_unsat"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.logic.tests.test_inference::test_PropKB",
+    "sympy.logic.tests.test_inference::test_dpll",
+    "sympy.logic.tests.test_inference::test_dpll2_satisfiable",
+    "sympy.logic.tests.test_inference::test_dpll_satisfiable",
+    "sympy.logic.tests.test_inference::test_entails",
+    "sympy.logic.tests.test_inference::test_find_pure_symbol",
+    "sympy.logic.tests.test_inference::test_find_pure_symbol_int_repr",
+    "sympy.logic.tests.test_inference::test_issue_27733",
+    "sympy.logic.tests.test_inference::test_literal",
+    "sympy.logic.tests.test_inference::test_minisat22_minimal_satisfiable",
+    "sympy.logic.tests.test_inference::test_minisat22_satisfiable",
+    "sympy.logic.tests.test_inference::test_pl_true",
+    "sympy.logic.tests.test_inference::test_pl_true_wrong_input",
+    "sympy.logic.tests.test_inference::test_propKB_tolerant",
+    "sympy.logic.tests.test_inference::test_satisfiable",
+    "sympy.logic.tests.test_inference::test_satisfiable_all_models",
+    "sympy.logic.tests.test_inference::test_satisfiable_bool",
+    "sympy.logic.tests.test_inference::test_satisfiable_non_symbols",
+    "sympy.logic.tests.test_inference::test_unit_clause",
+    "sympy.logic.tests.test_inference::test_unit_clause_int_repr",
+    "sympy.logic.tests.test_inference::test_unit_propagate",
+    "sympy.logic.tests.test_inference::test_unit_propagate_int_repr",
+    "sympy.logic.tests.test_inference::test_valid"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/logic/tests/test_inference.py",
+    "sympy/logic/tests/test_root_assumptions_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/logic/tests/test_inference.py",
+    "sympy/logic/tests/test_root_assumptions_v1.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "8553c654571fb07909826b82a5455cc39bc986b565d2c0c9b764bf8530012af1",
+    "config/recipes.json": "02b3671aae70c498e04e2f55cffad1e4126a97b0a78d7dd957064f6aa162d8b9"
+  }
+}

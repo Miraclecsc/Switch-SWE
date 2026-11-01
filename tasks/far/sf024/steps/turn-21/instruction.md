@@ -1,0 +1,1 @@
+Also, Ahh -- interesting point about ax and fig creation needing to be explicit so we are sure to test only the parts of `draw_networkx_nodes` that we want to test. So, now we just need to change the assert and update/remove the comment after it.

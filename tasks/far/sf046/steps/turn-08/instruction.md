@@ -1,0 +1,3 @@
+And here, I'd probably write the test something like: Note that `spring_layout` is the "official" implementation, with `fruchterman_reingold_layout` as an alias, so it's probably worth testing both. Either way, not a blocker!
+
+Apply the same complete-input zero-step guarantee to arf_layout(max_iter=0), independent of position-dictionary insertion order. Its returned mapping must contain graph nodes only. Preserve a>1 validation and reject malformed coordinate dimensions.

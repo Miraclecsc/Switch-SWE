@@ -1,0 +1,1 @@
+One more thing: I just don't see a way to avoid suppressing a user-raised that type, but also that seems incredibly unlikely to arise in practice so 🤷 and if it's equivalent I tend to prefer "less code" pretty strongly

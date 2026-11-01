@@ -1,0 +1,1 @@
+Please check this too: After the merge, extend the newly merged borrowed-stream fix to existing text-only stdout objects such as StringIO. get_pager_file(color=False) must strip ANSI escapes from writes even when stdout has no binary buffer.

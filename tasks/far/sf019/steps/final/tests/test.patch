@@ -1,0 +1,101 @@
+diff --git a/tests/test_s3/test_s3_utils.py b/tests/test_s3/test_s3_utils.py
+index 4c08c76ad5c9..654c27164da8 100644
+--- a/tests/test_s3/test_s3_utils.py
++++ b/tests/test_s3/test_s3_utils.py
+@@ -90,6 +90,32 @@ def test_parse_region_from_url():
+         assert parse_region_from_url(url) == expected
+ 
+ 
++def test_parse_region_from_url_dualstack():
++    expected = "us-east-1"
++    for url in [
++        "https://s3.dualstack.us-east-1.amazonaws.com/bucket",
++        "https://bucket.s3.dualstack.us-east-1.amazonaws.com",
++    ]:
++        assert parse_region_from_url(url) == expected
++
++    expected = "ap-southeast-2"
++    for url in [
++        "https://s3.dualstack.ap-southeast-2.amazonaws.com/bucket",
++        "https://bucket.s3.dualstack.ap-southeast-2.amazonaws.com",
++    ]:
++        assert parse_region_from_url(url) == expected
++
++
++def test_parse_region_from_url_fips():
++    for url in [
++        "https://s3-fips.us-east-1.amazonaws.com/bucket",
++        "https://bucket.s3-fips.us-east-1.amazonaws.com",
++        "https://s3.fips.us-east-1.amazonaws.com/bucket",
++        "https://bucket.s3.fips.us-east-1.amazonaws.com",
++    ]:
++        assert parse_region_from_url(url) == "us-east-1"
++
++
+ def test_checksum_sha256():
+     checksum = b"h9FJy0JMA4dlbyEdJYn7Wx4WIpkhMJ6YWIQZzMqKc2I="
+     assert compute_checksum(b"somedata", "SHA256") == checksum
+diff --git a/tests/test_s3/test_endpoint_authority_v1.py b/tests/test_s3/test_endpoint_authority_v1.py
+new file mode 100644
+index 000000000..afb106360
+--- /dev/null
++++ b/tests/test_s3/test_endpoint_authority_v1.py
+@@ -0,0 +1,58 @@
++"""Observable endpoint parsing obligations from the cumulative sf019 prompt."""
++from types import SimpleNamespace
++import boto3
++import pytest
++from botocore.config import Config
++from moto import mock_aws
++from moto.s3.responses import S3Response
++from moto.s3.utils import parse_region_from_url
++
++
++@pytest.mark.parametrize("host,region", [
++    ("s3-fips.dualstack.us-west-2.amazonaws.com", "us-west-2"),
++    ("s3.fips.dualstack.us-gov-west-1.amazonaws.com", "us-gov-west-1"),
++    ("s3.dualstack.cn-north-1.amazonaws.com.cn", "cn-north-1"),
++])
++def test_endpoint_authority_and_addressing_agree(host, region):
++    response = S3Response()
++    for authority, virtual in [(host, False), ("archive.s3.logs."+host, True)]:
++        url = "https://" + authority.upper() + ":443"
++        assert parse_region_from_url(url) == region
++        request = SimpleNamespace(url=url+"/bucket/key", headers={"Host":authority.upper()+":443"})
++        assert response.subdomain_based_buckets(request) is virtual
++
++
++@pytest.mark.parametrize("url", [
++    "https://s3.dualstack.us-west-2.amazonaws.com.attacker.example/bucket",
++    "https://unrelated.example/key/s3.eu-west-1.amazonaws.com/bucket",
++    "https://unrelated.example/?next=https://s3.eu-west-1.amazonaws.com/bucket",
++    "https://bucket.s3.fips.fips.us-west-2.amazonaws.com/key",
++])
++def test_no_region_inference_outside_valid_endpoint_authority(url):
++    assert parse_region_from_url(url, use_default_region=False) is None
++    assert parse_region_from_url(url) == "us-east-1"
++
++
++def test_unqualified_global_endpoint_and_path_style_port():
++    response = S3Response()
++    request = SimpleNamespace(url="https://s3.amazonaws.com:443/a/b", headers={})
++    assert response.subdomain_based_buckets(request) is False
++    assert parse_region_from_url(request.url) == "us-east-1"
++
++
++@pytest.mark.parametrize("style", ["path", "virtual"])
++@mock_aws
++def test_combined_fips_dualstack_end_to_end(style):
++    c = boto3.client("s3", region_name="us-west-2",
++        config=Config(use_fips_endpoint=True, use_dualstack_endpoint=True,
++                      s3={"addressing_style":style}))
++    c.create_bucket(Bucket="endpoint-contract", CreateBucketConfiguration={"LocationConstraint":"us-west-2"})
++    c.put_object(Bucket="endpoint-contract", Key="nested/key", Body=b"authority")
++    assert c.get_object(Bucket="endpoint-contract", Key="nested/key")["Body"].read() == b"authority"
++    assert c.list_objects_v2(Bucket="endpoint-contract")["Contents"][0]["Key"] == "nested/key"
++
++
++def test_custom_endpoint_and_localhost_legacy():
++    r = S3Response()
++    for host in ["localhost:5000", "127.0.0.1:5000", "service"]:
++        assert r.subdomain_based_buckets(SimpleNamespace(url="http://"+host+"/bucket", headers={})) is False

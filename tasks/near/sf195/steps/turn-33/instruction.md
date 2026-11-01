@@ -1,0 +1,1 @@
+Also, yeah the 15-char limit is just in pthreads / the OS, thread.name is only used internally in python so that's a normal unicode string.

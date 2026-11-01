@@ -1,0 +1,1 @@
+One more thing: Keep the lazy-versus-staged content distinction. File discovery must also handle Git-quoted paths, including spaces, tabs, newlines and non-ASCII filenames; check the actual named Python file without stripping meaningful filename whitespace.

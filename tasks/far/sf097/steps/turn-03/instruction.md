@@ -1,0 +1,1 @@
+There's something to adjust in /work/w02: The better solution here would be to use DomainMatrix: That gives a more systematic way of solving the zero equivalence problem. See the discussion in gh-27250 and related PRs like gh-27423 which adds the fraction-free PLDU decomposition that can be used to implement a fraction-free version of QR decomposition (the QRD decomposition).

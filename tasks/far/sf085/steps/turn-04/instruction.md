@@ -1,0 +1,3 @@
+And here, > There are no tests for `_32_BIT_INTERPRETER`, should we try to add some ? Definitely, if we can figure out a good way to. 😅 > based on what ? (I'm thinking observed values of sys.maxsize and struct.calcsize("P") for now) It's definitely better than nothing. You can also monkeypatch the `struct` module if we end up going with your PR.
+
+Expose keyword-only is_32bit=None on platform_tags so cross-target Linux callers can use the same explicit override. Forward it to Linux generation; None continues automatic detection. For Darwin and other systems retain their existing behavior and do not interpret this Linux override. This does not change the original macOS bitness policy.

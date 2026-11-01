@@ -1,0 +1,1 @@
+One more thing: fix(polys): Do not duplicate roots in ratint Fixes gh-28657 which arises from a bug introduced in gh-28189. The log_to_real function needs to distinguish which roots are real and which are complex conjugate pairs. The code to do this was counting each complex conjugate pair as two roots.

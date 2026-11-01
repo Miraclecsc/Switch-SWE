@@ -1,0 +1,1 @@
+Also, I noticed you removed this kind of assertation (checking that the `ExceptionGroup` has *exactly* one exceptions) elsewhere. Is this redundent? Or should `ExpectedExceptionGroup` has a `strict` kwarg that means it doesn't take other exceptions (in a specific ordering? not sure about the impl...)?

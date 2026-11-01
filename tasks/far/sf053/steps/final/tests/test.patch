@@ -1,0 +1,88 @@
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index e2de8b139..a4c1207dc 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -172,6 +172,25 @@ async def task() -> None:
+         assert task_started
+         assert not event_set
+ 
++    async def test_event_wait_before_set_before_cancel(self) -> None:
++        setter_started = waiter_woke = False
++
++        async def setter() -> None:
++            nonlocal setter_started
++            setter_started = True
++            assert not event.is_set()
++            event.set()
++            tg.cancel_scope.cancel()
++
++        event = Event()
++        async with create_task_group() as tg:
++            tg.start_soon(setter)
++            await event.wait()
++            waiter_woke = True
++
++        assert setter_started
++        assert waiter_woke
++
+     async def test_statistics(self) -> None:
+         async def waiter() -> None:
+             await event.wait()
+diff --git a/tests/test_sf053_receive_many.py b/tests/test_sf053_receive_many.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf053_receive_many.py
+@@ -0,0 +1,53 @@
++
++import pytest
++from anyio import CancelScope, ClosedResourceError, EndOfStream, create_memory_object_stream, create_task_group, wait_all_tasks_blocked
++pytestmark = pytest.mark.anyio
++
++async def test_buffered_fifo_limit_and_clone():
++    send, receive = create_memory_object_stream(4)
++    with send, receive, receive.clone() as clone:
++        for item in range(4): send.send_nowait(item)
++        assert await receive.receive_many(2) == [0, 1]
++        assert await clone.receive_many(9) == [2, 3]
++
++async def test_end_of_stream_partial_batch_then_error():
++    send, receive = create_memory_object_stream(3)
++    with receive:
++        send.send_nowait("a"); send.send_nowait("b"); send.close()
++        assert await receive.receive_many(5) == ["a", "b"]
++        with pytest.raises(EndOfStream): await receive.receive_many(1)
++
++async def test_waiting_senders_unblocked_in_fifo_order():
++    send, receive = create_memory_object_stream(0)
++    with send, receive:
++        async with create_task_group() as tg:
++            for item in range(3):
++                tg.start_soon(send.send, item)
++                await wait_all_tasks_blocked()
++            assert await receive.receive_many(4) == [0, 1, 2]
++        assert receive.statistics().tasks_waiting_send == 0
++
++async def test_pending_cancellation_does_not_consume_buffer():
++    send, receive = create_memory_object_stream(1)
++    with send, receive:
++        send.send_nowait(7)
++        returned = False
++        with CancelScope() as scope:
++            scope.cancel()
++            await receive.receive_many(3)
++            returned = True
++        assert not returned
++        assert receive.receive_nowait() == 7
++
++@pytest.mark.parametrize("limit,error", [(0, ValueError),(-1,ValueError),(True,TypeError),(1.5,TypeError),("2",TypeError)])
++async def test_invalid_limit_does_not_consume(limit,error):
++    send, receive = create_memory_object_stream(1)
++    with send, receive:
++        send.send_nowait("unchanged")
++        with pytest.raises(error): await receive.receive_many(limit)
++        assert receive.receive_nowait() == "unchanged"
++
++async def test_closed_receiver_raises():
++    send, receive = create_memory_object_stream(0)
++    send.close(); receive.close()
++    with pytest.raises(ClosedResourceError): await receive.receive_many(1)

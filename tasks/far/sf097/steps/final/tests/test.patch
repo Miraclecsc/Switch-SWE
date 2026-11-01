@@ -1,0 +1,59 @@
+diff --git a/sympy/solvers/tests/test_solveset.py b/sympy/solvers/tests/test_solveset.py
+index 8547a5ddf3f1..87429fe70c49 100644
+--- a/sympy/solvers/tests/test_solveset.py
++++ b/sympy/solvers/tests/test_solveset.py
+@@ -1872,6 +1872,13 @@ def test_nonlinsolve_abs():
+     raises(NotImplementedError, lambda: nonlinsolve([Abs(x) - 2, x + y], x, y))
+ 
+ 
++def test_nonlinsolve_sign():
++    raises(NotImplementedError, lambda: nonlinsolve([sign(x) - 1, x*y - 4], [x, y]))
++    raises(NotImplementedError, lambda: nonlinsolve([sign(x) - 1, x - y], [x, y]))
++    result = nonlinsolve([sign(x) - 1], [x])
++    assert isinstance(result, FiniteSet)
++
++
+ def test_raise_exception_nonlinsolve():
+     raises(IndexError, lambda: nonlinsolve([x**2 -1], []))
+     raises(ValueError, lambda: nonlinsolve([x**2 -1]))
+diff --git a/sympy/solvers/tests/test_sf097_extension.py b/sympy/solvers/tests/test_sf097_extension.py
+new file mode 100644
+--- /dev/null
++++ b/sympy/solvers/tests/test_sf097_extension.py
+@@ -0,0 +1,36 @@
++import pytest
++from sympy import symbols, sign, Eq, ConditionSet, Tuple, S, FiniteSet, nonlinsolve
++
++x,y,a=symbols("x y a")
++
++def test_unsupported_system_keeps_all_constraints():
++    equations=[sign(x)-1,x*y-4]
++    result=nonlinsolve(equations,[x,y],fallback="conditions")
++    assert isinstance(result,ConditionSet) and result.sym == Tuple(x,y)
++    assert result.contains(Tuple(2,2)) is S.true
++    assert result.contains(Tuple(-2,-2)) is S.false
++    assert result.contains(Tuple(2,3)) is S.false
++    assert equations == [sign(x)-1,x*y-4]
++
++def test_symbol_order_and_equations():
++    syms=[y,x]
++    result=nonlinsolve([Eq(sign(x),1),Eq(x*y,4)],syms,fallback="conditions")
++    assert isinstance(result,ConditionSet) and result.sym == Tuple(y,x)
++    assert result.contains(Tuple(4,1)) is S.true
++    assert result.contains(Tuple(1,4)) is S.true
++    assert syms == [y,x]
++
++def test_set_valued_singleton_is_condition():
++    result=nonlinsolve([sign(x)-1],[x],fallback="conditions")
++    assert isinstance(result,ConditionSet)
++    assert result.contains(Tuple(2)) is S.true
++    assert result.contains(Tuple(-1)) is S.false
++
++def test_finite_solution_unchanged():
++    assert nonlinsolve([x*x-1],[x],fallback="conditions") == FiniteSet(Tuple(-1),Tuple(1))
++    assert nonlinsolve([x-1,x-2],[x],fallback="conditions") is S.EmptySet
++
++def test_default_error_and_invalid_policy():
++    with pytest.raises(NotImplementedError): nonlinsolve([sign(x)-1,x*y-4],[x,y])
++    with pytest.raises(ValueError):nonlinsolve([x-1],[x],fallback="unknown")
++    with pytest.raises(ValueError):nonlinsolve([x-1],fallback="conditions")

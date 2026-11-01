@@ -1,0 +1,1 @@
+And here, Consider we should add a brief clarifying note in the Exact lookup documentation, which otherwise insinuates that __exact=None always compiles to IS NULL, and then link there to the `_querying-jsonfield` section.

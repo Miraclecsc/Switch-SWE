@@ -1,0 +1,1 @@
+And here, An alternative approach would be to keep the composite predicates and use a Tseitin transformation when doing the conversion to CNF. That might be a better idea because this change slows certain queries by 40%.

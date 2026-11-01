@@ -1,0 +1,143 @@
+diff --git a/django/core/signing.py b/django/core/signing.py
+index ed56ce0908..c9b4d47b78 100644
+--- a/django/core/signing.py
++++ b/django/core/signing.py
+@@ -38,10 +38,12 @@ import base64
+ import datetime
+ import json
+ import time
++import warnings
+ import zlib
+ 
+ from django.conf import settings
+ from django.utils.crypto import constant_time_compare, salted_hmac
++from django.utils.deprecation import RemovedInDjango70Warning, django_file_prefixes
+ from django.utils.encoding import force_bytes
+ from django.utils.module_loading import import_string
+ from django.utils.regex_helper import _lazy_re_compile
+@@ -96,7 +98,17 @@ def b64_decode(s):
+     return base64.urlsafe_b64decode(s + pad)
+ 
+ 
+-def base64_hmac(salt, value, key, algorithm="sha1"):
++# RemovedInDjango70Warning: algorithm="sha256"
++def base64_hmac(salt, value, key, algorithm=None):
++    if algorithm is None:
++        warnings.warn(
++            "The default argument for algorithm in base64_hmac() will change "
++            "from 'sha1' to 'sha256' in Django 7.0. Pass an explicit "
++            "algorithm to silence this warning.",
++            category=RemovedInDjango70Warning,
++            skip_file_prefixes=django_file_prefixes(),
++        )
++        algorithm = "sha1"
+     return b64_encode(
+         salted_hmac(salt, value, key, algorithm=algorithm).digest()
+     ).decode()
+@@ -177,7 +189,7 @@ def loads(
+ 
+ class Signer:
+     def __init__(
+-        self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
++        self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None, fallback_algorithms=None
+     ):
+         self.key = key or settings.SECRET_KEY
+         self.fallback_keys = (
+@@ -191,6 +203,7 @@ class Signer:
+             self.__class__.__name__,
+         )
+         self.algorithm = algorithm or "sha256"
++        self.fallback_algorithms = tuple(fallback_algorithms or ())
+         if _SEP_UNSAFE.match(self.sep):
+             raise ValueError(
+                 "Unsafe Signer separator: %r (cannot be empty or consist of "
+@@ -211,6 +224,12 @@ class Signer:
+         for key in [self.key, *self.fallback_keys]:
+             if constant_time_compare(sig, self.signature(value, key)):
+                 return value
++            for algorithm in self.fallback_algorithms:
++                candidate = base64_hmac(
++                    self.salt + "signer", value, key, algorithm=algorithm
++                )
++                if constant_time_compare(sig, candidate):
++                    return value
+         raise BadSignature('Signature "%s" does not match' % sig)
+ 
+     def sign_object(self, obj, serializer=JSONSerializer, compress=False):
+diff --git a/django/utils/crypto.py b/django/utils/crypto.py
+index 4b8146695a..beadb146cb 100644
+--- a/django/utils/crypto.py
++++ b/django/utils/crypto.py
+@@ -5,8 +5,10 @@ Django's standard crypto functions and utilities.
+ import hashlib
+ import hmac
+ import secrets
++import warnings
+ 
+ from django.conf import settings
++from django.utils.deprecation import RemovedInDjango70Warning, django_file_prefixes
+ from django.utils.encoding import force_bytes
+ 
+ 
+@@ -16,14 +18,27 @@ class InvalidAlgorithm(ValueError):
+     pass
+ 
+ 
+-def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
++# RemovedInDjango70Warning: algorithm="sha256"
++def salted_hmac(key_salt, value, secret=None, *, algorithm=None):
+     """
+     Return the HMAC of 'value', using a key generated from key_salt and a
+     secret (which defaults to settings.SECRET_KEY). Default algorithm is SHA1,
+     but any algorithm name supported by hashlib can be passed.
+ 
++    Removed in Django70Warning: The default algorithm will change to SHA256
++    in Django 7.0, so provide an explicit algorithm to silence the warning.
++
+     A different key_salt should be passed in for every application of HMAC.
+     """
++    if algorithm is None:
++        warnings.warn(
++            "The default argument for algorithm in salted_hmac() will change "
++            "from 'sha1' to 'sha256' in Django 7.0. Pass an explicit "
++            "algorithm to silence this warning.",
++            category=RemovedInDjango70Warning,
++            skip_file_prefixes=django_file_prefixes(),
++        )
++        algorithm = "sha1"
+     if secret is None:
+         secret = settings.SECRET_KEY
+ 
+diff --git a/docs/internals/deprecation.txt b/docs/internals/deprecation.txt
+index 3cda71933b..a45b5cdad4 100644
+--- a/docs/internals/deprecation.txt
++++ b/docs/internals/deprecation.txt
+@@ -80,6 +80,11 @@ details on these changes.
+ * Support for double-dot variable lookup, like ``{{ book..title }}``,
+   is removed.
+ 
++* The default value of the ``algorithm`` argument for
++  ``django.utils.crypto.salted_hmac()`` and
++  ``django.core.signing.base64_hmac()`` will change from ``"sha1"`` to
++  ``"sha256"``.
++
+ .. _deprecation-removed-in-6.1:
+ 
+ 6.1
+diff --git a/docs/releases/6.1.txt b/docs/releases/6.1.txt
+index 987d46874a..9003e01e1b 100644
+--- a/docs/releases/6.1.txt
++++ b/docs/releases/6.1.txt
+@@ -589,6 +589,12 @@ Miscellaneous
+   deprecated. This syntax maps to a lookup of the empty string, which is
+   normally a mistake.
+ 
++* The default value of the ``algorithm`` argument for
++  ``django.utils.crypto.salted_hmac()`` and
++  ``django.core.signing.base64_hmac()`` is deprecated and will change from
++  ``"sha1"`` to ``"sha256"`` in Django 7.0. Pass an explicit ``algorithm``
++  to silence the deprecation warning.
++
+ Features removed in 6.1
+ =======================
+ 

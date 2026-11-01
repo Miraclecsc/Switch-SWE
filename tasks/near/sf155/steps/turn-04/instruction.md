@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: Handle partial asyncio future callback If using the asyncio backend where the root task cannot be determined, better handle partial functions and other callable objects used as future callbacks. Fixed #272

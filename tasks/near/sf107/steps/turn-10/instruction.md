@@ -1,0 +1,1 @@
+One more thing: Refs #28455 -- Avoided QuerySet cloning in simple prefetch_related() usages. manager.get_queryset() always returns freshly instantiated per-instance QuerySet which doesn't need subsequent cloning. Based on work originally done by Anssi Also, Refs #28455 -- Avoided QuerySet cloning for Prefetch() when queryset is not provided.

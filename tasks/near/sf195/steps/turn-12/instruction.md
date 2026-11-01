@@ -1,0 +1,1 @@
+And here, Native OS thread naming is optional. If pthread discovery or library loading raises OSError, keep Trio import/use available and fall back to Python thread names. Preserve the existing name encoding, length behavior and platforms with no native naming API.

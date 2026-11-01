@@ -1,0 +1,73 @@
+{
+  "case_id": "sf063_switched",
+  "task_id": "ssb_v4_encode__starlette_2181",
+  "repo": "encode/starlette",
+  "base_commit": "8d7a1cacfb3e1a30cbb5d8e207aa1917bad9a3e2",
+  "derived_fail_to_pass": [
+    "tests.test_exceptions::test_http_str",
+    "tests.test_exceptions::test_websocket_str",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[copy-CustomHTTP-kwargs2]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[copy-CustomWebSocket-kwargs4]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[copy-HTTPException-kwargs0]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[copy-HTTPException-kwargs1]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[copy-WebSocketException-kwargs3]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[deepcopy-CustomHTTP-kwargs2]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[deepcopy-CustomWebSocket-kwargs4]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[deepcopy-HTTPException-kwargs0]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[deepcopy-HTTPException-kwargs1]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[deepcopy-WebSocketException-kwargs3]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle0-CustomHTTP-kwargs2]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle0-CustomWebSocket-kwargs4]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle0-HTTPException-kwargs0]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle0-HTTPException-kwargs1]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle0-WebSocketException-kwargs3]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle5-CustomHTTP-kwargs2]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle5-CustomWebSocket-kwargs4]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle5-HTTPException-kwargs0]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle5-HTTPException-kwargs1]",
+    "tests.test_sf063_exception_roundtrip::test_keyword_exception_roundtrip[pickle5-WebSocketException-kwargs3]"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_exceptions::test_exception_middleware_deprecation",
+    "tests.test_exceptions::test_http_repr",
+    "tests.test_exceptions::test_websocket_repr",
+    "tests.test_sf063_exception_roundtrip::test_positional_formatting_is_unchanged"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_exceptions.py",
+    "tests/test_sf063_exception_roundtrip.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_exceptions.py",
+    "tests/test_sf063_exception_roundtrip.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "79dac81ca621f18db5c25d7fa52574ac9b7403dafd652558a273269ac9a4ea7f",
+    "config/recipes.json": "f014fc7730f3fe4c4566575c4764158a992242b28300569f416f9fce5a21e5da"
+  }
+}

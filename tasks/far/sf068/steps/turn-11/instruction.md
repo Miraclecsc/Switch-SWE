@@ -1,0 +1,1 @@
+Please check this too: Can't we just store the `attr_type` here? That will do away with having to store the entire `Element` and an extra lookup in the `try`.

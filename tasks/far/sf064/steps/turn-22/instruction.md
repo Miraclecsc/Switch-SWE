@@ -1,0 +1,1 @@
+One more thing: _⚠️ Potential issue_ | _🟡 Minor_ **Add explicit `-> None` to the test functions.** <details> <summary>Suggested fix (apply similarly to the rest of the tests)</summary> </details> As per coding guidelines: Use type hints throughout Python code (Python 3.10+ required). <details> <summary>🤖 Prompt for AI Agents</summary> </details>

@@ -1,0 +1,3 @@
+And here, I'm going to turn this into two checks: one that raises a `TypeError` for something wrong, and possibly a `ValueError` that has a nicer error message (rather than `x is the wrong type`) if it's an *instance* of `Screen` -- I don't want you guys to get bug reports complaining that instances no longer work!
+
+Reject add_mode values that are neither screen-name strings nor callables before registering them; retain the original prohibition on Screen instances in class registries/add_mode. Preserve all original tests and dynamic install_screen support.

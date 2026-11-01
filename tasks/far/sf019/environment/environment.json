@@ -1,0 +1,123 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+  ],
+  "case_id": "sf019_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e",
+      "python": "3.12.12",
+      "requirements": "requirements/121ec7ee69f22989-3.12.12-06fd2a7e.txt",
+      "source": "dependency-source/121ec7ee69f22989-3.12.12-06fd2a7e.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/121ec7ee69f22989-3.12.12-06fd2a7e"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "dc425e8b3d56b7ad84bf9d2820ae89e72d10a4a9",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "842051918afd64e422e0ccb8799df95400f2655c",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "c0fa5b6a300b161ecd5cbd38317acd5d288572d7",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "moto/s3/responses.py",
+          "sha256": "0f4ec358135fea73099dc9bd9ee71f54ffed85a35f62ef719be1f305dfe447b2"
+        },
+        {
+          "mode": "100644",
+          "path": "moto/s3/utils.py",
+          "sha256": "86466a8076581f81395f29b6298b5387bf7c73fc551ac284679a1cbbf77d05af"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_s3/test_s3_utils.py",
+          "sha256": "4e4c53db41e847cff58a6276dffa0f77f9e07356ebcc9bae232f0a13117d4601"
+        }
+      ],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "352b10bda95915ba256dcb439332d348b8b5868c",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "830a798c567bcdded2447efb7e98ca6d89b6a8c5",
+      "overlays": [],
+      "repo": "getmoto/moto",
+      "url": "https://github.com/getmoto/moto.git",
+      "workspace": "w04"
+    }
+  ]
+}

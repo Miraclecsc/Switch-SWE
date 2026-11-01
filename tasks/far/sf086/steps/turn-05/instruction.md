@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Support PEP 600 tags xref gh-280. This adds a whole bunch of PEP 600 tags (my python reports `os.confstr('CS_GNU_LIBC_VERSION') of 2.27): **EDIT**: after reversing the order in the tag-ordering revision

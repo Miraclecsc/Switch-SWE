@@ -1,0 +1,1 @@
+One more thing: My hypothesis would be that it was copied over from a pre-existing `_rescale` fn for the node betweenness centrality. The results of [blame]( ) sees to suggest this was the case, though it's not definitive.

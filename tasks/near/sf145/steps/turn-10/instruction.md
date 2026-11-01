@@ -1,0 +1,1 @@
+One more thing: > The purpose of that parameter is just to tell the pilot where to click. But a click is actually more than just a mouse down, right? Here's an (admittedly contrived!) example. I would expect this to fail since the button is never actually clicked, but if I've understood this change correctly, the check would now confusingly pass?

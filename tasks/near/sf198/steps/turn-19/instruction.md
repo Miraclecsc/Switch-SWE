@@ -1,0 +1,1 @@
+Please check this too: I've added a change that allows `trio.CancelScope` to switch from being relative to absolute. I know this wasn't the original design, but thinking through the deprecation note made this seem like a good change. I'd be happy to remove this change, I've kept it in a separate commit so we can revert it easily.

@@ -1,0 +1,500 @@
+diff --git a/tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py b/tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py
+index f2857ec34fc0..aaa91e50e4a4 100644
+--- a/tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py
++++ b/tests/test_bedrockagentcorecontrol/test_bedrockagentcorecontrol.py
+@@ -525,3 +525,427 @@ def test_update_agent_runtime_with_optional_fields():
+     assert get_resp["authorizerConfiguration"] == auth_config
+     assert get_resp["requestHeaderConfiguration"] == header_config
+     assert get_resp["lifecycleConfiguration"] == lifecycle_config
++
++
++GATEWAY_ROLE_ARN = "arn:aws:iam::123456789012:role/GatewayRole"
++TARGET_CONFIG = {"mcp": {"mcpServer": {"endpoint": "https://example.com/mcp"}}}
++CREDENTIAL_PROVIDER_CONFIGS = [
++    {
++        "credentialProviderType": "GATEWAY_IAM_ROLE",
++    }
++]
++
++
++@mock_aws
++def test_create_gateway():
++    client = _create_client()
++    resp = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++        description="Test gateway",
++    )
++    assert resp["gatewayId"] is not None
++    assert resp["name"] == "my-gateway"
++    assert resp["protocolType"] == "MCP"
++    assert resp["authorizerType"] == "NONE"
++    assert resp["status"] == "CREATING"
++    assert "gatewayArn" in resp
++    assert "gatewayUrl" in resp
++    assert "workloadIdentityDetails" in resp
++
++
++@mock_aws
++def test_get_gateway():
++    client = _create_client()
++    create_resp = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++        description="Test gateway",
++    )
++    gateway_id = create_resp["gatewayId"]
++
++    get_resp = client.get_gateway(gatewayIdentifier=gateway_id)
++    assert get_resp["gatewayId"] == gateway_id
++    assert get_resp["name"] == "my-gateway"
++    assert get_resp["description"] == "Test gateway"
++    assert get_resp["roleArn"] == GATEWAY_ROLE_ARN
++    assert get_resp["status"] == "READY"
++
++
++@mock_aws
++def test_get_gateway_not_found():
++    client = _create_client()
++    with pytest.raises(ClientError) as exc:
++        client.get_gateway(gatewayIdentifier="nonexistent0")
++    assert exc.value.response["Error"]["Code"] == "ResourceNotFoundException"
++
++
++@mock_aws
++def test_update_gateway():
++    client = _create_client()
++    create_resp = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = create_resp["gatewayId"]
++
++    update_resp = client.update_gateway(
++        gatewayIdentifier=gateway_id,
++        name="updated-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++        description="Updated",
++    )
++    assert update_resp["status"] == "UPDATING"
++    assert update_resp["name"] == "updated-gateway"
++
++    get_resp = client.get_gateway(gatewayIdentifier=gateway_id)
++    assert get_resp["name"] == "updated-gateway"
++    assert get_resp["description"] == "Updated"
++
++
++@mock_aws
++def test_delete_gateway():
++    client = _create_client()
++    create_resp = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = create_resp["gatewayId"]
++
++    del_resp = client.delete_gateway(gatewayIdentifier=gateway_id)
++    assert del_resp["status"] == "DELETING"
++    assert del_resp["gatewayId"] == gateway_id
++
++    with pytest.raises(ClientError) as exc:
++        client.get_gateway(gatewayIdentifier=gateway_id)
++    assert exc.value.response["Error"]["Code"] == "ResourceNotFoundException"
++
++
++@mock_aws
++def test_list_gateways():
++    client = _create_client()
++
++    resp = client.list_gateways()
++    assert resp["items"] == []
++
++    client.create_gateway(
++        name="gw-one",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    client.create_gateway(
++        name="gw-two",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++
++    resp = client.list_gateways()
++    assert len(resp["items"]) == 2
++    names = {g["name"] for g in resp["items"]}
++    assert names == {"gw-one", "gw-two"}
++
++
++@mock_aws
++def test_create_gateway_target():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    resp = client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="my-target",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++        description="Test target",
++    )
++    assert resp["targetId"] is not None
++    assert resp["name"] == "my-target"
++    assert resp["status"] == "CREATING"
++    assert resp["targetConfiguration"] == TARGET_CONFIG
++    assert "gatewayArn" in resp
++
++
++@mock_aws
++def test_get_gateway_target():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    create_resp = client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="my-target",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++        description="Test target",
++    )
++    target_id = create_resp["targetId"]
++
++    get_resp = client.get_gateway_target(
++        gatewayIdentifier=gateway_id,
++        targetId=target_id,
++    )
++    assert get_resp["targetId"] == target_id
++    assert get_resp["name"] == "my-target"
++    assert get_resp["status"] == "READY"
++    assert get_resp["description"] == "Test target"
++
++
++@mock_aws
++def test_get_gateway_target_not_found():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    with pytest.raises(ClientError) as exc:
++        client.get_gateway_target(
++            gatewayIdentifier=gateway_id,
++            targetId="nonexist00",
++        )
++    assert exc.value.response["Error"]["Code"] == "ResourceNotFoundException"
++
++
++@mock_aws
++def test_update_gateway_target():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    create_resp = client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="my-target",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++    )
++    target_id = create_resp["targetId"]
++
++    new_config = {"mcp": {"mcpServer": {"endpoint": "https://example.com/mcp-v2"}}}
++    update_resp = client.update_gateway_target(
++        gatewayIdentifier=gateway_id,
++        targetId=target_id,
++        name="updated-target",
++        targetConfiguration=new_config,
++        description="Updated target",
++    )
++    assert update_resp["status"] == "UPDATING"
++
++    get_resp = client.get_gateway_target(
++        gatewayIdentifier=gateway_id,
++        targetId=target_id,
++    )
++    assert get_resp["name"] == "updated-target"
++    assert get_resp["targetConfiguration"] == new_config
++    assert get_resp["description"] == "Updated target"
++
++
++@mock_aws
++def test_delete_gateway_target():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    create_resp = client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="my-target",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++    )
++    target_id = create_resp["targetId"]
++
++    del_resp = client.delete_gateway_target(
++        gatewayIdentifier=gateway_id,
++        targetId=target_id,
++    )
++    assert del_resp["status"] == "DELETING"
++    assert del_resp["targetId"] == target_id
++
++    with pytest.raises(ClientError) as exc:
++        client.get_gateway_target(
++            gatewayIdentifier=gateway_id,
++            targetId=target_id,
++        )
++    assert exc.value.response["Error"]["Code"] == "ResourceNotFoundException"
++
++
++@mock_aws
++def test_list_gateway_targets():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    resp = client.list_gateway_targets(gatewayIdentifier=gateway_id)
++    assert resp["items"] == []
++
++    client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="target-one",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++    )
++    client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="target-two",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++    )
++
++    resp = client.list_gateway_targets(gatewayIdentifier=gateway_id)
++    assert len(resp["items"]) == 2
++    names = {t["name"] for t in resp["items"]}
++    assert names == {"target-one", "target-two"}
++
++
++@mock_aws
++def test_delete_gateway_removes_targets():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="target-one",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++    )
++    client.delete_gateway(gatewayIdentifier=gateway_id)
++
++    with pytest.raises(ClientError) as exc:
++        client.get_gateway(gatewayIdentifier=gateway_id)
++    assert exc.value.response["Error"]["Code"] == "ResourceNotFoundException"
++
++
++@mock_aws
++def test_create_gateway_with_optional_fields_and_tags():
++    client = _create_client()
++    resp = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++        description="Tagged gateway",
++        tags={"env": "test"},
++    )
++    gateway_id = resp["gatewayId"]
++
++    tags = client.list_tags_for_resource(resourceArn=resp["gatewayArn"])["tags"]
++    assert tags == {"env": "test"}
++
++    gateways = client.list_gateways()["items"]
++    described = [g for g in gateways if g["gatewayId"] == gateway_id]
++    assert described[0]["description"] == "Tagged gateway"
++
++
++@mock_aws
++def test_update_gateway_with_optional_fields():
++    client = _create_client()
++    create_resp = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = create_resp["gatewayId"]
++
++    update_resp = client.update_gateway(
++        gatewayIdentifier=gateway_id,
++        name="updated-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++        description="Updated",
++        authorizerConfiguration={
++            "customJWTAuthorizer": {
++                "discoveryUrl": "https://example.com/.well-known/jwks.json"
++            }
++        },
++        kmsKeyArn="arn:aws:kms:us-east-1:123456789012:key/abc123",
++        exceptionLevel="DEBUG",
++    )
++    assert update_resp["status"] == "UPDATING"
++    assert update_resp["authorizerConfiguration"]["customJWTAuthorizer"] is not None
++    assert update_resp["kmsKeyArn"] == "arn:aws:kms:us-east-1:123456789012:key/abc123"
++    assert update_resp["exceptionLevel"] == "DEBUG"
++
++
++@mock_aws
++def test_update_gateway_target_with_optional_fields():
++    client = _create_client()
++    gw = client.create_gateway(
++        name="my-gateway",
++        roleArn=GATEWAY_ROLE_ARN,
++        protocolType="MCP",
++        authorizerType="NONE",
++    )
++    gateway_id = gw["gatewayId"]
++
++    create_resp = client.create_gateway_target(
++        gatewayIdentifier=gateway_id,
++        name="my-target",
++        targetConfiguration=TARGET_CONFIG,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++    )
++    target_id = create_resp["targetId"]
++
++    new_config = {"mcp": {"mcpServer": {"endpoint": "https://example.com/mcp-v2"}}}
++    metadata_config = {"allowedRequestHeaders": ["x-header-1", "x-header-2"]}
++    update_resp = client.update_gateway_target(
++        gatewayIdentifier=gateway_id,
++        targetId=target_id,
++        name="updated-target",
++        targetConfiguration=new_config,
++        credentialProviderConfigurations=CREDENTIAL_PROVIDER_CONFIGS,
++        metadataConfiguration=metadata_config,
++    )
++    assert update_resp["status"] == "UPDATING"
++
++    get_resp = client.get_gateway_target(
++        gatewayIdentifier=gateway_id,
++        targetId=target_id,
++    )
++    assert get_resp["metadataConfiguration"] == metadata_config
+diff --git a/tests/test_bedrockagentcorecontrol/test_endpoint_revisions_v1.py b/tests/test_bedrockagentcorecontrol/test_endpoint_revisions_v1.py
+new file mode 100644
+index 000000000..f41ecb008
+--- /dev/null
++++ b/tests/test_bedrockagentcorecontrol/test_endpoint_revisions_v1.py
+@@ -0,0 +1,62 @@
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++from moto import mock_aws
++
++
++CONFIG = dict(agentRuntimeArtifact={"containerConfiguration":{"containerUri":"123456789012.dkr.ecr.us-east-1.amazonaws.com/agent:latest"}},
++              roleArn="arn:aws:iam::123456789012:role/Runtime",
++              networkConfiguration={"networkMode":"PUBLIC"})
++
++
++def setup():
++    c = boto3.client("bedrock-agentcore-control",region_name="us-east-1")
++    rid = c.create_agent_runtime(agentRuntimeName="versioned_runtime", **CONFIG)["agentRuntimeId"]
++    c.update_agent_runtime(agentRuntimeId=rid, **CONFIG)
++    return c, rid
++
++
++@mock_aws
++def test_endpoint_promotes_existing_target_revision_when_ready():
++    c, rid = setup()
++    c.create_agent_runtime_endpoint(agentRuntimeId=rid,name="endpoint",agentRuntimeVersion="1")
++    initial = c.get_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint")
++    assert initial["targetVersion"] == initial["liveVersion"] == "1"
++    update = c.update_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint",agentRuntimeVersion="2")
++    assert update["targetVersion"] == "2"
++    final = c.get_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint")
++    assert final["status"] == "READY"
++    assert final["targetVersion"] == final["liveVersion"] == "2"
++
++
++@mock_aws
++def test_create_unknown_version_does_not_leave_endpoint():
++    c, rid = setup()
++    with pytest.raises(ClientError) as caught:
++        c.create_agent_runtime_endpoint(agentRuntimeId=rid,name="invalid",agentRuntimeVersion="999")
++    assert caught.value.response["Error"]["Code"] == "ResourceNotFoundException"
++    assert c.list_agent_runtime_endpoints(agentRuntimeId=rid)["runtimeEndpoints"] == []
++
++
++@mock_aws
++def test_invalid_update_is_atomic_for_description_and_version():
++    c, rid = setup()
++    c.create_agent_runtime_endpoint(agentRuntimeId=rid,name="endpoint",agentRuntimeVersion="1",description="initial")
++    with pytest.raises(ClientError) as caught:
++        c.update_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint",
++                                       agentRuntimeVersion="999",description="must not commit")
++    assert caught.value.response["Error"]["Code"] == "ResourceNotFoundException"
++    value = c.get_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint")
++    assert value["description"] == "initial"
++    assert value["targetVersion"] == value["liveVersion"] == "1"
++
++
++@mock_aws
++def test_default_revision_is_pinned_and_metadata_update_keeps_it():
++    c, rid = setup()
++    c.create_agent_runtime_endpoint(agentRuntimeId=rid,name="endpoint")
++    c.update_agent_runtime(agentRuntimeId=rid, **CONFIG)
++    c.update_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint",description="metadata")
++    result = c.get_agent_runtime_endpoint(agentRuntimeId=rid,endpointName="endpoint")
++    assert result["targetVersion"] == result["liveVersion"] == "2"
++    assert result["description"] == "metadata"

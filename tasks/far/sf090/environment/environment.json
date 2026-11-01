@@ -1,0 +1,165 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd",
+    "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5"
+  ],
+  "case_id": "sf090_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTEST_PLUGINS": "pytest_timeout",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w04",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5",
+      "python": "3.12.3",
+      "requirements": "requirements/0f7e268199f8117a-3.12.3-1e03a9e5.txt",
+      "source": "dependency-source/0f7e268199f8117a-3.12.3-1e03a9e5.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd",
+      "python": "3.12.3",
+      "requirements": "requirements/6473bf8135ce521a-3.12.3-7cc0a0cd.txt",
+      "source": "dependency-source/6473bf8135ce521a-3.12.3-7cc0a0cd.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd"
+      ],
+      "python": "3.12.3"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd"
+      ],
+      "python": "3.12.3"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd"
+      ],
+      "python": "3.12.3"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd"
+      ],
+      "python": "3.12.3"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/0f7e268199f8117a-3.12.3-1e03a9e5",
+        "/opt/ssb/deps/6473bf8135ce521a-3.12.3-7cc0a0cd"
+      ],
+      "python": "3.12.3"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "13d4bade65c841574fbd73a12b314f13649e1590",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_run.py",
+          "sha256": "d1b7891df82f5d467d69d60d96efe39a6a40664fb3be5a6b83fa1d06b4f03f8e"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_guest_mode.py",
+          "sha256": "b4a5d7015d23a3e6704d191888e363ec5e0a56e2b0901bf025025b2cbf7cad09"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "a9f8abdef7ebea98517df042f7f35cb15d9e0e8a",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_run.py",
+          "sha256": "dfdc978ff4eba5ce8a0ea6ad3c9f39504551629ea6f82363c14730be4a44cdc7"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_guest_mode.py",
+          "sha256": "00af80bf735dd0e88db83965d7d39de5e14ae3c336173a2998bb818d22b2d6e9"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "6deaf2a94d3d54437606ba031a06be79362c82f6",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_run.py",
+          "sha256": "951215bce75a97499efb8434d2e87139d1fe4736d45a7dbad1cf95a8df40da32"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_guest_mode.py",
+          "sha256": "d445eb63d186fa955b94d49c0c222fa9fa2acfd73aaaa462098c14447f9690e7"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "cd61e4752f9850be1f460ef77a4b248ccfa8c31d",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_run.py",
+          "sha256": "419b502636450ebcad5a6383d541b0b4a78ac9873451b184ec26a1ffa1850330"
+        },
+        {
+          "mode": "100644",
+          "path": "src/trio/_core/_tests/test_guest_mode.py",
+          "sha256": "ae829cbde3af9ee73cde5b44ab5a0a34c8d3ec91761639d5553c8bf33ad825bc"
+        }
+      ],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "d3255a0bd29d4d1adfafff21aeeaa60d0b4aba9a",
+      "overlays": [],
+      "repo": "python-trio/trio",
+      "url": "https://github.com/python-trio/trio.git",
+      "workspace": "w04"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Also, It would be good to add an explicit test for the unknown variable error case that this pertains to.

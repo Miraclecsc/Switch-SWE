@@ -1,0 +1,1 @@
+And here, Revert "Fix: Ensure fish completion handles multiline help strings correctly (#3126)" This reverts commit 19fd4d6e18bc9fce451f92f422696b11169faa57.

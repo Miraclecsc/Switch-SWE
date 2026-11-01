@@ -1,0 +1,1 @@
+And here, I wonder where I got that information (that `EXT_SUFFIX` is to be preferred over `SOABI`). It seems that in the posix configure script `SOABI` comes first. I do agree that if they are not equivalent (plus-minus a suffix) it is a bug, so it would seem for the purposes of this PR that SOABI is easier, no need to remove the suffix.

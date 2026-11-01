@@ -1,0 +1,1 @@
+And here, Making sure, nothing can go wrong with the literal `is False` compare? No one could set strict exception groups to a value that could be interpreted as the `False` branch?

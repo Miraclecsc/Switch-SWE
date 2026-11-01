@@ -1,0 +1,1 @@
+I have this in /work/w03: RDS: DBClusterParameterGroup Improvements Initial error reported when run rds.list_tags_tags_for_resource Adds support for getting the tags assigned to an rds cluster param group Aligns the creation commands for cluster param group with the param group to make it more consistent Add copy_db_cluster_parameter_group to align with what parameter groups have

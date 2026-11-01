@@ -1,0 +1,1 @@
+And here, Oh I see. You added `_version.py` you'll probably have to add `_version.pyi` But I can't repro your error messages. What command are you running to trigger them?

@@ -1,0 +1,1 @@
+I have this in /work/w04: Fixes #36590 subclasses of BaseCache should use specialized implementation of methods for async version

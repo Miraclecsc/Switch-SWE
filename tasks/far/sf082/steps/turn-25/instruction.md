@@ -1,0 +1,1 @@
+Also, @sbidoul I know I already merged this, but I just realized around the ambiguity case when a name isn't explicitly provided but both a path and URL, ["In the face of ambiguity, refuse the temptation to guess"]( and raise an ambiguity exception.

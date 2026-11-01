@@ -1,0 +1,1 @@
+Also, FWIW, Python 2.7 has `types.NoneType`: Interestingly, while `NoneType` in Python3 is a thing, I don't know how to reach it directly:

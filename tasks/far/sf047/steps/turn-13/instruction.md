@@ -1,0 +1,1 @@
+Also, I suspect this merits a test for the multi-column case, something like `df.loc[mask, ["B","C"]] = Series([99], index=[2])`?

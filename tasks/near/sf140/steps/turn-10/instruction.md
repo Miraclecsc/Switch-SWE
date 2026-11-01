@@ -1,0 +1,1 @@
+One more thing: DOC: restore freq docstring on DatetimeTimedeltaMixin override (GH#24566) When freq was relocated from DatetimeIndexOpsMixin to DatetimeTimedeltaMixin, the docstring wasn't copied to the override. numpydoc validation flagged pandas.DatetimeIndex.freq / TimedeltaIndex.freq as missing a docstring, which the docbuild treats as an error via --warnings-are-errors.

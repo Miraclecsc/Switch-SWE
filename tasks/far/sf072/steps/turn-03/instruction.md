@@ -1,0 +1,1 @@
+Please check this too: Complete heterogeneous node-shape drawing by aligning per-node node_size, node_color, linewidths and edgecolors with each shape's selected nodes. Alignment follows the supplied nodelist order, including reordered subsets, without mutating input sequences.

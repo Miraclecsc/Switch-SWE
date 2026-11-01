@@ -1,0 +1,1 @@
+I have this in /work/w03: In Starlette, the request/app `State` object only supports attribute-style access. It should also behave like a `Mapping` (supporting dictionary-style access such as `state['key']`, iteration, and `len`) to improve type safety and ergonomics.

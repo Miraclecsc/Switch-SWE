@@ -1,0 +1,1 @@
+And here, It might be better to organize multiple tests related to the same class under a test class (e.g. `TestSpooledTemporaryFile` and then remove the prefixes from the test methods appropriately.

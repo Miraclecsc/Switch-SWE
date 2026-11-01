@@ -1,0 +1,1 @@
+And here, This is a strange request, but could we raise an error if some global variable is set. That way I could monkeypatch in the error behavior, even before we deal with every other trio deprecation.

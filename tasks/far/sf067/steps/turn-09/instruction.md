@@ -1,0 +1,1 @@
+Also, Support arbitrary hashable unsortable labels, required singletons and disconnected graph errors while keeping the existing directed-graph rejection.

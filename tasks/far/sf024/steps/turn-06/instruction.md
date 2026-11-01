@@ -1,0 +1,1 @@
+One more thing: In that PR, the consensus seems to have been that `edge_betweenness_centrality` and the subset betweenness centralities didn't need to change:

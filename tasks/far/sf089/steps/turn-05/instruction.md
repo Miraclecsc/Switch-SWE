@@ -1,0 +1,1 @@
+Also, Also fixing an interesting docs build error caused by Python 3.12 releasing. `pathlib.Path.link_to()` was deprecated and removed, causing our link in the docs to fail. Added a manual deprecation to the docs.

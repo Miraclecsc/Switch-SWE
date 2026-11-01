@@ -1,0 +1,1 @@
+One more thing: Yeah those aren't relevant. `__unicode__` would be Py2 remnants, PyPy mustn't have removed that yet. The rest are how the memory layout of the object is defined/exposed for introspection, which isn't something Python code should care about unless it's using `ctypes` or something.

@@ -1,0 +1,1 @@
+One more thing: Yep, I know, thanks for bringing this up. Doing this as POC, after all internals are done I was planing to create separate extension class that user could use.

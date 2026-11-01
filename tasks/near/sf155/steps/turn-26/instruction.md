@@ -1,0 +1,1 @@
+One more thing: Yeah something to say it's experimental and different from trio behavior. If we find out it's too hard to support both behaviors from user code we can add a workaround without making a major release

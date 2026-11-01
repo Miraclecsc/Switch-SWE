@@ -1,0 +1,1 @@
+One more thing: I'm not too familiar with this part of Starlette, but env variables (e.g. `os.environ`) are always string keys and string values

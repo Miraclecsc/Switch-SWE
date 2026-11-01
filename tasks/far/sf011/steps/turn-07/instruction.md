@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Issue: Best to use the public APIs for mutating the state here, rather than modifying the cache directly.

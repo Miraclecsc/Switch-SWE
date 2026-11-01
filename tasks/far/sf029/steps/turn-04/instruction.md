@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: assumptions: Fix `inconsistent assumptions` in `satask` for `0*irrational`

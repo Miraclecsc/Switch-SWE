@@ -1,0 +1,1 @@
+In the checkout at /work/w03, I don't think this is what we meant on the discussion (at least not what I mean). 🤔 I mean to raise a warning if `lifespan` is used on `Router` if not provided from `Starlette`.

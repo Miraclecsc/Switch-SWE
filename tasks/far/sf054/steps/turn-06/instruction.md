@@ -1,0 +1,1 @@
+One more thing: The idea was to use the ID of the blocking portal, not the thread. You can already see the thread ID if you have the thread object.

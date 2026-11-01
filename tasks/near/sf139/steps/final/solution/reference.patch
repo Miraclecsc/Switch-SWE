@@ -1,0 +1,87 @@
+diff --git a/doc/source/whatsnew/v3.1.0.rst b/doc/source/whatsnew/v3.1.0.rst
+index 182d13d39e..9870d4469e 100644
+--- a/doc/source/whatsnew/v3.1.0.rst
++++ b/doc/source/whatsnew/v3.1.0.rst
+@@ -431,6 +431,7 @@ Styler
+ Other
+ ^^^^^
+ 
++- Bug in :meth:`DataFrame.eval` where a duplicate column name was resolved to a single column (yielding a :class:`Series`), inconsistent with :func:`pandas.eval` using ``resolvers=(df,)`` and with :meth:`DataFrame.__getitem__`, which include every column with that label (:issue:`65588`)
+ - Bug in :meth:`Series.transform` and :meth:`DataFrame.transform` where passing a list of duplicate function names did not raise :class:`errors.SpecificationError` (:issue:`54929`)
+ 
+ .. ***DO NOT USE THIS SECTION***
+diff --git a/pandas/core/frame.py b/pandas/core/frame.py
+index a2f870367b..5d6ffbb852 100644
+--- a/pandas/core/frame.py
++++ b/pandas/core/frame.py
+@@ -5294,14 +5294,19 @@ class DataFrame(NDFrame, OpsMixin):
+ 
+         inplace = validate_bool_kwarg(inplace, "inplace")
+         kwargs["level"] = kwargs.pop("level", 0) + 1
+-        index_resolvers = self._get_index_resolvers()
+-        column_resolvers = self._get_cleaned_column_resolvers()
++        transactional = inplace and kwargs.get("target", self) is self
++        target = self.copy(deep=True) if transactional else self
++        index_resolvers = target._get_index_resolvers()
++        column_resolvers = target._get_cleaned_column_resolvers()
+         resolvers = column_resolvers, index_resolvers
+-        if "target" not in kwargs:
+-            kwargs["target"] = self
++        if "target" not in kwargs or transactional:
++            kwargs["target"] = target
+         kwargs["resolvers"] = tuple(kwargs.get("resolvers", ())) + resolvers
+ 
+-        return _eval(expr, inplace=inplace, **kwargs)
++        result = _eval(expr, inplace=inplace, **kwargs)
++        if transactional:
++            self._update_inplace(target)
++        return result
+ 
+     def select_dtypes(self, include=None, exclude=None) -> DataFrame:
+         """
+diff --git a/pandas/core/generic.py b/pandas/core/generic.py
+index 45ab94b5ef..816a17ada1 100644
+--- a/pandas/core/generic.py
++++ b/pandas/core/generic.py
+@@ -577,7 +577,7 @@ class NDFrame(PandasObject, indexing.IndexingMixin):
+         return {clean_column_name(k): v for k, v in d.items() if not isinstance(k, int)}
+ 
+     @final
+-    def _get_cleaned_column_resolvers(self) -> dict[Hashable, Series]:
++    def _get_cleaned_column_resolvers(self) -> dict[Hashable, Series | DataFrame]:
+         """
+         Return the special character free column resolvers of a DataFrame.
+ 
+@@ -586,23 +586,19 @@ class NDFrame(PandasObject, indexing.IndexingMixin):
+         Used in :meth:`DataFrame.eval`.
+         """
+         from pandas.core.computation.parsing import clean_column_name
+-        from pandas.core.series import Series
+ 
+         if isinstance(self, ABCSeries):
+             return {clean_column_name(self.name): self}
+ 
+-        dtypes = self.dtypes
+-        return {
+-            clean_column_name(k): Series(
+-                v, copy=False, index=self.index, name=k, dtype=dtype
+-            ).__finalize__(self)
+-            for k, v, dtype in zip(
+-                self.columns,
+-                self._iter_column_arrays(),
+-                dtypes,
+-                strict=True,
+-            )
+-        }
++        result = {}
++        # Duplicate original labels form one DataFrame-valued resolver. Distinct
++        # labels must not silently overwrite one another after token cleaning.
++        for label in self.columns.unique():
++            cleaned = clean_column_name(label)
++            if cleaned in result:
++                raise ValueError(f"Ambiguous cleaned column name: {cleaned!r}")
++            result[cleaned] = self[label]
++        return result
+ 
+     @final
+     @property

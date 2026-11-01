@@ -1,0 +1,1 @@
+Also, Since the algorithm and code returns a dictionary of nodes, I prefer `panther_similarity` without any `paths`. We are not returning paths Consider only similar nodes. Also `panther_similarity_plus_plus` is a little big. What about `panther_similarity_pp`.

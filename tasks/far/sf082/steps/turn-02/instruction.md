@@ -1,0 +1,1 @@
+For the checkout at /work/w02, Add parse_tag limit for compressed tags This PR adds a new kw-only parameter to `parse_tags()` to limit the amout of tags that can be generated from compressed tags. If the limit is exceeded, a new exception (`TooManyTagsError`) is raised. The parameter is `limit: int | None` and defaults to `None`. Fixes

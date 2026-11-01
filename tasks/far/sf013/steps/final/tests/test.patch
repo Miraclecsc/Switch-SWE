@@ -1,0 +1,169 @@
+diff --git a/tests/admin_views/admin.py b/tests/admin_views/admin.py
+index 3be1fc61b954..a0ecd99c25a7 100644
+--- a/tests/admin_views/admin.py
++++ b/tests/admin_views/admin.py
+@@ -1036,9 +1036,16 @@ class AttributeErrorRaisingAdmin(admin.ModelAdmin):
+     list_display = [callable_on_unknown]
+ 
+ 
++@admin.action(description="Restore", location=ActionLocation.CHANGE_FORM)
++def restore_filtered_manager(modeladmin, request, queryset):
++    queryset.update(deleted=False)
++
++
+ class CustomManagerAdmin(admin.ModelAdmin):
++    actions = [restore_filtered_manager]
++
+     def get_queryset(self, request):
+-        return FilteredManager.objects
++        return FilteredManager.all_objects.all()
+ 
+ 
+ class MessageTestingAdmin(admin.ModelAdmin):
+diff --git a/tests/admin_views/models.py b/tests/admin_views/models.py
+index 06868e59db8c..995391cb392b 100644
+--- a/tests/admin_views/models.py
++++ b/tests/admin_views/models.py
+@@ -958,15 +958,17 @@ class DependentChild(models.Model):
+ 
+ class _Manager(models.Manager):
+     def get_queryset(self):
+-        return super().get_queryset().filter(pk__gt=1)
++        return super().get_queryset().filter(deleted=False)
+ 
+ 
+ class FilteredManager(models.Model):
++    deleted = models.BooleanField(default=False)
++
+     def __str__(self):
+         return "PK=%s" % self.pk
+ 
+-    pk_gt_1 = _Manager()
+-    objects = models.Manager()
++    objects = _Manager()  # Default manager uses non-deleted instances only.
++    all_objects = models.Manager()
+ 
+ 
+ class EmptyModelVisible(models.Model):
+diff --git a/tests/admin_views/tests.py b/tests/admin_views/tests.py
+index 29516f573297..af6bf07e98e8 100644
+--- a/tests/admin_views/tests.py
++++ b/tests/admin_views/tests.py
+@@ -5728,26 +5728,41 @@ def test_history_view_custom_qs(self):
+         Custom querysets are considered for the admin history view.
+         """
+         self.client.post(reverse("admin:login"), self.super_login)
+-        FilteredManager.objects.create(pk=1)
+-        FilteredManager.objects.create(pk=2)
++        active_pk = FilteredManager.all_objects.create(deleted=False).pk
++        deleted_pk = FilteredManager.all_objects.create(deleted=True).pk
+         response = self.client.get(
+             reverse("admin:admin_views_filteredmanager_changelist")
+         )
+-        self.assertContains(response, "PK=1")
+-        self.assertContains(response, "PK=2")
++        self.assertContains(response, f"PK={active_pk}")
++        self.assertContains(response, f"PK={deleted_pk}")
++        url_name = "admin:admin_views_filteredmanager_history"
+         self.assertEqual(
+-            self.client.get(
+-                reverse("admin:admin_views_filteredmanager_history", args=(1,))
+-            ).status_code,
+-            200,
++            self.client.get(reverse(url_name, args=(active_pk,))).status_code, 200
+         )
+         self.assertEqual(
+-            self.client.get(
+-                reverse("admin:admin_views_filteredmanager_history", args=(2,))
+-            ).status_code,
++            self.client.get(reverse(url_name, args=(deleted_pk,))).status_code,
+             200,
+         )
+ 
++    def test_action_changeform_uses_modeladmin_queryset(self):
++        # Change form actions must receive the queryset from
++        # ModelAdmin.get_queryset(), not the model's default manager. Here,
++        # FilteredManager.objects excludes deleted rows while
++        # CustomManagerAdmin.get_queryset() uses all_objects. A restore action
++        # on a soft-deleted object must receive a non-empty queryset.
++        obj = FilteredManager.all_objects.create(deleted=True)
++        response = self.client.post(
++            reverse("admin:admin_views_filteredmanager_change", args=[obj.pk]),
++            {
++                "CHANGE_FORM-action": "restore_filtered_manager",
++                ACTION_CHECKBOX_NAME: [obj.pk],
++                "index": 0,
++            },
++        )
++        self.assertEqual(response.status_code, 302)
++        obj.refresh_from_db()
++        self.assertIs(obj.deleted, False)
++
+ 
+ @override_settings(ROOT_URLCONF="admin_views.urls")
+ class AdminInlineFileUploadTest(TestCase):
+diff --git a/tests/admin_views/test_action_object_permissions_v1.py b/tests/admin_views/test_action_object_permissions_v1.py
+new file mode 100644
+index 0000000000..ece91db712
+--- /dev/null
++++ b/tests/admin_views/test_action_object_permissions_v1.py
+@@ -0,0 +1,59 @@
++from unittest.mock import patch
++from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
++from django.contrib.auth import get_user_model
++from django.test import TestCase, override_settings
++from django.urls import reverse
++from .admin import CustomManagerAdmin, restore_filtered_manager
++from .models import FilteredManager
++
++
++@override_settings(ROOT_URLCONF="admin_views.urls")
++class ChangeFormObjectPermissionTests(TestCase):
++    def setUp(self):
++        user = get_user_model().objects.create_superuser("action-scope", "a@example.com", "password")
++        self.client.force_login(user)
++        self.target = FilteredManager.all_objects.create(deleted=True)
++        self.other = FilteredManager.all_objects.create(deleted=True)
++
++    def submit(self):
++        return self.client.post(reverse("admin:admin_views_filteredmanager_change", args=[self.target.pk]), {
++            "CHANGE_FORM-action":"restore_filtered_manager",
++            ACTION_CHECKBOX_NAME:[self.target.pk], "index":0,
++        })
++
++    def test_request_level_change_permission_is_not_object_permission(self):
++        def allowed(admin, request, obj=None):
++            return obj is None
++        with patch.object(restore_filtered_manager, "allowed_permissions", ["change"], create=True), \
++             patch.object(CustomManagerAdmin, "has_change_permission", allowed):
++            response = self.submit()
++        self.assertEqual(response.status_code, 403)
++        self.target.refresh_from_db()
++        self.assertTrue(self.target.deleted)
++
++    def test_explicit_delete_permission_is_checked_for_the_object(self):
++        def allowed(admin, request, obj=None):
++            return obj is None
++        with patch.object(restore_filtered_manager, "allowed_permissions", ["delete"], create=True), \
++             patch.object(CustomManagerAdmin, "has_delete_permission", allowed):
++            response = self.submit()
++        self.assertEqual(response.status_code, 403)
++        self.target.refresh_from_db()
++        self.assertTrue(self.target.deleted)
++
++    def test_any_explicit_builtin_permission_may_authorize_action(self):
++        with patch.object(restore_filtered_manager, "allowed_permissions", ["change","view"], create=True), \
++             patch.object(CustomManagerAdmin, "has_change_permission", lambda self,request,obj=None: obj is None), \
++             patch.object(CustomManagerAdmin, "has_view_permission", lambda self,request,obj=None: True):
++            response = self.submit()
++        self.assertEqual(response.status_code, 302)
++        self.target.refresh_from_db()
++        self.other.refresh_from_db()
++        self.assertFalse(self.target.deleted)
++        self.assertTrue(self.other.deleted)
++
++    def test_unannotated_original_action_still_uses_admin_queryset(self):
++        response = self.submit()
++        self.assertEqual(response.status_code, 302)
++        self.target.refresh_from_db()
++        self.assertFalse(self.target.deleted)

@@ -1,0 +1,1 @@
+And here, If we want to do something to the general way that Poly-based functions work then fine but otherwise this should not add special case handling in `degree`.

@@ -1,0 +1,35 @@
+diff --git a/tests/test_case_convertion_util.py b/tests/test_case_convertion_util.py
+index 2df8cecf2..3b276268d 100644
+--- a/tests/test_case_convertion_util.py
++++ b/tests/test_case_convertion_util.py
+@@ -42,3 +42,7 @@ def test_no_underscore_added_if_previous_character_is_an_underscore():
+ 
+ def test_no_underscore_added_if_previous_character_is_uppercase():
+     assert convert_camel_case_to_snake("testWithUPPERPart") == "test_with_upperpart"
++
++
++def test_digits_are_treated_as_word():
++    assert convert_camel_case_to_snake("testWith365InIt") == "test_with_365_in_it"
+diff --git a/tests/test_sf167_staged.py b/tests/test_sf167_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf167_staged.py
+@@ -0,0 +1,18 @@
++from ariadne.utils import convert_camel_case_to_snake, convert_kwargs_to_snake_case
++
++def test_existing_numeric_separator_is_preserved():
++    for original, expected in [("field_365Bar", "field_365_bar"), ("_365Days", "_365_days"), ("field__2Name", "field__2_name")]:
++        assert convert_camel_case_to_snake(original) == expected
++
++def test_numeric_names_are_idempotent():
++    for original in ["foo365Bar", "_365Days", "field_365Bar", "version12_34Value", "testWithUPPERPart", "field__2Name"]:
++        once = convert_camel_case_to_snake(original)
++        assert convert_camel_case_to_snake(once) == once
++
++def test_nested_resolver_numeric_keys():
++    @convert_kwargs_to_snake_case
++    def resolver(**kwargs):
++        return kwargs
++    data = {"field_365Bar": [{"item_2Name": "x"}, {"other12Name": {"_3Days": 4}}]}
++    assert resolver(input365=data) == {"input_365": {"field_365_bar": [{"item_2_name": "x"}, {"other_12_name": {"_3_days": 4}}]}}
++    assert data == {"field_365Bar": [{"item_2Name": "x"}, {"other12Name": {"_3Days": 4}}]}

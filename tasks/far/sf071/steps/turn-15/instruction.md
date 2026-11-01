@@ -1,0 +1,1 @@
+Please check this too: The last comment in #6710 points out that not all the nodes are present in the networkx result for `immediate_dominators`. So having all nodes in a returned dict is not as relevant for this literature as for some other algorithms. I'm good for excluding `start` from the returns dict.

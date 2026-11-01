@@ -1,0 +1,249 @@
+diff --git a/tests/test_tempfile.py b/tests/test_tempfile.py
+index 9d8360900..f45a21133 100644
+--- a/tests/test_tempfile.py
++++ b/tests/test_tempfile.py
+@@ -102,6 +102,14 @@ async def test_closed_state(self) -> None:
+ 
+         assert stf.closed
+ 
++    async def test_exact_boundary_no_rollover(self) -> None:
++        async with SpooledTemporaryFile(max_size=10) as stf:
++            await stf.write(b"0123456789")
++            assert not stf._rolled
++
++            await stf.write(b"x")
++            assert stf._rolled
++
+ 
+ class TestTemporaryDirectory:
+     async def test_context_manager(self) -> None:
+diff --git a/tests/test_spooled_rollover_contract.py b/tests/test_spooled_rollover_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_spooled_rollover_contract.py
+@@ -0,0 +1,225 @@
++from __future__ import annotations
++
++import io
++import os
++
++import pytest
++
++from anyio import SpooledTemporaryFile
++
++pytestmark = pytest.mark.anyio
++
++
++async def disk_bytes(stf):
++    await stf.flush()
++    return os.pread(stf.fileno(), 10000, 0)
++
++
++async def test_a2_explicit_rollover_preserves_binary_cursor(tmp_path):
++    for offset in (0, 3, 25):
++        async with SpooledTemporaryFile(max_size=100, dir=str(tmp_path)) as stf:
++            await stf.write(b"hello\nworld")
++            await stf.seek(offset)
++            await stf.rollover()
++            assert await stf.tell() == offset
++            assert await stf.read() == b"hello\nworld"[offset:]
++            await stf.seek(0)
++            assert await stf.read() == b"hello\nworld"
++            assert await disk_bytes(stf) == b"hello\nworld"
++
++
++async def test_a2_repeated_rollover_is_idempotent(tmp_path):
++    directory = tmp_path / "spool"
++    directory.mkdir()
++    async with SpooledTemporaryFile(max_size=100, dir=str(directory)) as stf:
++        await stf.write(b"abcdef")
++        await stf.rollover()
++        directory.rmdir()
++        await stf.seek(2)
++        await stf.rollover()
++        await stf.rollover()
++        assert await stf.tell() == 2
++        assert await stf.write(b"XY") == 2
++        await stf.seek(0)
++        assert await stf.read() == b"abXYef"
++        assert await disk_bytes(stf) == b"abXYef"
++    assert stf.closed
++
++
++async def test_a3_explicit_allocation_failure_can_retry(tmp_path):
++    directory = tmp_path / "missing"
++    async with SpooledTemporaryFile(max_size=100, dir=str(directory)) as stf:
++        await stf.write(b"abcdef")
++        await stf.seek(3)
++        for _ in range(2):
++            with pytest.raises(OSError):
++                await stf.rollover()
++            assert not stf.closed
++            assert await stf.tell() == 3
++            assert await stf.read() == b"def"
++            await stf.seek(3)
++        assert await stf.write(b"XY") == 2
++        assert await stf.tell() == 5
++        await stf.truncate(5)
++        directory.mkdir()
++        await stf.rollover()
++        assert await stf.tell() == 5
++        await stf.seek(0)
++        assert await stf.read() == b"abcXY"
++        assert await disk_bytes(stf) == b"abcXY"
++    assert stf.closed
++
++
++async def test_a3_automatic_allocation_failure_retains_write(tmp_path):
++    for method in ("write", "writelines"):
++        directory = tmp_path / method
++        async with SpooledTemporaryFile(max_size=4, dir=str(directory)) as stf:
++            await stf.write(b"ab")
++            with pytest.raises(OSError):
++                if method == "write":
++                    await stf.write(b"cdef")
++                else:
++                    await stf.writelines(iter((b"cd", b"ef")))
++            assert not stf.closed
++            assert await stf.tell() == 6
++            await stf.seek(0)
++            assert await stf.read() == b"abcdef"
++            await stf.seek(2)
++            directory.mkdir()
++            await stf.rollover()
++            assert await stf.tell() == 2
++            assert await stf.read() == b"cdef"
++            assert await disk_bytes(stf) == b"abcdef"
++
++
++async def test_a4_oversized_retained_buffer_retries_after_seek(tmp_path):
++    for method in ("write", "writelines"):
++        directory = tmp_path / method
++        async with SpooledTemporaryFile(max_size=4, dir=str(directory)) as stf:
++            with pytest.raises(OSError):
++                await stf.write(b"abcdef")
++            await stf.seek(0)
++            with pytest.raises(OSError):
++                if method == "write":
++                    await stf.write(b"X")
++                else:
++                    await stf.writelines(iter((b"X",)))
++            assert await stf.tell() == 1
++            await stf.seek(0)
++            assert await stf.read() == b"Xbcdef"
++            directory.mkdir()
++            await stf.seek(1)
++            if method == "write":
++                assert await stf.write(b"Y") == 1
++            else:
++                await stf.writelines(iter((b"Y",)))
++            assert await stf.tell() == 2
++            assert await disk_bytes(stf) == b"XYcdef"
++
++
++async def test_a4_zero_disables_automatic_rollover(tmp_path):
++    directory = tmp_path / "missing"
++    async with SpooledTemporaryFile(max_size=0, dir=str(directory)) as stf:
++        assert await stf.write(b"abc" * 100) == 300
++        await stf.writelines(iter((b"\x00", b"tail")))
++        assert await stf.tell() == 305
++        with pytest.raises(OSError):
++            await stf.rollover()
++        assert await stf.tell() == 305
++        directory.mkdir()
++        await stf.rollover()
++        assert await disk_bytes(stf) == b"abc" * 100 + b"\x00tail"
++
++
++async def test_a4_exact_extent_and_sparse_binary_data(tmp_path):
++    directory = tmp_path / "missing"
++    async with SpooledTemporaryFile(max_size=8, dir=str(directory)) as stf:
++        await stf.seek(6)
++        assert await stf.write(memoryview(b"ab")) == 2
++        await stf.seek(0)
++        await stf.writelines(iter((b"X", b"Y")))
++        assert await stf.tell() == 2
++        await stf.seek(8)
++        with pytest.raises(OSError):
++            await stf.write(b"Z")
++        assert await stf.tell() == 9
++        directory.mkdir()
++        await stf.rollover()
++        assert await disk_bytes(stf) == b"XY\x00\x00\x00\x00abZ"
++
++
++async def test_a5_text_rollover_preserves_unicode_newlines_and_cookie(tmp_path):
++    for encoding in ("utf-8", "utf-16"):
++        for newline in (None, "", "\n", "\r", "\r\n"):
++            payload = "α\nβ\r\n雪\rfin\n"
++            raw = io.BytesIO()
++            oracle = io.TextIOWrapper(
++                raw, encoding=encoding, newline=newline, write_through=True
++            )
++            oracle.write(payload)
++            expected_bytes = raw.getvalue()
++            oracle.seek(0)
++            prefix = oracle.read(3)
++            cookie = oracle.tell()
++            suffix = oracle.read()
++            async with SpooledTemporaryFile(
++                max_size=1000, mode="w+", encoding=encoding,
++                newline=newline, dir=str(tmp_path),
++            ) as stf:
++                assert await stf.write(payload) == len(payload)
++                await stf.seek(0)
++                assert await stf.read(3) == prefix
++                assert await stf.tell() == cookie
++                await stf.rollover()
++                assert await stf.tell() == cookie
++                assert await stf.read() == suffix
++                assert await disk_bytes(stf) == expected_bytes
++                await stf.seek(cookie)
++                await stf.rollover()
++                assert await stf.tell() == cookie
++                assert await stf.read() == suffix
++            oracle.close()
++
++
++async def test_a5_text_byte_threshold_and_allocation_retry(tmp_path):
++    for newline, limit, expected in (
++        ("", 4, "ééZ".encode()),
++        ("\r\n", 4, "é\r\nZ".encode()),
++    ):
++        directory = tmp_path / str(limit) / repr(newline)
++        async with SpooledTemporaryFile(
++            max_size=limit, mode="w+", encoding="utf-8",
++            newline=newline, dir=str(directory),
++        ) as stf:
++            await stf.writelines(iter(("é", "é" if newline == "" else "\n")))
++            assert await stf.tell() == limit
++            with pytest.raises(OSError):
++                await stf.write("Z")
++            assert await stf.tell() == limit + 1
++            await stf.seek(0)
++            with pytest.raises(OSError):
++                await stf.write("é")
++            assert await stf.tell() == 2
++            directory.mkdir(parents=True)
++            await stf.seek(0)
++            await stf.writelines(iter(("é",)))
++            assert await stf.tell() == 2
++            assert await disk_bytes(stf) == expected
++
++
++async def test_a5_text_errors_and_zero_limit(tmp_path):
++    directory = tmp_path / "missing"
++    async with SpooledTemporaryFile(
++        max_size=0, mode="w+", encoding="ascii", errors="replace",
++        newline="\r\n", dir=str(directory),
++    ) as stf:
++        assert await stf.write("café\n") == 5
++        await stf.writelines(iter(("雪\n",)))
++        cookie = await stf.tell()
++        with pytest.raises(OSError):
++            await stf.rollover()
++        assert await stf.tell() == cookie
++        directory.mkdir()
++        await stf.rollover()
++        assert await stf.tell() == cookie
++        assert await disk_bytes(stf) == b"caf?\r\n?\r\n"

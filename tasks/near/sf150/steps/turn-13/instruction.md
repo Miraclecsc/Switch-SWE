@@ -1,0 +1,1 @@
+Also, Trio starts the exception message with a "c" which is why I left out the first character. I'll probably do a mass refactoring later where I start using `match=...` in `pytest.raises()`.

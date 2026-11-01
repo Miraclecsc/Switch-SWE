@@ -1,0 +1,1 @@
+Also, Emitting at class definition time will make sure the warning is pointed at the proper location and not at query execution time. Can't use the renamed method deprecation thingy as we need the _shim_ as well to avoid paying a `getattr` tax to look for both attributes at compilation time.

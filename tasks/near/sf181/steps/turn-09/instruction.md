@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Better handling of file URLs This allows for using `file:///absolute/path`, which was previously prevented due to the missing `netloc`. This allows for all file URLs that `urlunparse` turns back into the original URL to be valid.

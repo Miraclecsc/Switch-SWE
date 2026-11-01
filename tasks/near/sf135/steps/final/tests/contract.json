@@ -1,0 +1,88 @@
+{
+  "case_id": "sf135_switched",
+  "task_id": "ssb_v3_networkx__networkx_c7d0f4bef9",
+  "repo": "networkx/networkx",
+  "base_commit": "58edf3456c3369246e0faa016f360c9e57cba156",
+  "derived_fail_to_pass": [
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_all_nodes_in_result",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_directed_raises",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_disconnected_no_raise",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_empty_graph",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_isolated_node_zero",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_k22_per_node",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_k22_total",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_k33_per_node",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_k33_total",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_k44_total",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_k55_total",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_nodes_param_absent_node_ignored",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_nodes_param_correct_count",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_nodes_param_keys",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_path_no_butterfly",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_per_node_sum_divisible_by_four",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_single_edge",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_star_no_butterfly",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_three_shared_neighbours",
+    "networkx.algorithms.bipartite.tests.test_cluster.TestButterflies::test_two_disjoint_k22",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_invalid_even_outside_subset[-1]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_invalid_even_outside_subset[inf]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_invalid_even_outside_subset[nan]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_invalid_even_outside_subset[x]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_missing_weights_default_one",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_weighted_overlapping_motifs[0.5-False]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_weighted_overlapping_motifs[0.5-True]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_weighted_overlapping_motifs[1-False]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_weighted_overlapping_motifs[1-True]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_weighted_overlapping_motifs[1000000000000-False]",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_weighted_overlapping_motifs[1000000000000-True]"
+  ],
+  "derived_pass_to_pass": [
+    "networkx.algorithms.bipartite.tests.test_cluster::test_average_path_graph",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_bad_mode",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_not_bipartite",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_pairwise_bipartite_cc_functions",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_path_graph",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_ra_clustering_davis",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_ra_clustering_square",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_ra_clustering_zero",
+    "networkx.algorithms.bipartite.tests.test_cluster::test_star_graph",
+    "networkx.algorithms.bipartite.tests.test_sf135_weighted::test_unweighted_parallel_edges_still_collapse"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "networkx/algorithms/bipartite/tests/test_cluster.py",
+    "networkx/algorithms/bipartite/tests/test_sf135_weighted.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "networkx/algorithms/bipartite/tests/test_cluster.py",
+    "networkx/algorithms/bipartite/tests/test_sf135_weighted.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "87e9582e7b9610cb276dbde93beccef3df43b1d2065f18dcab9b534e8f748d63",
+    "config/recipes.json": "ad5f0ee36f49e3131689aac8296d1df3ce29351be9d91237836ee657aeda4ca8"
+  }
+}

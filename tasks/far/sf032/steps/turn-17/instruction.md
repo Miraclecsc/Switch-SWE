@@ -1,0 +1,1 @@
+Also, I think it would make more sense to have a single `refine_floor_ceiling` function to avoid duplicate code. Unless you think that there would be situations where you would only want to refine either floor or ceiling?

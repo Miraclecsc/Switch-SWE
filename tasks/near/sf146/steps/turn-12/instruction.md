@@ -1,0 +1,3 @@
+And here, I think `modes` should be private. It probably isn't of much use for the dev, so `self._modes` is probably better. If we want it to be public later, we could add a property.
+
+Keep alias links live rather than caching copies at each alias name: uninstalling and reinstalling a target changes what its aliases resolve to. Detect alias cycles with ScreenError and missing targets with KeyError, leaving the registry unchanged. Do not invoke factories while merely declaring classes.

@@ -1,0 +1,1 @@
+Please check this too: The check was guarding against a `ValueError` in `masked._cast_pointwise_result` where tuple inputs caused `np.asarray` to return a 2D array. With #65318 pushed it's just dead code now, so removed it.

@@ -1,0 +1,1 @@
+One more thing: Perhaps we might want to make this a `Literal` (and the same with `kqueue`/`windows`), since then type checkers could understand narrowing checks using this? Maybe also change it to a final/classvar.

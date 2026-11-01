@@ -1,0 +1,1 @@
+In the checkout at /work/w03, While you're at it … it'd be a good idea to actually include the endpoint which the failed connection was trying to reach, ideally in some machine readable form (as in `raise ConnectionFailed("some_error_message", dest.host, dest.port)`).

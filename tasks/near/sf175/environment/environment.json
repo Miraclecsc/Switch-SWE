@@ -1,0 +1,172 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8",
+    "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+    "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29"
+  ],
+  "case_id": "sf175_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/opt/runtime/case-libraries:/work/test-deps/02/lib:/opt/runtime/deps/02/lib",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "TERM": "xterm",
+    "TERMINFO_DIRS": "/usr/share/terminfo:/lib/terminfo"
+  },
+  "focus_workspace": "w03",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29",
+      "python": "3.12.12",
+      "requirements": "requirements/caa817c3d2c3881a-3.12.12-fd451b29.txt",
+      "source": "dependency-source/caa817c3d2c3881a-3.12.12-fd451b29.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+      "python": "3.12.12",
+      "requirements": "requirements/15b8f212b76f243b-3.12.12-7539736a.txt",
+      "source": "dependency-source/15b8f212b76f243b-3.12.12-7539736a.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8",
+      "python": "3.12.12",
+      "requirements": "requirements/5d08426a4a722541-3.12.12-559cdec8.txt",
+      "source": "dependency-source/5d08426a4a722541-3.12.12-559cdec8.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29",
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29",
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29",
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29",
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/caa817c3d2c3881a-3.12.12-fd451b29",
+        "/opt/ssb/deps/15b8f212b76f243b-3.12.12-7539736a",
+        "/opt/ssb/deps/5d08426a4a722541-3.12.12-559cdec8"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "7c99ebe23b931f27562d926814423cce85fd9766",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/click/_termui_impl.py",
+          "sha256": "542933690d3b2cf031eb1e98ee801ba1a04ecfb5d61dd5be1704b32b5d5c746c"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_utils.py",
+          "sha256": "316264466b0ea7647009907859b4d7bd04da8eff8347ea68c3904685bd82618f"
+        }
+      ],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "bc36cd1a2b3bc18f401a98476154dbc5a2d212c9",
+      "overlays": [],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "565f36d5bc4a15d304337b749e113fb4477b1843",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/click/core.py",
+          "sha256": "1b9a9ac4b026dec22d3be969c9c69df159e01196cae7c95540517a7ec40bd372"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_utils.py",
+          "sha256": "0b2c1a4053ee0d6c64478f94bfa1eed6a9e567a1b34ea74c038e41bcaffae4a4"
+        }
+      ],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "4fc0e90e1c19faf82bc18f8551eb1ed78dc738ac",
+      "overlays": [],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "eb1d760fb433d08278816d7ba49477ce86b691a7",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/click/core.py",
+          "sha256": "bd0d04703d49b35718fed6cb9e7dbaf3fcedc511bda43d414010a60a0d6a1c5c"
+        },
+        {
+          "mode": "100644",
+          "path": "src/click/types.py",
+          "sha256": "522544c74ca842dad63b6c07db6360304e0b7c3c4c3508bc8f5aad26ea58229c"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_termui.py",
+          "sha256": "0a603941d9d3d797941c56505edb6033cca211e06609e93e6b0c337c77e8ed53"
+        }
+      ],
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "workspace": "w04"
+    }
+  ]
+}

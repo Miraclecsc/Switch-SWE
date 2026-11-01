@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: fix(intersphinx): account for 1-element tuples in error handling of _fetch_inventory_group

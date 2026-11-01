@@ -1,0 +1,1 @@
+Also, Apply grouped outcome recovery consistently to async tests, coroutine fixtures, and async-generator fixture teardown. After a recoverable group, subsequent work in the same runner must observe the existing context-variable state. Keep pytest-specific classification imports confined to the pytest runner path so ordinary AnyIO use does not acquire an eager pytest dependency.

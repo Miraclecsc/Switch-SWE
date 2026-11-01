@@ -1,0 +1,1 @@
+Also, Can we check if we're in GitHub Actions and use `--format github`?

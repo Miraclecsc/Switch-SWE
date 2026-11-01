@@ -1,0 +1,1 @@
+Please check this too: With color=True preserve ANSI escapes on text-only streams.

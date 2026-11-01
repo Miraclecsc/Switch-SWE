@@ -1,0 +1,1 @@
+And here, We need to capture this output in the test with `captured_stdout` and assert over it, see test run:

@@ -1,0 +1,1 @@
+Please check this too: Actually, I just realized that the function is a generator on purpose to allow for short-circuiting in case people only need part of the results. So the question is whether you would rather be able to memoize the results or allow short-circuiting?

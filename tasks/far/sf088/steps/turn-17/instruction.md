@@ -1,0 +1,1 @@
+Also, It seems that this resolves #529 (and therefore #592) too, could probably add closing keywords for them in the PR description :)

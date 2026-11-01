@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: Fixed wrong exception raised on sudden TLS stream end on receive() Fixes #379.

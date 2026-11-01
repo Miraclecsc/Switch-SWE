@@ -1,0 +1,1 @@
+I have this in /work/w03: I don't understand the logic here. If exp is an integer then is it not always possible to extract coeff? And if coeff is positive is not always possible? Should it not be

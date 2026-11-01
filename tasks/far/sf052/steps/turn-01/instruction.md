@@ -1,0 +1,1 @@
+I have this in /work/w04: Fix fail_after's cancellation accounting so an unwarranted TimeoutError is not raised merely because cancellation was requested before the deadline. Provide CancelScope.cancelled_caught to report whether this scope suppressed cancellation it itself raised. Preserve shielding, nesting, deadline updates, and existing cancellation behavior on both backends.

@@ -1,0 +1,1 @@
+Please check this too: run and open_nursery must validate strict_exception_groups before warning or beginning work. Accept only bool or None; reject other objects with TypeError naming the option, without calling their truth-value methods. Preserve the existing explicit-False deprecation warning and the True/None behavior.

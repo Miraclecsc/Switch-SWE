@@ -1,0 +1,1 @@
+And here, Can we keep the `setup_method` first in the class so it is easy to find?

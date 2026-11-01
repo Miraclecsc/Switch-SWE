@@ -1,0 +1,1 @@
+One more thing: Do we want to make this `Final` or `TypeAlias`?

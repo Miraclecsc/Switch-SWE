@@ -1,0 +1,1 @@
+Please check this too: Currently the base implementation is just `np.array(self)`. But third party could so added a try-except. There aren't any EAs we can currently test this with, so didn't add a test for this case. Let me know if you want one.

@@ -1,0 +1,1 @@
+In the checkout at /work/w00, fix(ntheory): Make ntheory functions thread-safe

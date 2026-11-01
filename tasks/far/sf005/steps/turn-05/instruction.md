@@ -1,0 +1,1 @@
+Also, EAFP: You might want to force an exception and handle it instead of type checking for all iterables (which you can't in Python anyway, since every object can implement `__iter__`).

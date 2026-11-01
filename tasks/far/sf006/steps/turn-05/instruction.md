@@ -1,0 +1,1 @@
+In the checkout at /work/w03, That works because send() will handle `fail_silently == None` as the default value:

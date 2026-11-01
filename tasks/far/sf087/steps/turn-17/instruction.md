@@ -1,0 +1,1 @@
+Also, I've used `property` to mimic the previous behavior as closely as possible.

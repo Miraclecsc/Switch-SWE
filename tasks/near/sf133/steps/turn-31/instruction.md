@@ -1,0 +1,3 @@
+Please check this too: Thanks everyone for the fruitful discussion! To summarize the action items to get us towards the (seemingly) forming consensus: - [ ] Let's implement this as a method on that type rather than a standalone function - [ ] Let's implement as a generator - [ ] Make sure that the in-line comments (i.e. the code suggestions) from the previous review are addressed!
+
+Preserve disconnected embeddings, isolated nodes, arbitrary hashable node identities and all original tests. Do not impose a sorting or canonical starting-node requirement on boundaries; retain the supplied directed side when traversing a selected face.

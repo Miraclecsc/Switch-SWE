@@ -1,0 +1,132 @@
+diff --git a/networkx/algorithms/tests/test_dominating.py b/networkx/algorithms/tests/test_dominating.py
+index b945c738637..5f51777c72c 100644
+--- a/networkx/algorithms/tests/test_dominating.py
++++ b/networkx/algorithms/tests/test_dominating.py
+@@ -44,3 +44,72 @@ def test_wikipedia_is_dominating_set():
+     assert nx.is_dominating_set(G, {4, 3, 5})
+     assert nx.is_dominating_set(G, {0, 2})
+     assert nx.is_dominating_set(G, {1, 2})
++
++
++def test_is_connected_dominating_set():
++    G = nx.path_graph(4)
++    D = {1, 2}
++    assert nx.is_connected_dominating_set(G, D)
++    D = {1, 3}
++    assert not nx.is_connected_dominating_set(G, D)
++    D = {2, 3}
++    assert nx.is_connected(nx.subgraph(G, D))
++    assert not nx.is_connected_dominating_set(G, D)
++
++
++def test_null_graph_connected_dominating_set():
++    G = nx.Graph()
++    assert 0 == len(nx.connected_dominating_set(G))
++
++
++def test_single_node_graph_connected_dominating_set():
++    G = nx.Graph()
++    G.add_node(1)
++    CD = nx.connected_dominating_set(G)
++    assert nx.is_connected_dominating_set(G, CD)
++
++
++def test_raise_disconnected_graph_connected_dominating_set():
++    with pytest.raises(nx.NetworkXError):
++        G = nx.Graph()
++        G.add_node(1)
++        G.add_node(2)
++        nx.connected_dominating_set(G)
++
++
++def test_complete_graph_connected_dominating_set():
++    K5 = nx.complete_graph(5)
++    assert 1 == len(nx.connected_dominating_set(K5))
++    K7 = nx.complete_graph(7)
++    assert 1 == len(nx.connected_dominating_set(K7))
++
++
++def test_docstring_example_connected_dominating_set():
++    G = nx.Graph(
++        [
++            (1, 2),
++            (1, 3),
++            (1, 4),
++            (1, 5),
++            (1, 6),
++            (2, 7),
++            (3, 8),
++            (4, 9),
++            (5, 10),
++            (6, 11),
++            (7, 12),
++            (8, 12),
++            (9, 12),
++            (10, 12),
++            (11, 12),
++        ]
++    )
++    assert {1, 2, 3, 4, 5, 6, 7} == nx.connected_dominating_set(G)
++
++
++@pytest.mark.parametrize("seed", [1, 13, 29])
++@pytest.mark.parametrize("n,k,p", [(10, 3, 0.2), (100, 10, 0.7), (1000, 50, 0.5)])
++def test_connected_watts_strogatz_graph_connected_dominating_set(n, k, p, seed):
++    G = nx.connected_watts_strogatz_graph(n, k, p, seed=seed)
++    D = nx.connected_dominating_set(G)
++    assert nx.is_connected_dominating_set(G, D)
+diff --git a/networkx/algorithms/tests/test_sf067_required_cds.py b/networkx/algorithms/tests/test_sf067_required_cds.py
+new file mode 100644
+--- /dev/null
++++ b/networkx/algorithms/tests/test_sf067_required_cds.py
+@@ -0,0 +1,50 @@
++
++import pytest
++import networkx as nx
++
++class Once:
++    def __init__(self, values):
++        self.values = values
++        self.calls = 0
++    def __iter__(self):
++        self.calls += 1
++        assert self.calls == 1
++        return iter(self.values)
++
++@pytest.mark.parametrize("graph,required", [(nx.path_graph(8), [0, 7, 0]),
++    (nx.star_graph(6), [2, 5]), (nx.cycle_graph(8), [0, 4])])
++def test_required_vertices_form_connected_dominating_set(graph, required):
++    before = list(graph.edges())
++    values = Once(required)
++    result = nx.connected_dominating_set(graph, required=values)
++    assert set(required) <= result <= set(graph)
++    assert nx.is_connected(graph.subgraph(result))
++    assert nx.is_dominating_set(graph, result)
++    assert list(graph.edges()) == before
++    assert values.calls == 1
++    assert nx.is_connected_dominating_set(graph, Once(list(result) + list(result)))
++
++def test_predicate_materializes_generator_once():
++    graph = nx.path_graph(4)
++    assert nx.is_connected_dominating_set(graph, Once([1, 2]))
++    assert not nx.is_connected_dominating_set(graph, Once([0, 3]))
++    assert not nx.is_connected_dominating_set(graph, Once([1, 2, 100]))
++
++def test_empty_and_singleton_contract():
++    assert nx.connected_dominating_set(nx.Graph(), required=[]) == set()
++    assert nx.is_connected_dominating_set(nx.Graph(), iter([]))
++    assert not nx.is_connected_dominating_set(nx.path_graph(1), iter([]))
++    assert nx.connected_dominating_set(nx.path_graph(1), required=[0]) == {0}
++
++def test_unknown_required_and_disconnected_graphs():
++    with pytest.raises(nx.NetworkXError):
++        nx.connected_dominating_set(nx.path_graph(3), required=[9])
++    with pytest.raises(nx.NetworkXError):
++        nx.connected_dominating_set(nx.empty_graph(3), required=[0])
++
++def test_unsortable_labels_and_default_behavior():
++    labels = ["start", 17, ("tuple",), object()]
++    graph = nx.path_graph(labels)
++    result = nx.connected_dominating_set(graph, required=Once([labels[0], labels[-1]]))
++    assert nx.is_connected_dominating_set(graph, result)
++    assert nx.connected_dominating_set(graph, required=[]) == nx.connected_dominating_set(graph)

@@ -1,0 +1,29 @@
+diff --git a/ariadne/utils.py b/ariadne/utils.py
+index 0d8bfe9..e163ed0 100644
+--- a/ariadne/utils.py
++++ b/ariadne/utils.py
+@@ -7,15 +7,15 @@ from graphql import GraphQLError, parse
+ 
+ def convert_camel_case_to_snake(graphql_name: str) -> str:
+     python_name = ""
+-    for i, c in enumerate(graphql_name.lower()):
+-        if (
+-            i
+-            and c != graphql_name[i]
+-            and graphql_name[i - 1] != "_"
+-            and graphql_name[i - 1] == python_name[-1]
+-        ):
+-            python_name += "_"
+-        python_name += c
++    for i, char in enumerate(graphql_name):
++        lower = char.lower()
++        if i and graphql_name[i - 1] != "_":
++            previous = graphql_name[i - 1]
++            if (char.isdigit() and not previous.isdigit()) or (
++                lower != char and previous == previous.lower()
++            ):
++                python_name += "_"
++        python_name += lower
+     return python_name
+ 
+ 

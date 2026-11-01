@@ -1,0 +1,1 @@
+And here, Fixed #36903 -- Fixed further that type when inspecting functions with deferred annotations. Provide a wrapper for safe introspection of user functions on Python 3.14+. Follow-up to 601914722956cc41f1f2c53972d669ddee6ffc04.

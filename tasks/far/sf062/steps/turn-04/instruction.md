@@ -1,0 +1,1 @@
+And here, Validate encoded header names as nonempty ASCII HTTP tokens and reject CR, LF or NUL in values with ValueError. Empty values and horizontal tabs remain valid. Reject invalid assignments and bulk updates before changing any existing headers, including duplicates and order. Preserve explicit encoding behavior. Exercise this through httpx.Headers.

@@ -1,0 +1,232 @@
+diff --git a/src/anyio/_core/_synchronization.py b/src/anyio/_core/_synchronization.py
+--- a/src/anyio/_core/_synchronization.py
++++ b/src/anyio/_core/_synchronization.py
+@@ -1,8 +1,11 @@
+ from __future__ import annotations
+ 
++import math
+ from collections import deque
+ from dataclasses import dataclass
+ from types import TracebackType
++
++from sniffio import AsyncLibraryNotFoundError
+ 
+ from ..lowlevel import cancel_shielded_checkpoint, checkpoint, checkpoint_if_cancelled
+ from ._eventloop import get_async_backend
+@@ -76,7 +79,10 @@
+ 
+ class Event:
+     def __new__(cls) -> Event:
+-        return get_async_backend().create_event()
++        try:
++            return get_async_backend().create_event()
++        except AsyncLibraryNotFoundError:
++            return EventAdapter()
+ 
+     def set(self) -> None:
+         """Set the flag, notifying all listeners."""
+@@ -99,6 +105,37 @@
+     def statistics(self) -> EventStatistics:
+         """Return statistics about the current state of this event."""
+         raise NotImplementedError
++
++
++class EventAdapter(Event):
++    def __new__(cls) -> EventAdapter:
++        return object.__new__(cls)
++
++    def __init__(self) -> None:
++        self._set = False
++        self._waiters: set[Event] = set()
++
++    def set(self) -> None:
++        self._set = True
++        for event in self._waiters:
++            event.set()
++
++    def is_set(self) -> bool:
++        return self._set
++
++    async def wait(self) -> None:
++        await checkpoint()
++        if self._set:
++            return
++        event = get_async_backend().create_event()
++        self._waiters.add(event)
++        try:
++            await event.wait()
++        finally:
++            self._waiters.remove(event)
++
++    def statistics(self) -> EventStatistics:
++        return EventStatistics(tasks_waiting=len(self._waiters))
+ 
+ 
+ class Lock:
+@@ -373,7 +410,10 @@
+ 
+ class CapacityLimiter:
+     def __new__(cls, total_tokens: float) -> CapacityLimiter:
+-        return get_async_backend().create_capacity_limiter(total_tokens)
++        try:
++            return get_async_backend().create_capacity_limiter(total_tokens)
++        except AsyncLibraryNotFoundError:
++            return CapacityLimiterAdapter(total_tokens)
+ 
+     async def __aenter__(self) -> None:
+         raise NotImplementedError
+@@ -481,6 +521,107 @@
+         """
+         raise NotImplementedError
+ 
++
++class CapacityLimiterAdapter(CapacityLimiter):
++    def __new__(cls, total_tokens: float) -> CapacityLimiterAdapter:
++        return object.__new__(cls)
++
++    def __init__(self, total_tokens: float) -> None:
++        self._borrowers: set[object] = set()
++        self._waiters: dict[object, Event] = {}
++        self.total_tokens = total_tokens
++
++    async def __aenter__(self) -> None:
++        await self.acquire()
++
++    async def __aexit__(
++        self,
++        exc_type: type[BaseException] | None,
++        exc_val: BaseException | None,
++        exc_tb: TracebackType | None,
++    ) -> None:
++        self.release()
++
++    def _wake_waiters(self) -> None:
++        while self._waiters and len(self._borrowers) < self._total_tokens:
++            borrower = next(iter(self._waiters))
++            event = self._waiters.pop(borrower)
++            self._borrowers.add(borrower)
++            event.set()
++
++    @property
++    def total_tokens(self) -> float:
++        return self._total_tokens
++
++    @total_tokens.setter
++    def total_tokens(self, value: float) -> None:
++        if not isinstance(value, int) and not (
++            isinstance(value, float) and value == math.inf
++        ):
++            raise TypeError("total_tokens must be an int or math.inf")
++        if value < 1:
++            raise ValueError("total_tokens must be >= 1")
++        self._total_tokens = value
++        self._wake_waiters()
++
++    @property
++    def borrowed_tokens(self) -> int:
++        return len(self._borrowers)
++
++    @property
++    def available_tokens(self) -> float:
++        return self._total_tokens - len(self._borrowers)
++
++    def acquire_nowait(self) -> None:
++        self.acquire_on_behalf_of_nowait(get_current_task())
++
++    def acquire_on_behalf_of_nowait(self, borrower: object) -> None:
++        if borrower in self._borrowers or borrower in self._waiters:
++            raise RuntimeError("this borrower already holds or is waiting for a token")
++        if self._waiters or len(self._borrowers) >= self._total_tokens:
++            raise WouldBlock
++        self._borrowers.add(borrower)
++
++    async def acquire(self) -> None:
++        await self.acquire_on_behalf_of(get_current_task())
++
++    async def acquire_on_behalf_of(self, borrower: object) -> None:
++        await checkpoint_if_cancelled()
++        try:
++            self.acquire_on_behalf_of_nowait(borrower)
++        except WouldBlock:
++            event = get_async_backend().create_event()
++            self._waiters[borrower] = event
++            try:
++                await event.wait()
++                await checkpoint_if_cancelled()
++            except BaseException:
++                self._waiters.pop(borrower, None)
++                self._borrowers.discard(borrower)
++                self._wake_waiters()
++                raise
++        else:
++            try:
++                await cancel_shielded_checkpoint()
++            except BaseException:
++                self.release_on_behalf_of(borrower)
++                raise
++
++    def release(self) -> None:
++        self.release_on_behalf_of(get_current_task())
++
++    def release_on_behalf_of(self, borrower: object) -> None:
++        try:
++            self._borrowers.remove(borrower)
++        except KeyError:
++            raise RuntimeError("this borrower isn't holding any tokens") from None
++        self._wake_waiters()
++
++    def statistics(self) -> CapacityLimiterStatistics:
++        return CapacityLimiterStatistics(
++            self.borrowed_tokens, self.total_tokens,
++            tuple(self._borrowers), len(self._waiters),
++        )
+ 
+ class ResourceGuard:
+     """
+diff --git a/src/anyio/_backends/_trio.py b/src/anyio/_backends/_trio.py
+--- a/src/anyio/_backends/_trio.py
++++ b/src/anyio/_backends/_trio.py
+@@ -615,7 +615,9 @@
+ 
+ 
+ class CapacityLimiter(BaseCapacityLimiter):
+-    def __new__(cls, *args: object, **kwargs: object) -> CapacityLimiter:
++    def __new__(
++        cls, *args: Any, original: trio.CapacityLimiter | None = None
++    ) -> CapacityLimiter:
+         return object.__new__(cls)
+ 
+     def __init__(
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -8,6 +8,8 @@
+ - Add support for ``byte``-based paths in ``connect_unix``, ``create_unix_listeners``,
+   ``create_unix_datagram_socket``, and ``create_connected_unix_datagram_socket``. (PR by
+   Lura Skye)
++- Enabled the ``Event`` and ``CapacityLimiter`` classes to be instantiated outside an
++  event loop thread
+ - Fixed adjusting the total number of tokens in a ``CapacityLimiter`` on asyncio failing
+   to wake up tasks waiting to acquire the limiter in certain edge cases (fixed with help
+   from Egor Blagov)
+diff --git a/docs/synchronization.rst b/docs/synchronization.rst
+--- a/docs/synchronization.rst
++++ b/docs/synchronization.rst
+@@ -188,3 +188,17 @@
+ 
+ In place of queues, AnyIO offers a more powerful construct:
+ :ref:`memory object streams <memory object streams>`.
++
++Module-level synchronization objects
++------------------------------------
++
++Events and capacity limiters can be constructed without a running event loop.
++An Event can be set and inspected before use; its flag persists across sequential
++event loop runs. Cancelling a waiter does not set the Event.
++
++A CapacityLimiter constructed outside an event loop keeps one pool across
++sequential runs. Explicit borrowers can reserve and release tokens synchronously
++outside a loop and retain them between runs, including runs on different backends.
++Reducing the limit does not revoke tokens. Queued acquisitions are FIFO; granted
++slots are reserved until resumed or cancelled. Cancellation recovers the slot.
++Concurrent use from multiple event loops or threads is not supported.

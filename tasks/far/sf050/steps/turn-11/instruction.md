@@ -1,0 +1,3 @@
+Please check this too: > Are these super complicated tests really required to reproduce the issue? It is the minimal tests I could come up with that reproduces the race: a cancelled head waiter must still be queued when release runs, and a later waiter must queue before the cancelled task's cleanup removes itself. We could drop `test_cancelled_head_waiter_does_not_overrelease()`. It just guards against an incomplete semaphore fix.
+
+Weighted requests are FIFO: a smaller request must not bypass an earlier unsatisfied larger request, including via acquire_nowait, which raises WouldBlock in that situation. release wakes as many consecutive requests as can be fully satisfied. Do not implement weighted acquisition as repeated single-permit acquisitions.

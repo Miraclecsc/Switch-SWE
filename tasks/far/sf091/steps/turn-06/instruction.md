@@ -1,0 +1,1 @@
+One more thing: I think PARMETER -> PARAMETER should be fixed, the error in cffi is in fact called `ERROR_INVALID_PARAMETER` I don't really understand `_windows_cffi.py`, so I don't know if that will be a backwards incompatible change, or if user code trying to handle that error is currently broken. But either case it should be fixed.

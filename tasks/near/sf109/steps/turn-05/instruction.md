@@ -1,0 +1,1 @@
+I have this in /work/w03: Deprecated SQLCompiler.quote_name_unless_alias().

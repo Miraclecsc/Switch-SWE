@@ -1,0 +1,186 @@
+diff --git a/tests/annotations/tests.py b/tests/annotations/tests.py
+index 42869bf1315b..b94f44ef222c 100644
+--- a/tests/annotations/tests.py
++++ b/tests/annotations/tests.py
+@@ -1574,20 +1574,6 @@ def test_alias_filtered_relation_sql_injection(self):
+                 with self.assertRaisesMessage(ValueError, msg):
+                     Book.objects.alias(**{crafted_alias: FilteredRelation("authors")})
+ 
+-    def test_alias_filtered_relation_sql_injection_dollar_sign(self):
+-        qs = Book.objects.alias(
+-            **{"crafted_alia$": FilteredRelation("authors")}
+-        ).values("name", "crafted_alia$")
+-        if connection.features.prohibits_dollar_signs_in_column_aliases:
+-            msg = (
+-                "Dollar signs are not permitted in column aliases on "
+-                f"{connection.display_name}."
+-            )
+-            with self.assertRaisesMessage(ValueError, msg):
+-                list(qs)
+-        else:
+-            self.assertEqual(qs.first()["name"], self.b1.name)
+-
+     def test_values_wrong_alias(self):
+         expected_message = (
+             "Cannot resolve keyword 'alias_typo' into field. Choices are: %s"
+diff --git a/tests/filtered_relation/tests.py b/tests/filtered_relation/tests.py
+index d15dd0d5f60f..9047feba2d01 100644
+--- a/tests/filtered_relation/tests.py
++++ b/tests/filtered_relation/tests.py
+@@ -210,8 +210,9 @@ def test_internal_queryset_alias_mapping(self):
+             ),
+         ).filter(book_alice__isnull=False)
+         self.assertIn(
+-            "INNER JOIN {} book_alice ON".format(
+-                connection.ops.quote_name("filtered_relation_book")
++            "INNER JOIN {} {} ON".format(
++                connection.ops.quote_name("filtered_relation_book"),
++                connection.ops.quote_name("book_alice"),
+             ),
+             str(queryset.query),
+         )
+diff --git a/tests/foreign_object/models/article.py b/tests/foreign_object/models/article.py
+index 276296c8d49a..9d8a35da7c99 100644
+--- a/tests/foreign_object/models/article.py
++++ b/tests/foreign_object/models/article.py
+@@ -22,7 +22,7 @@ def __init__(self, alias, col, value):
+         self.alias, self.col, self.value = alias, col, value
+ 
+     def as_sql(self, compiler, connection):
+-        qn = compiler.quote_name_unless_alias
++        qn = compiler.quote_name
+         return "%s.%s = %%s" % (qn(self.alias), qn(self.col)), [self.value]
+ 
+ 
+diff --git a/tests/queries/test_sqlcompiler.py b/tests/queries/test_sqlcompiler.py
+index 0f6f2fc10bc7..5a456811a12f 100644
+--- a/tests/queries/test_sqlcompiler.py
++++ b/tests/queries/test_sqlcompiler.py
+@@ -4,6 +4,7 @@
+ from django.db.models.sql import Query
+ from django.db.models.sql.compiler import SQLCompiler
+ from django.test import TestCase
++from django.utils.deprecation import RemovedInDjango70Warning
+ 
+ from .models import Item
+ 
+@@ -39,3 +40,19 @@ def test_execute_sql_suppresses_cursor_closing_failure_on_exception(self):
+         self.assertIs(exc, execute_err)
+         self.assertIsNone(exc.__cause__)
+         self.assertTrue(exc.__suppress_context__)
++
++    # RemovedInDjango70Warning: When the deprecation ends, remove this
++    # test.
++    def test_quote_name_unless_alias_deprecation(self):
++        query = Query(Item)
++        compiler = SQLCompiler(query, connection, None)
++        msg = (
++            "SQLCompiler.quote_name_unless_alias() is deprecated. "
++            "Use .quote_name() instead."
++        )
++        with self.assertWarnsMessage(RemovedInDjango70Warning, msg) as ctx:
++            self.assertEqual(
++                compiler.quote_name_unless_alias("name"),
++                compiler.quote_name("name"),
++            )
++        self.assertEqual(ctx.filename, __file__)
+diff --git a/tests/queries/tests.py b/tests/queries/tests.py
+index af657b25802a..d58eccaa12e4 100644
+--- a/tests/queries/tests.py
++++ b/tests/queries/tests.py
+@@ -195,7 +195,8 @@ def test_subquery_condition(self):
+         # It is possible to reuse U for the second subquery, no need to use W.
+         self.assertNotIn("w0", str(qs4.query).lower())
+         # So, 'U0."id"' is referenced in SELECT and WHERE twice.
+-        self.assertEqual(str(qs4.query).lower().count("u0."), 4)
++        id_col = "%s." % connection.ops.quote_name("u0").lower()
++        self.assertEqual(str(qs4.query).lower().count(id_col), 4)
+ 
+     def test_ticket1050(self):
+         self.assertSequenceEqual(
+diff --git a/tests/queries/test_identifier_boundaries_v1.py b/tests/queries/test_identifier_boundaries_v1.py
+new file mode 100644
+index 0000000000..b5987ef5bf
+--- /dev/null
++++ b/tests/queries/test_identifier_boundaries_v1.py
+@@ -0,0 +1,80 @@
++from unittest import skipUnless
++from functools import wraps
++from django.db import DatabaseError, connection, models
++from django.test import SimpleTestCase, TransactionTestCase
++from django.test.utils import isolate_apps
++
++def successful_database_operations(function):
++    @wraps(function)
++    def wrapper(self):
++        try:
++            return function(self)
++        except DatabaseError as exc:
++            self.fail(f"Valid quoted identifier must execute successfully: {exc}")
++    return wrapper
++
++
++@skipUnless(connection.vendor == "sqlite", "SQLite identifier contract")
++class IdentifierQuotingUnitTests(SimpleTestCase):
++    def test_embedded_delimiter_is_escaped_as_one_identifier(self):
++        self.assertEqual(connection.ops.quote_name('select"archive'), '"select""archive"')
++        self.assertEqual(connection.ops.quote_name('a""b'), '"a""""b"')
++
++    def test_explicitly_quoted_and_ordinary_names_keep_legacy_behavior(self):
++        self.assertEqual(connection.ops.quote_name('"already""quoted"'), '"already""quoted"')
++        self.assertEqual(connection.ops.quote_name("ordinary"), '"ordinary"')
++        self.assertEqual(connection.ops.quote_name("one.two"), '"one.two"')
++
++
++@skipUnless(connection.vendor == "sqlite", "SQLite identifier contract")
++class IdentifierRoundtripTests(TransactionTestCase):
++    available_apps = ["queries"]
++    @successful_database_operations
++    @isolate_apps()
++    def test_schema_and_crud_with_embedded_quotes(self):
++        class QuotedRecord(models.Model):
++            label = models.CharField(max_length=30, db_column='value"column')
++            class Meta:
++                app_label = "quoted_contract"
++                db_table = 'select"records'
++        with connection.schema_editor() as editor:
++            editor.create_model(QuotedRecord)
++        try:
++            item = QuotedRecord.objects.create(label="original")
++            self.assertEqual(QuotedRecord.objects.get(pk=item.pk).label, "original")
++            QuotedRecord.objects.filter(pk=item.pk).update(label="changed")
++            self.assertEqual(list(QuotedRecord.objects.values_list("label", flat=True)), ["changed"])
++            QuotedRecord.objects.filter(pk=item.pk).delete()
++            self.assertEqual(QuotedRecord.objects.count(), 0)
++        finally:
++            with connection.schema_editor() as editor:
++                editor.delete_model(QuotedRecord)
++
++    @successful_database_operations
++    @isolate_apps()
++    def test_join_and_correlated_subquery_preserve_identifier_boundaries(self):
++        class Parent(models.Model):
++            title = models.CharField(max_length=20, db_column='title"field')
++            class Meta:
++                app_label = "quoted_contract"
++                db_table = 'parent"table'
++        class Child(models.Model):
++            parent = models.ForeignKey(Parent, on_delete=models.CASCADE, db_column='parent"ref')
++            class Meta:
++                app_label = "quoted_contract"
++                db_table = 'child"table'
++        with connection.schema_editor() as editor:
++            editor.create_model(Parent)
++            editor.create_model(Child)
++        try:
++            parent = Parent.objects.create(title="match")
++            Child.objects.create(parent=parent)
++            joined = Child.objects.select_related("parent").get()
++            self.assertEqual(joined.parent.title, "match")
++            query = Parent.objects.annotate(present=models.Exists(
++                Child.objects.filter(parent_id=models.OuterRef("pk"))))
++            self.assertEqual(list(query.values_list("title", "present")), [("match", True)])
++        finally:
++            with connection.schema_editor() as editor:
++                editor.delete_model(Child)
++                editor.delete_model(Parent)

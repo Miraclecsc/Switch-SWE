@@ -1,0 +1,1 @@
+Please check this too: I added some minimal coverage like this: Unless you think that's testing an implementation detail. Poking around, we have other assertions against `new_state.models`. Also, If this assertion feels like a non sequitur, we could pull it out into a new test method.

@@ -1,0 +1,1 @@
+One more thing: not that I think it's especially necessary here, but you could do `assert RaisesGroup(GeneratorExit).matches(e)` instead of `isinstance`

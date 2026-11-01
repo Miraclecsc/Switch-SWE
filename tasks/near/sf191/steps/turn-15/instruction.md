@@ -1,0 +1,1 @@
+Please check this too: `has(value)` makes sure we only attempt recursion when the current value is an `attrs` class. I added a test asserting that dicts can still normaly be replaced, nonetheless. :)

@@ -1,0 +1,1 @@
+One more thing: think it's worth introducing a type alias for `StreamMaker` to increase readability

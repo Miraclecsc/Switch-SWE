@@ -1,0 +1,1 @@
+I have this in /work/w00: Fixed #36542 -- Marked authenticate() with () decorator.

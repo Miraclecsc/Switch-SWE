@@ -1,0 +1,1 @@
+And here, @jbrockmendel Thank you for the clarification. I have moved the implementation to the base ExtensionArray class so all EAs that support __setitem__ get sort() for free. The numpy-backed and Arrow-backed overrides are kept for efficiency.

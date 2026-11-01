@@ -1,0 +1,3 @@
+Please check this too: (and the `.items()` has of course the same issue that it won't handle duplicated columns correctly, so it is not that we can go back to that if that would now work otherwise)
+
+Preserve normal non-inplace returns and existing errors for invalid inplace expressions. Successful transactions return None, retain row/column metadata, and update all selected duplicate columns. Explicit custom targets keep their existing behavior. Preserve all original tests.

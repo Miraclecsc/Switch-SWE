@@ -1,0 +1,85 @@
+diff --git a/newsfragments/3403.deprecated.rst b/newsfragments/3403.deprecated.rst
+new file mode 100644
+index 00000000..7ce024db
+--- /dev/null
++++ b/newsfragments/3403.deprecated.rst
+@@ -0,0 +1,6 @@
++Trying to use absolute deadlines on a `trio.CancelScope` constructed
++with a relative deadline now raises, after being deprecated since Trio
++0.27.0.
++
++To switch a cancel scope from being relative to absolute, replace the
++`trio.CancelScope` object instead of trying to mutate it.
+diff --git a/src/trio/_core/_run.py b/src/trio/_core/_run.py
+index 2d649d29..c3cc24a5 100644
+--- a/src/trio/_core/_run.py
++++ b/src/trio/_core/_run.py
+@@ -808,13 +808,9 @@ class CancelScope:
+         """
+         if self._relative_deadline != inf:
+             assert self._deadline == inf
+-            warnings.warn(
+-                DeprecationWarning(
+-                    "unentered relative cancel scope does not have an absolute deadline. Use `.relative_deadline`",
+-                ),
+-                stacklevel=2,
++            raise RuntimeError(
++                "Unentered relative cancel scope does not have an absolute deadline."
+             )
+-            return current_time() + self._relative_deadline
+         return self._deadline
+ 
+     @deadline.setter
+@@ -823,13 +819,9 @@ class CancelScope:
+             raise ValueError("deadline must not be NaN")
+         if self._relative_deadline != inf:
+             assert self._deadline == inf
+-            warnings.warn(
+-                DeprecationWarning(
+-                    "unentered relative cancel scope does not have an absolute deadline. Transforming into an absolute cancel scope. First set `.relative_deadline = math.inf` if you do want an absolute cancel scope.",
+-                ),
+-                stacklevel=2,
++            raise RuntimeError(
++                "Unentered relative cancel scope does not have an absolute deadline."
+             )
+-            self._relative_deadline = inf
+         with self._might_change_registered_deadline():
+             self._deadline = float(new_deadline)
+ 
+@@ -852,7 +844,7 @@ class CancelScope:
+         elif self._deadline != inf:
+             assert self._relative_deadline == inf
+             raise RuntimeError(
+-                "unentered non-relative cancel scope does not have a relative deadline",
++                "Unentered non-relative cancel scope does not have a relative deadline",
+             )
+         return self._relative_deadline
+ 
+@@ -868,11 +860,26 @@ class CancelScope:
+         elif self._deadline != inf:
+             assert self._relative_deadline == inf
+             raise RuntimeError(
+-                "unentered non-relative cancel scope does not have a relative deadline",
++                "Unentered non-relative cancel scope does not have a relative deadline",
+             )
+         else:
+             self._relative_deadline = new_relative_deadline
+ 
++    def clone(self, *, deadline=None, relative_deadline=None, shield=None):
++        """Copy deadline configuration into a fresh, unentered cancel scope."""
++        if deadline is not None and relative_deadline is not None:
++            raise ValueError("choose either deadline or relative_deadline")
++        new_shield = self.shield if shield is None else shield
++        if not isinstance(new_shield, bool):
++            raise TypeError("shield must be a bool")
++        if relative_deadline is not None:
++            return CancelScope(relative_deadline=relative_deadline, shield=new_shield)
++        if deadline is not None:
++            return CancelScope(deadline=deadline, shield=new_shield)
++        if not self._has_been_entered and self._relative_deadline != inf:
++            return CancelScope(relative_deadline=self._relative_deadline, shield=new_shield)
++        return CancelScope(deadline=self._deadline, shield=new_shield)
++
+     @property
+     def is_relative(self) -> bool | None:
+         """Returns None after entering. Returns False if both deadline and

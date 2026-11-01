@@ -1,0 +1,1 @@
+There's something to adjust in /work/w00: Fix type errors in Pyright # Summary

@@ -1,0 +1,70 @@
+{
+  "case_id": "sf125_switched",
+  "task_id": "ssb_v2_task_0444",
+  "repo": "sympy/sympy",
+  "base_commit": "787c6888a1827027081cdd10338cf23060b72b94",
+  "derived_fail_to_pass": [
+    "sympy.matrices.tests.test_eigen::test_issue_28793",
+    "sympy.matrices.tests.test_normalized_eigen_multiplicity_v1::test_list_output_preserves_dimension_after_coalescing",
+    "sympy.matrices.tests.test_normalized_eigen_multiplicity_v1::test_simplification_collision_adds_algebraic_multiplicities"
+  ],
+  "derived_pass_to_pass": [
+    "sympy.matrices.tests.test_eigen::test___eq__",
+    "sympy.matrices.tests.test_eigen::test_definite",
+    "sympy.matrices.tests.test_eigen::test_diagonalize",
+    "sympy.matrices.tests.test_eigen::test_eigen",
+    "sympy.matrices.tests.test_eigen::test_eigenvals",
+    "sympy.matrices.tests.test_eigen::test_eigenvects",
+    "sympy.matrices.tests.test_eigen::test_float_eigenvals",
+    "sympy.matrices.tests.test_eigen::test_is_diagonalizable",
+    "sympy.matrices.tests.test_eigen::test_issue_19210",
+    "sympy.matrices.tests.test_eigen::test_issue_20275",
+    "sympy.matrices.tests.test_eigen::test_issue_20582",
+    "sympy.matrices.tests.test_eigen::test_issue_20752",
+    "sympy.matrices.tests.test_eigen::test_issue_25282",
+    "sympy.matrices.tests.test_eigen::test_issue_8240",
+    "sympy.matrices.tests.test_eigen::test_jordan_form",
+    "sympy.matrices.tests.test_eigen::test_left_eigenvects",
+    "sympy.matrices.tests.test_eigen::test_positive_semidefinite_cholesky",
+    "sympy.matrices.tests.test_eigen::test_singular_values",
+    "sympy.matrices.tests.test_normalized_eigen_multiplicity_v1::test_default_and_no_collision_behavior_remain_compatible",
+    "sympy.matrices.tests.test_normalized_eigen_multiplicity_v1::test_simplification_does_not_approximately_merge_distinct_roots"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w04"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "sympy/matrices/tests/test_eigen.py",
+    "sympy/matrices/tests/test_normalized_eigen_multiplicity_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "sympy/matrices/tests/test_eigen.py",
+    "sympy/matrices/tests/test_normalized_eigen_multiplicity_v1.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w04",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "98f0c2cab2623dff9c174f777a95909286fffd703bef61fc134f04323314908a",
+    "config/recipes.json": "4052b760f1e69748b76406a26573ea234cd6b78586022540c6e68e30a9f9e69e"
+  }
+}

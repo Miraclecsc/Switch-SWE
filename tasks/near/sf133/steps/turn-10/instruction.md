@@ -1,0 +1,1 @@
+One more thing: Generally speaking, switching the order of non-keyword-only arguments is a no-go as it breaks backward compatibility. However, in this case I believe `harmonic_diameter` is not yet included in a released version so it should be fine. I'd vote to eliminate this problem going forward by enforcing keyword-only arguments:

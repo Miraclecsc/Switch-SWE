@@ -1,0 +1,1 @@
+One more thing: Top and bottom sound a bit arbitrary. Is that a preexisting convention. Why not row_nodelist and col_nodelist. Update: I see that is a pre-existing convention here Also, also test the case where you only pass bottom or top.

@@ -1,0 +1,1 @@
+One more thing: Sorry, raised normally within the finalizer which is the context here. `_finalize_without_ki_protection` could add a right below its `except StopIteration:` Looking more at the code, it doesn't seem like we have the proper state to reset though.

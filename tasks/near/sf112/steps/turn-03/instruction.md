@@ -1,0 +1,1 @@
+Please check this too: Quick question: shouldn't we at least do `logging.getLogger(...).exception(...)`? Otherwise, we rely on clients telling us about our code being broken (the subscription source should not raise exceptions under normal circumstances).

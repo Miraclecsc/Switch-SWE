@@ -1,0 +1,1 @@
+I have this in /work/w01: Only allow connected graphs in `eigenvector_centrality_numpy`

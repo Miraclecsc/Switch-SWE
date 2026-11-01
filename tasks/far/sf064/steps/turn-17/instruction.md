@@ -1,0 +1,1 @@
+Also, Retain all original purge and federation entity tests. Check compact syntax, complex defaults, descriptions and repeatable definitions through purge_schema_directives.

@@ -1,0 +1,1 @@
+Also, Failing tests are due to that type inheriting from `BaseExceptionGroup` when type-checking, but not on runtime, which confuses the export tests. Might move away from that messiness and add a couple properties to that type so it can be treated as an `ExceptionGroup` by end users using `exc_info`, or add exceptions to the export tests.

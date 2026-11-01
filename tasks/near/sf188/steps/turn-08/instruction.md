@@ -1,0 +1,1 @@
+I have this in /work/w04: Fix TypeError for `asdict(<class with namedtuple>, retain_collection_types=True)` # Summary

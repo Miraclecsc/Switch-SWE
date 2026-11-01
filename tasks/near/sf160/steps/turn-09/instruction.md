@@ -1,0 +1,1 @@
+Also, I have this code: (this uses aiofiles.tempfile) and even with 0.22.0 I can see data being uploaded in tiny chunks except as I understand when the disk cache kicks in:

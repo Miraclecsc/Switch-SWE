@@ -1,0 +1,1 @@
+And here, Anchor searches must not mutate caller mappings or contaminate later unanchored searches or shared symmetry caches. Keep every original ISMAGS regression.

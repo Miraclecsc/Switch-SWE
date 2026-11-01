@@ -1,0 +1,3 @@
+Please check this too: `test_unhandled_exception_group()` seems to be failing intermittently and I cannot figure out why. That test should not be time sensitive!
+
+Filtering nested groups must not mutate exception groups supplied by application code. When filtering leaves two or more survivors, the propagated subgroup must contain exactly those survivors, preserving their nesting and explicit cause. Reusing the original group in a later task-group invocation must not lose its original leaves.

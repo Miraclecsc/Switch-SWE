@@ -1,0 +1,3 @@
+Also, Memoryview allows you to efficiently return a slice of the original bytes value without copying. This is especially convenient when you want to strip some prefix or header of some value in memory you don’t control.
+
+Extend the same memoryview content support to ordinary Response, not only StreamingResponse. A contiguous view over a caller's buffer must remain a view until sending; do not eagerly copy it or encode it as text. Preserve explicit Content-Length, bodyless-status header rules and existing text/bytes behavior.

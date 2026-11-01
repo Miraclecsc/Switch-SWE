@@ -1,0 +1,1 @@
+Please check this too: `KeyTransformExact` does have the flag set to `True`; it is defined in `JSONExact` which `KeyTransformExact` subclasses. The change in Django 7 will remove the flag from `JSONExact` but keep it in `KeyTransformExact`, i.e. move it from the superclass to the subclass. Good catch, seems like a bug. Test failure for iexact: The queries are:

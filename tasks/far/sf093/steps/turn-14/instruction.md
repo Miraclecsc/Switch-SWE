@@ -1,0 +1,1 @@
+One more thing: Or actually, maybe just add a test that calls all of these? The fact that inheriting from `Instrument` gives you do-nothing implementations of all the hook methods (so they won't error out) is something we probably want to guarantee.

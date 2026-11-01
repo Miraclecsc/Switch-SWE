@@ -1,0 +1,40 @@
+diff --git a/sympy/core/tests/test_power.py b/sympy/core/tests/test_power.py
+index 80ae48c525c2..d0405e33cba5 100644
+--- a/sympy/core/tests/test_power.py
++++ b/sympy/core/tests/test_power.py
+@@ -668,3 +668,9 @@ def test_issue_25165():
+     e1 = (1/sqrt(( - x + 1)**2 + (x - 0.23)**4)).series(x, 0, 2)
+     e2 = 0.998603724830355 + 1.02004923189934*x + O(x**2)
+     assert all_close(e1, e2)
++
++
++def test_issue_28219():
++    assert Pow(S.Zero, -1, evaluate=False).as_real_imag() == (S.NaN, S.NaN)
++    x = Symbol('x', real=True)
++    assert Pow(x, -1, evaluate=False).as_real_imag() == (1/x, S.Zero)
+diff --git a/tests/test_sf199_staged.py b/tests/test_sf199_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf199_staged.py
+@@ -0,0 +1,21 @@
++
++from sympy import Pow, S, Rational, Symbol, Float, I
++
++def test_zero_base_positive_rational_has_no_polar_nan():
++    for exponent in (Rational(1,3), Rational(2,3), Rational(5,2)):
++        expression = Pow(S.Zero, exponent, evaluate=False)
++        assert expression.as_real_imag() == (S.Zero,S.Zero)
++        assert expression.as_real_imag(deep=False) == (S.Zero,S.Zero)
++
++def test_assumed_zero_base_and_real_exponent_signs():
++    zero = Symbol('z', zero=True)
++    positive = Symbol('p', positive=True)
++    negative = Symbol('n', negative=True)
++    for base in (S.Zero,zero):
++        for exponent, expected in [(positive,(S.Zero,S.Zero)), (negative,(S.NaN,S.NaN)), (Float('0.5'),(S.Zero,S.Zero)), (Float('-0.5'),(S.NaN,S.NaN))]:
++            assert Pow(base,exponent,evaluate=False).as_real_imag() == expected
++
++def test_zero_and_negative_exponents_and_nonzero_control():
++    assert Pow(S.Zero,S.Zero,evaluate=False).as_real_imag() == (S.One,S.Zero)
++    assert Pow(S.Zero,Rational(-1,3),evaluate=False).as_real_imag() == (S.NaN,S.NaN)
++    assert Pow(1+I,2,evaluate=False).as_real_imag() == (S.Zero,2)

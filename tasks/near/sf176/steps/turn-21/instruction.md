@@ -1,0 +1,1 @@
+Also, list_templates must return a sorted union of template names, with duplicates listed once.

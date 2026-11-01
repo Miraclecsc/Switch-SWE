@@ -1,0 +1,72 @@
+{
+  "case_id": "sf011_switched",
+  "task_id": "ssb_v2_task_0112",
+  "repo": "django/django",
+  "base_commit": "856c915326768962806705ca7733e4abbb8f794f",
+  "derived_fail_to_pass": [
+    "auth_tests.test_middleware.TestAsyncLoginLogoutAfterSyncMiddleware.test_user_after_alogin",
+    "auth_tests.test_middleware.TestAsyncLoginLogoutAfterSyncMiddleware.test_user_after_alogout",
+    "auth_tests.test_identity_cache_v1.AsyncIdentityCacheTests.test_alternating_transitions_never_reuse_stale_identity",
+    "auth_tests.test_identity_cache_v1.AsyncIdentityCacheTests.test_login_refreshes_both_previously_populated_caches",
+    "auth_tests.test_identity_cache_v1.AsyncIdentityCacheTests.test_login_signal_observes_new_identity_and_logout_signal_old_identity",
+    "auth_tests.test_identity_cache_v1.AsyncIdentityCacheTests.test_logout_refreshes_retained_middleware_callable"
+  ],
+  "derived_pass_to_pass": [
+    "auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser",
+    "auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser_after_alogin",
+    "auth_tests.test_middleware.TestAuthenticationMiddleware.test_auser_after_alogout",
+    "auth_tests.test_middleware.TestAuthenticationMiddleware.test_changed_password_invalidates_session",
+    "auth_tests.test_middleware.TestAuthenticationMiddleware.test_no_password_change_doesnt_invalidate_session",
+    "auth_tests.test_middleware.TestAuthenticationMiddleware.test_no_session",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_admin_path",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_get_login_url_from_settings",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_get_login_url_from_view_func",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_get_login_url_no_login_url",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_get_redirect_field_name_default",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_get_redirect_field_name_from_view_func",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_login_required_paths",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_login_url_resolve_logic",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_non_existent_path",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_paths_with_logged_in_user",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_protected_paths",
+    "auth_tests.test_middleware.TestLoginRequiredMiddleware.test_public_paths",
+    "auth_tests.test_identity_cache_v1.AsyncIdentityCacheTests.test_current_callable_and_direct_user_agree_without_async_cache_priming"
+  ],
+  "recipe": {
+    "runner": "django",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/auth_tests/test_middleware.py",
+    "tests/auth_tests/test_identity_cache_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/auth_tests/test_identity_cache_v1.py",
+    "tests/auth_tests/test_middleware.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "e0cdbfb077fe8e2e41486f8474d905748e2b779a887709ea86686430c1ef1242",
+    "config/recipes.json": "b5f75593ff61ab83751bb27442398e79c02f86ed8340b6b5a8b4dfd49f3838df"
+  }
+}

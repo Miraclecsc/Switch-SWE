@@ -1,0 +1,261 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+index d4c036e..2c0dc4f 100644
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -56,6 +56,9 @@ Unreleased
+     fail. :issue:`3105` :pr:`3211`
+ -   Add ``click.get_pager_file`` for file-like access to an output
+     pager. :pr:`1572`
++-   :class:`~click.formatting.TextWrapper` and
++    :func:`~click.formatting.wrap_text` now measure line width in visible
++    characters, ignoring ANSI escape sequences. :pr:`3420`
+ -   Show custom error messages from types when :func:`prompt` with
+     ``hide_input=True`` fails validation, instead of always showing a
+     generic message. Built-in type messages mask the input value.
+diff --git a/src/click/_compat.py b/src/click/_compat.py
+index 134c4f3..8241f09 100644
+--- a/src/click/_compat.py
++++ b/src/click/_compat.py
+@@ -13,7 +13,7 @@ from weakref import WeakKeyDictionary
+ CYGWIN = sys.platform.startswith("cygwin")
+ WIN = sys.platform.startswith("win")
+ auto_wrap_for_ansi: t.Callable[[t.TextIO], t.TextIO] | None = None
+-_ansi_re = re.compile(r"\033\[[;?0-9]*[a-zA-Z]")
++_ansi_re = re.compile(r"\033\[[;?0-9]*[a-zA-Z]|\033\]8;[^\x07\x1b]*(?:\x07|\x1b\\)")
+ 
+ 
+ def _make_text_stream(
+diff --git a/src/click/_textwrap.py b/src/click/_textwrap.py
+index 97fbee3..b34d29f 100644
+--- a/src/click/_textwrap.py
++++ b/src/click/_textwrap.py
+@@ -4,8 +4,87 @@ import collections.abc as cabc
+ import textwrap
+ from contextlib import contextmanager
+ 
++from ._compat import _ansi_re
++from ._compat import term_len
++
++
++def _truncate_visible(text: str, n: int) -> str:
++    """Return the longest prefix of ``text`` containing at most ``n`` visible
++    characters.
++
++    ANSI escape sequences inside the prefix are kept intact and do not count
++    toward the visible width. A cut is never placed inside an escape sequence.
++    """
++    if n <= 0:
++        return ""
++
++    visible = 0
++    i = 0
++    cut = 0
++    end = len(text)
++    while i < end:
++        m = _ansi_re.match(text, i)
++        if m is not None:
++            i = m.end()
++            continue
++        visible += 1
++        i += 1
++        cut = i
++        if visible >= n:
++            break
++    return text[:cut]
++
+ 
+ class TextWrapper(textwrap.TextWrapper):
++    """``textwrap.TextWrapper`` variant that measures widths by visible
++    character count.
++
++    ANSI escape sequences embedded in chunks, indents, or the placeholder are
++    excluded from the width budget. Without this, styled help text (a styled
++    ``Usage:`` prefix, a colorized option name, ...) would be wrapped earlier
++    than its visible length warrants and tokens would split mid-word.
++    """
++
++    def _munge_whitespace(self, text: str) -> str:
++        result = []
++        offset = 0
++        for match in _ansi_re.finditer(text):
++            result.append(super()._munge_whitespace(text[offset:match.start()]))
++            result.append(match.group())
++            offset = match.end()
++        result.append(super()._munge_whitespace(text[offset:]))
++        return "".join(result)
++
++    def _split(self, text: str) -> list[str]:
++        # Split the visible text, not control payloads (which can contain
++        # whitespace and punctuation). Map the chunks back to intact controls.
++        units: list[str] = []
++        visible: list[str] = []
++        pending = ""
++        i = 0
++        while i < len(text):
++            match = _ansi_re.match(text, i)
++            if match is not None:
++                if units and not visible[-1].isspace():
++                    units[-1] += match.group()
++                else:
++                    pending += match.group()
++                i = match.end()
++            else:
++                units.append(pending + text[i])
++                visible.append(text[i])
++                pending = ""
++                i += 1
++        if not units:
++            return [pending] if pending else []
++        units[-1] += pending
++        result = []
++        offset = 0
++        for chunk in super()._split("".join(visible)):
++            result.append("".join(units[offset:offset + len(chunk)]))
++            offset += len(chunk)
++        return result
++
+     def _handle_long_word(
+         self,
+         reversed_chunks: list[str],
+@@ -17,13 +96,111 @@ class TextWrapper(textwrap.TextWrapper):
+ 
+         if self.break_long_words:
+             last = reversed_chunks[-1]
+-            cut = last[:space_left]
+-            res = last[space_left:]
++            cut = _truncate_visible(last, space_left)
++            res = last[len(cut) :]
+             cur_line.append(cut)
+             reversed_chunks[-1] = res
+         elif not cur_line:
+             cur_line.append(reversed_chunks.pop())
+ 
++    def _wrap_chunks(self, chunks: list[str]) -> list[str]:
++        """Wrap chunks counting widths in visible characters.
++
++        Mirrors the algorithm of :meth:`textwrap.TextWrapper._wrap_chunks`
++        with every width measurement routed through
++        :func:`click._compat.term_len` instead of :func:`len`, so ANSI escape
++        bytes in chunks, indents, or the placeholder do not inflate the count.
++
++        .. seealso::
++            :class:`textwrap.TextWrapper` in the Python standard library documentation:
++            https://docs.python.org/3/library/textwrap.html#textwrap.TextWrapper
++
++            Reference implementation in CPython:
++            https://github.com/python/cpython/blob/main/Lib/textwrap.py
++        """
++        lines: list[str] = []
++        if self.width <= 0:
++            raise ValueError(f"invalid width {self.width!r} (must be > 0)")
++        if self.max_lines is not None:
++            if self.max_lines > 1:
++                indent = self.subsequent_indent
++            else:
++                indent = self.initial_indent
++            if term_len(indent) + term_len(self.placeholder.lstrip()) > self.width:
++                raise ValueError("placeholder too large for max width")
++
++        chunks.reverse()
++
++        while chunks:
++            cur_line: list[str] = []
++            cur_len = 0
++
++            if lines:
++                indent = self.subsequent_indent
++            else:
++                indent = self.initial_indent
++
++            width = self.width - term_len(indent)
++
++            if self.drop_whitespace and chunks[-1].strip() == "" and lines:
++                del chunks[-1]
++
++            while chunks:
++                n = term_len(chunks[-1])
++
++                if cur_len + n <= width:
++                    cur_line.append(chunks.pop())
++                    cur_len += n
++
++                else:
++                    break
++
++            if chunks and term_len(chunks[-1]) > width:
++                self._handle_long_word(chunks, cur_line, cur_len, width)
++                cur_len = sum(map(term_len, cur_line))
++
++            if self.drop_whitespace and cur_line and cur_line[-1].strip() == "":
++                cur_len -= term_len(cur_line[-1])
++                del cur_line[-1]
++
++            if cur_line:
++                if (
++                    self.max_lines is None
++                    or len(lines) + 1 < self.max_lines
++                    or (
++                        not chunks
++                        or self.drop_whitespace
++                        and len(chunks) == 1
++                        and not chunks[0].strip()
++                    )
++                    and cur_len <= width
++                ):
++                    lines.append(indent + "".join(cur_line))
++                else:
++                    while cur_line:
++                        if (
++                            cur_line[-1].strip()
++                            and cur_len + term_len(self.placeholder) <= width
++                        ):
++                            cur_line.append(self.placeholder)
++                            lines.append(indent + "".join(cur_line))
++                            break
++                        cur_len -= term_len(cur_line[-1])
++                        del cur_line[-1]
++                    else:
++                        if lines:
++                            prev_line = lines[-1].rstrip()
++                            if (
++                                term_len(prev_line) + term_len(self.placeholder)
++                                <= self.width
++                            ):
++                                lines[-1] = prev_line + self.placeholder
++                                break
++                        lines.append(indent + self.placeholder.lstrip())
++                    break
++
++        return lines
++
+     @contextmanager
+     def extra_indent(self, indent: str) -> cabc.Iterator[None]:
+         old_initial_indent = self.initial_indent
+diff --git a/src/click/formatting.py b/src/click/formatting.py
+index de2ca47..afb4633 100644
+--- a/src/click/formatting.py
++++ b/src/click/formatting.py
+@@ -52,16 +52,22 @@ def wrap_text(
+                               each consecutive line.
+     :param preserve_paragraphs: if this flag is set then the wrapping will
+                                 intelligently handle paragraphs.
++
++    .. versionchanged:: 8.4
++        Width is measured in visible characters. ANSI escape sequences in
++        ``text``, ``initial_indent``, or ``subsequent_indent`` no longer
++        count toward the width budget, so styled input wraps based on what
++        the user sees instead of raw byte length.
+     """
+     from ._textwrap import TextWrapper
+ 
+-    text = text.expandtabs()
+     wrapper = TextWrapper(
+         width,
+         initial_indent=initial_indent,
+         subsequent_indent=subsequent_indent,
+         replace_whitespace=False,
+     )
++    text = wrapper._munge_whitespace(text)
+     if not preserve_paragraphs:
+         return wrapper.fill(text)
+ 

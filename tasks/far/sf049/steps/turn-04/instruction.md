@@ -1,0 +1,1 @@
+In the checkout at /work/w00, By deferring the initial render until the width is available, we can now render the content that was added via `write` in `compose` at the correct width, rather than doing the often wrong default of `min_width`.

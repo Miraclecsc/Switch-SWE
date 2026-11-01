@@ -1,0 +1,1 @@
+One more thing: This should be defined on that type and not `BaseDatabaseCache`. As pointed out in the ticket the memcached and redis backend are also affected. Also, This should not add anything if the subclass has its own specialized `aget_many`

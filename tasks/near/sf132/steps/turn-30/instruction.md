@@ -1,0 +1,1 @@
+One more thing: I'm envisioning this as: - check `is not None and not endpoints` directly instead of using a flag. - make `nodes` a set just before we need it to be a set - change `1` to `float('nan')` - return immediately (which also makes the final `if` clause simpler) Something like: (see what you think)

@@ -1,0 +1,1 @@
+And here, Ack -- sorry. I guess my brain has been working with numpy too much lately. :) `numpy.arange` of course does allow float.

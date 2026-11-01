@@ -1,0 +1,165 @@
+diff --git a/tests/test_case_convertion_util.py b/tests/test_case_convertion_util.py
+index ad0e4ae2b..2df8cecf2 100644
+--- a/tests/test_case_convertion_util.py
++++ b/tests/test_case_convertion_util.py
+@@ -38,3 +38,7 @@ def test_three_words_camel_case_name_is_converted():
+ 
+ def test_no_underscore_added_if_previous_character_is_an_underscore():
+     assert convert_camel_case_to_snake("test__complexName") == "test__complex_name"
++
++
++def test_no_underscore_added_if_previous_character_is_uppercase():
++    assert convert_camel_case_to_snake("testWithUPPERPart") == "test_with_upperpart"
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,148 @@
++import asyncio
++import copy
++import inspect
++
++import pytest
++
++from ariadne import convert_camel_case_to_snake, convert_kwargs_to_snake_case
++
++
++def test_original_acronym_grouping_is_preserved():
++    assert convert_camel_case_to_snake("interfaceMACs") == "interface_macs"
++    assert convert_camel_case_to_snake("testWithUPPERPart") == "test_with_upperpart"
++    assert convert_camel_case_to_snake("userID") == convert_camel_case_to_snake("userId") == "user_id"
++    assert convert_camel_case_to_snake("test__complexName") == "test__complex_name"
++
++
++def test_nested_lists_convert_names_without_mutating_input():
++    original = {"batchItems": [[{"interfaceMACs": "x", "childRows": [[{"userID": 4}]]}], [], None]}
++    saved = copy.deepcopy(original)
++    @convert_kwargs_to_snake_case
++    def resolver(**kwargs):
++        return kwargs
++    result = resolver(payloadData=original)
++    assert result == {"payload_data": {"batch_items": [
++        [{"interface_macs": "x", "child_rows": [[{"user_id": 4}]]}], [], None]}}
++    assert original == saved
++    result["payload_data"]["batch_items"][0][0]["interface_macs"] = "changed"
++    assert original == saved
++
++
++def test_custom_scalar_values_and_positional_arguments_are_preserved():
++    scalar = object()
++    positional = object()
++    @convert_kwargs_to_snake_case
++    def resolver(parent, **kwargs):
++        """A resolver with metadata."""
++        assert parent is positional
++        return kwargs
++    result = resolver(positional, inputData={"scalarValue": scalar})
++    assert result["input_data"]["scalar_value"] is scalar
++    assert resolver.__name__ == "resolver"
++    assert resolver.__doc__ == "A resolver with metadata."
++    assert hasattr(resolver, "__wrapped__")
++
++
++def test_top_level_collision_rejected_before_sync_resolver():
++    calls = []
++    @convert_kwargs_to_snake_case
++    def resolver(**kwargs):
++        calls.append(kwargs)
++    for kwargs in ({"userID": 1, "userId": 2}, {"userId": 2, "userID": 1}):
++        with pytest.raises(ValueError) as caught:
++            resolver(**kwargs)
++        assert "userID" in str(caught.value) and "userId" in str(caught.value)
++    assert calls == []
++
++
++def test_nested_collision_reports_mapping_location_and_preserves_input():
++    calls = []
++    @convert_kwargs_to_snake_case
++    def resolver(**kwargs):
++        calls.append(kwargs)
++    payload = {"batchRows": [[{"safeName": 1}], [{"userID": 2, "userId": 3}]]}
++    saved = copy.deepcopy(payload)
++    with pytest.raises(ValueError) as caught:
++        resolver(inputData=payload)
++    message = str(caught.value)
++    assert all(text in message for text in ("userID", "userId", "inputData", "batchRows", "1", "0"))
++    assert payload == saved
++    assert calls == []
++
++
++def test_already_snake_case_collision_is_rejected():
++    @convert_kwargs_to_snake_case
++    def resolver(**kwargs):
++        return kwargs
++    with pytest.raises(ValueError) as caught:
++        resolver(inputData={"user_id": 1, "userID": 2})
++    assert "user_id" in str(caught.value) and "userID" in str(caught.value)
++
++
++def test_same_converted_name_in_separate_mappings_is_valid():
++    @convert_kwargs_to_snake_case
++    def resolver(**kwargs):
++        return kwargs
++    assert resolver(rows=[[{"userID": 1}], [{"userId": 2}]]) == {
++        "rows": [[{"user_id": 1}], [{"user_id": 2}]]}
++
++
++def test_async_resolver_recursive_conversion_and_metadata():
++    @convert_kwargs_to_snake_case
++    async def resolver(parent, **kwargs):
++        """Async resolver."""
++        await asyncio.sleep(0)
++        return parent, kwargs
++    assert inspect.iscoroutinefunction(resolver)
++    assert resolver.__name__ == "resolver"
++    assert resolver.__doc__ == "Async resolver."
++    assert asyncio.run(resolver("parent", rows=[[{"interfaceMACs": "eth0"}]])) == (
++        "parent", {"rows": [[{"interface_macs": "eth0"}]]})
++
++
++def test_async_collision_is_rejected_before_user_code():
++    calls = []
++    @convert_kwargs_to_snake_case
++    async def resolver(**kwargs):
++        calls.append(kwargs)
++        return kwargs
++    async def invoke():
++        with pytest.raises(ValueError) as caught:
++            await resolver(rows=[[{"userID": 1, "userId": 2}]])
++        assert "userID" in str(caught.value) and "userId" in str(caught.value)
++    asyncio.run(invoke())
++    assert calls == []
++
++
++def test_graphql_nested_input_uses_the_same_conversion():
++    from ariadne import QueryType, make_executable_schema
++    from graphql import graphql_sync
++    query = QueryType()
++    @query.field("describe")
++    @convert_kwargs_to_snake_case
++    def describe(_, info, rows):
++        return rows[0][0]["interface_macs"]
++    schema = make_executable_schema(
++        "input Port { interfaceMACs: String! } type Query { describe(rows: [[Port!]!]!): String! }",
++        query)
++    result = graphql_sync(schema, '{ describe(rows: [[{interfaceMACs: "eth0"}]]) }')
++    assert result.errors is None
++    assert result.data == {"describe": "eth0"}
++
++
++def test_graphql_collision_surfaces_error_without_calling_resolver():
++    from ariadne import QueryType, make_executable_schema
++    from graphql import graphql_sync
++    calls = []
++    query = QueryType()
++    @query.field("describe")
++    @convert_kwargs_to_snake_case
++    def describe(_, info, **kwargs):
++        calls.append(kwargs)
++        return "should not run"
++    schema = make_executable_schema(
++        "type Query { describe(userID: Int, userId: Int): String }", query)
++    result = graphql_sync(schema, "{ describe(userID: 1, userId: 2) }")
++    assert result.errors and isinstance(result.errors[0].original_error, ValueError)
++    assert result.data == {"describe": None}
++    assert calls == []

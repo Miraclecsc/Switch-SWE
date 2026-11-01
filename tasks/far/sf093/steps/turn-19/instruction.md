@@ -1,0 +1,3 @@
+Please check this too: Oh I see, we need to let tasks settle first! Oops! I guess you will need to add another `await wait_all_tasks_blocked()`.
+
+Pauses may nest; only leaving the outermost pause can admit queued borrowers, including on exceptional context exit. Capacity changes made while paused, including zero, remain in effect afterward and must not admit anyone early. Preserve FIFO waiter ordering and cancellation cleanup: a waiter cancelled during the pause must not consume capacity when resumed. Keep original zero-capacity behavior outside pauses.

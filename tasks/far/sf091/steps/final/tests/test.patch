@@ -1,0 +1,132 @@
+diff --git a/trio/_core/_tests/test_run.py b/trio/_core/_tests/test_run.py
+index 650f8ef77f..361310143e 100644
+--- a/trio/_core/_tests/test_run.py
++++ b/trio/_core/_tests/test_run.py
+@@ -40,7 +40,7 @@
+ )
+ 
+ if sys.version_info < (3, 11):
+-    from exceptiongroup import ExceptionGroup
++    from exceptiongroup import BaseExceptionGroup, ExceptionGroup
+ 
+ 
+ T = TypeVar("T")
+@@ -2538,3 +2538,62 @@ async def test_cancel_scope_no_cancellederror() -> None:
+             raise ExceptionGroup("test", [RuntimeError(), RuntimeError()])
+ 
+     assert not scope.cancelled_caught
++
++
++"""These tests are for fixing https://github.com/python-trio/trio/issues/2611
++where exceptions raised before `task_status.started()` got wrapped twice.
++"""
++
++
++async def raise_before(*, task_status: _core.TaskStatus[None]) -> None:
++    raise ValueError
++
++
++async def raise_after_started(*, task_status: _core.TaskStatus[None]) -> None:
++    task_status.started()
++    raise ValueError
++
++
++async def raise_custom_exception_group_before(
++    *, task_status: _core.TaskStatus[None]
++) -> None:
++    raise ExceptionGroup("my group", [ValueError()])
++
++
++def _check_exception(exc: pytest.ExceptionInfo[BaseException]) -> None:
++    assert isinstance(exc.value, BaseExceptionGroup)
++    assert len(exc.value.exceptions) == 1
++    assert isinstance(exc.value.exceptions[0], ValueError)
++
++
++async def _start_raiser(
++    raiser: Callable[[], Awaitable[None]], strict: bool | None = None
++) -> None:
++    async with _core.open_nursery(strict_exception_groups=strict) as nursery:
++        await nursery.start(raiser)
++
++
++@pytest.mark.parametrize("strict", [False, True])
++@pytest.mark.parametrize("raiser", [raise_before, raise_after_started])
++async def test_strict_before_started(
++    strict: bool, raiser: Callable[[], Awaitable[None]]
++) -> None:
++    with pytest.raises(BaseExceptionGroup if strict else ValueError) as exc:
++        await _start_raiser(raiser, strict)
++    if strict:
++        _check_exception(exc)
++
++
++# it was only when run from `trio.run` that the double wrapping happened
++@pytest.mark.parametrize("strict", [False, True])
++@pytest.mark.parametrize(
++    "raiser", [raise_before, raise_after_started, raise_custom_exception_group_before]
++)
++def test_trio_run_strict_before_started(
++    strict: bool, raiser: Callable[[], Awaitable[None]]
++) -> None:
++    expect_group = strict or raiser is raise_custom_exception_group_before
++    with pytest.raises(BaseExceptionGroup if expect_group else ValueError) as exc:
++        _core.run(_start_raiser, raiser, strict_exception_groups=strict)
++    if expect_group:
++        _check_exception(exc)
+diff --git a/trio/_core/_tests/test_sf091_extension.py b/trio/_core/_tests/test_sf091_extension.py
+new file mode 100644
+--- /dev/null
++++ b/trio/_core/_tests/test_sf091_extension.py
+@@ -0,0 +1,51 @@
++from types import MappingProxyType
++import pytest
++import trio
++
++@pytest.mark.parametrize("strict",[False,True])
++def test_keyword_start_and_group_identity(strict):
++    async def main():
++        async with trio.open_nursery(strict_exception_groups=strict) as nursery:
++            async def child(prefix,*,value,task_status):
++                assert trio.lowlevel.current_task().name == "keyword-child"
++                task_status.started(prefix+value)
++            supplied={"value":"world"}
++            assert await nursery.start(child,"hello ",kwargs=MappingProxyType(supplied),name="keyword-child") == "hello world"
++            assert supplied == {"value":"world"}
++            group=ExceptionGroup("user group",[ValueError("one")])
++            async def failing(*,error,task_status): raise error
++            with pytest.raises(BaseExceptionGroup) as caught:
++                await nursery.start(failing,kwargs={"error":group})
++            assert caught.value is group
++    trio.run(main,strict_exception_groups=strict)
++
++@pytest.mark.parametrize("invalid",[{"task_status":object()},{1:"bad"},[("value",1)]])
++def test_invalid_keywords_are_atomic(invalid):
++    async def main():
++        called=[]
++        async def child(*,value=1,task_status):
++            called.append(value);task_status.started(value)
++        async with trio.open_nursery() as nursery:
++            with pytest.raises(TypeError): await nursery.start(child,kwargs=invalid)
++            assert called == []
++            assert await nursery.start(child,kwargs={"value":2}) == 2
++    trio.run(main)
++
++def test_binding_error_then_reuse():
++    async def main():
++        async def child(*,value,task_status): task_status.started(value)
++        async with trio.open_nursery() as nursery:
++            with pytest.raises(TypeError): await nursery.start(child,kwargs={"wrong":1})
++            assert await nursery.start(child,kwargs={"value":7}) == 7
++    trio.run(main)
++
++def test_unmodified_group_identity_without_keywords():
++    group=ExceptionGroup("application",[ValueError("one")])
++    group.add_note("keep diagnostic state")
++    async def main():
++        async def child(*,task_status): raise group
++        async with trio.open_nursery() as nursery:
++            with pytest.raises(ExceptionGroup) as caught: await nursery.start(child)
++            assert caught.value is group
++            assert caught.value.__notes__ == ["keep diagnostic state"]
++    trio.run(main)

@@ -1,0 +1,1 @@
+Please check this too: Refs #36810 -- Avoided infinite recursion in LazyNonce.__repr__(). Moved nonce generation in ``django.utils.csp.LazyNonce`` to a function to avoid infinite recursion in ``SimpleLazyObject.__repr__`` for unevaluated instances.

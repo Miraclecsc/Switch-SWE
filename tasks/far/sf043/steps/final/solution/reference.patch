@@ -1,0 +1,31 @@
+--- a/networkx/readwrite/pajek.py
++++ b/networkx/readwrite/pajek.py
+@@ -35,6 +35,11 @@
+     See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/draweps.htm
+     for format information.
+     """
++    lines = list(_generate_pajek_lines(G))
++    yield from lines
++
++
++def _generate_pajek_lines(G):
+     if G.name == "":
+         name = "NetworkX"
+     else:
+@@ -276,11 +281,12 @@
+ 
+ 
+ def make_qstr(t):
+-    """Returns the string representation of t.
+-    Add outer double-quotes if the string has a space.
+-    """
++    """Render one Pajek token; reject record delimiters and preserve its text."""
+     if not isinstance(t, str):
+         t = str(t)
+-    if " " in t:
++    if "\r" in t or "\n" in t:
++        raise ValueError("Pajek fields cannot contain CR or LF")
++    if not t or any(c.isspace() or c in "'\"\\" for c in t):
++        t = t.replace("\\", "\\\\").replace('"', '\\"')
+         t = f'"{t}"'
+     return t

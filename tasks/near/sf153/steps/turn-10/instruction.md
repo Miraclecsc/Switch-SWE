@@ -1,0 +1,1 @@
+I have this in /work/w01: avoid refcycles in tracebacks from happy eyeballs exceptions

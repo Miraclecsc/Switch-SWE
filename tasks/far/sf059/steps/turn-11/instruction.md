@@ -1,0 +1,1 @@
+Please check this too: Keep original patched-Task, eager-start registration, cancellation and TaskGroup tests. Do not apply nest_asyncio globally in the tests or change its runtime dependency.

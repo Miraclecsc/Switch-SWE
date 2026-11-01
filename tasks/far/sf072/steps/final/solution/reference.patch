@@ -1,0 +1,60 @@
+diff --git a/networkx/drawing/nx_pylab.py b/networkx/drawing/nx_pylab.py
+index 2f761e2dc..640bfccbd 100644
+--- a/networkx/drawing/nx_pylab.py
++++ b/networkx/drawing/nx_pylab.py
+@@ -1490,22 +1490,51 @@ def draw_networkx_nodes(
+ 
+     if not isinstance(node_shape, np.ndarray) and not isinstance(node_shape, list):
+         node_shape = np.array([node_shape for _ in range(len(nodelist))])
++    elif isinstance(node_shape, list):
++        node_shape = np.asarray(node_shape)
++
++    if node_shape.ndim != 1 or len(node_shape) != len(nodelist):
++        raise ValueError("node_shape must supply one shape per node")
++
++    def subset(value, mask):
++        array = np.asarray(value)
++        if array.ndim and len(array) == len(nodelist):
++            return array[mask]
++        return value
++
++    def subset_color(value, mask, numeric=False):
++        if value is None or isinstance(value, str):
++            return value
++        array = np.asarray(value)
++        if mpl.colors.is_color_like(value):
++            if not numeric or array.ndim != 1 or len(array) != len(nodelist):
++                return value
++        return subset(value, mask)
++
++    colors = np.asarray(node_color)
++    if colors.ndim == 1 and len(colors) == len(nodelist) and colors.dtype.kind in "uif":
++        if vmin is None:
++            vmin = colors.min()
++        if vmax is None:
++            vmax = colors.max()
+ 
+     for shape in np.unique(node_shape):
++        mask = node_shape == shape
+         node_collection = ax.scatter(
+             xy[node_shape == shape, 0],
+             xy[node_shape == shape, 1],
+-            s=node_size,
+-            c=node_color,
++            s=subset(node_size, mask),
++            c=subset_color(node_color, mask, numeric=True),
+             marker=shape,
+             cmap=cmap,
+             vmin=vmin,
+             vmax=vmax,
+             alpha=alpha,
+-            linewidths=linewidths,
+-            edgecolors=edgecolors,
++            linewidths=subset(linewidths, mask),
++            edgecolors=subset_color(edgecolors, mask),
+             label=label,
+         )
++        node_collection.set_zorder(2)
+     if hide_ticks:
+         ax.tick_params(
+             axis="both",

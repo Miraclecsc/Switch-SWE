@@ -1,0 +1,80 @@
+diff --git a/tests/test_asgi.py b/tests/test_asgi.py
+index 17c8d5eb27..14d6df6ded 100644
+--- a/tests/test_asgi.py
++++ b/tests/test_asgi.py
+@@ -3,6 +3,7 @@
+ import pytest
+ 
+ import httpx
++from httpx import ASGITransport
+ 
+ 
+ async def hello_world(scope, receive, send):
+@@ -191,3 +192,12 @@ async def read_body(scope, receive, send):
+ 
+     assert response.status_code == 200
+     assert disconnect
++
++
++@pytest.mark.anyio
++async def test_asgi_exc_no_raise():
++    transport = ASGITransport(app=raise_exc, raise_app_exceptions=False)
++    async with httpx.AsyncClient(transport=transport) as client:
++        response = await client.get("http://www.example.org/")
++
++        assert response.status_code == 500
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,50 @@
++import asyncio
++import pytest
++import httpx
++
++def test_no_start_recovery():
++    async def app(scope, receive, send):
++        pass
++    async def run():
++        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app, raise_app_exceptions=False)) as client:
++            r = await client.get('http://test/')
++            assert r.status_code == 500
++            assert r.content == b''
++    asyncio.run(run())
++
++def test_partial_recovery_and_isolation():
++    async def app(scope, receive, send):
++        partial = scope['path'] == '/partial'
++        await send({'type':'http.response.start','status':202 if partial else 200,'headers':[(b'x-part',b'a'),(b'x-part',b'b')] if partial else []})
++        await send({'type':'http.response.body','body':b'part' if partial else b'ok','more_body':partial})
++    async def run():
++        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app, raise_app_exceptions=False)) as client:
++            r = await client.get('http://test/partial')
++            assert r.status_code == 202 and r.content == b'part'
++            assert r.headers.get_list('x-part') == ['a','b']
++            head = await client.head('http://test/partial')
++            assert head.content == b'' and head.status_code == 202
++            r = await client.get('http://test/ok')
++            assert r.status_code == 200 and r.content == b'ok'
++            assert 'x-part' not in r.headers
++    asyncio.run(run())
++
++def test_strict_incomplete_error():
++    async def app(scope, receive, send):
++        pass
++    async def run():
++        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app)) as client:
++            with pytest.raises(RuntimeError, match='(?i)(complet|response)'):
++                await client.get('http://test/')
++    asyncio.run(run())
++
++def test_strict_actual_exception_identity():
++    error = ValueError('app')
++    async def app(scope, receive, send):
++        raise error
++    async def run():
++        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app)) as client:
++            with pytest.raises(ValueError) as caught:
++                await client.get('http://test/')
++            assert caught.value is error
++    asyncio.run(run())

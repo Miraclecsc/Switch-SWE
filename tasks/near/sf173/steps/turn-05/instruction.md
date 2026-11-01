@@ -1,0 +1,1 @@
+In the checkout at /work/w00, Properly support multiline help string and fix broken fish completion from #3126 See #3502 for details. This PR reverts the changes introduced in #3126 and properly handles multi-line help strings by quoting `\n` and replacing `\t` with a space. According to the [Fish documentation]( fix #3043 and #3502

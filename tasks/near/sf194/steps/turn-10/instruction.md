@@ -1,0 +1,1 @@
+One more thing: I created a new file because the `MYPY` constant is automatically exported because it's not (can't be) underscored and will appear in code completion, etc.

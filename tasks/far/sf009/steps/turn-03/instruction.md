@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: Fixed #20024 -- Fixed handling of __in lookups with None in exclude().

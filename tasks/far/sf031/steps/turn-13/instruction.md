@@ -1,0 +1,1 @@
+Also, Add some tests for example 6.2.1 from Bronstein's book This didn't work before because it failed the parametric log deriv check, but it works now with the improved parametric_log_deriv_heu from the previous commit.

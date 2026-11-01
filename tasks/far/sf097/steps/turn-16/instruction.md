@@ -1,0 +1,3 @@
+And here, The release note says that nonlinsolve would return incorrect results but actually it would fail with TypeError.
+
+The conditions fallback must also detect a FiniteSet of solution tuples containing set-valued components, such as the single-equation sign case, and represent that system as a ConditionSet rather than claim those sets are scalar solutions. Ordinary finite scalar solutions and EmptySet results must be returned unchanged. Accept both equation expressions and Eq objects. Reject unknown fallback names with ValueError. Keep the default path and original F2P/P2P behavior unchanged.

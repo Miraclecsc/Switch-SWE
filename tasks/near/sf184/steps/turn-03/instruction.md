@@ -1,0 +1,1 @@
+Please check this too: One way to avoid using `insert()` is to add the "debug" version in the elif block rather than the non-debug (and re-order your comment):

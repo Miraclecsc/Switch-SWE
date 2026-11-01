@@ -1,0 +1,216 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/8e87d20fe955230a-3.12.12-06d04e00",
+    "/opt/ssb/deps/d0d6d4e5841151fd-3.12.12-ad1b2bd1"
+  ],
+  "case_id": "sf192_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w02",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/d0d6d4e5841151fd-3.12.12-ad1b2bd1",
+      "python": "3.12.12",
+      "requirements": "requirements/d0d6d4e5841151fd-3.12.12-ad1b2bd1.txt",
+      "source": "dependency-source/d0d6d4e5841151fd-3.12.12-ad1b2bd1.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8e87d20fe955230a-3.12.12-06d04e00",
+      "python": "3.12.12",
+      "requirements": "requirements/8e87d20fe955230a-3.12.12-06d04e00.txt",
+      "source": "dependency-source/8e87d20fe955230a-3.12.12-06d04e00.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/1fbde72fa42ad142-3.9.23-289fe84b",
+      "python": "3.9.23",
+      "requirements": "requirements/1fbde72fa42ad142-3.9.23-289fe84b.txt",
+      "source": "dependency-source/1fbde72fa42ad142-3.9.23-289fe84b.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/5003288e7e65910d-3.9.23-487ab253",
+      "python": "3.9.23",
+      "requirements": "requirements/5003288e7e65910d-3.9.23-487ab253.txt",
+      "source": "dependency-source/5003288e7e65910d-3.9.23-487ab253.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/3ab159ce92f4cc8a-3.9.23-2d20779e",
+      "python": "3.9.23",
+      "requirements": "requirements/3ab159ce92f4cc8a-3.9.23-2d20779e.txt",
+      "source": "dependency-source/3ab159ce92f4cc8a-3.9.23-2d20779e.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/d0d6d4e5841151fd-3.9.23-0c3dddf4",
+      "python": "3.9.23",
+      "requirements": "requirements/d0d6d4e5841151fd-3.9.23-0c3dddf4.txt",
+      "source": "dependency-source/d0d6d4e5841151fd-3.9.23-0c3dddf4.tar.gz"
+    },
+    {
+      "destination": "/opt/ssb/deps/8e87d20fe955230a-3.9.23-59100004",
+      "python": "3.9.23",
+      "requirements": "requirements/8e87d20fe955230a-3.9.23-59100004.txt",
+      "source": "dependency-source/8e87d20fe955230a-3.9.23-59100004.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/d0d6d4e5841151fd-3.12.12-ad1b2bd1",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-06d04e00"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/1fbde72fa42ad142-3.9.23-289fe84b",
+        "/opt/ssb/deps/5003288e7e65910d-3.9.23-487ab253",
+        "/opt/ssb/deps/3ab159ce92f4cc8a-3.9.23-2d20779e",
+        "/opt/ssb/deps/d0d6d4e5841151fd-3.9.23-0c3dddf4",
+        "/opt/ssb/deps/8e87d20fe955230a-3.9.23-59100004"
+      ],
+      "python": "3.9.23"
+    },
+    "w02": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/d0d6d4e5841151fd-3.12.12-ad1b2bd1",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-06d04e00"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/d0d6d4e5841151fd-3.12.12-ad1b2bd1",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-06d04e00"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_PLUGINS": "pytest_timeout"
+      },
+      "paths": [
+        "/opt/ssb/deps/d0d6d4e5841151fd-3.12.12-ad1b2bd1",
+        "/opt/ssb/deps/8e87d20fe955230a-3.12.12-06d04e00"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "f84f451557bd816b1ba525d98a431709449fdf1e",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/api.rst",
+          "sha256": "1313d484834c5f79c3ec6893374acf3b7a19d9fc72f3597f41b33c2f1fb92e25"
+        },
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "82d9a559d395587df8a5a26e6391fd878640d6a702a9810d655ba28db486713d"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "10368b4232849bf65ac35ac06a6aa81254eb261b",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/api.rst",
+          "sha256": "88a4b552d51aaab7fc23e626cb06c0b432c814281f7f68f24311ac125426d6bf"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "fc26dcace17b62f741550fc57c50e54b129ce8fa",
+      "overlays": [],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "fc0d60e37028006ddc56a9aad553289a2786d616",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "docs/api.rst",
+          "sha256": "f08694ae5199b8c5af4dc5bfe7a7d9ca449416ca4afbd65b0a3f193504e6d3e6"
+        },
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "5b939282342cca0effc230cd7d072fac01312df88942440889700728fa87ae47"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_functional.py",
+          "sha256": "20cdcf9affb71c14817ecb6b84b8ed592ba1672969f93f85fe8685084b83a049"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_make.py",
+          "sha256": "2bf468137c0eda2cf70776f787d0c3b02792d047b0d195d3af0f468e51f400f3"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "f7fa5a810c4c6919b6ce56228226c68bf4859e45",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "src/attr/_make.py",
+          "sha256": "9dd729e351f28730f035221212e06c020dee4171ca749f76e762bd27c469d0fb"
+        },
+        {
+          "mode": "100644",
+          "path": "tests/test_make.py",
+          "sha256": "adf8d09e64a4991c8e21c6d1fca4c5f59dca4b1ccf2eb5f465d34bffce854559"
+        }
+      ],
+      "repo": "python-attrs/attrs",
+      "url": "https://github.com/python-attrs/attrs.git",
+      "workspace": "w04"
+    }
+  ]
+}

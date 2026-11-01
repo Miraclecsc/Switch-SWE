@@ -1,0 +1,1 @@
+One more thing: @mscheper also check out [#676#issuecomment-304051565]( with a solution using a custom template function to get/set globals if you're using Flask.

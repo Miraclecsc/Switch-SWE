@@ -1,0 +1,86 @@
+diff --git a/tests/test_subprocesses.py b/tests/test_subprocesses.py
+index 7402cbf00..13b393675 100644
+--- a/tests/test_subprocesses.py
++++ b/tests/test_subprocesses.py
+@@ -85,3 +85,17 @@ async def test_process_env() -> None:
+     cmd = [sys.executable, "-c", "import os; print(os.environ['foo'])"]
+     result = await run_process(cmd, env=env)
+     assert result.stdout.decode().strip() == env["foo"]
++
++
++@pytest.mark.skipif(platform.system() == 'Windows',
++                    reason='Windows does not have os.getsid()')
++async def test_process_new_session_sid() -> None:
++    """Test that start_new_session is successfully passed to the subprocess implementation"""
++    sid = os.getsid(os.getpid())
++    cmd = [sys.executable, "-c", "import os; print(os.getsid(os.getpid()))"]
++
++    result = await run_process(cmd)
++    assert result.stdout.decode().strip() == str(sid)
++
++    result = await run_process(cmd, start_new_session=True)
++    assert result.stdout.decode().strip() != str(sid)
+diff --git a/tests/test_sf051_fd_handoff.py b/tests/test_sf051_fd_handoff.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf051_fd_handoff.py
+@@ -0,0 +1,59 @@
++
++import json
++import os
++import sys
++import pytest
++import uvloop
++import anyio
++
++pytestmark = pytest.mark.anyio
++
++@pytest.fixture(params=["asyncio", ("asyncio", {"use_uvloop": True})], ids=["asyncio", "uvloop"])
++def anyio_backend(request):
++    return request.param
++
++class Once:
++    def __init__(self, fd):
++        self.fd = fd
++        self.calls = 0
++    def __iter__(self):
++        self.calls += 1
++        assert self.calls == 1
++        return iter([self.fd, self.fd])
++
++@pytest.mark.parametrize("api", ["run", "open"])
++async def test_pipe_inheritance_with_session_and_generator(api):
++    read_fd, write_fd = os.pipe()
++    try:
++        os.write(write_fd, b"hello")
++        fds = Once(read_fd)
++        code = "import os,json; print(json.dumps([os.read(%d,5).decode(),os.getsid(0)==os.getpid()]))" % read_fd
++        command = [sys.executable, "-c", code]
++        if api == "run":
++            result = await anyio.run_process(command, pass_fds=fds, start_new_session=True)
++            output = result.stdout
++        else:
++            chunks = []
++            async with await anyio.open_process(command, pass_fds=fds, start_new_session=True) as process:
++                while True:
++                    try:
++                        chunks.append(await process.stdout.receive())
++                    except anyio.EndOfStream:
++                        break
++                assert await process.wait() == 0
++            output = b"".join(chunks)
++        assert json.loads(output) == ["hello", True]
++        assert fds.calls == 1
++        os.fstat(read_fd)  # The parent still owns its descriptor.
++    finally:
++        os.close(read_fd)
++        os.close(write_fd)
++
++@pytest.mark.parametrize("fds,exc", [([-1], ValueError), ([True], TypeError), (["3"], TypeError), ([None], TypeError)])
++async def test_invalid_descriptors_before_launch(fds, exc):
++    with pytest.raises(exc):
++        await anyio.open_process(["/no/such/executable"], pass_fds=fds)
++
++async def test_empty_descriptor_set_preserves_default_session():
++    result = await anyio.run_process([sys.executable, "-c", "import os; print(os.getsid(0))"], pass_fds=())
++    assert int(result.stdout) == os.getsid(0)

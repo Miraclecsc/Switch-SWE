@@ -1,0 +1,1 @@
+And here, @pradyunsg There's been several pip releases since your last comment, is pip in a place where it could handle the removal of these classes now?

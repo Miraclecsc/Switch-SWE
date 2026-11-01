@@ -1,0 +1,3 @@
+Please check this too: Needs the `TaskCancelled` import too.
+
+Preserve the original Lock/Semaphore cancellation fix and add public anyio.WeightedSemaphore(initial_value, *, max_value=None), sharing its permit-handoff principles. Provide async acquire(units=1), synchronous acquire_nowait(units=1), release(units=1), value, max_value and statistics().tasks_waiting. Acquisitions must reserve the full requested amount atomically; value counts unreserved permits.

@@ -1,0 +1,1 @@
+Also, > I'm confused, what is about 787? :) Your correct issue number is 773 so make it `773.deprecation.rst` Done.

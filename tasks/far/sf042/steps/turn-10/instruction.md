@@ -1,0 +1,1 @@
+One more thing: S3Control: migrate to new request parsing/response serialization flow * Enable automated_parameter_parsing and convert all request parsing from xmltodict.parse/self.headers.get to self._get_param. * Migrate all response methods from Jinja templates to ActionResult.

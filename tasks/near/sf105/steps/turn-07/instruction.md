@@ -1,0 +1,3 @@
+Please check this too: The id for this Error check should follow the existing convention from the reference docs: I don't think we should use `E412` (since the `E4xx` are reserved for checks for the Also, Same as above, Consider this error should be in the `E1xx` category.
+
+Admin system checks must inspect declared ModelAdmin/model attributes without invoking their descriptors. A computed display descriptor that is only usable on an instance remains valid; checking it must not execute its __get__ or a ModelAdmin property. Preserve normal callable/ModelAdmin-attribute precedence and prior relation checks.

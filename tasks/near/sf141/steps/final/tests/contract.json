@@ -1,0 +1,77 @@
+{
+  "case_id": "sf141_switched",
+  "task_id": "ssb_v4_Textualize__rich_1894",
+  "repo": "Textualize/rich",
+  "base_commit": "633faab16dc3a8c01a6562648cc2186c19a476e3",
+  "derived_fail_to_pass": [
+    "test_progress::test_using_default_columns",
+    "test_sf141_columns::test_constructor_decorations_and_explicit_bypass",
+    "test_sf141_columns::test_iterator_failure_is_atomic",
+    "test_sf141_columns::test_runtime_layout_preserves_tasks_and_refreshes"
+  ],
+  "derived_pass_to_pass": [
+    "test_progress::test_bar_columns",
+    "test_progress::test_columns",
+    "test_progress::test_download_progress_uses_binary_units",
+    "test_progress::test_download_progress_uses_decimal_units",
+    "test_progress::test_expand_bar",
+    "test_progress::test_finished",
+    "test_progress::test_live_is_not_started_if_progress_is_disabled",
+    "test_progress::test_live_is_started_if_progress_is_enabled",
+    "test_progress::test_no_output_if_progress_is_disabled",
+    "test_progress::test_progress_create",
+    "test_progress::test_progress_max_refresh",
+    "test_progress::test_progress_track",
+    "test_progress::test_render",
+    "test_progress::test_renderable_column",
+    "test_progress::test_reset",
+    "test_progress::test_spinner_column",
+    "test_progress::test_task_create",
+    "test_progress::test_task_ids",
+    "test_progress::test_task_start",
+    "test_progress::test_task_zero_total",
+    "test_progress::test_text_column",
+    "test_progress::test_time_elapsed_column",
+    "test_progress::test_time_remaining_column",
+    "test_progress::test_track",
+    "test_progress::test_track_thread",
+    "test_sf141_columns::test_default_instances_are_independent"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w00"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_progress.py",
+    "tests/test_sf141_columns.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_progress.py",
+    "tests/test_sf141_columns.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w00",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "ce9423b5fc1fb438cf8d093a200ac882b56ff022b2195453e5d2ef06216407bd",
+    "config/recipes.json": "d66eec4927f51cc583cbca5108331a23c8e423c3d3d9018714c143f73bfdb707"
+  }
+}

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w00: [bugfix] solve crash when using `inspect()` on the "pyparsing" package

@@ -1,0 +1,126 @@
+diff --git a/tests/test_traceback.py b/tests/test_traceback.py
+index c4994c87be..2830e26aa4 100644
+--- a/tests/test_traceback.py
++++ b/tests/test_traceback.py
+@@ -1,6 +1,7 @@
+ import io
+ import re
+ import sys
++from typing import List
+ 
+ import pytest
+ 
+@@ -307,6 +308,42 @@ def test_suppress():
+         assert "foo" in traceback.suppress[1]
+ 
+ 
++@pytest.mark.parametrize(
++    "rich_traceback_omit_for_level2,expected_frames_length,expected_frame_names",
++    (
++        # fmt: off
++        [True, 3, ["test_rich_traceback_omit_optional_local_flag", "level1", "level3"]],
++        [False, 4, ["test_rich_traceback_omit_optional_local_flag", "level1", "level2", "level3"]],
++        # fmt: on
++    ),
++)
++def test_rich_traceback_omit_optional_local_flag(
++    rich_traceback_omit_for_level2: bool,
++    expected_frames_length: int,
++    expected_frame_names: List[str],
++):
++    def level1():
++        return level2()
++
++    def level2():
++        # true-ish values are enough to trigger the opt-out:
++        _rich_traceback_omit = 1 if rich_traceback_omit_for_level2 else 0
++        return level3()
++
++    def level3():
++        return 1 / 0
++
++    try:
++        level1()
++    except Exception:
++        exc_type, exc_value, traceback = sys.exc_info()
++        trace = Traceback.from_exception(exc_type, exc_value, traceback).trace
++        frames = trace.stacks[0].frames
++        assert len(frames) == expected_frames_length
++        frame_names = [f.name for f in frames]
++        assert frame_names == expected_frame_names
++
++
+ if __name__ == "__main__":  # pragma: no cover
+ 
+     expected = render(get_exception())
+diff --git a/tests/test_sf143_markers.py b/tests/test_sf143_markers.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf143_markers.py
+@@ -0,0 +1,66 @@
++import sys
++import pytest
++from rich.traceback import Traceback
++
++def extract(call,locals=False):
++    try: call()
++    except Exception:
++        return Traceback.extract(*sys.exc_info(),show_locals=locals)
++
++def names(trace): return [f.name for f in trace.stacks[0].frames]
++
++def test_false_callable_retains_frame_and_runs_once():
++    calls=[]
++    def target():
++        _rich_traceback_omit=lambda exc:calls.append(exc) or False
++        raise ValueError("visible")
++    trace=extract(target)
++    assert "target" in names(trace)
++    assert len(calls)==1 and str(calls[0])=="visible"
++
++def test_guard_still_clears_when_omitted():
++    def leaf(): raise ValueError("leaf")
++    def wrapper():
++        _rich_traceback_omit=True
++        _rich_traceback_guard=lambda exc:isinstance(exc,ValueError)
++        leaf()
++    trace=extract(wrapper)
++    assert names(trace)==["leaf"]
++    assert trace.stacks[0].exc_value=="leaf"
++
++@pytest.mark.parametrize("kind",["call","bool"])
++def test_broken_marker_does_not_break_extraction(kind):
++    class Bad:
++        def __bool__(self): raise RuntimeError("bad bool")
++    def broken(exc): raise RuntimeError("bad callback")
++    def target():
++        _rich_traceback_omit=broken if kind=="call" else Bad()
++        raise ValueError("original")
++    trace=extract(target)
++    assert "target" in names(trace) and trace.stacks[0].exc_value=="original"
++
++def test_controls_hidden_from_locals():
++    def target():
++        _rich_traceback_omit=False
++        _rich_traceback_guard=False
++        public="keep"
++        raise ValueError(public)
++    trace=extract(target,True)
++    frame=next(f for f in trace.stacks[0].frames if f.name=="target")
++    assert "public" in frame.locals
++    assert "_rich_traceback_omit" not in frame.locals
++    assert "_rich_traceback_guard" not in frame.locals
++
++def test_cause_predicate_receives_corresponding_exception():
++    calls=[]
++    def inner():
++        _rich_traceback_omit=lambda exc:calls.append(type(exc)) or False
++        raise KeyError("cause")
++    def outer():
++        _rich_traceback_omit=lambda exc:calls.append(type(exc)) or False
++        try: inner()
++        except KeyError as cause: raise ValueError("outer") from cause
++    trace=extract(outer)
++    assert [stack.exc_type for stack in trace.stacks]==["ValueError","KeyError"]
++    assert calls==[ValueError,KeyError,KeyError]
++    assert any(f.name=="inner" for f in trace.stacks[1].frames)

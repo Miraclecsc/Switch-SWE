@@ -1,0 +1,1 @@
+Please check this too: It looks like `node` could be appear in this set construction many times, and we don't need to explore the other neighbors if one if found to be in `U - {v}`. If I misunderstood let me know. If cutting off the search is valid consider this:

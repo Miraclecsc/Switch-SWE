@@ -1,0 +1,48 @@
+diff --git a/starlette/requests.py b/starlette/requests.py
+index 08dbd84..4c00ace 100644
+--- a/starlette/requests.py
++++ b/starlette/requests.py
+@@ -19,6 +19,7 @@ except ModuleNotFoundError:  # pragma: no cover
+ 
+ 
+ if typing.TYPE_CHECKING:
++    from starlette.applications import Starlette
+     from starlette.routing import Router
+ 
+ 
+@@ -175,9 +176,32 @@ class HTTPConnection(typing.Mapping[str, typing.Any]):
+         return self._state
+ 
+     def url_for(self, name: str, /, **path_params: typing.Any) -> URL:
+-        router: Router = self.scope["router"]
+-        url_path = router.url_path_for(name, **path_params)
+-        return url_path.make_absolute_url(base_url=self.base_url)
++        from starlette.routing import NoMatchFound
++
++        first_miss: NoMatchFound | None = None
++        tried: set[int] = set()
++        for candidate in (self.scope.get("router"), self.scope.get("app")):
++            provider = candidate
++            seen: set[int] = set()
++            while provider is not None and not callable(getattr(provider, "url_path_for", None)):
++                if id(provider) in seen:
++                    provider = None
++                    break
++                seen.add(id(provider))
++                provider = getattr(provider, "app", None)
++            if provider is None or id(provider) in tried:
++                continue
++            tried.add(id(provider))
++            try:
++                url_path = provider.url_path_for(name, **path_params)
++            except NoMatchFound as exc:
++                if first_miss is None:
++                    first_miss = exc
++                continue
++            return url_path.make_absolute_url(base_url=self.base_url)
++        if first_miss is not None:
++            raise first_miss
++        raise RuntimeError("The `url_for` method can only be used inside a Starlette application or with a router.")
+ 
+ 
+ async def empty_receive() -> typing.NoReturn:

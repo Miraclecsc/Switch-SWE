@@ -1,0 +1,122 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -5,6 +5,8 @@
+ 
+ **UNRELEASED**
+ 
++- Added a ``fast_acquire`` parameter to ``Lock`` and ``Semaphore``, which skips the
++  checkpoint when the primitive is acquired without blocking
+ - Fixed ``__repr__()`` of ``MemoryObjectItemReceiver``, when ``item`` is not defined
+   (`#767 <https://github.com/agronholm/anyio/pulls/767>`_; PR by @Danipulok)
+ - Added support for the ``from_uri()``, ``full_match()``, ``parser`` methods/properties
+diff --git a/src/anyio/_core/_synchronization.py b/src/anyio/_core/_synchronization.py
+--- a/src/anyio/_core/_synchronization.py
++++ b/src/anyio/_core/_synchronization.py
+@@ -136,10 +136,26 @@
+         return self._internal_event.statistics()
+ 
+ 
++def _validate_checkpoint_every(fast_acquire: bool, interval: int | None) -> None:
++    if interval is not None:
++        if isinstance(interval, bool) or not isinstance(interval, int):
++            raise TypeError("checkpoint_every must be an integer or None")
++        if interval <= 0:
++            raise ValueError("checkpoint_every must be positive")
++        if not fast_acquire:
++            raise ValueError("checkpoint_every requires fast_acquire=True")
++
++
+ class Lock:
+     _owner_task: TaskInfo | None = None
+ 
+-    def __init__(self) -> None:
++    def __init__(
++        self, *, fast_acquire: bool = False, checkpoint_every: int | None = None
++    ) -> None:
++        _validate_checkpoint_every(fast_acquire, checkpoint_every)
++        self._fast_acquire = fast_acquire
++        self._checkpoint_every = checkpoint_every
++        self._uncontended_count = 0
+         self._waiters: deque[tuple[TaskInfo, Event]] = deque()
+ 
+     async def __aenter__(self) -> None:
+@@ -175,11 +191,20 @@
+ 
+             assert self._owner_task == task
+         else:
+-            try:
+-                await cancel_shielded_checkpoint()
+-            except BaseException:
+-                self.release()
+-                raise
++            due = (
++                self._checkpoint_every is not None
++                and self._uncontended_count + 1 >= self._checkpoint_every
++            )
++            if not self._fast_acquire or due:
++                try:
++                    await cancel_shielded_checkpoint()
++                except BaseException:
++                    self.release()
++                    raise
++            # Commit accounting only after the acquisition succeeds. In particular,
++            # native cancellation at the scheduling checkpoint must not spend quota.
++            if self._checkpoint_every is not None:
++                self._uncontended_count = 0 if due else self._uncontended_count + 1
+ 
+     def acquire_nowait(self) -> None:
+         """
+@@ -312,7 +337,15 @@
+ 
+ 
+ class Semaphore:
+-    def __init__(self, initial_value: int, *, max_value: int | None = None):
++    def __init__(
++        self,
++        initial_value: int,
++        *,
++        max_value: int | None = None,
++        fast_acquire: bool = False,
++        checkpoint_every: int | None = None,
++    ):
++        _validate_checkpoint_every(fast_acquire, checkpoint_every)
+         if not isinstance(initial_value, int):
+             raise TypeError("initial_value must be an integer")
+         if initial_value < 0:
+@@ -325,6 +358,9 @@
+                     "max_value must be equal to or higher than initial_value"
+                 )
+ 
++        self._fast_acquire = fast_acquire
++        self._checkpoint_every = checkpoint_every
++        self._uncontended_count = 0
+         self._value = initial_value
+         self._max_value = max_value
+         self._waiters: deque[Event] = deque()
+@@ -359,11 +395,20 @@
+ 
+                 raise
+         else:
+-            try:
+-                await cancel_shielded_checkpoint()
+-            except BaseException:
+-                self.release()
+-                raise
++            due = (
++                self._checkpoint_every is not None
++                and self._uncontended_count + 1 >= self._checkpoint_every
++            )
++            if not self._fast_acquire or due:
++                try:
++                    await cancel_shielded_checkpoint()
++                except BaseException:
++                    self.release()
++                    raise
++            # Commit accounting only after the acquisition succeeds. In particular,
++            # native cancellation at the scheduling checkpoint must not spend quota.
++            if self._checkpoint_every is not None:
++                self._uncontended_count = 0 if due else self._uncontended_count + 1
+ 
+     def acquire_nowait(self) -> None:
+         """

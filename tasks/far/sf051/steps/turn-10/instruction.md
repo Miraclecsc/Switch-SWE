@@ -1,0 +1,1 @@
+One more thing: One case we should think about is what to do if this happens during a handshake. Surely a `BrokenResourceError` is reasonable then?

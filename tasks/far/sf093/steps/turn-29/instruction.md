@@ -1,0 +1,1 @@
+Also, I think memoryview also accepts `bytearray` as well

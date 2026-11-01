@@ -1,0 +1,1 @@
+Please check this too: Windows runners are failing hard on `more`. That's probably because `more` is interactive and waiting user input. Consider it is safe to skip on Windows given the circumstances. I also spotted some opportunities to extend the tests with ` ` decorator.

@@ -1,0 +1,1 @@
+And here, > Are we covering cases like `{{ 'foo'|nosuchfilter if false else 'bar' }}` and `{{ 'foo' if true else 'bar'|nosuchfilter }}` - neither should raise (since the filter is not actually used, but based on the code it looks like it may raise.. Right, I forgot to account for those but probably should (and will) too.

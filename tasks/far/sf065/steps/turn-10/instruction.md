@@ -1,0 +1,1 @@
+One more thing: Without context from the algorithm this feels a bit "random". We should update the docs briefly explaining how the algorithm works and what "black nodes" are.

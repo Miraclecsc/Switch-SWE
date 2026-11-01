@@ -1,0 +1,1 @@
+And here, any reason this is `ExtensionArray._monotonic_check(arr)` instead of `arr._monotonic_check()`?

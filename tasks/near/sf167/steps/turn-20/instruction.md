@@ -1,0 +1,1 @@
+And here, _⚠️ Potential issue_ | _🟡 Minor_ **Add a return type annotation for `simple_schema`.** <details> <summary>Suggested fix</summary> </details> As per coding guidelines: Use type hints throughout Python code (Python 3.10+ required). <details> <summary>🤖 Prompt for AI Agents</summary> </details>

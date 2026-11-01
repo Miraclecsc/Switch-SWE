@@ -1,0 +1,1 @@
+For the checkout at /work/w01, Fixed #36708 -- Initialized formset to None in ChangeList.__init__().

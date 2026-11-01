@@ -1,0 +1,71 @@
+{
+  "case_id": "sf019_switched",
+  "task_id": "ssb_v2_task_0179",
+  "repo": "getmoto/moto",
+  "base_commit": "352b10bda95915ba256dcb439332d348b8b5868c",
+  "derived_fail_to_pass": [
+    "tests.test_s3.test_s3_utils::test_parse_region_from_url_dualstack",
+    "tests.test_s3.test_s3_utils::test_parse_region_from_url_fips",
+    "tests.test_s3.test_endpoint_authority_v1::test_combined_fips_dualstack_end_to_end[path]",
+    "tests.test_s3.test_endpoint_authority_v1::test_combined_fips_dualstack_end_to_end[virtual]",
+    "tests.test_s3.test_endpoint_authority_v1::test_endpoint_authority_and_addressing_agree[s3-fips.dualstack.us-west-2.amazonaws.com-us-west-2]",
+    "tests.test_s3.test_endpoint_authority_v1::test_endpoint_authority_and_addressing_agree[s3.dualstack.cn-north-1.amazonaws.com.cn-cn-north-1]",
+    "tests.test_s3.test_endpoint_authority_v1::test_endpoint_authority_and_addressing_agree[s3.fips.dualstack.us-gov-west-1.amazonaws.com-us-gov-west-1]",
+    "tests.test_s3.test_endpoint_authority_v1::test_no_region_inference_outside_valid_endpoint_authority[https://bucket.s3.fips.fips.us-west-2.amazonaws.com/key]",
+    "tests.test_s3.test_endpoint_authority_v1::test_unqualified_global_endpoint_and_path_style_port"
+  ],
+  "derived_pass_to_pass": [
+    "tests.test_s3.test_s3_utils::test_base_url",
+    "tests.test_s3.test_s3_utils::test_checksum_crc32",
+    "tests.test_s3.test_s3_utils::test_checksum_crc32c",
+    "tests.test_s3.test_s3_utils::test_checksum_sha1",
+    "tests.test_s3.test_s3_utils::test_checksum_sha256",
+    "tests.test_s3.test_s3_utils::test_cors_utils",
+    "tests.test_s3.test_s3_utils::test_force_ignore_subdomain_for_bucketnames",
+    "tests.test_s3.test_s3_utils::test_localhost_bucket",
+    "tests.test_s3.test_s3_utils::test_localhost_without_bucket",
+    "tests.test_s3.test_s3_utils::test_parse_region_from_url",
+    "tests.test_s3.test_s3_utils::test_versioned_key_store",
+    "tests.test_s3.test_endpoint_authority_v1::test_custom_endpoint_and_localhost_legacy",
+    "tests.test_s3.test_endpoint_authority_v1::test_no_region_inference_outside_valid_endpoint_authority[https://s3.dualstack.us-west-2.amazonaws.com.attacker.example/bucket]",
+    "tests.test_s3.test_endpoint_authority_v1::test_no_region_inference_outside_valid_endpoint_authority[https://unrelated.example/?next=https://s3.eu-west-1.amazonaws.com/bucket]",
+    "tests.test_s3.test_endpoint_authority_v1::test_no_region_inference_outside_valid_endpoint_authority[https://unrelated.example/key/s3.eu-west-1.amazonaws.com/bucket]"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w03"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "tests/test_s3/test_s3_utils.py",
+    "tests/test_s3/test_endpoint_authority_v1.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_s3/test_endpoint_authority_v1.py",
+    "tests/test_s3/test_s3_utils.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w03",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "a45bf62e31314a5547b21e12864de0b0ab1a38aceec9b60f552084bdd6e472d6",
+    "config/recipes.json": "1e9a63e0e292b9894f1a85a0732eb214121c5d00bbc1942318351b65724eb962"
+  }
+}

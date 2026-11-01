@@ -1,0 +1,3 @@
+One more thing: @yorickvP : I just generalized your fix into a new `_readline_prompt` helper so both `prompt()` and `confirm()` benefits from it. Also squashed all the commit and rebased it on top of `stable`. Added some tests to confirm that `<stdout>` is no longer polluted.
+
+When the selected output stream is not a TTY, strip ANSI CSI sequences and readline delimiters from visible prompts instead. Determine terminal status from stderr for err=True and stdout otherwise. Already annotated escapes must not acquire nested delimiters. Hidden-input callbacks continue to receive their full unannotated prompt.

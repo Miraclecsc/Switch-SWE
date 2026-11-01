@@ -1,0 +1,204 @@
+diff --git a/tests/test_ecs/test_ecs.py b/tests/test_ecs/test_ecs.py
+index 92a05dc..5df76ed 100644
+--- a/tests/test_ecs/test_ecs.py
++++ b/tests/test_ecs/test_ecs.py
+@@ -2106,6 +2106,143 @@ def test_run_task():
+     assert cluster["runningTasksCount"] == 3
+ 
+ 
++@mock_aws
++def test_run_task_with_capacity_provider_strategy_fargate():
++    client = boto3.client("ecs", region_name=ECS_REGION)
++    client.create_cluster(clusterName="test_ecs_cluster")
++    client.register_task_definition(
++        family="test_ecs_task",
++        containerDefinitions=[
++            {
++                "name": "hello_world",
++                "image": "docker/hello-world:latest",
++                "cpu": 1024,
++                "memory": 400,
++            }
++        ],
++    )
++
++    response = client.run_task(
++        cluster="test_ecs_cluster",
++        taskDefinition="test_ecs_task",
++        count=2,
++        capacityProviderStrategy=[{"capacityProvider": "FARGATE", "weight": 1}],
++    )
++
++    assert len(response["tasks"]) == 2
++    task = response["tasks"][0]
++    # FARGATE-backed capacity providers need no container instance
++    assert task.get("containerInstanceArn") is None
++    assert task["capacityProviderName"] == "FARGATE"
++    # When a capacity provider strategy is used, launchType is not set
++    assert task.get("launchType", "") == ""
++
++
++@mock_aws
++def test_run_task_with_capacity_provider_strategy_ec2():
++    client = boto3.client("ecs", region_name=ECS_REGION)
++    ec2 = boto3.resource("ec2", region_name=ECS_REGION)
++    client.create_cluster(clusterName="test_ecs_cluster")
++    client.create_capacity_provider(
++        name="my_provider",
++        autoScalingGroupProvider={"autoScalingGroupArn": "asg:arn"},
++    )
++
++    test_instance = ec2.create_instances(
++        ImageId=EXAMPLE_AMI_ID, MinCount=1, MaxCount=1
++    )[0]
++    instance_id_document = json.dumps(
++        ec2_utils.generate_instance_identity_document(test_instance)
++    )
++    client.register_container_instance(
++        cluster="test_ecs_cluster", instanceIdentityDocument=instance_id_document
++    )
++    client.register_task_definition(
++        family="test_ecs_task",
++        containerDefinitions=[
++            {
++                "name": "hello_world",
++                "image": "docker/hello-world:latest",
++                "cpu": 1024,
++                "memory": 400,
++            }
++        ],
++    )
++
++    response = client.run_task(
++        cluster="test_ecs_cluster",
++        taskDefinition="test_ecs_task",
++        count=1,
++        capacityProviderStrategy=[{"capacityProvider": "my_provider", "weight": 1}],
++    )
++
++    assert len(response["tasks"]) == 1
++    task = response["tasks"][0]
++    # User-defined capacity providers are EC2-backed and placed on a container instance
++    assert (
++        f"arn:aws:ecs:us-east-1:{ACCOUNT_ID}:container-instance/"
++        in task["containerInstanceArn"]
++    )
++    assert task["capacityProviderName"] == "my_provider"
++
++
++@mock_aws
++def test_run_task_with_launch_type_and_capacity_provider_strategy_fails():
++    client = boto3.client("ecs", region_name=ECS_REGION)
++    client.create_cluster(clusterName="test_ecs_cluster")
++    client.register_task_definition(
++        family="test_ecs_task",
++        containerDefinitions=[
++            {
++                "name": "hello_world",
++                "image": "docker/hello-world:latest",
++                "cpu": 1024,
++                "memory": 400,
++            }
++        ],
++    )
++
++    with pytest.raises(ClientError) as exc:
++        client.run_task(
++            cluster="test_ecs_cluster",
++            taskDefinition="test_ecs_task",
++            launchType="FARGATE",
++            capacityProviderStrategy=[{"capacityProvider": "FARGATE", "weight": 1}],
++        )
++    err = exc.value.response["Error"]
++    assert err["Code"] == "InvalidParameterException"
++
++
++@mock_aws
++def test_run_task_uses_cluster_default_capacity_provider_strategy():
++    client = boto3.client("ecs", region_name=ECS_REGION)
++    client.create_cluster(
++        clusterName="test_ecs_cluster",
++        capacityProviders=["FARGATE"],
++        defaultCapacityProviderStrategy=[{"capacityProvider": "FARGATE", "weight": 1}],
++    )
++    client.register_task_definition(
++        family="test_ecs_task",
++        containerDefinitions=[
++            {
++                "name": "hello_world",
++                "image": "docker/hello-world:latest",
++                "cpu": 1024,
++                "memory": 400,
++            }
++        ],
++    )
++
++    # No launchType and no container instances: without the default strategy this
++    # would raise "No instances found"; instead it should place on FARGATE.
++    response = client.run_task(
++        cluster="test_ecs_cluster", taskDefinition="test_ecs_task", count=1
++    )
++
++    assert len(response["tasks"]) == 1
++    assert response["tasks"][0]["capacityProviderName"] == "FARGATE"
++
++
+ @mock_aws
+ def test_wait_tasks_stopped():
+     if settings.TEST_SERVER_MODE:
+diff --git a/tests/test_ecs/test_sf039_weighted_strategy.py b/tests/test_ecs/test_sf039_weighted_strategy.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_ecs/test_sf039_weighted_strategy.py
+@@ -0,0 +1,51 @@
++from collections import Counter
++import copy
++import boto3
++import pytest
++from botocore.exceptions import ClientError
++from moto import mock_aws
++
++def setup(strategy=None):
++    client=boto3.client('ecs',region_name='us-east-1')
++    kwargs={'clusterName':'weighted'}
++    if strategy is not None:kwargs.update(capacityProviders=['FARGATE','FARGATE_SPOT'],defaultCapacityProviderStrategy=strategy)
++    client.create_cluster(**kwargs)
++    client.register_task_definition(family='task',containerDefinitions=[{'name':'worker','image':'local','cpu':128,'memory':128}])
++    return client
++
++@mock_aws
++def test_zero_weight_is_never_selected():
++    client=setup();strategy=[{'capacityProvider':'FARGATE','weight':0},{'capacityProvider':'FARGATE_SPOT','weight':1}]
++    saved=copy.deepcopy(strategy)
++    result=client.run_task(cluster='weighted',taskDefinition='task',count=4,capacityProviderStrategy=strategy)
++    assert Counter(t['capacityProviderName'] for t in result['tasks'])=={'FARGATE_SPOT':4}
++    assert strategy==saved
++
++@mock_aws
++def test_base_then_proportional_remainder_and_persistence():
++    client=setup();strategy=[{'capacityProvider':'FARGATE','weight':1,'base':2},{'capacityProvider':'FARGATE_SPOT','weight':3}]
++    result=client.run_task(cluster='weighted',taskDefinition='task',count=10,capacityProviderStrategy=strategy)
++    assert Counter(t['capacityProviderName'] for t in result['tasks'])=={'FARGATE':4,'FARGATE_SPOT':6}
++    assert all(not t.get('containerInstanceArn') and not t.get('launchType') for t in result['tasks'])
++    described=client.describe_tasks(cluster='weighted',tasks=[t['taskArn'] for t in result['tasks']])
++    assert Counter(t['capacityProviderName'] for t in described['tasks'])=={'FARGATE':4,'FARGATE_SPOT':6}
++
++@mock_aws
++def test_default_strategy_uses_same_allocation():
++    client=setup([{'capacityProvider':'FARGATE','weight':1},{'capacityProvider':'FARGATE_SPOT','weight':1}])
++    tasks=client.run_task(cluster='weighted',taskDefinition='task',count=4)['tasks']
++    assert Counter(t['capacityProviderName'] for t in tasks)=={'FARGATE':2,'FARGATE_SPOT':2}
++
++@pytest.mark.parametrize('strategy',[
++ [{'capacityProvider':'FARGATE','weight':0},{'capacityProvider':'FARGATE_SPOT','weight':0}],
++ [{'capacityProvider':'FARGATE','weight':1,'base':1},{'capacityProvider':'FARGATE_SPOT','weight':1,'base':1}],
++ [{'capacityProvider':'FARGATE','weight':1},{'capacityProvider':'FARGATE','weight':1}],
++ [{'capacityProvider':'FARGATE','weight':1},{'capacityProvider':'custom-ec2','weight':1}],
++])
++@mock_aws
++def test_invalid_strategy_does_not_create_tasks(strategy):
++    client=setup()
++    before=client.list_tasks(cluster='weighted')['taskArns']
++    with pytest.raises(ClientError) as error:client.run_task(cluster='weighted',taskDefinition='task',count=3,capacityProviderStrategy=strategy)
++    assert error.value.response['Error']['Code']=='InvalidParameterException'
++    assert client.list_tasks(cluster='weighted')['taskArns']==before

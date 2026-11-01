@@ -1,0 +1,1 @@
+Please check this too: Don't use spearate `_dataclass` fields. We can use `root_value` to pass either raw or hydrated data to `GraphQL()` app for default resolvers to use.

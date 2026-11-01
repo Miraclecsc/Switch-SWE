@@ -1,0 +1,1 @@
+Please check this too: A visible neighboring argument still gets its normal help record and section. Preserve the existing format_arguments public method.

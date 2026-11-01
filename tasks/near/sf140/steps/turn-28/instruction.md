@@ -1,0 +1,1 @@
+And here, They already raise when called from `Series.whatever()`. The upside is we avoid special-casing pandas-internal EAs.

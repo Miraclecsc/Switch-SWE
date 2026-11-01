@@ -1,0 +1,1 @@
+One more thing: For cached templates, materialize an incoming globals update before changing existing state. If reading the mapping raises, propagate the same exception and leave all previous template globals and the cached template identity unchanged.

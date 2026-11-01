@@ -1,0 +1,1 @@
+One more thing: Yeah, between `nursery.start_soon` and setting total tokens to `0`, then maybe another time between releasing on behalf of `0` and checking statistics? Not sure. This is all a bit overkill so it's up to you what to do :^)

@@ -1,0 +1,174 @@
+diff --git a/tests/auth_tests/test_remote_user.py b/tests/auth_tests/test_remote_user.py
+index 4a97fc2120bb..f88d966bad40 100644
+--- a/tests/auth_tests/test_remote_user.py
++++ b/tests/auth_tests/test_remote_user.py
+@@ -5,6 +5,7 @@
+ from django.contrib.auth.backends import RemoteUserBackend
+ from django.contrib.auth.middleware import RemoteUserMiddleware
+ from django.contrib.auth.models import User
++from django.core.exceptions import ImproperlyConfigured
+ from django.middleware.csrf import _get_new_csrf_string, _mask_cipher_secret
+ from django.test import (
+     AsyncClient,
+@@ -389,6 +390,13 @@ def configure_user(self, request, user, created=True):
+         user.save()
+         return user
+ 
++    async def aconfigure_user(self, request, user, created=True):
++        user.email = request.META.get("HTTP_" + RemoteUserTest.email_header, "")
++        if not created:
++            user.last_name = user.username
++        await user.asave()
++        return user
++
+ 
+ class RemoteUserCustomTest(RemoteUserTest):
+     """
+@@ -435,6 +443,32 @@ def test_unknown_user(self):
+         newuser = User.objects.get(username="newuser")
+         self.assertEqual(newuser.email, "user@example.com")
+ 
++    async def test_known_user_async(self):
++        """See test_known_user."""
++        await super().test_known_user_async()
++        knownuser = await User.objects.aget(username="knownuser")
++        knownuser2 = await User.objects.aget(username="knownuser2")
++        self.assertEqual(knownuser.email, "")
++        self.assertEqual(knownuser2.email, "")
++        self.assertEqual(knownuser.last_name, "knownuser")
++        self.assertEqual(knownuser2.last_name, "knownuser2")
++
++    async def test_unknown_user_async(self):
++        num_users = await User.objects.acount()
++        response = await self.async_client.get(
++            "/remote_user/",
++            **{
++                self.header: "newuser",
++                self.email_header: "user@example.com",
++            },
++        )
++        self.assertEqual(response.context["user"].username, "newuser")
++        self.assertEqual(response.context["user"].email, "user@example.com")
++        self.assertEqual(response.context["user"].last_name, "")
++        self.assertEqual(await User.objects.acount(), num_users + 1)
++        newuser = await User.objects.aget(username="newuser")
++        self.assertEqual(newuser.email, "user@example.com")
++
+ 
+ class CustomHeaderMiddleware(RemoteUserMiddleware):
+     """
+@@ -489,3 +523,48 @@ async def test_header_disappears_async(self):
+         response = await self.async_client.get("/remote_user/")
+         self.assertFalse(response.context["user"].is_anonymous)
+         self.assertEqual(response.context["user"].username, "knownuser")
++
++
++@override_settings(ROOT_URLCONF="auth_tests.urls")
++class RemoteUserImproperlyConfigured(TestCase):
++    msg = (
++        "The Django remote user auth middleware requires the authentication middleware "
++        "to be installed. Edit your MIDDLEWARE setting to insert 'django.contrib.auth."
++        "middleware.AuthenticationMiddleware' before the %s class."
++    )
++
++    @override_settings(
++        MIDDLEWARE=["django.contrib.auth.middleware.RemoteUserMiddleware"]
++    )
++    def test_improperly_configured_message_remote_user(self):
++        with self.assertRaisesMessage(
++            ImproperlyConfigured, self.msg % "RemoteUserMiddleware"
++        ):
++            self.client.get("/remote_user/")
++
++    @override_settings(
++        MIDDLEWARE=["django.contrib.auth.middleware.PersistentRemoteUserMiddleware"]
++    )
++    def test_improperly_configured_message_persistent_remote_user(self):
++        with self.assertRaisesMessage(
++            ImproperlyConfigured, self.msg % "PersistentRemoteUserMiddleware"
++        ):
++            self.client.get("/remote_user/")
++
++    @override_settings(
++        MIDDLEWARE=["django.contrib.auth.middleware.RemoteUserMiddleware"]
++    )
++    async def test_improperly_configured_message_remote_user_async(self):
++        with self.assertRaisesMessage(
++            ImproperlyConfigured, self.msg % "RemoteUserMiddleware"
++        ):
++            await self.async_client.get("/remote_user/")
++
++    @override_settings(
++        MIDDLEWARE=["django.contrib.auth.middleware.PersistentRemoteUserMiddleware"]
++    )
++    async def test_improperly_configured_message_persistent_remote_user_async(self):
++        with self.assertRaisesMessage(
++            ImproperlyConfigured, self.msg % "PersistentRemoteUserMiddleware"
++        ):
++            await self.async_client.get("/remote_user/")
+diff --git a/tests/auth_tests/test_staged_contract.py b/tests/auth_tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/auth_tests/test_staged_contract.py
+@@ -0,0 +1,61 @@
++import threading
++from types import SimpleNamespace
++from unittest.mock import AsyncMock, patch
++from django.contrib import auth
++from django.contrib.auth.middleware import RemoteUserMiddleware
++from django.test import SimpleTestCase
++
++
++class RemoteCleanerTests(SimpleTestCase):
++    def middleware(self):
++        return RemoteUserMiddleware(lambda request: None)
++
++    def request(self):
++        return SimpleNamespace(session=SimpleNamespace(aget=AsyncMock(return_value="backend")))
++
++    async def test_async_backend_hook_precedence(self):
++        class Backend:
++            async def aclean_username(self, username):
++                return username.upper()
++            def clean_username(self, username):
++                raise AssertionError("sync hook must not run when async hook exists")
++        with patch.object(auth, "load_backend", return_value=Backend()):
++            try:
++                result = await self.middleware().aclean_username("alice", self.request())
++            except Exception as exc:
++                self.fail("Async cleaner dispatch failed: %r" % (exc,))
++        self.assertEqual(result, "ALICE")
++
++    async def test_sync_cleaner_is_offloaded(self):
++        event_loop_thread = threading.get_ident()
++        observed = []
++        class Backend:
++            def clean_username(self, username):
++                observed.append(threading.get_ident())
++                return username.upper()
++        with patch.object(auth, "load_backend", return_value=Backend()):
++            result = await self.middleware().aclean_username("alice", self.request())
++        self.assertEqual(result, "ALICE")
++        self.assertEqual(len(observed), 1)
++        self.assertNotEqual(observed[0], event_loop_thread)
++
++    async def test_async_cleaner_attribute_error_propagates(self):
++        class Backend:
++            async def aclean_username(self, username):
++                raise AttributeError("cleaner exploded")
++        with patch.object(auth, "load_backend", return_value=Backend()):
++            with self.assertRaisesMessage(AttributeError, "cleaner exploded"):
++                await self.middleware().aclean_username("alice", self.request())
++
++    def test_sync_cleaner_attribute_error_propagates(self):
++        class Backend:
++            def clean_username(self, username):
++                raise AttributeError("cleaner exploded")
++        request = SimpleNamespace(session={auth.BACKEND_SESSION_KEY: "backend"})
++        with patch.object(auth, "load_backend", return_value=Backend()):
++            with self.assertRaisesMessage(AttributeError, "cleaner exploded"):
++                self.middleware().clean_username("alice", request)
++
++    async def test_absent_cleaner_is_optional(self):
++        with patch.object(auth, "load_backend", return_value=SimpleNamespace()):
++            self.assertEqual(await self.middleware().aclean_username("alice", self.request()), "alice")

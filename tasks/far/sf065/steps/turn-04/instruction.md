@@ -1,0 +1,1 @@
+And here, Extend forceatlas2_layout with keyword-only fixed=None. A finite iterable of fixed nodes anchors those nodes at their initial pos coordinates throughout the simulation, while they continue to exert attraction, repulsion and gravity-related influence on movable nodes. An empty iterable retains the existing algorithm.

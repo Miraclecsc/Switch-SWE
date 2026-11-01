@@ -1,0 +1,1 @@
+One more thing: Before I add documentation and take this out of being a draft PR (assuming folks agree with the approach), there are some open questions I would like help answering (search for `TODO` in the PR): 1. Should this check `unparsed` for valid Also, And FYI the failures are code coverage and Python 3.7 & 3.8 not liking `Generic[T]`.

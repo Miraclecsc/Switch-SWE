@@ -1,0 +1,3 @@
+Also, It should be Or, there is a way with the name to make the convention clearer here like `A.transfo.rmation_matrix_from(C)` (transforms from C to A) or Or, this is just because I am not used to the conventions in the vector module..
+
+Validate the point-conversion API with symbolic and numeric round trips through translations, rotations, reflections and non-unit scale. Return exactly three expressions, reject coordinate triples of other lengths with ValueError, reject non-CoordSys3D targets with TypeError, and retain the existing disconnected-system error. Preserve existing change_of_basis_matrix_from/scalar_map/vector tests.

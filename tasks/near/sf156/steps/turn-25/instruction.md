@@ -1,0 +1,1 @@
+Also, to prevent the other synchronization primitives from regressing on this issue, it could make sense to add an analogous `test_instantiate_outside_event_loop` for each of them.

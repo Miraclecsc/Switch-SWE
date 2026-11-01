@@ -1,0 +1,1 @@
+Also, The same color rule applies to writelines. Do not close the borrowed text stream at context exit or garbage collection.

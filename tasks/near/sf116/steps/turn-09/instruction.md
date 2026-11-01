@@ -1,0 +1,1 @@
+Also, > We loose the "yield-then-raise" case, but that case was untestable by file content anyway. Just found a way to recover that original test intention in:

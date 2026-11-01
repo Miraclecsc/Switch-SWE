@@ -1,0 +1,1 @@
+One more thing: Yes -- the order preserving nature of dict means G.nodes will always return the same order.... even in Pypy this is true. (they started the whole dict-order feature and CPython implemented it slightly later). So I think this comment can be removed.

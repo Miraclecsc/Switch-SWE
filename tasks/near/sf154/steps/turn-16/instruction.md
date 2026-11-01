@@ -1,0 +1,1 @@
+And here, The new test fails on Windows due to lack of `os.setsid()`. You need to skip the test on Windows.

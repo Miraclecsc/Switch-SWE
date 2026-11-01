@@ -1,0 +1,59 @@
+{
+  "case_id": "sf095_switched",
+  "task_id": "ssb_v4_python-trio__trio_3403",
+  "repo": "python-trio/trio",
+  "base_commit": "8ecba055808f09dae9ee4b232e628696ef53eb04",
+  "derived_fail_to_pass": [
+    "src.trio._tests.test_timeouts::test_invalid_access_unentered",
+    "src.trio._core._tests.test_sf095_extension::test_entered_and_cancelled_source_snapshot",
+    "src.trio._core._tests.test_sf095_extension::test_invalid_clone_preserves_source[options0]",
+    "src.trio._core._tests.test_sf095_extension::test_invalid_clone_preserves_source[options1]",
+    "src.trio._core._tests.test_sf095_extension::test_invalid_clone_preserves_source[options2]",
+    "src.trio._core._tests.test_sf095_extension::test_mode_override_is_new_object",
+    "src.trio._core._tests.test_sf095_extension::test_relative_clone_outside_run"
+  ],
+  "derived_pass_to_pass": [
+    "src.trio._tests.test_timeouts::test_cannot_wake_sleep_forever",
+    "src.trio._tests.test_timeouts::test_context_shields_from_outer[fail_after]",
+    "src.trio._tests.test_timeouts::test_context_shields_from_outer[move_on_after]",
+    "src.trio._tests.test_timeouts::test_timeout_deadline_on_entry",
+    "src.trio._tests.test_timeouts::test_timeouts_raise_value_error"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w02"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "src/trio/_tests/test_timeouts.py",
+    "src/trio/_core/_tests/test_sf095_extension.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "src/trio/_core/_tests/test_sf095_extension.py",
+    "src/trio/_tests/test_timeouts.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w02",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "c03f194bef82ad6003fcf3a39ea18ca8f5ae0b385aac2b24d87ea676e1e905e3",
+    "config/recipes.json": "8a1c4c996941670fdf81c9dab9d3d5627fdf8bad2734eea89bc2a6dcd5817d37"
+  }
+}

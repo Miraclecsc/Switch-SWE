@@ -1,0 +1,1 @@
+Please check this too: Yes I know that `str()` takes a shortcut and doesn't do a lookup on the instance. But which real-world class assigns to `self.__str__`? `pathlib.Path`certainly doesn't.

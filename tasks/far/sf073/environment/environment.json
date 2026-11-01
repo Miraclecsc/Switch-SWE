@@ -1,0 +1,155 @@
+{
+  "base_layers": [
+    "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+  ],
+  "case_id": "sf073_switched",
+  "env": {
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_NO_LAZY_FETCH": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "GIT_TERMINAL_PROMPT": "0",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1"
+  },
+  "focus_workspace": "w01",
+  "layers": [
+    {
+      "destination": "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902",
+      "python": "3.12.12",
+      "requirements": "requirements/34ebeb00cebfd28c-3.12.12-46181902.txt",
+      "source": "dependency-source/34ebeb00cebfd28c-3.12.12-46181902.tar.gz"
+    }
+  ],
+  "native_aliases": {},
+  "native_build_paths": [],
+  "profiles": {
+    "w00": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w01": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w02": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w03": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    },
+    "w04": {
+      "env": {},
+      "paths": [
+        "/opt/ssb/deps/34ebeb00cebfd28c-3.12.12-46181902"
+      ],
+      "python": "3.12.12"
+    }
+  },
+  "workspaces": [
+    {
+      "commit": "dc49e2f37df6687e6922a690805879d326904c55",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/algorithms/walks.rst",
+          "sha256": "fac9b57d26e3ca8e6bf3b74764ae863c5976d8d6b31debf29b88beb418e73590"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/tests/test_walks.py",
+          "sha256": "d49183c477a5414516a4aba3de5786eaca1bcb404e6140fa9f22e408ebe160a1"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/walks.py",
+          "sha256": "e40eb5d58c17f43f086586c5710e1a4f772e299587ab540ecc2a72e2600ce971"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w00"
+    },
+    {
+      "commit": "c2bb296ad5d8d821463d10cf09911dbafff7ca1b",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w01"
+    },
+    {
+      "commit": "c1c468d521d6e5baccc0cc2b2a2b015a5d8ff02b",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/algorithms/walks.rst",
+          "sha256": "fac9b57d26e3ca8e6bf3b74764ae863c5976d8d6b31debf29b88beb418e73590"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/tests/test_walks.py",
+          "sha256": "d49183c477a5414516a4aba3de5786eaca1bcb404e6140fa9f22e408ebe160a1"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/walks.py",
+          "sha256": "e40eb5d58c17f43f086586c5710e1a4f772e299587ab540ecc2a72e2600ce971"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w02"
+    },
+    {
+      "commit": "a094c926792b36d751231e4f3855e4f7e3363ed1",
+      "overlays": [
+        {
+          "mode": "100644",
+          "path": "doc/reference/algorithms/walks.rst",
+          "sha256": "fac9b57d26e3ca8e6bf3b74764ae863c5976d8d6b31debf29b88beb418e73590"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/tests/test_walks.py",
+          "sha256": "d49183c477a5414516a4aba3de5786eaca1bcb404e6140fa9f22e408ebe160a1"
+        },
+        {
+          "mode": "100644",
+          "path": "networkx/algorithms/walks.py",
+          "sha256": "e40eb5d58c17f43f086586c5710e1a4f772e299587ab540ecc2a72e2600ce971"
+        }
+      ],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w03"
+    },
+    {
+      "commit": "ee458799cdb8c95864a0331bd945b4bb11337db9",
+      "overlays": [],
+      "repo": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx.git",
+      "workspace": "w04"
+    }
+  ]
+}

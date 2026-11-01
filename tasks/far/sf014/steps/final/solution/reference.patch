@@ -1,0 +1,648 @@
+diff --git a/moto/dynamodb/models/__init__.py b/moto/dynamodb/models/__init__.py
+index 4519f6513..126099732 100644
+--- a/moto/dynamodb/models/__init__.py
++++ b/moto/dynamodb/models/__init__.py
+@@ -355,7 +355,7 @@ class DynamoDBBackend(BaseBackend):
+     def query(
+         self,
+         table_name: str,
+-        hash_key_dict: dict[str, Any],
++        hash_key_dict: Optional[dict[str, Any]],
+         range_comparison: Optional[str],
+         range_value_dicts: list[dict[str, Any]],
+         limit: int,
+@@ -367,13 +367,26 @@ class DynamoDBBackend(BaseBackend):
+         expr_names: Optional[dict[str, str]] = None,
+         expr_values: Optional[dict[str, dict[str, str]]] = None,
+         filter_expression: Optional[str] = None,
++        hash_key_conditions: Optional[list[tuple[str, dict[str, Any]]]] = None,
++        range_key_conditions: Optional[
++            list[tuple[str, str, list[dict[str, Any]]]]
++        ] = None,
+         **filter_kwargs: Any,
+     ) -> tuple[list[Item], int, Optional[dict[str, Any]]]:
+         table = self.get_table(table_name)
+ 
+-        hash_key = DynamoType(hash_key_dict)
++        hash_key = DynamoType(hash_key_dict) if hash_key_dict else None
+         range_values = [DynamoType(range_value) for range_value in range_value_dicts]
+ 
++        # Convert key conditions to DynamoType
++        hash_key_conditions_typed = [
++            (name, DynamoType(value)) for name, value in (hash_key_conditions or [])
++        ]
++        range_key_conditions_typed = [
++            (name, comparison, [DynamoType(v) for v in values])
++            for name, comparison, values in (range_key_conditions or [])
++        ]
++
+         filter_expression_op = get_filter_expression(
+             filter_expression, expr_names, expr_values
+         )
+@@ -389,6 +402,8 @@ class DynamoDBBackend(BaseBackend):
+             index_name,
+             consistent_read,
+             filter_expression_op,
++            hash_key_conditions=hash_key_conditions_typed,
++            range_key_conditions=range_key_conditions_typed,
+             **filter_kwargs,
+         )
+ 
+diff --git a/moto/dynamodb/models/table.py b/moto/dynamodb/models/table.py
+index 4f5c3ebea..aec041be6 100644
+--- a/moto/dynamodb/models/table.py
++++ b/moto/dynamodb/models/table.py
+@@ -748,7 +748,7 @@ class Table(CloudFormationModel):
+ 
+     def query(
+         self,
+-        hash_key: DynamoType,
++        hash_key: Optional[DynamoType],
+         range_comparison: Optional[str],
+         range_objs: list[DynamoType],
+         limit: int,
+@@ -758,9 +758,19 @@ class Table(CloudFormationModel):
+         index_name: Optional[str] = None,
+         consistent_read: bool = False,
+         filter_expression: Any = None,
++        hash_key_conditions: Optional[list[tuple[str, DynamoType]]] = None,
++        range_key_conditions: Optional[list[tuple[str, str, list[DynamoType]]]] = None,
+         **filter_kwargs: Any,
+     ) -> tuple[list[Item], int, Optional[dict[str, Any]]]:
+         # FIND POSSIBLE RESULTS
++        # Initialize variables for range key handling
++        index_range_key: Optional[dict[str, str]] = None
++        last_range_key_name: Optional[str] = None
++
++        # Extract last_range_key_name from range_key_conditions if present
++        if range_key_conditions:
++            last_range_key_name = range_key_conditions[-1][0]
++
+         if index_name:
+             all_indexes = self.all_indexes()
+             indexes_by_name = {i.name: i for i in all_indexes}
+@@ -777,20 +787,19 @@ class Table(CloudFormationModel):
+                     "Consistent reads are not supported on global secondary indexes"
+                 )
+ 
+-            try:
+-                index_hash_key = [
+-                    key for key in index.schema if key["KeyType"] == "HASH"
+-                ][0]
+-            except IndexError:
++            # Get ALL hash keys from schema (multi-attribute support)
++            index_hash_keys = [key for key in index.schema if key["KeyType"] == "HASH"]
++            if not index_hash_keys:
+                 raise MockValidationException(
+                     f"Missing Hash Key. KeySchema: {index.name}"
+                 )
+ 
+-            try:
+-                index_range_key = [
+-                    key for key in index.schema if key["KeyType"] == "RANGE"
+-                ][0]
+-            except IndexError:
++            # Get ALL range keys from schema (multi-attribute support)
++            index_range_keys = [
++                key for key in index.schema if key["KeyType"] == "RANGE"
++            ]
++
++            if not index_range_keys:
+                 if isinstance(index, GlobalSecondaryIndex) and self.range_key_attr:
+                     # If we're querying a GSI that does not have a range key, the main range key acts as a range key
+                     index_range_key = {"AttributeName": self.range_key_attr}
+@@ -801,28 +810,94 @@ class Table(CloudFormationModel):
+                     raise ValueError(
+                         f"Range Key comparison but no range key found for index: {index_name}"
+                     )
++            else:
++                # For backward compatibility with single range key
++                index_range_key = index_range_keys[0]
+ 
+-            hash_attrs = [index_hash_key["AttributeName"], self.hash_key_attr]
+-            if index_range_key:
+-                range_attrs = [
+-                    index_range_key["AttributeName"],
+-                    self.range_key_attr,
++            # Build hash_attrs for sorting: all index hash keys + table hash key
++            hash_attrs = [k["AttributeName"] for k in index_hash_keys] + [
++                self.hash_key_attr
++            ]
++            # Build range_attrs for sorting: all index range keys + table range key
++            # Note: For backward compatibility with _generate_attr_to_sort_by, we always
++            # include table range key (even if None) when there's only one GSI range key
++            if index_range_keys:
++                range_attrs: list[Optional[str]] = [
++                    k["AttributeName"] for k in index_range_keys
+                 ]
++                # Always append table range key for backward compatibility with sorting
++                range_attrs.append(self.range_key_attr)
++            elif index_range_key:
++                range_attrs = [index_range_key["AttributeName"], self.range_key_attr]
+             else:
+                 range_attrs = [self.range_key_attr]
+ 
++            # Build a dict of all hash key conditions from new interface
++            all_hash_conditions: dict[str, DynamoType] = {}
++            if hash_key_conditions:
++                for attr_name, value in hash_key_conditions:
++                    all_hash_conditions[attr_name] = value
++            elif hash_key:
++                # Backward compatibility: use legacy hash_key parameter
++                all_hash_conditions[index_hash_keys[0]["AttributeName"]] = hash_key
++
++            if exclusive_start_key is not None:
++                required = {k["AttributeName"] for k in index.schema} | set(self.table_key_attrs)
++                types = {a["AttributeName"]: a["AttributeType"] for a in self.attr}
++                if set(exclusive_start_key) != required or any(
++                    not isinstance(exclusive_start_key[name], dict)
++                    or set(exclusive_start_key[name]) != {types[name]}
++                    for name in required
++                ):
++                    raise MockValidationException("ExclusiveStartKey must contain the complete typed index and table key")
++                if any(DynamoType(exclusive_start_key[name]) != value
++                       for name, value in all_hash_conditions.items()):
++                    raise MockValidationException("ExclusiveStartKey belongs to another index partition")
++
++            # Build a dict of range key equalities (all but last in range_key_conditions)
++            range_equality_conditions: dict[str, DynamoType] = {}
++            if range_key_conditions and len(range_key_conditions) > 1:
++                # All but the last range key condition are equalities
++                for attr_name, _comparison, values in range_key_conditions[:-1]:
++                    range_equality_conditions[attr_name] = values[0]
++
+             possible_results = []
+             for item in self.all_items():
+                 if not isinstance(item, Item):
+                     continue
+-                item_hash_key = item.attrs.get(hash_attrs[0])
+-                if len(range_attrs) == 1:
+-                    if item_hash_key and item_hash_key == hash_key:
+-                        possible_results.append(item)
+-                else:
+-                    item_range_key = item.attrs.get(range_attrs[0])  # type: ignore
+-                    if item_hash_key and item_hash_key == hash_key and item_range_key:
+-                        possible_results.append(item)
++
++                # Check ALL hash key conditions
++                hash_match = True
++                for attr_name, expected_value in all_hash_conditions.items():
++                    item_value = item.attrs.get(attr_name)
++                    if not item_value or item_value != expected_value:
++                        hash_match = False
++                        break
++
++                if not hash_match:
++                    continue
++
++                # Check range key equality conditions (for multi-attribute range keys)
++                range_equality_match = True
++                for attr_name, expected_value in range_equality_conditions.items():
++                    item_value = item.attrs.get(attr_name)
++                    if not item_value or item_value != expected_value:
++                        range_equality_match = False
++                        break
++
++                if not range_equality_match:
++                    continue
++
++                # For GSI, ensure item has ALL range key attributes (DynamoDB only indexes
++                # items that have all key attributes present)
++                if index_range_keys:
++                    has_all_range_keys = all(
++                        item.attrs.get(key["AttributeName"]) for key in index_range_keys
++                    )
++                    if not has_all_range_keys:
++                        continue
++
++                possible_results.append(item)
+         else:
+             hash_attrs = [self.hash_key_attr]
+             range_attrs = [self.range_key_attr]
+@@ -882,18 +957,26 @@ class Table(CloudFormationModel):
+                 scanned_count += 1
+ 
+             if range_comparison:
+-                if (
+-                    index_name
+-                    and index_range_key
+-                    and result.attrs.get(index_range_key["AttributeName"])
++                # Determine which attribute to apply the range comparison to
++                range_attr_for_comparison: Optional[str] = None
++                if last_range_key_name:
++                    # Multi-attribute key: use the specific range key from the query
++                    range_attr_for_comparison = last_range_key_name
++                elif index_name and index_range_key:
++                    # Single range key GSI: use the index range key
++                    range_attr_for_comparison = index_range_key["AttributeName"]
++
++                if range_attr_for_comparison and result.attrs.get(
++                    range_attr_for_comparison
+                 ):
+-                    if result.attrs.get(index_range_key["AttributeName"]).compare(  # type: ignore
++                    if result.attrs.get(range_attr_for_comparison).compare(  # type: ignore
+                         range_comparison, range_objs
+                     ):
+                         results.append(result)
+                         result_size += result.size()
+                         scanned_count += 1
+-                else:
++                elif not index_name:
++                    # Table query (not GSI): use the table's range key
+                     if result.range_key.compare(range_comparison, range_objs):  # type: ignore[union-attr]
+                         results.append(result)
+                         result_size += result.size()
+@@ -1137,21 +1220,31 @@ class Table(CloudFormationModel):
+     def _generate_attr_to_sort_by(
+         self, hash_key_attrs: list[str], range_key_attrs: list[Optional[str]]
+     ) -> list[str]:
+-        gsi_hash_key = hash_key_attrs[0] if len(hash_key_attrs) == 2 else None
+-        table_hash_key = str(
+-            hash_key_attrs[0] if gsi_hash_key is None else hash_key_attrs[1]
+-        )
+-        gsi_range_key = range_key_attrs[0] if len(range_key_attrs) == 2 else None
+-        table_range_key = str(
+-            range_key_attrs[0] if gsi_range_key is None else range_key_attrs[1]
+-        )
+-        # Gets the GSI and table hash and range keys in the order to try sorting by
+-        attrs_to_sort_by = [
+-            gsi_hash_key,
+-            gsi_range_key,
+-            table_hash_key,
+-            table_range_key,
+-        ]
++        # For GSI queries, hash_key_attrs = [gsi_hash_keys..., table_hash_key]
++        # and range_key_attrs = [gsi_range_keys..., table_range_key]
++        # For table queries, hash_key_attrs = [table_hash_key]
++        # and range_key_attrs = [table_range_key]
++
++        # Extract GSI keys (all but last) and table keys (last)
++        if len(hash_key_attrs) > 1:
++            # GSI query
++            gsi_hash_keys = hash_key_attrs[:-1]
++            table_hash_key = hash_key_attrs[-1]
++            gsi_range_keys = [k for k in range_key_attrs[:-1] if k is not None]
++            table_range_key = range_key_attrs[-1]
++        else:
++            # Table query
++            gsi_hash_keys = []
++            table_hash_key = hash_key_attrs[0]
++            gsi_range_keys = []
++            table_range_key = range_key_attrs[0] if range_key_attrs else None
++
++        # Sort order: GSI hash keys, GSI range keys, table hash key, table range key
++        attrs_to_sort_by: list[Optional[str]] = []
++        attrs_to_sort_by.extend(gsi_hash_keys)
++        attrs_to_sort_by.extend(gsi_range_keys)
++        attrs_to_sort_by.append(table_hash_key)
++        attrs_to_sort_by.append(table_range_key)
+         return [
+             attr for attr in attrs_to_sort_by if attr is not None and attr != "None"
+         ]
+diff --git a/moto/dynamodb/parsing/key_condition_expression.py b/moto/dynamodb/parsing/key_condition_expression.py
+index 9d2f84540..a8895cf6b 100644
+--- a/moto/dynamodb/parsing/key_condition_expression.py
++++ b/moto/dynamodb/parsing/key_condition_expression.py
+@@ -14,8 +14,14 @@ class EXPRESSION_STAGES(Enum):
+ 
+ 
+ def get_key(schema: list[dict[str, str]], key_type: str) -> Optional[str]:
+-    keys = [key for key in schema if key["KeyType"] == key_type]
+-    return keys[0]["AttributeName"] if keys else None
++    """Get the first key of the specified type (for backward compatibility)."""
++    keys = get_keys(schema, key_type)
++    return keys[0] if keys else None
++
++
++def get_keys(schema: list[dict[str, str]], key_type: str) -> list[str]:
++    """Get all keys of the specified type in schema order."""
++    return [key["AttributeName"] for key in schema if key["KeyType"] == key_type]
+ 
+ 
+ def parse_expression(
+@@ -23,7 +29,11 @@ def parse_expression(
+     expression_attribute_values: dict[str, dict[str, str]],
+     expression_attribute_names: dict[str, str],
+     schema: list[dict[str, str]],
+-) -> tuple[dict[str, Any], Optional[str], list[dict[str, Any]], list[str]]:
++) -> tuple[
++    list[tuple[str, dict[str, Any]]],
++    list[tuple[str, str, list[dict[str, Any]]]],
++    list[str],
++]:
+     """
+     Parse a KeyConditionExpression using the provided expression attribute names/values
+ 
+@@ -31,6 +41,11 @@ def parse_expression(
+     expression_attribute_names:  {":sk": "sortkey"}
+     expression_attribute_values: {":id": {"S": "some hash key"}}
+     schema:                      [{'AttributeName': 'hashkey', 'KeyType': 'HASH'}, {"AttributeName": "sortkey", "KeyType": "RANGE"}]
++
++    Returns:
++        - hash_key_conditions: List of (attr_name, value) for all hash keys
++        - range_key_conditions: List of (attr_name, comparison, values) for range keys
++        - expression_attribute_names_used: List of expression attribute names used
+     """
+ 
+     current_stage: Optional[EXPRESSION_STAGES] = None
+@@ -193,12 +208,11 @@ def parse_expression(
+         if current_stage is None:
+             current_stage = EXPRESSION_STAGES.INITIAL_STAGE
+ 
+-    hash_value, range_comparison, range_values = validate_schema(results, schema)
++    hash_key_conditions, range_key_conditions = validate_schema(results, schema)
+ 
+     return (
+-        hash_value,
+-        range_comparison.upper() if range_comparison else None,
+-        range_values,
++        hash_key_conditions,
++        range_key_conditions,
+         expression_attribute_names_used,
+     )
+ 
+@@ -206,45 +220,103 @@ def parse_expression(
+ # Validate that the schema-keys are encountered in our query
+ def validate_schema(
+     results: Any, schema: list[dict[str, str]]
+-) -> tuple[dict[str, Any], Optional[str], list[dict[str, Any]]]:
+-    index_hash_key = get_key(schema, "HASH")
+-    comparison, hash_value = next(
+-        (
+-            (comparison, value[0])
+-            for key, comparison, value in results
+-            if key == index_hash_key
+-        ),
+-        (None, None),
+-    )
+-    if hash_value is None:
+-        raise MockValidationException(
+-            f"Query condition missed key schema element: {index_hash_key}"
+-        )
+-    if comparison != "=":
+-        raise MockValidationException("Query key condition not supported")
+-    if "S" in hash_value and hash_value["S"] == "":
+-        raise KeyIsEmptyStringException(index_hash_key)  # type: ignore[arg-type]
+-
+-    index_range_key = get_key(schema, "RANGE")
+-    range_key, range_comparison, range_values = next(
+-        (
+-            (key, comparison, values)
+-            for key, comparison, values in results
+-            if key == index_range_key
+-        ),
+-        (None, None, []),
+-    )
+-    if index_range_key:
+-        if len(results) > 1 and range_key != index_range_key:
++) -> tuple[
++    list[tuple[str, dict[str, Any]]],
++    list[tuple[str, str, list[dict[str, Any]]]],
++]:
++    """
++    Validate query conditions against the schema and extract key values.
++
++    For multi-attribute keys:
++    - ALL hash keys must be present with equality (=)
++    - Range keys must be specified left-to-right (cannot skip)
++    - Only the LAST range key in the query can use non-equality operators
++    - Earlier range keys in the query must use equality (=)
++
++    Returns:
++        - hash_key_conditions: List of (attr_name, value) for all hash keys
++        - range_key_conditions: List of (attr_name, comparison, values) for range keys
++    """
++    # Build a lookup from results: {key_name: (comparison, values)}
++    results_by_key: dict[str, tuple[str, list[dict[str, Any]]]] = {
++        key: (comparison, values) for key, comparison, values in results
++    }
++
++    # Get all hash and range keys from schema in order
++    hash_keys = get_keys(schema, "HASH")
++    range_keys = get_keys(schema, "RANGE")
++    provided_keys = set(results_by_key.keys())
++    schema_keys = set(hash_keys + range_keys)
++
++    # === Validate HASH keys ===
++    # All hash keys must be present with equality
++    # Check missing hash keys FIRST (before checking for invalid keys)
++    hash_key_conditions: list[tuple[str, dict[str, Any]]] = []
++
++    for hash_key in hash_keys:
++        if hash_key not in results_by_key:
+             raise MockValidationException(
+-                f"Query condition missed key schema element: {index_range_key}"
++                f"Query condition missed key schema element: {hash_key}"
+             )
+-        if {"S": ""} in range_values:
+-            raise KeyIsEmptyStringException(index_range_key)
++        comparison, values = results_by_key[hash_key]
++        if comparison != "=":
++            raise MockValidationException("Query key condition not supported")
++        value = values[0]
++        if "S" in value and value["S"] == "":
++            raise KeyIsEmptyStringException(hash_key)  # type: ignore[arg-type]
++        hash_key_conditions.append((hash_key, value))
++
++    # === Validate RANGE keys ===
++    # Range keys must be specified left-to-right, only last can use non-equality
++    range_key_conditions: list[tuple[str, str, list[dict[str, Any]]]] = []
+ 
+-    provided_keys = [key for key, _, _ in results]
+-    schema_keys = [x["AttributeName"] for x in schema]
+-    if any(x not in schema_keys for x in provided_keys):
++    # Find which range keys are in the query (in schema order)
++    range_keys_in_query: list[str] = [k for k in range_keys if k in results_by_key]
++
++    # Check for unknown keys (keys in query but not in schema)
++    unknown_keys = provided_keys - schema_keys
++    if unknown_keys:
++        # User provided keys not in schema - report first missing range key if any,
++        # otherwise report generic error
++        missing_range_keys = [k for k in range_keys if k not in results_by_key]
++        if missing_range_keys:
++            raise MockValidationException(
++                f"Query condition missed key schema element: {missing_range_keys[0]}"
++            )
+         raise MockValidationException("Query key condition not supported")
+ 
+-    return hash_value, range_comparison, range_values
++    for i, range_key in enumerate(range_keys):
++        if range_key not in results_by_key:
++            # This range key is not in the query
++            # Check if any later range keys ARE in the query (would be skipping)
++            later_keys_in_query = [
++                k for k in range_keys[i + 1 :] if k in results_by_key
++            ]
++            if later_keys_in_query:
++                # User skipped this key but specified a later one - error
++                raise MockValidationException(
++                    f"RANGE key attributes {range_key} must have equality conditions "
++                    f"specified in the query because a condition is present on key "
++                    f"attribute {later_keys_in_query[0]}"
++                )
++            # No more range keys in query, we're done
++            break
++
++        comparison, values = results_by_key[range_key]
++        is_last_in_query = range_key == range_keys_in_query[-1]
++
++        if is_last_in_query:
++            # Last range key in query can use any comparison
++            if {"S": ""} in values:
++                raise KeyIsEmptyStringException(range_key)
++            range_key_conditions.append((range_key, comparison.upper(), values))
++        else:
++            # Not last in query - must be equality
++            if comparison != "=":
++                raise MockValidationException("Query key condition not supported")
++            value = values[0]
++            if "S" in value and value["S"] == "":
++                raise KeyIsEmptyStringException(range_key)  # type: ignore[arg-type]
++            range_key_conditions.append((range_key, "=", [value]))
++
++    return hash_key_conditions, range_key_conditions
+diff --git a/moto/dynamodb/responses.py b/moto/dynamodb/responses.py
+index 16dfd1948..c0a639c20 100644
+--- a/moto/dynamodb/responses.py
++++ b/moto/dynamodb/responses.py
+@@ -19,7 +19,10 @@ from moto.dynamodb.parsing.expressions import (  # type: ignore
+     ExpressionAttributeValue,
+     UpdateExpressionParser,
+ )
+-from moto.dynamodb.parsing.key_condition_expression import parse_expression
++from moto.dynamodb.parsing.key_condition_expression import (
++    parse_expression,
++    validate_schema,
++)
+ from moto.dynamodb.parsing.reserved_keywords import ReservedKeywords
+ from moto.dynamodb.utils import find_duplicates
+ from moto.utilities.aws_headers import amz_crc32
+@@ -30,7 +33,6 @@ from .exceptions import (
+     KeyIsEmptyStringException,
+     MockValidationException,
+     ProvidedKeyDoesNotExist,
+-    ResourceNotFoundException,
+     UnknownKeyType,
+ )
+ 
+@@ -857,15 +859,18 @@ class DynamoHandler(BaseResponse):
+ 
+         filter_kwargs = {}
+ 
++        # Initialize key condition variables
++        hash_key_conditions: list[tuple[str, dict[str, Any]]] = []
++        range_key_conditions: list[tuple[str, str, list[dict[str, Any]]]] = []
++
+         if key_condition_expression:
+             index_name = self.body.get("IndexName")
+             schema = self.dynamodb_backend.get_schema(
+                 table_name=name, index_name=index_name
+             )
+             (
+-                hash_key,
+-                range_comparison,
+-                range_values,
++                hash_key_conditions,
++                range_key_conditions,
+                 expression_attribute_names_used_by_key_condition,
+             ) = parse_expression(
+                 key_condition_expression=key_condition_expression,
+@@ -876,6 +881,16 @@ class DynamoHandler(BaseResponse):
+             expression_attribute_names_used += (
+                 expression_attribute_names_used_by_key_condition
+             )
++            # Extract primary hash key for backward-compatible interface
++            hash_key = hash_key_conditions[0][1] if hash_key_conditions else None
++            # Extract last range key condition for backward-compatible interface
++            if range_key_conditions:
++                last_range = range_key_conditions[-1]
++                range_comparison = last_range[1]
++                range_values = last_range[2]
++            else:
++                range_comparison = None
++                range_values = []
+         else:
+             # 'KeyConditions': {u'forum_name': {u'ComparisonOperator': u'EQ', u'AttributeValueList': [{u'S': u'the-key'}]}}
+             key_conditions = self.body.get("KeyConditions")
+@@ -887,32 +902,50 @@ class DynamoHandler(BaseResponse):
+                 )
+ 
+             if key_conditions:
+-                (
+-                    hash_key_name,
+-                    range_key_name,
+-                ) = self.dynamodb_backend.get_table_keys_name(
+-                    name, key_conditions.keys()
++                index_name = self.body.get("IndexName")
++                schema = self.dynamodb_backend.get_schema(
++                    table_name=name, index_name=index_name
+                 )
++                schema_key_names = {k["AttributeName"] for k in schema}
++
++                # Convert KeyConditions to (key, comparison, values) tuples
++                # for validate_schema, separating non-key conditions into filters
++                results = []
+                 for key, value in key_conditions.items():
+-                    if key not in (hash_key_name, range_key_name):
++                    if key in schema_key_names:
++                        comparison = value["ComparisonOperator"]
++                        # Map KeyConditions operators to expression-style operators
++                        op_map = {
++                            "EQ": "=",
++                            "LE": "<=",
++                            "LT": "<",
++                            "GE": ">=",
++                            "GT": ">",
++                            "BEGINS_WITH": "BEGINS_WITH",
++                            "BETWEEN": "BETWEEN",
++                        }
++                        results.append(
++                            (
++                                key,
++                                op_map.get(comparison, comparison),
++                                value["AttributeValueList"],
++                            )
++                        )
++                    else:
+                         filter_kwargs[key] = value
+-                if hash_key_name is None:
+-                    raise ResourceNotFoundException
+-                hash_key = key_conditions[hash_key_name]["AttributeValueList"][0]
+-                if len(key_conditions) == 1:
++
++                hash_key_conditions, range_key_conditions = validate_schema(
++                    results, schema
++                )
++
++                hash_key = hash_key_conditions[0][1] if hash_key_conditions else None
++                if range_key_conditions:
++                    last_range = range_key_conditions[-1]
++                    range_comparison = last_range[1]
++                    range_values = last_range[2]
++                else:
+                     range_comparison = None
+                     range_values = []
+-                else:
+-                    if range_key_name is None and not filter_kwargs:
+-                        raise MockValidationException("Validation Exception")
+-                    else:
+-                        range_condition = key_conditions.get(range_key_name)
+-                        if range_condition:
+-                            range_comparison = range_condition["ComparisonOperator"]
+-                            range_values = range_condition["AttributeValueList"]
+-                        else:
+-                            range_comparison = None
+-                            range_values = []
+             if query_filters:
+                 filter_kwargs.update(query_filters)
+ 
+@@ -939,6 +972,8 @@ class DynamoHandler(BaseResponse):
+             expr_names=expression_attribute_names,
+             expr_values=expression_attribute_values,
+             filter_expression=filter_expression,
++            hash_key_conditions=hash_key_conditions,
++            range_key_conditions=range_key_conditions,
+             **filter_kwargs,
+         )
+ 

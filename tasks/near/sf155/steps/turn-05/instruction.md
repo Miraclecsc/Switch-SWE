@@ -1,0 +1,1 @@
+Also, your PR also fixes a problem where func and args are kept alive, can you add a test for this also?

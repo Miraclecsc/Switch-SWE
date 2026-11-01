@@ -1,0 +1,1 @@
+And here, Extend the module-level Event behavior: set(), is_set(), and statistics() must work before any event loop is running. Setting the event must be remembered when wait() is later used, including across sequential asyncio and Trio runs. Repeated set() is harmless. Queries must not require an active backend.

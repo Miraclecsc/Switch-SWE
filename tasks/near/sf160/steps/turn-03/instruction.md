@@ -1,0 +1,1 @@
+Please check this too: I have refactored some code in view of your suggestions. Since you removed your username from the test-data i have also removed it from the existing basic auth test cases. Regarding the failing test pipeline i assume this is not an issue with my branch, as other pipelines seem to fail with the same error message?

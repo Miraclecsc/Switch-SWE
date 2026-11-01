@@ -1,0 +1,1 @@
+And here, Ensure completion callbacks also release startup-value ownership after a successful handoff. This must hold for multiple concurrent long-lived services, independently. A second started() call must still raise the existing RuntimeError, even after the first returned value has become collectible.

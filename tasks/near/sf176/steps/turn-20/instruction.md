@@ -1,0 +1,1 @@
+And here, @ThiefMaster hi! Finally found time to finish this. This already works. TODO: - discuss current syntax - docs - deprecation warnings for cases when `context` is used as variable in trans Current syntax for trans tag

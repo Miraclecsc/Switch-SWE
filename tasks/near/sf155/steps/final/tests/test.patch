@@ -1,0 +1,50 @@
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index 5eddc0662..d6f68f615 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -689,3 +689,8 @@ async def use_limiter() -> None:
+             backend=anyio_backend_name,
+             backend_options=anyio_backend_options,
+         )
++
++    async def test_total_tokens_as_kwarg(self) -> None:
++        # Regression test for #515
++        limiter = CapacityLimiter(total_tokens=1)
++        assert limiter.total_tokens == 1
+diff --git a/tests/test_staged_contract.py b/tests/test_staged_contract.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_staged_contract.py
+@@ -0,0 +1,32 @@
++import pytest
++import trio
++from anyio._backends._trio import CapacityLimiter
++
++def test_missing_and_wrong_original():
++    with pytest.raises(TypeError):
++        CapacityLimiter()
++    with pytest.raises(TypeError):
++        CapacityLimiter(original=object())
++
++def test_conflicting_modes_are_atomic():
++    original = trio.CapacityLimiter(3)
++    with pytest.raises(TypeError):
++        CapacityLimiter(total_tokens=9, original=original)
++    assert original.total_tokens == 3
++    assert original.borrowed_tokens == 0
++
++def test_wrapper_shares_borrowers_and_capacity():
++    async def scenario():
++        original = trio.CapacityLimiter(3)
++        wrapped = CapacityLimiter(original=original)
++        borrower = object()
++        wrapped.acquire_on_behalf_of_nowait(borrower)
++        assert original.borrowed_tokens == 1
++        wrapped.total_tokens = 4
++        assert original.total_tokens == 4
++        original.total_tokens = 5
++        assert wrapped.total_tokens == 5
++        wrapped.release_on_behalf_of(borrower)
++        assert original.borrowed_tokens == 0
++        assert CapacityLimiter(2).total_tokens == CapacityLimiter(total_tokens=2).total_tokens
++    trio.run(scenario)

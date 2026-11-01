@@ -1,0 +1,1 @@
+Please check this too: @CoolCat467 recommended NamedTuple to not have to have an `__init__`, though code in this repo generally uses attr to handle default values in "dataclasses". See e.g. `EpollWaiters` in `src/trio/_core_io_epoll.py`.

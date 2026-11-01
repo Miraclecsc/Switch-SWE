@@ -1,0 +1,1 @@
+And here, Nobody uses obsoletes_dist, and there's only *one* case of provides_dist, which is "frobozz (0.1)" (not a valid Requirement). I'd be tempted to leave these as `str` rather than `Requirement`.

@@ -1,0 +1,1 @@
+Also, Okay, how about this: - Make option 1 the default: directed edges from hub to spokes. This seems to be what's most common in the literature, and it requires the least code churn from the current version on `main`. - Add docstring examples for how to get the other two, based on Dan's comment.

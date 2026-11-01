@@ -1,0 +1,3 @@
+Please check this too: What specifically is this here for? Also, can we add a test against strict MultiErrors (from `strict_exception_groups=True`) while we're at it? (it should pass, I think?)
+
+Extend MultiError pickling so that reconstruction preserves the stored group tree, including noncollapsed single-child groups and nested strict groups. Preserve each group’s collapse policy and the BaseExceptionGroup/ExceptionGroup distinction. Support every protocol exposed by the runtime pickle module, without accidentally returning a child exception when unpickling a one-child group.

@@ -1,0 +1,1 @@
+One more thing: The regeneration hook must also trigger when gen_exports.py itself or one of its generated _generated_run, _generated_instrumentation, or _generated_io_* output modules is edited. Retain existing source triggers, pass_filenames=false, and the CI skip; unrelated Trio modules must not trigger regeneration.

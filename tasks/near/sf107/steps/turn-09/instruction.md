@@ -1,0 +1,1 @@
+Also, See `get_db_prep_lookup` above for the reasoning behing that. TL;DR we must wrap Django types in proper adapted before they make their way to the DB backend.

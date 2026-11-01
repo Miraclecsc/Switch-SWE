@@ -1,0 +1,1 @@
+And here, do we need a `if (typ == NULL) return NULL;` here?

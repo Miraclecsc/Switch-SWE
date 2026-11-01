@@ -1,0 +1,3 @@
+Please check this too: > You mean you got OSError on disk full? Yes
+
+Make cleanup robust when close() itself raises: attempt every owned file, and preserve the original parsing/stream/cancellation exception object rather than replacing it with a cleanup exception. Release parser-held pending-write/finish and failure-cleanup references after failure; after successful transfer, do not keep a cleanup ownership list. Test multiple files, success, ordinary stream exceptions and actual task cancellation. Preserve the existing multipart limits, field values, and successful file contents.

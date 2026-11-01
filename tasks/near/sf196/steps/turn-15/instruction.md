@@ -1,0 +1,1 @@
+Please check this too: I moved this call later because it's a LOAD_GLOBAL and fairly complicated bit of code and it's critical that self.foreign.remove get called

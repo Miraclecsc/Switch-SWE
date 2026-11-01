@@ -1,0 +1,1 @@
+Please check this too: can add a comment+reference to the coverage.py issue why the pragmas are "needed"

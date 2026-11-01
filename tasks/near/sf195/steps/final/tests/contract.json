@@ -1,0 +1,89 @@
+{
+  "case_id": "sf195_switched",
+  "task_id": "ssb_v4_python-trio__trio_2470",
+  "repo": "python-trio/trio",
+  "base_commit": "fc0932a62d9f4563b5b3fc3391262bfce176dd9b",
+  "derived_fail_to_pass": [
+    "trio.tests.test_threads::test_has_pthread_setname_np",
+    "trio.tests.test_threads::test_named_thread",
+    "trio.tests.test_threads::test_named_thread_os",
+    "tests.test_sf195_staged::test_native_library_load_failure_is_optional",
+    "tests.test_sf195_staged::test_native_naming_errors_do_not_lose_jobs"
+  ],
+  "derived_pass_to_pass": [
+    "trio.tests.test_threads::test_await_in_trio_thread_while_main_exits",
+    "trio.tests.test_threads::test_do_in_trio_thread",
+    "trio.tests.test_threads::test_do_in_trio_thread_from_trio_thread",
+    "trio.tests.test_threads::test_from_thread_inside_trio_thread",
+    "trio.tests.test_threads::test_from_thread_no_token",
+    "trio.tests.test_threads::test_from_thread_run_during_shutdown",
+    "trio.tests.test_threads::test_run_fn_as_system_task_catched_badly_typed_token",
+    "trio.tests.test_threads::test_run_in_trio_thread_ki",
+    "trio.tests.test_threads::test_run_in_worker_thread",
+    "trio.tests.test_threads::test_run_in_worker_thread_abandoned",
+    "trio.tests.test_threads::test_run_in_worker_thread_cancellation",
+    "trio.tests.test_threads::test_run_in_worker_thread_custom_limiter",
+    "trio.tests.test_threads::test_run_in_worker_thread_fail_to_spawn",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[False-False-10]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[False-False-3]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[False-False-5]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[False-True-10]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[False-True-3]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[False-True-5]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[True-False-10]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[True-False-3]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[True-False-5]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[True-True-10]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[True-True-3]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter[True-True-5]",
+    "trio.tests.test_threads::test_run_in_worker_thread_limiter_error",
+    "trio.tests.test_threads::test_trio_from_thread_run",
+    "trio.tests.test_threads::test_trio_from_thread_run_contextvars",
+    "trio.tests.test_threads::test_trio_from_thread_run_sync",
+    "trio.tests.test_threads::test_trio_from_thread_run_sync_contextvars",
+    "trio.tests.test_threads::test_trio_from_thread_token",
+    "trio.tests.test_threads::test_trio_from_thread_token_kwarg",
+    "trio.tests.test_threads::test_trio_to_thread_run_sync_contextvars",
+    "trio.tests.test_threads::test_trio_to_thread_run_sync_expected_error",
+    "trio.tests.test_threads::test_trio_to_thread_run_sync_token",
+    "trio.tests.test_threads::test_trio_token_weak_referenceable",
+    "trio.tests.test_threads::test_unsafe_cancellable_kwarg"
+  ],
+  "recipe": {
+    "runner": "pytest",
+    "env": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1",
+      "GIT_CONFIG_NOSYSTEM": "1",
+      "GIT_CONFIG_GLOBAL": "/dev/null",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_NO_LAZY_FETCH": "1",
+      "GIT_NO_REPLACE_OBJECTS": "1",
+      "GIT_TERMINAL_PROMPT": "0",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "MPLBACKEND": "Agg",
+      "SSB_WORKSPACE": "w01"
+    },
+    "python": "/opt/ssb/bin/python"
+  },
+  "test_files": [
+    "trio/tests/test_threads.py",
+    "tests/test_sf195_staged.py"
+  ],
+  "source_python": "/opt/runtime/case-python/python/bin/python3.12",
+  "protected_paths": [
+    "tests/test_sf195_staged.py",
+    "trio/tests/test_threads.py"
+  ],
+  "base_path": "/opt/focus-base",
+  "focus_path": "/work/w01",
+  "timeout_sec": 2400,
+  "source_hashes": {
+    "private/scoring.json": "0f9659ba34f272f43fb5a6be076ad812d965d974b96151e7cb64331a5664fc14",
+    "config/recipes.json": "e776e4d854af910ca43b2dab876a917a785def4e447dfe8334c95f82764db426"
+  }
+}

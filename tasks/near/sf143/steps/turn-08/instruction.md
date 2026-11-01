@@ -1,0 +1,1 @@
+And here, @darrenburns Just looking in to styles a bit more. According to the colorama docs, it will interpret bold as bright, and also dim as normal intensity. We should probably do the same. Colorama doesn't support the "reverse" style, but I think we could do that quite easily by swapping "fore" and "back". Would you mind making those changes?

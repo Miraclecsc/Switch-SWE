@@ -1,0 +1,1 @@
+And here, I merged #5964 PR to get the docstrings, which added @juanis2112 as an author. I also updated #7690 to automatically add an "Attention" admonition at the beginning of the extended summary. Here's what it currently looks like: ![leiden_doc_example](

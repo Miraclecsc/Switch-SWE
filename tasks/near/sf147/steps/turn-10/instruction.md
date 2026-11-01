@@ -1,0 +1,1 @@
+One more thing: This now also reinstates `always_update` to the `index` reactive that was removed in recent changes. When items are removed, the `index` may not change but the highlighted item should be updated.

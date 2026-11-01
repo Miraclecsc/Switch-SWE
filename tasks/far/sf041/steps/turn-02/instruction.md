@@ -1,0 +1,3 @@
+One more thing: This resource is kind unique, status is stored as `current_state` (CurrentState), but the managed state class works with the attribute `status`.
+
+Make RUNNING and STOPPED stable terminal pipe states: describe/list polling alone must never initiate a restart or reverse an explicit request. A pipe created with DesiredState=STOPPED still returns CREATING initially, then converges to STOPPED; the default creation flow still converges to RUNNING. Keep current_state as the public that type-backed status.

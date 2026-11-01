@@ -1,0 +1,1 @@
+In the checkout at /work/w04, Fix typing of Lifespan to allow subclasses of Starlette Fixes

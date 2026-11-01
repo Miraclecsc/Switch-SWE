@@ -1,0 +1,1714 @@
+diff --git a/.travis.yml b/.travis.yml
+index c7ab822..430e77d 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -22,6 +22,7 @@ matrix:
+     - python: 3.8-dev
+       env: TOXENV=py
+       dist: xenial
++    - env: TOXENV=mypy
+     - env: TOXENV=lint
+     - env: TOXENV=docs
+     - env: TOXENV=packaging
+diff --git a/packaging/_compat.py b/packaging/_compat.py
+index 25da473..a145f7e 100644
+--- a/packaging/_compat.py
++++ b/packaging/_compat.py
+@@ -5,6 +5,11 @@ from __future__ import absolute_import, division, print_function
+ 
+ import sys
+ 
++from ._typing import MYPY_CHECK_RUNNING
++
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import Any, Dict, Tuple, Type
++
+ 
+ PY2 = sys.version_info[0] == 2
+ PY3 = sys.version_info[0] == 3
+@@ -18,14 +23,16 @@ else:
+ 
+ 
+ def with_metaclass(meta, *bases):
++    # type: (Type[Any], Tuple[Type[Any], ...]) -> Any
+     """
+     Create a base class with a metaclass.
+     """
+     # This requires a bit of explanation: the basic idea is to make a dummy
+     # metaclass for one level of class instantiation that replaces itself with
+     # the actual metaclass.
+-    class metaclass(meta):
++    class metaclass(meta):  # type: ignore
+         def __new__(cls, name, this_bases, d):
++            # type: (Type[Any], str, Tuple[Any], Dict[Any, Any]) -> Any
+             return meta(name, bases, d)
+ 
+     return type.__new__(metaclass, "temporary_class", (), {})
+diff --git a/packaging/_structures.py b/packaging/_structures.py
+index 68dcca6..800d5c5 100644
+--- a/packaging/_structures.py
++++ b/packaging/_structures.py
+@@ -4,65 +4,83 @@
+ from __future__ import absolute_import, division, print_function
+ 
+ 
+-class Infinity(object):
++class InfinityType(object):
+     def __repr__(self):
++        # type: () -> str
+         return "Infinity"
+ 
+     def __hash__(self):
++        # type: () -> int
+         return hash(repr(self))
+ 
+     def __lt__(self, other):
++        # type: (object) -> bool
+         return False
+ 
+     def __le__(self, other):
++        # type: (object) -> bool
+         return False
+ 
+     def __eq__(self, other):
++        # type: (object) -> bool
+         return isinstance(other, self.__class__)
+ 
+     def __ne__(self, other):
++        # type: (object) -> bool
+         return not isinstance(other, self.__class__)
+ 
+     def __gt__(self, other):
++        # type: (object) -> bool
+         return True
+ 
+     def __ge__(self, other):
++        # type: (object) -> bool
+         return True
+ 
+     def __neg__(self):
++        # type: (object) -> NegativeInfinityType
+         return NegativeInfinity
+ 
+ 
+-Infinity = Infinity()
++Infinity = InfinityType()
+ 
+ 
+-class NegativeInfinity(object):
++class NegativeInfinityType(object):
+     def __repr__(self):
++        # type: () -> str
+         return "-Infinity"
+ 
+     def __hash__(self):
++        # type: () -> int
+         return hash(repr(self))
+ 
+     def __lt__(self, other):
++        # type: (object) -> bool
+         return True
+ 
+     def __le__(self, other):
++        # type: (object) -> bool
+         return True
+ 
+     def __eq__(self, other):
++        # type: (object) -> bool
+         return isinstance(other, self.__class__)
+ 
+     def __ne__(self, other):
++        # type: (object) -> bool
+         return not isinstance(other, self.__class__)
+ 
+     def __gt__(self, other):
++        # type: (object) -> bool
+         return False
+ 
+     def __ge__(self, other):
++        # type: (object) -> bool
+         return False
+ 
+     def __neg__(self):
++        # type: (object) -> InfinityType
+         return Infinity
+ 
+ 
+-NegativeInfinity = NegativeInfinity()
++NegativeInfinity = NegativeInfinityType()
+diff --git a/packaging/_typing.py b/packaging/_typing.py
+new file mode 100644
+index 0000000..dc6dfce
+--- /dev/null
++++ b/packaging/_typing.py
+@@ -0,0 +1,39 @@
++"""For neatly implementing static typing in packaging.
++
++`mypy` - the static type analysis tool we use - uses the `typing` module, which
++provides core functionality fundamental to mypy's functioning.
++
++Generally, `typing` would be imported at runtime and used in that fashion -
++it acts as a no-op at runtime and does not have any run-time overhead by
++design.
++
++As it turns out, `typing` is not vendorable - it uses separate sources for
++Python 2/Python 3. Thus, this codebase can not expect it to be present.
++To work around this, mypy allows the typing import to be behind a False-y
++optional to prevent it from running at runtime and type-comments can be used
++to remove the need for the types to be accessible directly during runtime.
++
++This module provides the False-y guard in a nicely named fashion so that a
++curious maintainer can reach here to read this.
++
++In packaging, all static-typing related imports should be guarded as follows:
++
++    from packaging._typing import MYPY_CHECK_RUNNING
++
++    if MYPY_CHECK_RUNNING:
++        from typing import ...
++
++Ref: https://github.com/python/mypy/issues/3216
++"""
++
++MYPY_CHECK_RUNNING = False
++
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    import typing
++
++    cast = typing.cast
++else:
++    # typing's cast() is needed at runtime, but we don't want to import typing.
++    # Thus, we use a dummy no-op version, which we tell mypy to ignore.
++    def cast(type_, value):  # type: ignore
++        return value
+diff --git a/packaging/markers.py b/packaging/markers.py
+index 3b8af32..11d140e 100644
+--- a/packaging/markers.py
++++ b/packaging/markers.py
+@@ -13,8 +13,14 @@ from pyparsing import ZeroOrMore, Group, Forward, QuotedString
+ from pyparsing import Literal as L  # noqa
+ 
+ from ._compat import string_types
++from ._typing import MYPY_CHECK_RUNNING
+ from .specifiers import Specifier, InvalidSpecifier
+ 
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import Any, Callable, Dict, List, Optional, Tuple, Union
++
++    Operator = Callable[[str, str], bool]
++
+ 
+ __all__ = [
+     "InvalidMarker",
+@@ -46,30 +52,37 @@ class UndefinedEnvironmentName(ValueError):
+ 
+ class Node(object):
+     def __init__(self, value):
++        # type: (Any) -> None
+         self.value = value
+ 
+     def __str__(self):
++        # type: () -> str
+         return str(self.value)
+ 
+     def __repr__(self):
++        # type: () -> str
+         return "<{0}({1!r})>".format(self.__class__.__name__, str(self))
+ 
+     def serialize(self):
++        # type: () -> str
+         raise NotImplementedError
+ 
+ 
+ class Variable(Node):
+     def serialize(self):
++        # type: () -> str
+         return str(self)
+ 
+ 
+ class Value(Node):
+     def serialize(self):
++        # type: () -> str
+         return '"{0}"'.format(self)
+ 
+ 
+ class Op(Node):
+     def serialize(self):
++        # type: () -> str
+         return str(self)
+ 
+ 
+@@ -131,6 +144,7 @@ MARKER = stringStart + MARKER_EXPR + stringEnd
+ 
+ 
+ def _coerce_parse_result(results):
++    # type: (Union[ParseResults, List[Any]]) -> List[Any]
+     if isinstance(results, ParseResults):
+         return [_coerce_parse_result(i) for i in results]
+     else:
+@@ -138,6 +152,8 @@ def _coerce_parse_result(results):
+ 
+ 
+ def _format_marker(marker, first=True):
++    # type: (Union[List[str], Tuple[Node, ...], str], Optional[bool]) -> str
++
+     assert isinstance(marker, (list, tuple, string_types))
+ 
+     # Sometimes we have a structure like [[...]] which is a single item list
+@@ -172,10 +188,11 @@ _operators = {
+     "!=": operator.ne,
+     ">=": operator.ge,
+     ">": operator.gt,
+-}
++}  # type: Dict[str, Operator]
+ 
+ 
+ def _eval_op(lhs, op, rhs):
++    # type: (str, Op, str) -> bool
+     try:
+         spec = Specifier("".join([op.serialize(), rhs]))
+     except InvalidSpecifier:
+@@ -183,7 +200,7 @@ def _eval_op(lhs, op, rhs):
+     else:
+         return spec.contains(lhs)
+ 
+-    oper = _operators.get(op.serialize())
++    oper = _operators.get(op.serialize())  # type: Optional[Operator]
+     if oper is None:
+         raise UndefinedComparison(
+             "Undefined {0!r} on {1!r} and {2!r}.".format(op, lhs, rhs)
+@@ -192,13 +209,18 @@ def _eval_op(lhs, op, rhs):
+     return oper(lhs, rhs)
+ 
+ 
+-_undefined = object()
++class Undefined(object):
++    pass
++
++
++_undefined = Undefined()
+ 
+ 
+ def _get_env(environment, name):
+-    value = environment.get(name, _undefined)
++    # type: (Dict[str, str], str) -> str
++    value = environment.get(name, _undefined)  # type: Union[str, Undefined]
+ 
+-    if value is _undefined:
++    if isinstance(value, Undefined):
+         raise UndefinedEnvironmentName(
+             "{0!r} does not exist in evaluation environment.".format(name)
+         )
+@@ -207,7 +229,8 @@ def _get_env(environment, name):
+ 
+ 
+ def _evaluate_markers(markers, environment):
+-    groups = [[]]
++    # type: (List[Any], Dict[str, str]) -> bool
++    groups = [[]]  # type: List[List[bool]]
+ 
+     for marker in markers:
+         assert isinstance(marker, (list, tuple, string_types))
+@@ -234,6 +257,7 @@ def _evaluate_markers(markers, environment):
+ 
+ 
+ def format_full_version(info):
++    # type: (sys._version_info) -> str
+     version = "{0.major}.{0.minor}.{0.micro}".format(info)
+     kind = info.releaselevel
+     if kind != "final":
+@@ -242,6 +266,7 @@ def format_full_version(info):
+ 
+ 
+ def default_environment():
++    # type: () -> Dict[str, str]
+     if hasattr(sys, "implementation"):
+         iver = format_full_version(sys.implementation.version)
+         implementation_name = sys.implementation.name
+@@ -266,6 +291,7 @@ def default_environment():
+ 
+ class Marker(object):
+     def __init__(self, marker):
++        # type: (str) -> None
+         try:
+             self._markers = _coerce_parse_result(MARKER.parseString(marker))
+         except ParseException as e:
+@@ -275,12 +301,15 @@ class Marker(object):
+             raise InvalidMarker(err_str)
+ 
+     def __str__(self):
++        # type: () -> str
+         return _format_marker(self._markers)
+ 
+     def __repr__(self):
++        # type: () -> str
+         return "<Marker({0!r})>".format(str(self))
+ 
+     def evaluate(self, environment=None):
++        # type: (Optional[Dict[str, str]]) -> bool
+         """Evaluate a marker.
+ 
+         Return the boolean from evaluating the given marker against the
+diff --git a/packaging/requirements.py b/packaging/requirements.py
+index 4d9688b..1b54792 100644
+--- a/packaging/requirements.py
++++ b/packaging/requirements.py
+@@ -11,9 +11,13 @@ from pyparsing import ZeroOrMore, Word, Optional, Regex, Combine
+ from pyparsing import Literal as L  # noqa
+ from six.moves.urllib import parse as urlparse
+ 
++from ._typing import MYPY_CHECK_RUNNING
+ from .markers import MARKER_EXPR, Marker
+ from .specifiers import LegacySpecifier, Specifier, SpecifierSet
+ 
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import List
++
+ 
+ class InvalidRequirement(ValueError):
+     """
+@@ -89,6 +93,7 @@ class Requirement(object):
+     # TODO: Can we normalize the name and extra name?
+ 
+     def __init__(self, requirement_string):
++        # type: (str) -> None
+         try:
+             req = REQUIREMENT.parseString(requirement_string)
+         except ParseException as e:
+@@ -116,7 +121,8 @@ class Requirement(object):
+         self.marker = req.marker if req.marker else None
+ 
+     def __str__(self):
+-        parts = [self.name]
++        # type: () -> str
++        parts = [self.name]  # type: List[str]
+ 
+         if self.extras:
+             parts.append("[{0}]".format(",".join(sorted(self.extras))))
+@@ -135,4 +141,5 @@ class Requirement(object):
+         return "".join(parts)
+ 
+     def __repr__(self):
++        # type: () -> str
+         return "<Requirement({0!r})>".format(str(self))
+diff --git a/packaging/specifiers.py b/packaging/specifiers.py
+index 743576a..b366978 100644
+--- a/packaging/specifiers.py
++++ b/packaging/specifiers.py
+@@ -9,8 +9,26 @@ import itertools
+ import re
+ 
+ from ._compat import string_types, with_metaclass
++from ._typing import MYPY_CHECK_RUNNING
+ from .version import Version, LegacyVersion, parse
+ 
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import (
++        List,
++        Dict,
++        Union,
++        Iterable,
++        Iterator,
++        Optional,
++        Callable,
++        Tuple,
++        FrozenSet,
++    )
++
++    ParsedVersion = Union[Version, LegacyVersion]
++    UnparsedVersion = Union[Version, LegacyVersion, str]
++    CallableOperator = Callable[[ParsedVersion, str], bool]
++
+ 
+ class InvalidSpecifier(ValueError):
+     """
+@@ -18,9 +36,10 @@ class InvalidSpecifier(ValueError):
+     """
+ 
+ 
+-class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
++class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):  # type: ignore
+     @abc.abstractmethod
+     def __str__(self):
++        # type: () -> str
+         """
+         Returns the str representation of this Specifier like object. This
+         should be representative of the Specifier itself.
+@@ -28,12 +47,14 @@ class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
+ 
+     @abc.abstractmethod
+     def __hash__(self):
++        # type: () -> int
+         """
+         Returns a hash value for this Specifier like object.
+         """
+ 
+     @abc.abstractmethod
+     def __eq__(self, other):
++        # type: (object) -> bool
+         """
+         Returns a boolean representing whether or not the two Specifier like
+         objects are equal.
+@@ -41,6 +62,7 @@ class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
+ 
+     @abc.abstractmethod
+     def __ne__(self, other):
++        # type: (object) -> bool
+         """
+         Returns a boolean representing whether or not the two Specifier like
+         objects are not equal.
+@@ -48,6 +70,7 @@ class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
+ 
+     @abc.abstractproperty
+     def prereleases(self):
++        # type: () -> Optional[bool]
+         """
+         Returns whether or not pre-releases as a whole are allowed by this
+         specifier.
+@@ -55,6 +78,7 @@ class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
+ 
+     @prereleases.setter
+     def prereleases(self, value):
++        # type: (bool) -> None
+         """
+         Sets whether or not pre-releases as a whole are allowed by this
+         specifier.
+@@ -62,12 +86,14 @@ class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
+ 
+     @abc.abstractmethod
+     def contains(self, item, prereleases=None):
++        # type: (str, Optional[bool]) -> bool
+         """
+         Determines if the given item is contained within this specifier.
+         """
+ 
+     @abc.abstractmethod
+     def filter(self, iterable, prereleases=None):
++        # type: (Iterable[UnparsedVersion], Optional[bool]) -> Iterable[UnparsedVersion]
+         """
+         Takes an iterable of items and filters them so that only items which
+         are contained within this specifier are allowed in it.
+@@ -76,19 +102,24 @@ class BaseSpecifier(with_metaclass(abc.ABCMeta, object)):
+ 
+ class _IndividualSpecifier(BaseSpecifier):
+ 
+-    _operators = {}
++    _operators = {}  # type: Dict[str, str]
+ 
+     def __init__(self, spec="", prereleases=None):
++        # type: (str, Optional[bool]) -> None
+         match = self._regex.search(spec)
+         if not match:
+             raise InvalidSpecifier("Invalid specifier: '{0}'".format(spec))
+ 
+-        self._spec = (match.group("operator").strip(), match.group("version").strip())
++        self._spec = (
++            match.group("operator").strip(),
++            match.group("version").strip(),
++        )  # type: Tuple[str, str]
+ 
+         # Store whether or not this Specifier should accept prereleases
+         self._prereleases = prereleases
+ 
+     def __repr__(self):
++        # type: () -> str
+         pre = (
+             ", prereleases={0!r}".format(self.prereleases)
+             if self._prereleases is not None
+@@ -98,15 +129,18 @@ class _IndividualSpecifier(BaseSpecifier):
+         return "<{0}({1!r}{2})>".format(self.__class__.__name__, str(self), pre)
+ 
+     def __str__(self):
++        # type: () -> str
+         return "{0}{1}".format(*self._spec)
+ 
+     def __hash__(self):
++        # type: () -> int
+         return hash(self._spec)
+ 
+     def __eq__(self, other):
++        # type: (object) -> bool
+         if isinstance(other, string_types):
+             try:
+-                other = self.__class__(other)
++                other = self.__class__(str(other))
+             except InvalidSpecifier:
+                 return NotImplemented
+         elif not isinstance(other, self.__class__):
+@@ -115,9 +149,10 @@ class _IndividualSpecifier(BaseSpecifier):
+         return self._spec == other._spec
+ 
+     def __ne__(self, other):
++        # type: (object) -> bool
+         if isinstance(other, string_types):
+             try:
+-                other = self.__class__(other)
++                other = self.__class__(str(other))
+             except InvalidSpecifier:
+                 return NotImplemented
+         elif not isinstance(other, self.__class__):
+@@ -126,52 +161,67 @@ class _IndividualSpecifier(BaseSpecifier):
+         return self._spec != other._spec
+ 
+     def _get_operator(self, op):
+-        return getattr(self, "_compare_{0}".format(self._operators[op]))
++        # type: (str) -> CallableOperator
++        operator_callable = getattr(
++            self, "_compare_{0}".format(self._operators[op])
++        )  # type: CallableOperator
++        return operator_callable
+ 
+     def _coerce_version(self, version):
++        # type: (UnparsedVersion) -> ParsedVersion
+         if not isinstance(version, (LegacyVersion, Version)):
+             version = parse(version)
+         return version
+ 
+     @property
+     def operator(self):
++        # type: () -> str
+         return self._spec[0]
+ 
+     @property
+     def version(self):
++        # type: () -> str
+         return self._spec[1]
+ 
+     @property
+     def prereleases(self):
++        # type: () -> Optional[bool]
+         return self._prereleases
+ 
+     @prereleases.setter
+     def prereleases(self, value):
++        # type: (bool) -> None
+         self._prereleases = value
+ 
+     def __contains__(self, item):
++        # type: (str) -> bool
+         return self.contains(item)
+ 
+     def contains(self, item, prereleases=None):
++        # type: (UnparsedVersion, Optional[bool]) -> bool
++
+         # Determine if prereleases are to be allowed or not.
+         if prereleases is None:
+             prereleases = self.prereleases
+ 
+         # Normalize item to a Version or LegacyVersion, this allows us to have
+         # a shortcut for ``"2.0" in Specifier(">=2")
+-        item = self._coerce_version(item)
++        normalized_item = self._coerce_version(item)
+ 
+         # Determine if we should be supporting prereleases in this specifier
+         # or not, if we do not support prereleases than we can short circuit
+         # logic if this version is a prereleases.
+-        if item.is_prerelease and not prereleases:
++        if normalized_item.is_prerelease and not prereleases:
+             return False
+ 
+         # Actually do the comparison to determine if this item is contained
+         # within this Specifier or not.
+-        return self._get_operator(self.operator)(item, self.version)
++        operator_callable = self._get_operator(self.operator)  # type: CallableOperator
++        return operator_callable(normalized_item, self.version)
+ 
+     def filter(self, iterable, prereleases=None):
++        # type: (Iterable[UnparsedVersion], Optional[bool]) -> Iterable[UnparsedVersion]
++
+         yielded = False
+         found_prereleases = []
+ 
+@@ -230,32 +280,43 @@ class LegacySpecifier(_IndividualSpecifier):
+     }
+ 
+     def _coerce_version(self, version):
++        # type: (Union[ParsedVersion, str]) -> LegacyVersion
+         if not isinstance(version, LegacyVersion):
+             version = LegacyVersion(str(version))
+         return version
+ 
+     def _compare_equal(self, prospective, spec):
++        # type: (LegacyVersion, str) -> bool
+         return prospective == self._coerce_version(spec)
+ 
+     def _compare_not_equal(self, prospective, spec):
++        # type: (LegacyVersion, str) -> bool
+         return prospective != self._coerce_version(spec)
+ 
+     def _compare_less_than_equal(self, prospective, spec):
++        # type: (LegacyVersion, str) -> bool
+         return prospective <= self._coerce_version(spec)
+ 
+     def _compare_greater_than_equal(self, prospective, spec):
++        # type: (LegacyVersion, str) -> bool
+         return prospective >= self._coerce_version(spec)
+ 
+     def _compare_less_than(self, prospective, spec):
++        # type: (LegacyVersion, str) -> bool
+         return prospective < self._coerce_version(spec)
+ 
+     def _compare_greater_than(self, prospective, spec):
++        # type: (LegacyVersion, str) -> bool
+         return prospective > self._coerce_version(spec)
+ 
+ 
+-def _require_version_compare(fn):
++def _require_version_compare(
++    fn  # type: (Callable[[Specifier, ParsedVersion, str], bool])
++):
++    # type: (...) -> Callable[[Specifier, ParsedVersion, str], bool]
+     @functools.wraps(fn)
+     def wrapped(self, prospective, spec):
++        # type: (Specifier, ParsedVersion, str) -> bool
+         if not isinstance(prospective, Version):
+             return False
+         return fn(self, prospective, spec)
+@@ -373,6 +434,8 @@ class Specifier(_IndividualSpecifier):
+ 
+     @_require_version_compare
+     def _compare_compatible(self, prospective, spec):
++        # type: (ParsedVersion, str) -> bool
++
+         # Compatible releases have an equivalent combination of >= and ==. That
+         # is that ~=2.2 is equivalent to >=2.2,==2.*. This allows us to
+         # implement this in terms of the other specifiers instead of
+@@ -400,56 +463,67 @@ class Specifier(_IndividualSpecifier):
+ 
+     @_require_version_compare
+     def _compare_equal(self, prospective, spec):
++        # type: (ParsedVersion, str) -> bool
++
+         # We need special logic to handle prefix matching
+         if spec.endswith(".*"):
+             # In the case of prefix matching we want to ignore local segment.
+             prospective = Version(prospective.public)
+             # Split the spec out by dots, and pretend that there is an implicit
+             # dot in between a release segment and a pre-release segment.
+-            spec = _version_split(spec[:-2])  # Remove the trailing .*
++            split_spec = _version_split(spec[:-2])  # Remove the trailing .*
+ 
+             # Split the prospective version out by dots, and pretend that there
+             # is an implicit dot in between a release segment and a pre-release
+             # segment.
+-            prospective = _version_split(str(prospective))
++            split_prospective = _version_split(str(prospective))
+ 
+             # Shorten the prospective version to be the same length as the spec
+             # so that we can determine if the specifier is a prefix of the
+             # prospective version or not.
+-            prospective = prospective[: len(spec)]
++            shortened_prospective = split_prospective[: len(split_spec)]
+ 
+             # Pad out our two sides with zeros so that they both equal the same
+             # length.
+-            spec, prospective = _pad_version(spec, prospective)
++            padded_spec, padded_prospective = _pad_version(
++                split_spec, shortened_prospective
++            )
++
++            return padded_prospective == padded_spec
+         else:
+             # Convert our spec string into a Version
+-            spec = Version(spec)
++            spec_version = Version(spec)
+ 
+             # If the specifier does not have a local segment, then we want to
+             # act as if the prospective version also does not have a local
+             # segment.
+-            if not spec.local:
++            if not spec_version.local:
+                 prospective = Version(prospective.public)
+ 
+-        return prospective == spec
++            return prospective == spec_version
+ 
+     @_require_version_compare
+     def _compare_not_equal(self, prospective, spec):
++        # type: (ParsedVersion, str) -> bool
+         return not self._compare_equal(prospective, spec)
+ 
+     @_require_version_compare
+     def _compare_less_than_equal(self, prospective, spec):
++        # type: (ParsedVersion, str) -> bool
+         return prospective <= Version(spec)
+ 
+     @_require_version_compare
+     def _compare_greater_than_equal(self, prospective, spec):
++        # type: (ParsedVersion, str) -> bool
+         return prospective >= Version(spec)
+ 
+     @_require_version_compare
+-    def _compare_less_than(self, prospective, spec):
++    def _compare_less_than(self, prospective, spec_str):
++        # type: (ParsedVersion, str) -> bool
++
+         # Convert our spec to a Version instance, since we'll want to work with
+         # it as a version.
+-        spec = Version(spec)
++        spec = Version(spec_str)
+ 
+         # Check to see if the prospective version is less than the spec
+         # version. If it's not we can short circuit and just return False now
+@@ -471,10 +545,12 @@ class Specifier(_IndividualSpecifier):
+         return True
+ 
+     @_require_version_compare
+-    def _compare_greater_than(self, prospective, spec):
++    def _compare_greater_than(self, prospective, spec_str):
++        # type: (ParsedVersion, str) -> bool
++
+         # Convert our spec to a Version instance, since we'll want to work with
+         # it as a version.
+-        spec = Version(spec)
++        spec = Version(spec_str)
+ 
+         # Check to see if the prospective version is greater than the spec
+         # version. If it's not we can short circuit and just return False now
+@@ -502,10 +578,13 @@ class Specifier(_IndividualSpecifier):
+         return True
+ 
+     def _compare_arbitrary(self, prospective, spec):
++        # type: (Version, str) -> bool
+         return str(prospective).lower() == str(spec).lower()
+ 
+     @property
+     def prereleases(self):
++        # type: () -> bool
++
+         # If there is an explicit prereleases set for this, then we'll just
+         # blindly use that.
+         if self._prereleases is not None:
+@@ -530,6 +609,7 @@ class Specifier(_IndividualSpecifier):
+ 
+     @prereleases.setter
+     def prereleases(self, value):
++        # type: (bool) -> None
+         self._prereleases = value
+ 
+ 
+@@ -537,7 +617,8 @@ _prefix_regex = re.compile(r"^([0-9]+)((?:a|b|c|rc)[0-9]+)$")
+ 
+ 
+ def _version_split(version):
+-    result = []
++    # type: (str) -> List[str]
++    result = []  # type: List[str]
+     for item in version.split("."):
+         match = _prefix_regex.search(item)
+         if match:
+@@ -548,6 +629,7 @@ def _version_split(version):
+ 
+ 
+ def _pad_version(left, right):
++    # type: (List[str], List[str]) -> Tuple[List[str], List[str]]
+     left_split, right_split = [], []
+ 
+     # Get the release segment of our versions
+@@ -567,14 +649,16 @@ def _pad_version(left, right):
+ 
+ class SpecifierSet(BaseSpecifier):
+     def __init__(self, specifiers="", prereleases=None):
++        # type: (str, Optional[bool]) -> None
++
+         # Split on , to break each indidivual specifier into it's own item, and
+         # strip each item to remove leading/trailing whitespace.
+-        specifiers = [s.strip() for s in specifiers.split(",") if s.strip()]
++        split_specifiers = [s.strip() for s in specifiers.split(",") if s.strip()]
+ 
+         # Parsed each individual specifier, attempting first to make it a
+         # Specifier and falling back to a LegacySpecifier.
+         parsed = set()
+-        for specifier in specifiers:
++        for specifier in split_specifiers:
+             try:
+                 parsed.add(Specifier(specifier))
+             except InvalidSpecifier:
+@@ -588,6 +672,7 @@ class SpecifierSet(BaseSpecifier):
+         self._prereleases = prereleases
+ 
+     def __repr__(self):
++        # type: () -> str
+         pre = (
+             ", prereleases={0!r}".format(self.prereleases)
+             if self._prereleases is not None
+@@ -597,12 +682,15 @@ class SpecifierSet(BaseSpecifier):
+         return "<SpecifierSet({0!r}{1})>".format(str(self), pre)
+ 
+     def __str__(self):
++        # type: () -> str
+         return ",".join(sorted(str(s) for s in self._specs))
+ 
+     def __hash__(self):
++        # type: () -> int
+         return hash(self._specs)
+ 
+     def __and__(self, other):
++        # type: (Union[SpecifierSet, str]) -> SpecifierSet
+         if isinstance(other, string_types):
+             other = SpecifierSet(other)
+         elif not isinstance(other, SpecifierSet):
+@@ -626,9 +714,8 @@ class SpecifierSet(BaseSpecifier):
+         return specifier
+ 
+     def __eq__(self, other):
+-        if isinstance(other, string_types):
+-            other = SpecifierSet(other)
+-        elif isinstance(other, _IndividualSpecifier):
++        # type: (object) -> bool
++        if isinstance(other, (string_types, _IndividualSpecifier)):
+             other = SpecifierSet(str(other))
+         elif not isinstance(other, SpecifierSet):
+             return NotImplemented
+@@ -636,9 +723,8 @@ class SpecifierSet(BaseSpecifier):
+         return self._specs == other._specs
+ 
+     def __ne__(self, other):
+-        if isinstance(other, string_types):
+-            other = SpecifierSet(other)
+-        elif isinstance(other, _IndividualSpecifier):
++        # type: (object) -> bool
++        if isinstance(other, (string_types, _IndividualSpecifier)):
+             other = SpecifierSet(str(other))
+         elif not isinstance(other, SpecifierSet):
+             return NotImplemented
+@@ -646,13 +732,17 @@ class SpecifierSet(BaseSpecifier):
+         return self._specs != other._specs
+ 
+     def __len__(self):
++        # type: () -> int
+         return len(self._specs)
+ 
+     def __iter__(self):
++        # type: () -> Iterator[FrozenSet[_IndividualSpecifier]]
+         return iter(self._specs)
+ 
+     @property
+     def prereleases(self):
++        # type: () -> Optional[bool]
++
+         # If we have been given an explicit prerelease modifier, then we'll
+         # pass that through here.
+         if self._prereleases is not None:
+@@ -670,12 +760,16 @@ class SpecifierSet(BaseSpecifier):
+ 
+     @prereleases.setter
+     def prereleases(self, value):
++        # type: (bool) -> None
+         self._prereleases = value
+ 
+     def __contains__(self, item):
++        # type: (Union[ParsedVersion, str]) -> bool
+         return self.contains(item)
+ 
+     def contains(self, item, prereleases=None):
++        # type: (Union[ParsedVersion, str], Optional[bool]) -> bool
++
+         # Ensure that our item is a Version or LegacyVersion instance.
+         if not isinstance(item, (LegacyVersion, Version)):
+             item = parse(item)
+@@ -701,7 +795,13 @@ class SpecifierSet(BaseSpecifier):
+         #       will always return True, this is an explicit design decision.
+         return all(s.contains(item, prereleases=prereleases) for s in self._specs)
+ 
+-    def filter(self, iterable, prereleases=None):
++    def filter(
++        self,
++        iterable,  # type: Iterable[Union[ParsedVersion, str]]
++        prereleases=None,  # type: Optional[bool]
++    ):
++        # type: (...) -> Iterable[Union[ParsedVersion, str]]
++
+         # Determine if we're forcing a prerelease or not, if we're not forcing
+         # one for this particular filter call, then we'll use whatever the
+         # SpecifierSet thinks for whether or not we should support prereleases.
+@@ -719,8 +819,8 @@ class SpecifierSet(BaseSpecifier):
+         # which will filter out any pre-releases, unless there are no final
+         # releases, and which will filter out LegacyVersion in general.
+         else:
+-            filtered = []
+-            found_prereleases = []
++            filtered = []  # type: List[Union[ParsedVersion, str]]
++            found_prereleases = []  # type: List[Union[ParsedVersion, str]]
+ 
+             for item in iterable:
+                 # Ensure that we some kind of Version class for this item.
+diff --git a/packaging/tags.py b/packaging/tags.py
+index ec9942f..ce8bce6 100644
+--- a/packaging/tags.py
++++ b/packaging/tags.py
+@@ -19,6 +19,15 @@ import sys
+ import sysconfig
+ import warnings
+ 
++from ._typing import MYPY_CHECK_RUNNING, cast
++
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import Dict, FrozenSet, Iterable, Iterator, List, Optional, Tuple
++
++    PythonVersion = Tuple[int, int]
++    MacVersion = Tuple[int, int]
++    GlibcVersion = Tuple[int, int]
++
+ 
+ INTERPRETER_SHORT_NAMES = {
+     "python": "py",  # Generic.
+@@ -26,7 +35,7 @@ INTERPRETER_SHORT_NAMES = {
+     "pypy": "pp",
+     "ironpython": "ip",
+     "jython": "jy",
+-}
++}  # type: Dict[str, str]
+ 
+ 
+ _32_BIT_INTERPRETER = sys.maxsize <= 2 ** 32
+@@ -37,23 +46,31 @@ class Tag(object):
+     __slots__ = ["_interpreter", "_abi", "_platform"]
+ 
+     def __init__(self, interpreter, abi, platform):
++        # type: (str, str, str) -> None
+         self._interpreter = interpreter.lower()
+         self._abi = abi.lower()
+         self._platform = platform.lower()
+ 
+     @property
+     def interpreter(self):
++        # type: () -> str
+         return self._interpreter
+ 
+     @property
+     def abi(self):
++        # type: () -> str
+         return self._abi
+ 
+     @property
+     def platform(self):
++        # type: () -> str
+         return self._platform
+ 
+     def __eq__(self, other):
++        # type: (object) -> bool
++        if not isinstance(other, Tag):
++            return NotImplemented
++
+         return (
+             (self.platform == other.platform)
+             and (self.abi == other.abi)
+@@ -61,16 +78,20 @@ class Tag(object):
+         )
+ 
+     def __hash__(self):
++        # type: () -> int
+         return hash((self._interpreter, self._abi, self._platform))
+ 
+     def __str__(self):
++        # type: () -> str
+         return "{}-{}-{}".format(self._interpreter, self._abi, self._platform)
+ 
+     def __repr__(self):
++        # type: () -> str
+         return "<{self} @ {self_id}>".format(self=self, self_id=id(self))
+ 
+ 
+ def parse_tag(tag):
++    # type: (str) -> FrozenSet[Tag]
+     tags = set()
+     interpreters, abis, platforms = tag.split("-")
+     for interpreter in interpreters.split("."):
+@@ -81,15 +102,18 @@ def parse_tag(tag):
+ 
+ 
+ def _normalize_string(string):
++    # type: (str) -> str
+     return string.replace(".", "_").replace("-", "_")
+ 
+ 
+ def _cpython_interpreter(py_version):
++    # type: (PythonVersion) -> str
+     # TODO: Is using py_version_nodot for interpreter version critical?
+     return "cp{major}{minor}".format(major=py_version[0], minor=py_version[1])
+ 
+ 
+ def _cpython_abis(py_version):
++    # type: (PythonVersion) -> List[str]
+     abis = []
+     version = "{}{}".format(*py_version[:2])
+     debug = pymalloc = ucs4 = ""
+@@ -125,6 +149,7 @@ def _cpython_abis(py_version):
+ 
+ 
+ def _cpython_tags(py_version, interpreter, abis, platforms):
++    # type: (PythonVersion, str, Iterable[str], Iterable[str]) -> Iterator[Tag]
+     for abi in abis:
+         for platform_ in platforms:
+             yield Tag(interpreter, abi, platform_)
+@@ -142,6 +167,7 @@ def _cpython_tags(py_version, interpreter, abis, platforms):
+ 
+ 
+ def _pypy_interpreter():
++    # type: () -> str
+     return "pp{py_major}{pypy_major}{pypy_minor}".format(
+         py_major=sys.version_info[0],
+         pypy_major=sys.pypy_version_info.major,
+@@ -150,6 +176,7 @@ def _pypy_interpreter():
+ 
+ 
+ def _generic_abi():
++    # type: () -> str
+     abi = sysconfig.get_config_var("SOABI")
+     if abi:
+         return _normalize_string(abi)
+@@ -158,6 +185,7 @@ def _generic_abi():
+ 
+ 
+ def _pypy_tags(py_version, interpreter, abi, platforms):
++    # type: (PythonVersion, str, str, Iterable[str]) -> Iterator[Tag]
+     for tag in (Tag(interpreter, abi, platform) for platform in platforms):
+         yield tag
+     for tag in (Tag(interpreter, "none", platform) for platform in platforms):
+@@ -165,6 +193,7 @@ def _pypy_tags(py_version, interpreter, abi, platforms):
+ 
+ 
+ def _generic_tags(interpreter, py_version, abi, platforms):
++    # type: (str, PythonVersion, str, Iterable[str]) -> Iterator[Tag]
+     for tag in (Tag(interpreter, abi, platform) for platform in platforms):
+         yield tag
+     if abi != "none":
+@@ -174,6 +203,7 @@ def _generic_tags(interpreter, py_version, abi, platforms):
+ 
+ 
+ def _py_interpreter_range(py_version):
++    # type: (PythonVersion) -> Iterator[str]
+     """
+     Yield Python versions in descending order.
+ 
+@@ -187,6 +217,7 @@ def _py_interpreter_range(py_version):
+ 
+ 
+ def _independent_tags(interpreter, py_version, platforms):
++    # type: (str, PythonVersion, Iterable[str]) -> Iterator[Tag]
+     """
+     Return the sequence of tags that are consistent across implementations.
+ 
+@@ -204,6 +235,7 @@ def _independent_tags(interpreter, py_version, platforms):
+ 
+ 
+ def _mac_arch(arch, is_32bit=_32_BIT_INTERPRETER):
++    # type: (str, bool) -> str
+     if not is_32bit:
+         return arch
+ 
+@@ -214,6 +246,7 @@ def _mac_arch(arch, is_32bit=_32_BIT_INTERPRETER):
+ 
+ 
+ def _mac_binary_formats(version, cpu_arch):
++    # type: (MacVersion, str) -> List[str]
+     formats = [cpu_arch]
+     if cpu_arch == "x86_64":
+         if version < (10, 4):
+@@ -240,12 +273,20 @@ def _mac_binary_formats(version, cpu_arch):
+     return formats
+ 
+ 
+-def _mac_platforms(version=None, arch=None):
+-    version_str, _, cpu_arch = platform.mac_ver()
++def _mac_platforms(
++    version=None,  # type: Optional[MacVersion]
++    arch=None,  # type: Optional[str]
++):
++    # type: (...) -> List[str]
++    version_str, _, cpu_arch = platform.mac_ver()  # type: ignore
+     if version is None:
+-        version = tuple(map(int, version_str.split(".")[:2]))
++        version = cast("MacVersion", tuple(map(int, version_str.split(".")[:2])))
++    else:
++        version = version
+     if arch is None:
+         arch = _mac_arch(cpu_arch)
++    else:
++        arch = arch
+     platforms = []
+     for minor_version in range(version[1], -1, -1):
+         compat_version = version[0], minor_version
+@@ -263,6 +304,7 @@ def _mac_platforms(version=None, arch=None):
+ 
+ # From PEP 513.
+ def _is_manylinux_compatible(name, glibc_version):
++    # type: (str, GlibcVersion) -> bool
+     # Check for presence of _manylinux module.
+     try:
+         import _manylinux
+@@ -276,6 +318,7 @@ def _is_manylinux_compatible(name, glibc_version):
+ 
+ 
+ def _glibc_version_string():
++    # type: () -> Optional[str]
+     # Returns glibc version string, or None if not using glibc.
+     import ctypes
+ 
+@@ -283,7 +326,9 @@ def _glibc_version_string():
+     # manpage says, "If filename is NULL, then the returned handle is for the
+     # main program". This way we can let the linker do the work to figure out
+     # which libc our process is actually using.
+-    process_namespace = ctypes.CDLL(None)
++    #
++    # Note: typeshed is wrong here so we are ignoring this line.
++    process_namespace = ctypes.CDLL(None)  # type: ignore
+     try:
+         gnu_get_libc_version = process_namespace.gnu_get_libc_version
+     except AttributeError:
+@@ -293,7 +338,7 @@ def _glibc_version_string():
+ 
+     # Call gnu_get_libc_version, which returns a string like "2.5"
+     gnu_get_libc_version.restype = ctypes.c_char_p
+-    version_str = gnu_get_libc_version()
++    version_str = gnu_get_libc_version()  # type: str
+     # py2 / py3 compatibility:
+     if not isinstance(version_str, str):
+         version_str = version_str.decode("ascii")
+@@ -303,6 +348,7 @@ def _glibc_version_string():
+ 
+ # Separated out from have_compatible_glibc for easier unit testing.
+ def _check_glibc_version(version_str, required_major, minimum_minor):
++    # type: (str, int, int) -> bool
+     # Parse string and check against requested version.
+     #
+     # We use a regexp instead of str.split because we want to discard any
+@@ -324,6 +370,7 @@ def _check_glibc_version(version_str, required_major, minimum_minor):
+ 
+ 
+ def _have_compatible_glibc(required_major, minimum_minor):
++    # type: (int, int) -> bool
+     version_str = _glibc_version_string()
+     if version_str is None:
+         return False
+@@ -331,6 +378,7 @@ def _have_compatible_glibc(required_major, minimum_minor):
+ 
+ 
+ def _linux_platforms(is_32bit=_32_BIT_INTERPRETER):
++    # type: (bool) -> List[str]
+     linux = _normalize_string(distutils.util.get_platform())
+     if linux == "linux_x86_64" and is_32bit:
+         linux = "linux_i686"
+@@ -353,16 +401,19 @@ def _linux_platforms(is_32bit=_32_BIT_INTERPRETER):
+ 
+ 
+ def _generic_platforms():
++    # type: () -> List[str]
+     platform = _normalize_string(distutils.util.get_platform())
+     return [platform]
+ 
+ 
+ def _interpreter_name():
++    # type: () -> str
+     name = platform.python_implementation().lower()
+     return INTERPRETER_SHORT_NAMES.get(name) or name
+ 
+ 
+ def _generic_interpreter(name, py_version):
++    # type: (str, PythonVersion) -> str
+     version = sysconfig.get_config_var("py_version_nodot")
+     if not version:
+         version = "".join(map(str, py_version[:2]))
+@@ -370,6 +421,7 @@ def _generic_interpreter(name, py_version):
+ 
+ 
+ def sys_tags():
++    # type: () -> Iterator[Tag]
+     """
+     Returns the sequence of tag triples for the running interpreter.
+ 
+diff --git a/packaging/utils.py b/packaging/utils.py
+index 8841878..0bf8052 100644
+--- a/packaging/utils.py
++++ b/packaging/utils.py
+@@ -5,28 +5,36 @@ from __future__ import absolute_import, division, print_function
+ 
+ import re
+ 
++from ._typing import MYPY_CHECK_RUNNING
+ from .version import InvalidVersion, Version
+ 
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import Union
+ 
+ _canonicalize_regex = re.compile(r"[-_.]+")
+ 
+ 
+ def canonicalize_name(name):
++    # type: (str) -> str
+     # This is taken from PEP 503.
+     return _canonicalize_regex.sub("-", name).lower()
+ 
+ 
+-def canonicalize_version(version):
++def canonicalize_version(_version, strip_trailing_zero=True):
++    # type: (Union[Version, str], bool) -> str
+     """
+     This is very similar to Version.__str__, but has one subtle differences
+     with the way it handles the release segment.
+     """
+ 
+-    try:
+-        version = Version(version)
+-    except InvalidVersion:
+-        # Legacy versions cannot be normalized
+-        return version
++    if isinstance(_version, Version):
++        version = _version
++    else:
++        try:
++            version = Version(_version)
++        except InvalidVersion:
++            # Legacy versions cannot be normalized
++            return _version
+ 
+     parts = []
+ 
+@@ -36,7 +44,8 @@ def canonicalize_version(version):
+ 
+     # Release segment
+     # NB: This strips trailing '.0's to normalize
+-    parts.append(re.sub(r"(\.0)+$", "", ".".join(str(x) for x in version.release)))
++    release = ".".join(str(x) for x in version.release)
++    parts.append(re.sub(r"(\.0)+$", "", release) if strip_trailing_zero else release)
+ 
+     # Pre-release
+     if version.pre is not None:
+diff --git a/packaging/version.py b/packaging/version.py
+index 95157a1..b1aff65 100644
+--- a/packaging/version.py
++++ b/packaging/version.py
+@@ -7,8 +7,35 @@ import collections
+ import itertools
+ import re
+ 
+-from ._structures import Infinity
+-
++from ._structures import Infinity, NegativeInfinity
++from ._typing import MYPY_CHECK_RUNNING
++
++if MYPY_CHECK_RUNNING:  # pragma: no cover
++    from typing import Callable, Iterator, List, Optional, SupportsInt, Tuple, Union
++
++    from ._structures import InfinityType, NegativeInfinityType
++
++    InfiniteTypes = Union[InfinityType, NegativeInfinityType]
++    PrePostDevType = Union[InfiniteTypes, Tuple[str, int]]
++    SubLocalType = Union[InfiniteTypes, int, str]
++    LocalType = Union[
++        NegativeInfinityType,
++        Tuple[
++            Union[
++                SubLocalType,
++                Tuple[SubLocalType, str],
++                Tuple[NegativeInfinityType, SubLocalType],
++            ],
++            ...,
++        ],
++    ]
++    CmpKey = Tuple[
++        int, Tuple[int, ...], PrePostDevType, PrePostDevType, PrePostDevType, LocalType
++    ]
++    LegacyCmpKey = Tuple[int, Tuple[str, ...]]
++    VersionComparisonMethod = Callable[
++        [Union[CmpKey, LegacyCmpKey], Union[CmpKey, LegacyCmpKey]], bool
++    ]
+ 
+ __all__ = ["parse", "Version", "LegacyVersion", "InvalidVersion", "VERSION_PATTERN"]
+ 
+@@ -19,6 +46,7 @@ _Version = collections.namedtuple(
+ 
+ 
+ def parse(version):
++    # type: (str) -> Union[LegacyVersion, Version]
+     """
+     Parse the given version string and return either a :class:`Version` object
+     or a :class:`LegacyVersion` object depending on if the given version is
+@@ -37,28 +65,38 @@ class InvalidVersion(ValueError):
+ 
+ 
+ class _BaseVersion(object):
++    _key = None  # type: Union[CmpKey, LegacyCmpKey]
++
+     def __hash__(self):
++        # type: () -> int
+         return hash(self._key)
+ 
+     def __lt__(self, other):
++        # type: (_BaseVersion) -> bool
+         return self._compare(other, lambda s, o: s < o)
+ 
+     def __le__(self, other):
++        # type: (_BaseVersion) -> bool
+         return self._compare(other, lambda s, o: s <= o)
+ 
+     def __eq__(self, other):
++        # type: (object) -> bool
+         return self._compare(other, lambda s, o: s == o)
+ 
+     def __ge__(self, other):
++        # type: (_BaseVersion) -> bool
+         return self._compare(other, lambda s, o: s >= o)
+ 
+     def __gt__(self, other):
++        # type: (_BaseVersion) -> bool
+         return self._compare(other, lambda s, o: s > o)
+ 
+     def __ne__(self, other):
++        # type: (object) -> bool
+         return self._compare(other, lambda s, o: s != o)
+ 
+     def _compare(self, other, method):
++        # type: (object, VersionComparisonMethod) -> Union[bool, NotImplemented]
+         if not isinstance(other, _BaseVersion):
+             return NotImplemented
+ 
+@@ -67,57 +105,71 @@ class _BaseVersion(object):
+ 
+ class LegacyVersion(_BaseVersion):
+     def __init__(self, version):
++        # type: (str) -> None
+         self._version = str(version)
+         self._key = _legacy_cmpkey(self._version)
+ 
+     def __str__(self):
++        # type: () -> str
+         return self._version
+ 
+     def __repr__(self):
++        # type: () -> str
+         return "<LegacyVersion({0})>".format(repr(str(self)))
+ 
+     @property
+     def public(self):
++        # type: () -> str
+         return self._version
+ 
+     @property
+     def base_version(self):
++        # type: () -> str
+         return self._version
+ 
+     @property
+     def epoch(self):
++        # type: () -> int
+         return -1
+ 
+     @property
+     def release(self):
++        # type: () -> None
+         return None
+ 
+     @property
+     def pre(self):
++        # type: () -> None
+         return None
+ 
+     @property
+     def post(self):
++        # type: () -> None
+         return None
+ 
+     @property
+     def dev(self):
++        # type: () -> None
+         return None
+ 
+     @property
+     def local(self):
++        # type: () -> None
+         return None
+ 
+     @property
+     def is_prerelease(self):
++        # type: () -> bool
+         return False
+ 
+     @property
+     def is_postrelease(self):
++        # type: () -> bool
+         return False
+ 
+     @property
+     def is_devrelease(self):
++        # type: () -> bool
+         return False
+ 
+ 
+@@ -133,6 +185,7 @@ _legacy_version_replacement_map = {
+ 
+ 
+ def _parse_version_parts(s):
++    # type: (str) -> Iterator[str]
+     for part in _legacy_version_component_re.split(s):
+         part = _legacy_version_replacement_map.get(part, part)
+ 
+@@ -150,6 +203,8 @@ def _parse_version_parts(s):
+ 
+ 
+ def _legacy_cmpkey(version):
++    # type: (str) -> LegacyCmpKey
++
+     # We hardcode an epoch of -1 here. A PEP 440 version can only have a epoch
+     # greater than or equal to 0. This will effectively put the LegacyVersion,
+     # which uses the defacto standard originally implemented by setuptools,
+@@ -158,7 +213,7 @@ def _legacy_cmpkey(version):
+ 
+     # This scheme is taken from pkg_resources.parse_version setuptools prior to
+     # it's adoption of the packaging library.
+-    parts = []
++    parts = []  # type: List[str]
+     for part in _parse_version_parts(version.lower()):
+         if part.startswith("*"):
+             # remove "-" before a prerelease tag
+@@ -171,9 +226,8 @@ def _legacy_cmpkey(version):
+                 parts.pop()
+ 
+         parts.append(part)
+-    parts = tuple(parts)
+ 
+-    return epoch, parts
++    return epoch, tuple(parts)
+ 
+ 
+ # Deliberately not anchored to the start and end of the string, to make it
+@@ -215,6 +269,8 @@ class Version(_BaseVersion):
+     _regex = re.compile(r"^\s*" + VERSION_PATTERN + r"\s*$", re.VERBOSE | re.IGNORECASE)
+ 
+     def __init__(self, version):
++        # type: (str) -> None
++
+         # Validate the version and parse it into pieces
+         match = self._regex.search(version)
+         if not match:
+@@ -243,9 +299,11 @@ class Version(_BaseVersion):
+         )
+ 
+     def __repr__(self):
++        # type: () -> str
+         return "<Version({0})>".format(repr(str(self)))
+ 
+     def __str__(self):
++        # type: () -> str
+         parts = []
+ 
+         # Epoch
+@@ -275,26 +333,35 @@ class Version(_BaseVersion):
+ 
+     @property
+     def epoch(self):
+-        return self._version.epoch
++        # type: () -> int
++        _epoch = self._version.epoch  # type: int
++        return _epoch
+ 
+     @property
+     def release(self):
+-        return self._version.release
++        # type: () -> Tuple[int, ...]
++        _release = self._version.release  # type: Tuple[int, ...]
++        return _release
+ 
+     @property
+     def pre(self):
+-        return self._version.pre
++        # type: () -> Optional[Tuple[str, int]]
++        _pre = self._version.pre  # type: Optional[Tuple[str, int]]
++        return _pre
+ 
+     @property
+     def post(self):
++        # type: () -> Optional[Tuple[str, int]]
+         return self._version.post[1] if self._version.post else None
+ 
+     @property
+     def dev(self):
++        # type: () -> Optional[Tuple[str, int]]
+         return self._version.dev[1] if self._version.dev else None
+ 
+     @property
+     def local(self):
++        # type: () -> Optional[str]
+         if self._version.local:
+             return ".".join(str(x) for x in self._version.local)
+         else:
+@@ -302,10 +369,12 @@ class Version(_BaseVersion):
+ 
+     @property
+     def public(self):
++        # type: () -> str
+         return str(self).split("+", 1)[0]
+ 
+     @property
+     def base_version(self):
++        # type: () -> str
+         parts = []
+ 
+         # Epoch
+@@ -319,18 +388,26 @@ class Version(_BaseVersion):
+ 
+     @property
+     def is_prerelease(self):
++        # type: () -> bool
+         return self.dev is not None or self.pre is not None
+ 
+     @property
+     def is_postrelease(self):
++        # type: () -> bool
+         return self.post is not None
+ 
+     @property
+     def is_devrelease(self):
++        # type: () -> bool
+         return self.dev is not None
+ 
+ 
+-def _parse_letter_version(letter, number):
++def _parse_letter_version(
++    letter,  # type: str
++    number,  # type: Union[str, bytes, SupportsInt]
++):
++    # type: (...) -> Optional[Tuple[str, int]]
++
+     if letter:
+         # We consider there to be an implicit 0 in a pre-release if there is
+         # not a numeral associated with it.
+@@ -360,11 +437,14 @@ def _parse_letter_version(letter, number):
+ 
+         return letter, int(number)
+ 
++    return None
++
+ 
+ _local_version_separators = re.compile(r"[\._-]")
+ 
+ 
+ def _parse_local_version(local):
++    # type: (str) -> Optional[LocalType]
+     """
+     Takes a string like abc.1.twelve and turns it into ("abc", 1, "twelve").
+     """
+@@ -373,15 +453,25 @@ def _parse_local_version(local):
+             part.lower() if not part.isdigit() else int(part)
+             for part in _local_version_separators.split(local)
+         )
++    return None
++
+ 
++def _cmpkey(
++    epoch,  # type: int
++    release,  # type: Tuple[int, ...]
++    pre,  # type: Optional[Tuple[str, int]]
++    post,  # type: Optional[Tuple[str, int]]
++    dev,  # type: Optional[Tuple[str, int]]
++    local,  # type: Optional[Tuple[SubLocalType]]
++):
++    # type: (...) -> CmpKey
+ 
+-def _cmpkey(epoch, release, pre, post, dev, local):
+     # When we compare a release version, we want to compare it with all of the
+     # trailing zeros removed. So we'll use a reverse the list, drop all the now
+     # leading zeros until we come to something non zero, then take the rest
+     # re-reverse it back into the correct order and make it a tuple and use
+     # that for our sorting key.
+-    release = tuple(
++    _release = tuple(
+         reversed(list(itertools.dropwhile(lambda x: x == 0, reversed(release))))
+     )
+ 
+@@ -390,23 +480,31 @@ def _cmpkey(epoch, release, pre, post, dev, local):
+     # if there is not a pre or a post segment. If we have one of those then
+     # the normal sorting rules will handle this case correctly.
+     if pre is None and post is None and dev is not None:
+-        pre = -Infinity
++        _pre = NegativeInfinity  # type: PrePostDevType
+     # Versions without a pre-release (except as noted above) should sort after
+     # those with one.
+     elif pre is None:
+-        pre = Infinity
++        _pre = Infinity
++    else:
++        _pre = pre
+ 
+     # Versions without a post segment should sort before those with one.
+     if post is None:
+-        post = -Infinity
++        _post = NegativeInfinity  # type: PrePostDevType
++
++    else:
++        _post = post
+ 
+     # Versions without a development segment should sort after those with one.
+     if dev is None:
+-        dev = Infinity
++        _dev = Infinity  # type: PrePostDevType
++
++    else:
++        _dev = dev
+ 
+     if local is None:
+         # Versions without a local segment should sort before those with one.
+-        local = -Infinity
++        _local = NegativeInfinity  # type: LocalType
+     else:
+         # Versions with a local segment need that segment parsed to implement
+         # the sorting rules in PEP440.
+@@ -415,6 +513,8 @@ def _cmpkey(epoch, release, pre, post, dev, local):
+         # - Numeric segments sort numerically
+         # - Shorter versions sort before longer versions when the prefixes
+         #   match exactly
+-        local = tuple((i, "") if isinstance(i, int) else (-Infinity, i) for i in local)
++        _local = tuple(
++            (i, "") if isinstance(i, int) else (NegativeInfinity, i) for i in local
++        )
+ 
+-    return epoch, release, pre, post, dev, local
++    return epoch, _release, _pre, _post, _dev, _local
+diff --git a/setup.cfg b/setup.cfg
+index 3c6e79c..c67cd22 100644
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -1,2 +1,23 @@
+ [bdist_wheel]
+ universal=1
++
++[mypy]
++ignore_missing_imports = True
++
++# The following are the flags enabled by --strict
++#
++# Note: warn_unused_ignores is False due to incorrect typeshed annotations for
++# platform.mac_ver()
++warn_unused_configs = True
++disallow_subclassing_any = True
++disallow_any_generics = True
++disallow_untyped_calls = True
++disallow_untyped_defs = True
++disallow_incomplete_defs = True
++check_untyped_defs = True
++disallow_untyped_decorators = True
++no_implicit_optional = True
++warn_redundant_casts = True
++warn_unused_ignores = False
++warn_return_any = True
++no_implicit_reexport = True
+diff --git a/tox.ini b/tox.ini
+index e5fc0d4..6ce3cf9 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -29,6 +29,14 @@ commands =
+     sphinx-build -W -b latex -d {envtmpdir}/doctrees docs docs/_build/latex
+     sphinx-build -W -b doctest -d {envtmpdir}/doctrees docs docs/_build/html
+ 
++[testenv:mypy]
++basepython = python3
++deps =
++    mypy
++commands =
++    mypy packaging
++    mypy packaging --py2
++
+ [testenv:lint]
+ basepython = python3
+ deps =

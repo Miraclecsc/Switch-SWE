@@ -1,0 +1,3 @@
+Please check this too: I don't think "that method:" needs to be specified here, see how error messages are written in this file and rewrite this.
+
+Support explicitly supplied Symbol or string coordinate placeholders in equation_with_symbols. Return supplied Symbols unchanged; convert strings to real Symbols. Validate all explicit names before generating omitted coordinates: reject names clashing with plane parameter names or another explicit coordinate, even if Symbols with the same name have different assumptions. Reject non-symbol/non-string placeholders with TypeError. Defaults must avoid explicit names too, and repeated calls must not mutate the plane or its free symbols.

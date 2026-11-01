@@ -1,0 +1,1 @@
+Please check this too: Evaluate whether to close this and Or, open an issue. It seems to me that at least the docstring should be clarified th.at `rank(A) == Q.cols` is expected but not guaranteed.

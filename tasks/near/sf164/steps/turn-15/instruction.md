@@ -1,0 +1,1 @@
+Please check this too: I've opened an issue on `mypy` regarding a related issue: The thing is `mypy` will use a "join" operation, finding the common supertype between `type` and `Dict[str, Any]`, which resolves to `object`. Maybe we could use `Iterator[Union[type, Dict[str, Any]]]` while ignoring the error or using `cast`

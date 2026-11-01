@@ -1,0 +1,1 @@
+One more thing: Opinion: ruff not supporting custom plugins is kind of a big deal for a project like trio, where we try to test, lint, etc. to fix future problems. But I haven't used ruff myself so I may be wrong to focus on that.

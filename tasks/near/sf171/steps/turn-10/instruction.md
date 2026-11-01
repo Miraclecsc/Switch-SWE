@@ -1,0 +1,1 @@
+One more thing: Add an optional keyword-only return_period=False parameter to is_aperiodic. With the default preserve its boolean result. When True, return the greatest common divisor of directed cycle lengths in a strongly connected graph, so callers can diagnose periodic Markov chains.

@@ -1,0 +1,1 @@
+There's something to adjust in /work/w04: Sympy.solve now rewrites Max/Min functions as piecewise functions prior to solving.

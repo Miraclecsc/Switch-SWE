@@ -1,0 +1,1 @@
+One more thing: It looks like `Thing.item_set` isn't used in any of the test cases. Was there a specific reason for adding it.

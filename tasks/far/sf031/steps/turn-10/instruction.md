@@ -1,0 +1,1 @@
+One more thing: Update parametric_log_deriv_heu to handle trivial case where the inputs are rational This isn't handled by the heuristic (it fails the z in k* check), but is trivial to solve by setting z = 0, and it comes up in many integration problems.

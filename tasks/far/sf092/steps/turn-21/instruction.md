@@ -1,0 +1,1 @@
+Also, > Let's just keep accepting `inf` even if it's not documented or listed as a valid type, as a little backcompat thing? no reason to break existing code and it's not really any extra maintenance burden. Added warning for `inf` but still accepts it as of the compatibility update.

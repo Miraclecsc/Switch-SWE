@@ -1,0 +1,1 @@
+And here, `binrelpreds` contains the same variable in multiple places, e.g., `assumptions.cnf.to_NNF`. In particular, since `assumptions.common.binrelpreds` already exists, wouldn't it be better to reference that instead?

@@ -1,0 +1,1 @@
+In the checkout at /work/w03, Add attr.define/mutable/frozen Prepare for import attrs y'all! This is basically what we kinda agreed on in #408 and #487. I'm open to comments and suggestions. Also suggestions how to supply type stubs without a major copy/paste operation. 😳

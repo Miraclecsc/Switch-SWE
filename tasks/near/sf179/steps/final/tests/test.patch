@@ -1,0 +1,83 @@
+diff --git a/tests/test_markers.py b/tests/test_markers.py
+index e271ad64f..01e4aa6b3 100644
+--- a/tests/test_markers.py
++++ b/tests/test_markers.py
+@@ -112,7 +112,7 @@ def test_matches_expected_no_sys_implementation(self):
+             "platform_version": platform.version(),
+             "python_full_version": platform.python_version(),
+             "platform_python_implementation": platform.python_implementation(),
+-            "python_version": platform.python_version()[:3],
++            "python_version": ".".join(platform.python_version_tuple()[:2]),
+             "sys_platform": sys.platform,
+         }
+ 
+@@ -134,7 +134,7 @@ def test_matches_expected_deleted_sys_implementation(self, monkeypatch):
+             "platform_version": platform.version(),
+             "python_full_version": platform.python_version(),
+             "platform_python_implementation": platform.python_implementation(),
+-            "python_version": platform.python_version()[:3],
++            "python_version": ".".join(platform.python_version_tuple()[:2]),
+             "sys_platform": sys.platform,
+         }
+ 
+@@ -162,7 +162,7 @@ def test_matches_expected(self):
+             "platform_version": platform.version(),
+             "python_full_version": platform.python_version(),
+             "platform_python_implementation": platform.python_implementation(),
+-            "python_version": platform.python_version()[:3],
++            "python_version": ".".join(platform.python_version_tuple()[:2]),
+             "sys_platform": sys.platform,
+         }
+ 
+@@ -188,10 +188,22 @@ def test_monkeypatch_sys_implementation(self, monkeypatch):
+             "platform_version": platform.version(),
+             "python_full_version": platform.python_version(),
+             "platform_python_implementation": platform.python_implementation(),
+-            "python_version": platform.python_version()[:3],
++            "python_version": ".".join(platform.python_version_tuple()[:2]),
+             "sys_platform": sys.platform,
+         }
+ 
++    def test_multidigit_minor_version(self, monkeypatch):
++        version_info = (3, 10, 0, "final", 0)
++        monkeypatch.setattr(sys, "version_info", version_info, raising=False)
++
++        monkeypatch.setattr(platform, "python_version", lambda: "3.10.0", raising=False)
++        monkeypatch.setattr(
++            platform, "python_version_tuple", lambda: ("3", "10", "0"), raising=False
++        )
++
++        environment = default_environment()
++        assert environment["python_version"] == "3.10"
++
+     def tests_when_releaselevel_final(self):
+         v = FakeVersionInfo(3, 4, 2, "final", 0)
+         assert format_full_version(v) == "3.4.2"
+diff --git a/tests/test_sf179_staged.py b/tests/test_sf179_staged.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_sf179_staged.py
+@@ -0,0 +1,23 @@
++
++from packaging.markers import Marker
++
++def test_full_version_override_updates_short_version(monkeypatch):
++    import packaging.markers as markers
++    default = markers.default_environment()
++    default.update(python_version='3.9', python_full_version='3.9.1')
++    monkeypatch.setattr(markers, 'default_environment', lambda: dict(default))
++    for full, short in [('3.12.7', '3.12'), ('12.100.4rc1', '12.100')]:
++        override = {'python_full_version': full, 'os_name': 'posix'}
++        assert Marker('python_version == "' + short + '" and os_name == "posix"').evaluate(override)
++        assert override == {'python_full_version': full, 'os_name': 'posix'}
++    assert Marker('python_version == "3.9"').evaluate()
++
++def test_explicit_short_version_takes_precedence():
++    assert Marker('python_version == "3.8"').evaluate({'python_full_version': '3.12.1', 'python_version': '3.8'})
++
++def test_numerical_short_version_order(monkeypatch):
++    import packaging.markers as markers
++    default = markers.default_environment()
++    default.update(python_version='3.9', python_full_version='3.9.1')
++    monkeypatch.setattr(markers, 'default_environment', lambda: dict(default))
++    assert Marker('python_version >= "3.10" and python_version < "3.20"').evaluate({'python_full_version': '3.12.1'})

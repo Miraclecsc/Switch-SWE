@@ -1,0 +1,1 @@
+And here, looks like we always remove one pixel to the width if this is not forced to `False` ?

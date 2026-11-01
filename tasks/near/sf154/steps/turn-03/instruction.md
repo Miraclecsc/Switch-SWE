@@ -1,0 +1,3 @@
+Please check this too: Don't try the amend the release notes of an already published release. Add a new section for **UNRELEASED**.
+
+Extend the Python 3.12 that method API with optional keyword-only max_up: int | None = None. It limits the number of literal .. components in the returned lexical relative path, raising ValueError if exceeded. None leaves existing behavior unchanged; zero permits only paths without .. components. This is a lexical budget, not a symlink or filesystem safety guarantee.

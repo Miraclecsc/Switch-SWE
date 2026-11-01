@@ -1,0 +1,1 @@
+Please check this too: > I'll need a test for this, even just for checking with a static typechecker. And of course a changelog entry. Will do the changelog entry. As for the test, could you clarify what you're looking for? Obviously it passes the current type checker, are you wanting something like a test with `assert_type`?

@@ -1,0 +1,1 @@
+Also, I've just double-checked and if I see it correctly, the validator argument of fields uses `and_()` because that flattens other lists/ands.

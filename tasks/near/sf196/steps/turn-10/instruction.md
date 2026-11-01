@@ -1,0 +1,1 @@
+One more thing: This is disabling the default pytest unreasonable hook which would fail the test when the async generator is finalized because trio warns about it

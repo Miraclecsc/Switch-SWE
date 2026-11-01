@@ -1,0 +1,1 @@
+Please check this too: NP: I'm pretty sure you can do "text_area.text"

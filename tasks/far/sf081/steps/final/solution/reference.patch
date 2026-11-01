@@ -1,0 +1,126 @@
+diff --git a/packaging/tags.py b/packaging/tags.py
+index 3c5e11a..76cf962 100644
+--- a/packaging/tags.py
++++ b/packaging/tags.py
+@@ -158,11 +158,11 @@ def _abi3_applies(python_version):
+     return len(python_version) > 1 and tuple(python_version) >= (3, 2)
+ 
+ 
+-def _cpython_abis(py_version, warn=False):
++def _cpython_abis(py_version, warn=False, version_separator=None):
+     # type: (PythonVersion, bool) -> List[str]
+     py_version = tuple(py_version)  # To allow for version comparison.
+     abis = []
+-    version = "{}{}".format(*py_version[:2])
++    version = _version_nodot(py_version[:2], version_separator)
+     debug = pymalloc = ucs4 = ""
+     with_debug = _get_config_var("Py_DEBUG", warn)
+     has_refcount = hasattr(sys, "gettotalrefcount")
+@@ -217,18 +217,17 @@ def cpython_tags(
+     If 'abi3' or 'none' are specified in 'abis' then they will be yielded at
+     their normal position and not at the beginning.
+     """
++    version_separator = kwargs.pop("version_separator", None)
+     warn = _warn_keyword_parameter("cpython_tags", kwargs)
+     if not python_version:
+         python_version = sys.version_info[:2]
+ 
+-    if len(python_version) < 2:
+-        interpreter = "cp{}".format(python_version[0])
+-    else:
+-        interpreter = "cp{}{}".format(*python_version[:2])
++    interpreter = "cp{}".format(_version_nodot(python_version[:2], version_separator))
+ 
+     if abis is None:
+         if len(python_version) > 1:
+-            abis = _cpython_abis(python_version, warn)
++            abis = (_cpython_abis(python_version, warn) if version_separator is None
++                    else _cpython_abis(python_version, warn, version_separator))
+         else:
+             abis = []
+     abis = list(abis)
+@@ -252,8 +251,8 @@ def cpython_tags(
+     if _abi3_applies(python_version):
+         for minor_version in range(python_version[1] - 1, 1, -1):
+             for platform_ in platforms:
+-                interpreter = "cp{major}{minor}".format(
+-                    major=python_version[0], minor=minor_version
++                interpreter = "cp{version}".format(
++                    version=_version_nodot((python_version[0], minor_version), version_separator)
+                 )
+                 yield Tag(interpreter, "abi3", platform_)
+ 
+@@ -296,7 +295,7 @@ def generic_tags(
+             yield Tag(interpreter, abi, platform_)
+ 
+ 
+-def _py_interpreter_range(py_version):
++def _py_interpreter_range(py_version, version_separator=None):
+     # type: (PythonVersion) -> Iterator[str]
+     """
+     Yields Python versions in descending order.
+@@ -305,17 +304,18 @@ def _py_interpreter_range(py_version):
+     all previous versions of that major version.
+     """
+     if len(py_version) > 1:
+-        yield "py{major}{minor}".format(major=py_version[0], minor=py_version[1])
++        yield "py{version}".format(version=_version_nodot(py_version[:2], version_separator))
+     yield "py{major}".format(major=py_version[0])
+     if len(py_version) > 1:
+         for minor in range(py_version[1] - 1, -1, -1):
+-            yield "py{major}{minor}".format(major=py_version[0], minor=minor)
++            yield "py{version}".format(version=_version_nodot((py_version[0], minor), version_separator))
+ 
+ 
+ def compatible_tags(
+     python_version=None,  # type: Optional[PythonVersion]
+     interpreter=None,  # type: Optional[str]
+     platforms=None,  # type: Optional[Iterable[str]]
++    version_separator=None,
+ ):
+     # type: (...) -> Iterator[Tag]
+     """
+@@ -326,15 +326,16 @@ def compatible_tags(
+     - <interpreter>-none-any  # ... if `interpreter` is provided.
+     - py*-none-any
+     """
++    _version_nodot((), version_separator)
+     if not python_version:
+         python_version = sys.version_info[:2]
+     platforms = list(platforms or _platform_tags())
+-    for version in _py_interpreter_range(python_version):
++    for version in _py_interpreter_range(python_version, version_separator):
+         for platform_ in platforms:
+             yield Tag(version, "none", platform_)
+     if interpreter:
+         yield Tag(interpreter, "none", "any")
+-    for version in _py_interpreter_range(python_version):
++    for version in _py_interpreter_range(python_version, version_separator):
+         yield Tag(version, "none", "any")
+ 
+ 
+@@ -707,10 +708,23 @@ def interpreter_version(**kwargs):
+     if version:
+         version = str(version)
+     else:
+-        version = "".join(map(str, sys.version_info[:2]))
++        version = _version_nodot(sys.version_info[:2])
+     return version
+ 
+ 
++def _version_nodot(version, version_separator=None):
++    # type: (PythonVersion) -> str
++    if version_separator not in (None, "", "_"):
++        raise ValueError("version_separator must be None, empty, or underscore")
++    if version_separator is not None:
++        return version_separator.join(map(str, version))
++    if any(v >= 10 for v in version):
++        sep = "_"
++    else:
++        sep = ""
++    return sep.join(map(str, version))
++
++
+ def sys_tags(**kwargs):
+     # type: (bool) -> Iterator[Tag]
+     """

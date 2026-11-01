@@ -1,0 +1,1 @@
+And here, The `binrelpreds` key and comparison use `proposition.func` and `type(proposition)`, respectively. This is not incorrect, but it may be confusing, so I think it would be better to standardize on one of them.

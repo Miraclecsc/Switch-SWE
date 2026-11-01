@@ -1,0 +1,1 @@
+Also, Okay, let's also add this to the `CHANGELOG`. What's the best user-facing description we can add here? > Return `500` error response instead of exceptions when `raise_app_exceptions=False` is set on `ASGITransport`. Perhaps?

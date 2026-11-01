@@ -1,0 +1,1 @@
+Also, One possibility to avoid breaking subinterpreters here could be to make this opt-in: `def start_blocking_portal(daemon: bool = False)`.

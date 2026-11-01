@@ -1,0 +1,1 @@
+And here, We should not be setting these in the evaluation environments unconditionally, since that would allow packages to use the `extras` and `dependency_groups` marker variables in regular dependency declarations (outside of the context of a lockfile).

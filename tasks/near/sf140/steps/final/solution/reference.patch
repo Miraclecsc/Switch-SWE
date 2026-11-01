@@ -1,0 +1,538 @@
+diff --git a/doc/source/whatsnew/v3.1.0.rst b/doc/source/whatsnew/v3.1.0.rst
+index 5fe30b4189..f5e3df45fc 100644
+--- a/doc/source/whatsnew/v3.1.0.rst
++++ b/doc/source/whatsnew/v3.1.0.rst
+@@ -39,6 +39,7 @@ Other enhancements
+ - Added :meth:`ExtensionArray.count` (:issue:`64450`)
+ - Added :meth:`ExtensionArray.sort` for in-place sorting of :class:`ExtensionArray` (:issue:`64977`)
+ - Added :meth:`Index.replace` method to support value replacement functionality similar to :meth:`Series.replace` (:issue:`19495`)
++- Added reduction methods as public API on pandas-implemented extension arrays where applicable (:issue:`63512`)
+ - Display formatting for float sequences in DataFrame cells now respects the ``display.precision`` option (:issue:`60503`).
+ - Improved the precision of float parsing in :func:`read_csv` (:issue:`64395`)
+ - Improved the string ``repr`` of :class:`pd.core.arrays.SparseArray` (:issue:`64547`)
+diff --git a/pandas/core/arrays/arrow/array.py b/pandas/core/arrays/arrow/array.py
+index 51a59bf37d..c4b8f39557 100644
+--- a/pandas/core/arrays/arrow/array.py
++++ b/pandas/core/arrays/arrow/array.py
+@@ -36,6 +36,7 @@ from pandas.compat import (
+     PYARROW_MIN_VERSION,
+     pa_version_under21p0,
+ )
++from pandas.compat.numpy import function as nv
+ from pandas.errors import Pandas4Warning
+ from pandas.util._decorators import (
+     set_module,
+@@ -2354,7 +2355,10 @@ class ArrowExtensionArray(
+ 
+         data_to_reduce = self._pa_array
+ 
+-        if name in ["any", "all"] and (
++        if name == "count":
++            return self.count()
++
++        elif name in ["any", "all"] and (
+             pa.types.is_integer(pa_type)
+             or pa.types.is_floating(pa_type)
+             or pa.types.is_duration(pa_type)
+@@ -2417,6 +2421,8 @@ class ArrowExtensionArray(
+                     [0, len(data)], data.combine_chunks()
+                 )[0]
+                 return pc.binary_join(data_list, "")
++        elif name in ["argmin", "argmax"]:
++            return super()._reduce(name, skipna=skipna, **kwargs)
+ 
+         else:
+             pyarrow_name = {
+@@ -2430,15 +2436,20 @@ class ArrowExtensionArray(
+             # "Callable[[Any, Any, KwArg(Any)], Any]")
+             pyarrow_meth = getattr(pc, pyarrow_name, None)  # type: ignore[assignment]
+             if pyarrow_meth is None:
+-                # Let ExtensionArray._reduce raise the TypeError
+-                return super()._reduce(name, skipna=skipna, **kwargs)
++                raise TypeError(
++                    f"'{type(self).__name__}' with dtype {self.dtype} "
++                    f"does not support operation '{name}'"
++                )
+ 
+         # GH51624: pyarrow defaults to min_count=1, pandas behavior is min_count=0
+-        if name in ["any", "all"] and "min_count" not in kwargs:
++        if name in ["any", "all", "sum", "prod"] and "min_count" not in kwargs:
+             kwargs["min_count"] = 0
+         elif name == "median":
+             # GH 52679: Use quantile instead of approximate_median
+             kwargs["q"] = 0.5
++        elif name in ["std", "var", "sem"] and "ddof" not in kwargs:
++            # pyarrow defaults to ddof=0, pandas behavior is ddof=1
++            kwargs["ddof"] = 1
+ 
+         try:
+             result = pyarrow_meth(data_to_reduce, skip_nulls=skipna, **kwargs)
+@@ -2479,7 +2490,13 @@ class ArrowExtensionArray(
+         return result
+ 
+     def _reduce(
+-        self, name: str, *, skipna: bool = True, keepdims: bool = False, **kwargs
++        self,
++        name: str,
++        *,
++        skipna: bool = True,
++        keepdims: bool = False,
++        axis: AxisInt | None = 0,
++        **kwargs,
+     ):
+         """
+         Return a scalar result of performing the reduction operation.
+@@ -2492,6 +2509,8 @@ class ArrowExtensionArray(
+             std, var, sem, kurt, skew }.
+         skipna : bool, default True
+             If True, skip NaN values.
++        axis : int or None, default 0
++            The axis to reduce over; for a 1-D array this must be 0 or None.
+         **kwargs
+             Additional keyword arguments passed to the reduction function.
+             Currently, `ddof` is the only supported kwarg.
+@@ -2504,6 +2523,7 @@ class ArrowExtensionArray(
+         ------
+         TypeError : subclass does not define reductions
+         """
++        nv.validate_minmax_axis(axis, self.ndim)
+         result = self._reduce_calc(name, skipna=skipna, keepdims=keepdims, **kwargs)
+         if isinstance(result, pa.Array):
+             return self._from_pyarrow_array(result)
+@@ -2538,6 +2558,168 @@ class ArrowExtensionArray(
+         else:
+             return pa_result
+ 
++    def sum(
++        self,
++        *,
++        skipna: bool = True,
++        min_count: int = 0,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("sum", keepdims=True, skipna=skipna, axis=axis, min_count=min_count, **kwargs)
++        nv.validate_sum((), kwargs)
++        return self._reduce(
++            "sum", skipna=skipna, min_count=min_count, axis=axis, **kwargs
++        )
++
++    def min(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("min", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_min((), kwargs)
++        return self._reduce("min", skipna=skipna, axis=axis, **kwargs)
++
++    def max(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("max", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_max((), kwargs)
++        return self._reduce("max", skipna=skipna, axis=axis, **kwargs)
++
++    def mean(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("mean", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_mean((), kwargs)
++        return self._reduce("mean", skipna=skipna, axis=axis, **kwargs)
++
++    def sem(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("sem", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_stat_ddof_func((), kwargs, fname="sem")
++        return self._reduce("sem", skipna=skipna, axis=axis, **kwargs)
++
++    def skew(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        nv.validate_stat_ddof_func((), kwargs, fname="skew")
++        return self._reduce("skew", skipna=skipna, axis=axis, **kwargs)
++
++    def median(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("median", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_median((), kwargs)
++        return self._reduce("median", skipna=skipna, axis=axis, **kwargs)
++
++    def var(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        ddof: int = 1,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("var", keepdims=True, skipna=skipna, axis=axis, ddof=ddof, **kwargs)
++        nv.validate_stat_ddof_func((), kwargs, fname="var")
++        return self._reduce("var", skipna=skipna, ddof=ddof, axis=axis, **kwargs)
++
++    def std(
++        self,
++        *,
++        skipna: bool = True,
++        axis: AxisInt | None = 0,
++        ddof: int = 1,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("std", keepdims=True, skipna=skipna, axis=axis, ddof=ddof, **kwargs)
++        nv.validate_stat_ddof_func((), kwargs, fname="std")
++        return self._reduce("std", skipna=skipna, ddof=ddof, axis=axis, **kwargs)
++
++    def prod(
++        self,
++        *,
++        skipna: bool = True,
++        min_count: int = 0,
++        axis: AxisInt | None = 0,
++        **kwargs,
++    ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("prod", keepdims=True, skipna=skipna, axis=axis, min_count=min_count, **kwargs)
++        nv.validate_prod((), kwargs)
++        return self._reduce(
++            "prod", skipna=skipna, min_count=min_count, axis=axis, **kwargs
++        )
++
+     def _explode(self):
+         """
+         See Series.explode.__doc__.
+diff --git a/pandas/core/arrays/masked.py b/pandas/core/arrays/masked.py
+index 11e45e07b2..bbca3c3924 100644
+--- a/pandas/core/arrays/masked.py
++++ b/pandas/core/arrays/masked.py
+@@ -1640,18 +1640,34 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+     # Reductions
+ 
+     def _reduce(
+-        self, name: str, *, skipna: bool = True, keepdims: bool = False, **kwargs
++        self,
++        name: str,
++        *,
++        skipna: bool = True,
++        keepdims: bool = False,
++        axis: int | None = 0,
++        **kwargs,
+     ):
+-        if name in {"any", "all", "min", "max", "sum", "prod", "mean", "var", "std"}:
+-            result = getattr(self, name)(skipna=skipna, **kwargs)
++        result: Any
++        if name == "count":
++            result = self.count()
++        elif name in {"any", "all", "min", "max", "sum", "prod", "mean", "var", "std"}:
++            result = getattr(self, name)(skipna=skipna, axis=axis, **kwargs)
+         else:
+             # median, skew, kurt, sem
+             data = self._data
+             mask = self._mask
+             op = getattr(nanops, f"nan{name}")
+-            axis = kwargs.pop("axis", None)
+             result = op(data, axis=axis, skipna=skipna, mask=mask, **kwargs)
+ 
++        if self.ndim == 2 and axis is not None:
++            if keepdims:
++                raise NotImplementedError(
++                    "keepdims=True is not implemented for 2D MaskedArray "
++                    "reductions with axis"
++                )
++            return result
++
+         if keepdims:
+             if isna(result):
+                 return self._wrap_na_result(name=name, axis=0, mask_size=(1,))
+@@ -1713,6 +1729,12 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+         axis: AxisInt | None = 0,
+         **kwargs,
+     ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("sum", keepdims=True, skipna=skipna, axis=axis, min_count=min_count, **kwargs)
+         nv.validate_sum((), kwargs)
+ 
+         result = masked_reductions.sum(
+@@ -1734,6 +1756,12 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+         axis: AxisInt | None = 0,
+         **kwargs,
+     ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("prod", keepdims=True, skipna=skipna, axis=axis, min_count=min_count, **kwargs)
+         nv.validate_prod((), kwargs)
+ 
+         result = masked_reductions.prod(
+@@ -1748,6 +1776,12 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+         )
+ 
+     def mean(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("mean", keepdims=True, skipna=skipna, axis=axis, **kwargs)
+         nv.validate_mean((), kwargs)
+         result = masked_reductions.mean(
+             self._data,
+@@ -1757,9 +1791,47 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+         )
+         return self._wrap_reduction_result("mean", result, skipna=skipna, axis=axis)
+ 
++    def median(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("median", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_median((), kwargs)
++        result = self._reduce("median", skipna=skipna, axis=axis, **kwargs)
++        return self._wrap_reduction_result("median", result, skipna=skipna, axis=axis)
++
++    def kurt(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        nv.validate_stat_ddof_func((), kwargs, fname="kurt")
++        result = self._reduce("kurt", skipna=skipna, axis=axis, **kwargs)
++        return self._wrap_reduction_result("kurt", result, skipna=skipna, axis=axis)
++
++    def sem(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("sem", keepdims=True, skipna=skipna, axis=axis, **kwargs)
++        nv.validate_stat_ddof_func((), kwargs, fname="sem")
++        result = self._reduce("sem", skipna=skipna, axis=axis, **kwargs)
++        return self._wrap_reduction_result("sem", result, skipna=skipna, axis=axis)
++
++    def skew(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        nv.validate_stat_ddof_func((), kwargs, fname="skew")
++        result = self._reduce("skew", skipna=skipna, axis=axis, **kwargs)
++        return self._wrap_reduction_result("skew", result, skipna=skipna, axis=axis)
++
+     def var(
+         self, *, skipna: bool = True, axis: AxisInt | None = 0, ddof: int = 1, **kwargs
+     ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("var", keepdims=True, skipna=skipna, axis=axis, ddof=ddof, **kwargs)
+         nv.validate_stat_ddof_func((), kwargs, fname="var")
+         result = masked_reductions.var(
+             self._data,
+@@ -1773,6 +1845,12 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+     def std(
+         self, *, skipna: bool = True, axis: AxisInt | None = 0, ddof: int = 1, **kwargs
+     ):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("std", keepdims=True, skipna=skipna, axis=axis, ddof=ddof, **kwargs)
+         nv.validate_stat_ddof_func((), kwargs, fname="std")
+         result = masked_reductions.std(
+             self._data,
+@@ -1784,6 +1862,12 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+         return self._wrap_reduction_result("std", result, skipna=skipna, axis=axis)
+ 
+     def min(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("min", keepdims=True, skipna=skipna, axis=axis, **kwargs)
+         nv.validate_min((), kwargs)
+         result = masked_reductions.min(
+             self._data,
+@@ -1794,6 +1878,12 @@ class BaseMaskedArray(OpsMixin, ExtensionArray):
+         return self._wrap_reduction_result("min", result, skipna=skipna, axis=axis)
+ 
+     def max(self, *, skipna: bool = True, axis: AxisInt | None = 0, **kwargs):
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("max", keepdims=True, skipna=skipna, axis=axis, **kwargs)
+         nv.validate_max((), kwargs)
+         result = masked_reductions.max(
+             self._data,
+diff --git a/pandas/core/arrays/string_.py b/pandas/core/arrays/string_.py
+index e4c317a706..78395cbee7 100644
+--- a/pandas/core/arrays/string_.py
++++ b/pandas/core/arrays/string_.py
+@@ -1065,14 +1065,42 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
+             return np.nan
+         return super()._wrap_reduction_result(axis, result)
+ 
+-    def min(self, axis=None, skipna: bool = True, **kwargs) -> Scalar:
++    def any(
++        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
++    ) -> bool:
++        nv.validate_any((), kwargs)
++        return self._reduce("any", axis=axis, skipna=skipna, **kwargs)
++
++    def all(
++        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
++    ) -> bool:
++        nv.validate_all((), kwargs)
++        return self._reduce("all", axis=axis, skipna=skipna, **kwargs)
++
++    def min(
++        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
++    ) -> Scalar:
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("min", keepdims=True, skipna=skipna, axis=axis, **kwargs)
+         nv.validate_min((), kwargs)
+         result = masked_reductions.min(
+             values=self.to_numpy(), mask=self.isna(), skipna=skipna
+         )
+         return self._wrap_reduction_result(axis, result)
+ 
+-    def max(self, axis=None, skipna: bool = True, **kwargs) -> Scalar:
++    def max(
++        self, *, axis: AxisInt | None = None, skipna: bool = True, **kwargs
++    ) -> Scalar:
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("max", keepdims=True, skipna=skipna, axis=axis, **kwargs)
+         nv.validate_max((), kwargs)
+         result = masked_reductions.max(
+             values=self.to_numpy(), mask=self.isna(), skipna=skipna
+@@ -1087,6 +1115,12 @@ class StringArray(BaseStringArray, NumpyExtensionArray):  # type: ignore[misc]
+         min_count: int = 0,
+         **kwargs,
+     ) -> Scalar:
++        keepdims = kwargs.pop("keepdims", False)
++        if keepdims:
++            if self.ndim != 1:
++                raise ValueError("Public keepdims reduction requires a one-dimensional array")
++            nv.validate_minmax_axis(axis, self.ndim)
++            return self._reduce("sum", keepdims=True, skipna=skipna, axis=axis, min_count=min_count, **kwargs)
+         nv.validate_sum((), kwargs)
+         result = masked_reductions.sum(
+             values=self._ndarray,
+diff --git a/pandas/core/arrays/string_arrow.py b/pandas/core/arrays/string_arrow.py
+index d2865177ae..5fde94f3f2 100644
+--- a/pandas/core/arrays/string_arrow.py
++++ b/pandas/core/arrays/string_arrow.py
+@@ -18,6 +18,7 @@ from pandas.compat import (
+     PYARROW_MIN_VERSION,
+     pa_version_under16p0,
+ )
++from pandas.compat.numpy import function as nv
+ from pandas.util._decorators import set_module
+ from pandas.util._validators import validate_na_arg
+ 
+@@ -54,6 +55,7 @@ if TYPE_CHECKING:
+ 
+     from pandas._typing import (
+         ArrayLike,
++        AxisInt,
+         Dtype,
+         NpDtype,
+         Scalar,
+@@ -586,8 +588,15 @@ class ArrowStringArray(ObjectStringArrayMixin, ArrowExtensionArray, BaseStringAr
+         return Float64Dtype().__from_arrow__(result)
+ 
+     def _reduce(
+-        self, name: str, *, skipna: bool = True, keepdims: bool = False, **kwargs
++        self,
++        name: str,
++        *,
++        skipna: bool = True,
++        keepdims: bool = False,
++        axis: AxisInt | None = 0,
++        **kwargs,
+     ):
++        nv.validate_minmax_axis(axis, self.ndim)
+         if self.dtype.na_value is np.nan and name in ["any", "all"]:
+             if not skipna:
+                 nas = pc.is_null(self._pa_array)

@@ -1,0 +1,1 @@
+And here, if checking manually (I realize now I removed generating `full_output.json` feel free to add that back if it helps), what's the removed symbols?

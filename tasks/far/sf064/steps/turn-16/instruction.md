@@ -1,0 +1,1 @@
+And here, _⚠️ Potential issue_ | _🟡 Minor_ **Add annotations and silence unused-arg warnings in MockSubscriptionHandler.** Type hints are missing and `request/data` are unused; annotate and prefix unused args with `_`. <details> <summary>Suggested fix</summary> </details> As per coding guidelines: Use type hints throughout Python code (Python 3.10+ required).

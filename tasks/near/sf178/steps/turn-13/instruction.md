@@ -1,0 +1,1 @@
+Also, Sure, `NamedTemporaryFile` is fine for the test if that catches the wrapper issue.

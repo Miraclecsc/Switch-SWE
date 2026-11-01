@@ -1,0 +1,1 @@
+And here, Handle invalid EXT_SUFFIX configuration consistently. Empty strings and a lone dot must raise SystemError identifying EXT_SUFFIX, rather than leaking IndexError or silently selecting a fallback. Preserve the legacy .pyd fallback and non-string validation.

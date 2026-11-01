@@ -1,0 +1,1 @@
+Also, Unless I'm missing something, there is no reason to add the underscore suffix to `path`.

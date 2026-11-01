@@ -1,0 +1,1 @@
+There's something to adjust in /work/w03: Fix guess_mimetype() call Checking mime type of images that might require conversion was broken due to relative path being passed to guess_mimetype() instead of absolute path.

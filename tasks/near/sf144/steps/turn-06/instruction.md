@@ -1,0 +1,1 @@
+In the checkout at /work/w00, TTY_INTERACTIVE env var Adds a `TTY_INTERACTIVE` to disable things like progress bar / status spinners in CI This adds to the new `TTY_COMPATIBLE` which enables styles even when the file is not technically a tty, as is the case in Github Actions. `TTY_INTERACTIVE=0` will remove superfluous animations and progress bars in the CI output.
