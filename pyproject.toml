@@ -1,7 +1,7 @@
 [project]
-name = "session-switch-bench"
-version = "0.1.0"
-description = "SessionSwitchBench public release data and evaluation harness."
+name = "switch-swe"
+version = "0.2.0"
+description = "Frozen 200-pair coding-agent task-switching benchmark."
 requires-python = ">=3.10"
 readme = "README.md"
 

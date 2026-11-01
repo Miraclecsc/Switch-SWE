@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""Enable the local context plugin on an unchanged OpenCode executable."""
+import json
+import os
+from pathlib import Path
+import shutil
+import sys
+
+root = Path(os.environ.get("OPENCODE_PLUS_ROOT", Path(__file__).resolve().parent))
+binary = os.environ.get("OPENCODE_UPSTREAM_BIN")
+if not binary:
+    bundled = root / "upstream/opencode"
+    binary = str(bundled) if bundled.is_file() else shutil.which("opencode")
+if not binary or Path(binary).resolve() == Path(__file__).resolve():
+    raise SystemExit("Set OPENCODE_UPSTREAM_BIN to the original OpenCode executable")
+mode = os.environ.get("OPENCODE_CONTEXT_MODE", "x")
+if mode not in {"off", "a", "x"}:
+    raise SystemExit("OPENCODE_CONTEXT_MODE must be off, a, or x")
+if mode != "off":
+    plugin = root / "plugin.mjs"
+    if not plugin.is_file():
+        raise SystemExit("Context-manager plugin is missing")
+    config = json.loads(os.environ.get("OPENCODE_CONFIG_CONTENT", "{}"))
+    config["plugin"] = list(config.get("plugin", [])) + [[plugin.as_uri(), {"mode": mode}]]
+    os.environ["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
+os.execv(binary, [binary, *sys.argv[1:]])

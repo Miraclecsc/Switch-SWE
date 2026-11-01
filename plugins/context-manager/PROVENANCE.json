@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "plugin_version": "v003",
+  "packaging_version": "0.0.0-v003",
+  "source_repository": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920",
+  "source_commit": "07304054b8bfcb535611791c064d4169de005bcf",
+  "upstream_version": "1.18.2",
+  "upstream_commit_as_documented": "70b56a0a93d366889cae950379cc9d2537148fa2",
+  "selection_evidence": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/full-launch-decision.json",
+  "delivery_evidence": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/full-v003-mp48/delivery-audit.json",
+  "selection_reason": "The historical user explicitly selected measured v003; runtime and original tests match development and full-evaluation frozen snapshots. v004 was experimental and is not included.",
+  "source_worktree_note": "Modified operator files experiment/campaign.py, experiment/plus_runner.py and untracked transport_retry.py excluded. Runtime files copied unchanged.",
+  "upstream_binary": {
+    "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runtime/upstream/opencode",
+    "expected_sha256": "14d26f3eee4a0770e8a5c27103bee0998f79a91c052eb6629cd7f0e8bcdae1b9",
+    "included": false
+  },
+  "files": [
+    {
+      "path": "analyzer.mjs",
+      "sha256": "806d15e9f49cd393605eef7c5ef4c394cc6c81ff91a66a1698097d680a4a3b52",
+      "bytes": 5045,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/analyzer.mjs",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/analyzer.mjs",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "806d15e9f49cd393605eef7c5ef4c394cc6c81ff91a66a1698097d680a4a3b52",
+      "modified_in_distribution": false
+    },
+    {
+      "path": "manager.mjs",
+      "sha256": "4c39ccfd72c5d5ce796af2aa1220809053e816bd42af704a766e57d6132433a9",
+      "bytes": 13123,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/manager.mjs",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/manager.mjs",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "4c39ccfd72c5d5ce796af2aa1220809053e816bd42af704a766e57d6132433a9",
+      "modified_in_distribution": false
+    },
+    {
+      "path": "plugin.mjs",
+      "sha256": "3e5d638bc27f78c07ce043faeaab3b0c85ca71fa2fbaee480f4cc4ce1cd1f8eb",
+      "bytes": 2657,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/plugin.mjs",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/plugin.mjs",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "3e5d638bc27f78c07ce043faeaab3b0c85ca71fa2fbaee480f4cc4ce1cd1f8eb",
+      "modified_in_distribution": false
+    },
+    {
+      "path": "opencode_plus",
+      "sha256": "c45e3604e7421d0363254158267f4fd0863a03c6dcabe52ede82bab1d2ec269e",
+      "bytes": 1156,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/opencode_plus",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/opencode_plus",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "c45e3604e7421d0363254158267f4fd0863a03c6dcabe52ede82bab1d2ec269e",
+      "modified_in_distribution": false
+    },
+    {
+      "path": "test/manager.test.mjs",
+      "sha256": "616f107147a9176a26e0d172115397967aa9dd2ee6b8bbaa9395902ba984cee4",
+      "bytes": 13904,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/test/manager.test.mjs",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/test/manager.test.mjs",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "616f107147a9176a26e0d172115397967aa9dd2ee6b8bbaa9395902ba984cee4",
+      "modified_in_distribution": false
+    },
+    {
+      "path": "test/plugin.test.mjs",
+      "sha256": "3ad1a82704c4b29fab2fc93173dbc2bef95540258a0bd4ab1c3dd1088dc33ab8",
+      "bytes": 3134,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/test/plugin.test.mjs",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/test/plugin.test.mjs",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "3ad1a82704c4b29fab2fc93173dbc2bef95540258a0bd4ab1c3dd1088dc33ab8",
+      "modified_in_distribution": false
+    },
+    {
+      "path": "test/integration.py",
+      "sha256": "aa31acc762e78a6cfa3d55b4fa9d9438e82a2e2553ce75b59a43e5b58081389e",
+      "bytes": 8667,
+      "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/test/integration.py",
+      "frozen_source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/context-manager/.runs/v003/module/test/integration.py",
+      "matches_full_evaluation_snapshot": true,
+      "matches_pins_json": true,
+      "distributed_sha256": "014bb1958cc1235ae4dd519d363059ce7607c8a756a8c615c99522e60d90bc85",
+      "modified_in_distribution": true
+    }
+  ],
+  "license": {
+    "source": "/mnt/jfs/mengziyang/changshuochen/SessionSwitchBench/workspaces/opencode-1.18.2-dev-20260920/LICENSE",
+    "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b"
+  },
+  "original_integration_test_note": "The imported test is subsequently adapted only for external temporary output, binary validation and off-mode coverage; original source hash above is retained.",
+  "upstream_commit_verified_against_tag": "v1.18.2",
+  "source_runtime_and_tests_match_commit": true,
+  "distribution_changes": [
+    "Standalone package manifest and README",
+    "Source-repository MIT license retained",
+    "Provenance and validation report",
+    "Python wrapper tests",
+    "Integration test: temporary output, executable hash/version guard, off-mode coverage"
+  ]
+}

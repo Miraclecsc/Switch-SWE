@@ -1,0 +1,2416 @@
+{
+  "source_release": "fixed200-v1",
+  "prompt_revision": "inplace-clarification-20260916",
+  "source_release_sha256": "d38f7b2d2b54320e696daffb766901964147a7aed2aa1de383d73f4a44ee77cd",
+  "source_cohort_sha256": "08476295333604ac88674ca3845c1f311e53d7158fea844ab719912bbaa14dab",
+  "source_cases_sha256": "a47fefc8d3fc7251a25a56c74e5dd56637c7507cde1bcb085d921cf47d77da86",
+  "resealed_at_utc": "2026-09-16T08:20:56.258010+00:00",
+  "transformations": [
+    "effective-cases.json copied byte-for-byte to data/cases.json",
+    "pair index and near/far membership derived from frozen cohort and tiers",
+    "workspace overlays merged; blob content paths normalized to blobs/<sha256>",
+    "only initial-checkout blobs copied; no scoring payloads or model outputs"
+  ],
+  "pairs": [
+    {
+      "pair_id": "sf001",
+      "source_version": "sf001-opaque-env-v4",
+      "source_bindings": {
+        "data/cases.json": "d88ba6abe567e2c1cf2a75b4687e211973b70277a89cf6756e6d8fdcf6122ec0",
+        "private/scoring.json": "aced23361f99c328cff788d425e7ecd8124b8dba1a1847827e6f127827efb0a0",
+        "private/workspace-overlays.json": "d3cd9680f6b512c9ab31dabc869d3eacaabe71a9d4faa7d813010a2fe31dd5e3",
+        "config/recipes.json": "295b5d7069cabeab8e07fe61062fb6979e9f23cf79580b2088679586c6a07fe1",
+        "runner-config.json": "087e4b4c45d3ea1da36b07e9e25164ab011d6c8c4f63744c9b7bfd5df492a103",
+        "MANIFEST.json": "2679f7979cec4b5294011e55068c38b8bfdd08568d5a28d0345e0aaa48677a69"
+      }
+    },
+    {
+      "pair_id": "sf002",
+      "source_version": "sf002-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3d72bd041306f8227306a29db62be94112a3974fe17d24817e220d20142e69e2",
+        "private/scoring.json": "ac8d1580b1da5079806a9be0bece5fafa9f4f5fc5c488353bf8b113b5e196440",
+        "private/workspace-overlays.json": "cd7b10bdebe6c506131bc77799f7230eef0b37bd93f4bc4d72bc2258abe11638",
+        "config/recipes.json": "da18bff319bf07310b08a41a34d530066a8573119d81a0a9431adc98915b5cb7",
+        "runner-config.json": "1d304c7e1489655e21fb751e9474d8f00a4c440f80f47fd43acfd7f8e368bcad",
+        "MANIFEST.json": "fe9296ef8273ff182755b272a594635101bf87001c6041cae2fa00bc6e96fefe"
+      }
+    },
+    {
+      "pair_id": "sf003",
+      "source_version": "sf003-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "4f936479d8b4d93e213a631d60f3aaacfa41702ece83fde597cf277844746482",
+        "private/scoring.json": "ff110a9d48b77375e472b6236890ccee222979b7dc2e2b3c71eb1a0f4ee12436",
+        "private/workspace-overlays.json": "53e4803ff4326d863e9d96e3fd2fa3dddb79e003c7678187d2e677563cb7d312",
+        "config/recipes.json": "e43a34dd67c3c0b88c2e2f226d433fc50a2bc6460dda912362b220c789c79de3",
+        "runner-config.json": "b802215fafdd67e582ffc0f88e413c93a623fd330d30183a1969bb17a00c0c94",
+        "MANIFEST.json": "48bbabb894617f93ff7590b355faaaded2d2983104433f26892f2651b182fc71"
+      }
+    },
+    {
+      "pair_id": "sf004",
+      "source_version": "sf004-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "2992f9147542c0d944a694e3f2380e10eb18d30aa324a08fd06f32b30cfc61b5",
+        "private/scoring.json": "db240d9545d42f2275dbc243c7ba6a4386255d86ca375874787bf42b8d10b312",
+        "private/workspace-overlays.json": "f8adc805a1a53cedc2826902b04efccc09ac52073dfa70f372aac7662abe1423",
+        "config/recipes.json": "d64e6a33864e2e7ac030b28ccabf67ab290a50d81832dbc458f1cc4eb138713b",
+        "runner-config.json": "0df46862bbc4dec7d800053b8ea5ccad77c81d372de41f4d41e56291c23e60bd",
+        "MANIFEST.json": "077895c4ff99f1da26477024cdba3728b3813f57a9e0bf2d8cab1268dc9bbf78"
+      }
+    },
+    {
+      "pair_id": "sf005",
+      "source_version": "sf005-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "463516490900c35e6d81e8d844e5ac4448b9ee07b8d4ce04826a07e8a2b8875c",
+        "private/scoring.json": "70e39d8c9303da594f8104f35ed759eb90dba09d1a079db63d801946ac83ee56",
+        "private/workspace-overlays.json": "802ec91b14be65c1f220254ee83f20430b227348082e7b37bff7ccfec43e7d05",
+        "config/recipes.json": "4e062ed9ad3e1a361511d51f5c70b9d6c16fad60facd0024f1aac2e6e5400643",
+        "runner-config.json": "17975cdf68770d7565504c3a2a28994803c96ada0cbb654d3aa1b3e6ba187fba",
+        "MANIFEST.json": "2da3c5e0d52dc4ecbe83f578179a79501f89d5b12541ab120ac3631f7bbeafed"
+      }
+    },
+    {
+      "pair_id": "sf006",
+      "source_version": "sf006-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "a1cda774c3c0bf95a805c3656b3872f38dd0714b618e5225c17aa7b8d24c01f8",
+        "private/scoring.json": "e7b2c46a291913f3c1fbddbc8fa2ebf60434d78d8437247382cc864217c99022",
+        "private/workspace-overlays.json": "c9843ed35f013d347c5b6fd245d26f7fb166f331eaaa3689b9e852a20ef8c4f1",
+        "config/recipes.json": "bd3eb3135a5ae2f3a3f6a9f657f0d2e1754bac4882fa3f562b3d43f21fe93354",
+        "runner-config.json": "a9f501e8a636639be266be8a08ddda779dea608f039c87fe073f9beba3303ecc",
+        "MANIFEST.json": "dd3fb024bd04f574cd12b9354baeb4b9e2151d8a418bb369076cbe2bacba6315"
+      }
+    },
+    {
+      "pair_id": "sf007",
+      "source_version": "sf007-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ac1cc390d74fed7459859ac199f1d997332ec678901fda3fbbc9f9dd11d65a6a",
+        "private/scoring.json": "516a5252e65e74861863474cda34d3dc5b210acda1a2a81520b6e5f50d80d891",
+        "private/workspace-overlays.json": "5457073d7ae103263a49f2ba9af2e0dfeeb84e36663c28772e4673e3b904d50b",
+        "config/recipes.json": "9e69d387eb5b0c8c8f02413360da70c5090d5d2dfa211d6f0742fa14828670b3",
+        "runner-config.json": "96d15821c207bcd4af5d83402fe468e0ad2d0063f7cf567400261d179ccad6d5",
+        "MANIFEST.json": "b5df092bf50a8f1061172ced4c3d6a0b8aeb416eb7b466c58c24175947b6ceb9"
+      }
+    },
+    {
+      "pair_id": "sf008",
+      "source_version": "sf008-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ac6db7fb6d15f713ad34d8e1e1aabe4a0031cb1ca8bf08d5b5143ead4b43bd2d",
+        "private/scoring.json": "f4c75d83cd6876398e2ae1223d88fd2ad80f293ccf786c0c08bccb68f6987c86",
+        "private/workspace-overlays.json": "c66adc62a231a2212d66eaa898488dba2ebe08a595272fb72d7136b5f5805ce0",
+        "config/recipes.json": "c54887caabd0b2ee0db50e98aea2e215dcd08f2f216c2a9feb65f5c249b25ec3",
+        "runner-config.json": "c3455f8b01a646fc94b88a6d4fee3f7e4b3b7ad75e2b77396a5805e5c09aaccb",
+        "MANIFEST.json": "4d5db6fd3ebfa0f9a894ef97d363e5c38a54f334964ea84b8bc35cbcda992860"
+      }
+    },
+    {
+      "pair_id": "sf009",
+      "source_version": "sf009-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "725e1812b07f76ea9c70d9a27a2354b0d8f8a3d356226a3e03f0b045ebb829e6",
+        "private/scoring.json": "24612db39ef5a7b483dffbbad92ff30c985c07fb933518e1c1ae2d75afe4bb2d",
+        "private/workspace-overlays.json": "92528771a022ed319949503d0e41796df659cc0b4ef5193c3bb26ea9a2d43eb4",
+        "config/recipes.json": "a83e79ee3eb959e11ba8d671a6af0b2d5f7f6bc4e6b07cee681909319a9483bb",
+        "runner-config.json": "bf745b7a66c8bc5c79af75a45633d58b0448f951ad004c041171b53351fd2e6b",
+        "MANIFEST.json": "ef94efb6783906f28d6901892deb30ebbc4bb389961d9f0d98d5034ae07f8ddf"
+      }
+    },
+    {
+      "pair_id": "sf010",
+      "source_version": "sf010-opaque-env-v4",
+      "source_bindings": {
+        "data/cases.json": "61d924965427705d2322aa38d18e7ca22211b87f646cd8015bb103ef93a185ce",
+        "private/scoring.json": "fe343b4d9c77344270ae7990ad23b40a562a5d9943cc6ef8a15419534d68b610",
+        "private/workspace-overlays.json": "ad1d270e661ceaac4923d16bd0e70af25fcf3640f90922f92dfc941e5758cd6d",
+        "config/recipes.json": "63f55c8f201d7179213faf8072fd8b11dab2c4996ea40e7c3bffd1be045e9a80",
+        "runner-config.json": "392bb53423b21f4def9ce4eff1a6dc4cefe44f5c45fed5ba0dfc23f9fe0ad972",
+        "MANIFEST.json": "98c3b53e3c603706deddb0abe67606b6a8b71f9c4a375017fd5053d8002d2d1f"
+      }
+    },
+    {
+      "pair_id": "sf011",
+      "source_version": "sf011-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "52289a24234e43f55839b3f88392e0f3838acf2fa8f209fa44fdcefb66418ced",
+        "private/scoring.json": "e0cdbfb077fe8e2e41486f8474d905748e2b779a887709ea86686430c1ef1242",
+        "private/workspace-overlays.json": "fa705fd977eede470b3fff4f77a5f934b3d03a5963e7ba4710e7058a07638096",
+        "config/recipes.json": "b5f75593ff61ab83751bb27442398e79c02f86ed8340b6b5a8b4dfd49f3838df",
+        "runner-config.json": "5a3df94a5f894b33b7068712f0d60b7bf08a0ce5d89823ecf1f8ce9001838abb",
+        "MANIFEST.json": "d7a535a993cf87fed163a19e1a86644a3db35b8ee99f1bef224787af1dd3c9c2"
+      }
+    },
+    {
+      "pair_id": "sf012",
+      "source_version": "sf012-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "38e7b09ff298a390bd39a2c803588f211491eeea07900c189d619f62399087ee",
+        "private/scoring.json": "8e91821e9d1551483eb3688cb371fad4b3440d31765b326cafd6e64feff565f1",
+        "private/workspace-overlays.json": "006d5b660e0094f9dd89e4300928ba8d40e4cf1264f6ce52bf98735cfd2e8c84",
+        "config/recipes.json": "28bc8ed71d91aa1103ce0bac92a27da968b679bd2061e91ab391e2d58c0e57e4",
+        "runner-config.json": "fb86b91796d03e0dd92db73475f1f9d34b33cb6e2146929e7b4ff72eba5da4c4",
+        "MANIFEST.json": "ffc2126db660dba2781d65aa6f9fa0a7870b0ee05dbae6e74a6439fd836077a8"
+      }
+    },
+    {
+      "pair_id": "sf013",
+      "source_version": "sf013-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "0f75a7d75b80c93b4f24e98338a8d39ccdc772f68f3e2e54999d519d6aaf9c34",
+        "private/scoring.json": "1f1e6db10a8ac0b5f6c9b6c7a54e682b6c5ae1f8eef9c4277dde7d3e544479d8",
+        "private/workspace-overlays.json": "33554607c4b81a59593f6c52668cae1b2d09b377a3bce5465d8d1a7d3c6f8fdb",
+        "config/recipes.json": "b7da325feea16ef3ed20aae37e62c2f2654fe82fdc191c163d04f4f32e240dbd",
+        "runner-config.json": "0b408d207e538e3ef0f53e7a722ac407f9b313c0e44a5c6cb31820efe821101e",
+        "MANIFEST.json": "79c412f8601e0dffeea326b67cab9cc77747fbf0a15fe6236b2f5a21bd5717e5"
+      }
+    },
+    {
+      "pair_id": "sf014",
+      "source_version": "sf014-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d55df6e823157c674c721e62c49d95f3cf9159725522769797544bd1b22b4240",
+        "private/scoring.json": "d23a7653658cb15783e2819d8c02583d38a4568142ba30c898187ee37f155232",
+        "private/workspace-overlays.json": "2732bac14071ecf9ab8c366b9b7eb082dd5dd63e5dc5d8cf29b6f73da1891475",
+        "config/recipes.json": "3b3ea4d398633d4d93ecf9eeaf4aa9bfad661b684a2c8d3fb40d51d753a95c50",
+        "runner-config.json": "5fe9719975d60131dadcf1adb9698ad4eaae5a724aa0ed331ccb6c4b0558a6ff",
+        "MANIFEST.json": "b3d87bc85a2e198d28dcf314c6a0ef679efc5c52447885bbb28b8118122c6b77"
+      }
+    },
+    {
+      "pair_id": "sf015",
+      "source_version": "sf015-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ad61785a13d67aba6651e79d71c3fac0accf8818194767c012cdb396e445062b",
+        "private/scoring.json": "006b37a9ee8c431baff7ea6833abdd9313db0d037d3c7b2f995e42406cbd7f36",
+        "private/workspace-overlays.json": "accff96e9bbbfbccbf9feb05466fbc37c9e0fda3219a7256cff8bf3650ad062f",
+        "config/recipes.json": "1c2a4df094d4fca2cb1e50bcf58843a3fc206b420eb4ca3712dd9ed690633d01",
+        "runner-config.json": "a1460047a24355b18e299762b6e662036b129b62da203343755275b7b1f5ba73",
+        "MANIFEST.json": "4cedfda67294036757876d9a3580a882e76822f6e72e7e818b295e0e779453bc"
+      }
+    },
+    {
+      "pair_id": "sf016",
+      "source_version": "sf016-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "519c3020da18606a218c737341f205e41809e1a1da497afc8401ad7bfcf0c4ea",
+        "private/scoring.json": "b149cd5a14f773a64b679aa9d861f56c1a2787f645e80b778d9ee558ad4dc742",
+        "private/workspace-overlays.json": "b4ac8e529a3765a28689cb03dda3af880244f6da41952738a4fd14242a5de0d2",
+        "config/recipes.json": "18d00690fd319b9127003240b22b5e7929c7649b0b419aff35eeab8851e90f17",
+        "runner-config.json": "77347df78cda937a4cf3c93454951c97c88efa665a72e167d923e7ddf68d8837",
+        "MANIFEST.json": "b8c1f2ae14b0249cc0f581c34e85b4252b45bc55f79d5e531063f9b9588b013a"
+      }
+    },
+    {
+      "pair_id": "sf017",
+      "source_version": "sf017-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d8905a71f9f5a51c19cbb93e88f812894b65af64d171aa4de142f422f5496512",
+        "private/scoring.json": "fa99f06c3518d5c14bd77611cf6836da1e9b825d26911c56d0b17f212b31f945",
+        "private/workspace-overlays.json": "fdf6c506db169cf5a0f6e2263102763af7ee17d0ce60ae5a6d30656f4111f352",
+        "config/recipes.json": "acaea88c058afe107ff9443a2aeae9c1a7807f0d64847ae5760731b33cdba793",
+        "runner-config.json": "cd4d4741b9ac6aaf93a297a25c8704df030d3989d0117fc0098e715bb6b680c8",
+        "MANIFEST.json": "30219249946b8eb2c97d5c9368a84d587d95db0a7868d424ceef4212cedbd711"
+      }
+    },
+    {
+      "pair_id": "sf018",
+      "source_version": "sf018-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "bf41c8507de94fafc6c48b6df24e9c1570a9e2e26c35bf0892b9e838a24c75c8",
+        "private/scoring.json": "91f3cfc18adfd986ed45de539a70df7ea3ae3662bace2aee675750fa0b26ee5b",
+        "private/workspace-overlays.json": "5291406fc84c35ada349220c70943dcc520ae8878ae0a5a2651e6949ba98893a",
+        "config/recipes.json": "ca077f3410eb01541c63dd7222b5f16c9561bf4076b9817a081abf605a0bfeb7",
+        "runner-config.json": "da233857327bb84be8950345ddc0b9c11002d49a5ca5c27d631fe015b95b9248",
+        "MANIFEST.json": "6b5af25a12c0eba0bb838554c998975bd00cf33578facf99d1599a57dddc0d09"
+      }
+    },
+    {
+      "pair_id": "sf019",
+      "source_version": "sf019-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "9039e2b34c11b94874ab3333c22eab175c568ae9e0dcc59b3cf313607763aa6e",
+        "private/scoring.json": "a45bf62e31314a5547b21e12864de0b0ab1a38aceec9b60f552084bdd6e472d6",
+        "private/workspace-overlays.json": "95c230eca2db0be03f1f11c3dcf7443b2c0924901c8aef05b3a3ac64b92a051b",
+        "config/recipes.json": "1e9a63e0e292b9894f1a85a0732eb214121c5d00bbc1942318351b65724eb962",
+        "runner-config.json": "2c71ccc28795b86686a78a4cf1f334da1bab257bd4cadfc66aa4696abfa52ee5",
+        "MANIFEST.json": "e61a51f49c38818fe6a73af19887814b04e529ff15a5d70a924bd936fa64ce34"
+      }
+    },
+    {
+      "pair_id": "sf020",
+      "source_version": "sf020-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "b9b104fac1144845ab770cc9f1738c31cd8b40f92c726ecd47f8fe94e48b965f",
+        "private/scoring.json": "c2145a2a554666ce804fa3b5c1293aca047eea287ae22e3f57e041c9389b3b2d",
+        "private/workspace-overlays.json": "12a4e913f6d975ea64bfc8d2503d20730fca5f5e4ba4061e1af619408abab91a",
+        "config/recipes.json": "1793f21eb4aece3cae8fcd899003c1c19591801b3f45ce0dc87557e9243e69f9",
+        "runner-config.json": "440bbe300316f89df86079a985a9533355079dbe1a57cda180b8ec86d51bbc71",
+        "MANIFEST.json": "b9b7788542a40fcdc343bc850f2aa9770442b9597b73cdb6a8418e3f4bb24b51"
+      }
+    },
+    {
+      "pair_id": "sf021",
+      "source_version": "sf021-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e2046025b2e351f475d5a9e4871f0589beba680fdca4a498347fe5d98cca8338",
+        "private/scoring.json": "75b49bf6193a2cd12b9cf9fdbbcea2e9cc9371e8cfb9e3458ab0dc6783c91383",
+        "private/workspace-overlays.json": "a98cc1d175efc437714d3acf266adb5c4a3bcb8ed3e854f9595e28b8aa86408e",
+        "config/recipes.json": "b6beca629206949516c2c470601b585b07542626da97847e7d43b355aa4086a9",
+        "runner-config.json": "2f172d77f1b9f4a08a4a05dcaad227dfa244991f8bdfe4cec6bd3fe0c932c7cc",
+        "MANIFEST.json": "3ad96e4a3b43a68d7e4e85e6e1d48099b2ef04cd029a3249b62ba1adef14d903"
+      }
+    },
+    {
+      "pair_id": "sf022",
+      "source_version": "sf022-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "45451e58e0c5992a91edc6216ed134db1b8fcc02ff191bad71a6e20bcf6fee3b",
+        "private/scoring.json": "c98ed3bd127eb8eecc6c792c1c142a8fb6c27eb78b9a027cde6dd2874366682a",
+        "private/workspace-overlays.json": "9fceabfbe299c22f8eac659ad861750bc1b1464a7624ef8e88e064bf44694960",
+        "config/recipes.json": "0920c943407dcfe8aee48d5e93a625891192f4f269193d53f3c781e34fe4f87a",
+        "runner-config.json": "9071e151f4a655d1e0ee9cccae5855aa5a8c4989d144d467881153a32432bc5e",
+        "MANIFEST.json": "7c2e920caac7bafa45f6da7564d44c17099243f1c3b6748dead933caa8030827"
+      }
+    },
+    {
+      "pair_id": "sf023",
+      "source_version": "sf023-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "9b29468d1da29249826d9c3e3a5ae42cb503ee1868885e925fdde123d0bb055f",
+        "private/scoring.json": "5ffe335add47e52cfa55955991a0845bc849b9963eed4617a7b7d8647f49e420",
+        "private/workspace-overlays.json": "66bf4adae17b55f390775a81de94ed9257bf73de4fe0d2f14a1c8cf5ff58bf03",
+        "config/recipes.json": "ae17eca368cafe1566fc1e153737e08a3bcf98c39355d26f4a07e518e344b77c",
+        "runner-config.json": "f517727affa3d7cd00d77d7b4fba64269d4494cc2b651685ffa2206853a34080",
+        "MANIFEST.json": "bf5aa126385abb92bb28f2a1099b89c30c59ab64e0b3461629039dbb8030719a"
+      }
+    },
+    {
+      "pair_id": "sf024",
+      "source_version": "sf024-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ccfd245e1acf61160a290b55f3a7f8293f19b2ac6b4a968116ebe671be321ba8",
+        "private/scoring.json": "12396fc9ccbfd798c59b46dc10f592d20f8b4b0460ad50df45ce258d1b29248f",
+        "private/workspace-overlays.json": "6579775b8469b6f7297756507bc3117090e63832f55cccebbdb7207bba82db21",
+        "config/recipes.json": "0d2588c4317fa83e4e8dd006bf66e99d31b48986d2aaac8de1e6cdee14d2f1ab",
+        "runner-config.json": "eacd515f91d6d689b497769be492d24286563e7e83f383091fdaf3bc7fcf2df7",
+        "MANIFEST.json": "d758d8eaedabcdd619fa87a36648da6a36eccc479d00158f7eb4ef6d251b7359"
+      }
+    },
+    {
+      "pair_id": "sf025",
+      "source_version": "sf025-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "11e1dd7b6bb1e2c6c42484388974702e9a336ed027803ff3f8c3698dcdf26444",
+        "private/scoring.json": "0301b3332ff2591a0db4b39bebadb8150302e72d5bd3d94340ba84726015043a",
+        "private/workspace-overlays.json": "128da781d4f035b51bf8ae41a8323ecb7d63e81d1cb2d182f749b75d1b6a90ec",
+        "config/recipes.json": "4eee4918e3d4e0fa793ea48d8320ae838f98b5ed01a077120a7b0dda9ba216a4",
+        "runner-config.json": "1b713ce5f98ef35eae872d0c73ad7f39b3a8bd9b9f154b5bd106127e481d2caa",
+        "MANIFEST.json": "65215c3f87fe2271474600bd9d049d269d1338b99abd9fb82175812fb1e20f7c"
+      }
+    },
+    {
+      "pair_id": "sf026",
+      "source_version": "sf026-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d2d2e64ebd1938e9143258d1ef58d88ccd221e04d82f44fd6b901847524ec8a1",
+        "private/scoring.json": "f2fa5116b1c16cef172b5a0c4efab574ac1e659c814c23850fdc9f0c4b2b0fdf",
+        "private/workspace-overlays.json": "ed087399a25d4676137d28a2d41980c5e68b06ac88935bf5a10b6bea410442cc",
+        "config/recipes.json": "b3e44ffc5698ca7ccda83248e3027bd4379672f2b50238936d9f55c3fc72743f",
+        "runner-config.json": "913aee2b44aa034195a8471b2b0e4f2cc71553b3159bbdd214c5c809d02fc360",
+        "MANIFEST.json": "8277700f5f7df0d868a46bf15eef4f08834bbc78a1e04c636ded2009aa84090d"
+      }
+    },
+    {
+      "pair_id": "sf027",
+      "source_version": "sf027-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d9be9ff5bfab1374ddc8d0b4fe6b070ab0bfb38d40285d3536c1757dbf8798db",
+        "private/scoring.json": "dfc80b4f0721be2360b609197456393eb5a32f821dbd77002d3825c7e5a5bb18",
+        "private/workspace-overlays.json": "75e28e6bfcfa3f64b3ee39b9731cf75782e1d183f3db8084af6091af6510c07b",
+        "config/recipes.json": "c184b65f3dd690ab6e470df22b540d5ac0e1ec68fe874d7af43db68dd470a47c",
+        "runner-config.json": "f144cba8edf8892f63eaca350ae5d926d10a6b0319f309978adcb445acf4a809",
+        "MANIFEST.json": "ae2f7c120498c6b5ef620c8e4ef79a241c82ec2bc48ff8bd17980642fcfe5f8e"
+      }
+    },
+    {
+      "pair_id": "sf028",
+      "source_version": "sf028-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "17e3d47bdb33e32c4e0e7026e9401155fe10544209369da3c463941a67fbf823",
+        "private/scoring.json": "96d8ca6b90fadde092b060264da795a924a6b5a4d565da258ff87251212aa3dd",
+        "private/workspace-overlays.json": "01b2bc99f1082f3770527517f2addf8a06c55ffd9292d4c517628ab36276ffde",
+        "config/recipes.json": "629291bb4617fb4316fcfd858c967a0ce2048209b13abd3cbd93cc7a4611b8a0",
+        "runner-config.json": "ecb0e534389e98260c9291fc59aef22b3b3a59173c5c1fc03f17e225f9e2e7ca",
+        "MANIFEST.json": "8a99dbcb48e100734d219a12dcb24ea16aeccac44c6a47f0bf90af0a1e6d8d25"
+      }
+    },
+    {
+      "pair_id": "sf029",
+      "source_version": "sf029-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "6ed55421420c108ba859d870e70923f56cbb3011b7363931473e2887c9186731",
+        "private/scoring.json": "cefe28edba6e3486fd9afa3616c31d73b0f3ff63582bf43aa95bfb6bac4e6497",
+        "private/workspace-overlays.json": "fa5a7c88a33a5f0ecb1c3c09f3ab19889b8bb7603cb604eca853931667270737",
+        "config/recipes.json": "5adae3210a5b8d18f677dcc37ff1c7b663dd61ff944c6b15a0dc0652d21981e3",
+        "runner-config.json": "99846b6240f7652d293e139a5817b9fba07713fcb7c71bd238014a44d13561ea",
+        "MANIFEST.json": "bebec7cd4f624ec39c9e61a0f9f70e3c05dea788421fc0a3b0b509ae7499b27f"
+      }
+    },
+    {
+      "pair_id": "sf030",
+      "source_version": "sf030-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3a520fd751f63b8f21346d616f437207de553a783ce11af3bbdf0079aa188551",
+        "private/scoring.json": "1945a0967e3ea2acff0fd852bfe011fe3a7486c196dd68ef3f72852ff0ad0cf3",
+        "private/workspace-overlays.json": "cfbc2764aa67866a33b2be9c181ea81d7027c66f3e9677cf28fadc146132b668",
+        "config/recipes.json": "ec89142017c9bcece5d8d3b813afe42f9afab83c03b7f9aed6b5d6c2aa232b49",
+        "runner-config.json": "fa0aff40d93947ae341c0d0e514cc2d67f7aaa2ee89359b4b443629dab1b50ce",
+        "MANIFEST.json": "dd100e24e059621b044ce975540e3b766bb6a6436220d5552c8317b027c18c05"
+      }
+    },
+    {
+      "pair_id": "sf031",
+      "source_version": "sf031-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "1fe678196bc59d07034d89612ebd0bb8d82c0298f2a8d02e9c2693d15ce99d3d",
+        "private/scoring.json": "f4a0ad516848d66d054716e140cf9d96767a2d5898a64a5af620e06bcb2b937f",
+        "private/workspace-overlays.json": "cf0d36742d32a5dd0ed667035e5a3da04cacceef2f1a7f0596149084726b4ec7",
+        "config/recipes.json": "cdf007411f6be581614f972ebad0005e3fb508970c510ec60ae95cb60d0879cc",
+        "runner-config.json": "3815b9b31596028b276523c2b7f706af8127de2af30d4f823b4ecb25da9ae9a2",
+        "MANIFEST.json": "5e2d402e819fd4b74f57d8521dc2319b6bf9751da3cdd3eed8e6159b5eb54654"
+      }
+    },
+    {
+      "pair_id": "sf032",
+      "source_version": "sf032-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e55022272df2fef7e69046e2dc6532f7601e9630d1615594f583a125366a5c78",
+        "private/scoring.json": "cdc38de9e7434ef46ed656c23831bf741fd28edb805642134dca335ebcb3363a",
+        "private/workspace-overlays.json": "de5f97dc89fdd87ea07a6c639046b20f5c3725fdabd71423aabd68c11b677ee2",
+        "config/recipes.json": "eba1fad323a0d66b32d2dc54358bf6cf74fbb30d276dd15428e420c3bfb19e58",
+        "runner-config.json": "42f817da1e42d72a48b898d46626454e824576931fb10c007c966dee18f11d8f",
+        "MANIFEST.json": "c5f471285a778d615239edcac37f851cd6d277d72b48efa8b0e0685d60ba68ae"
+      }
+    },
+    {
+      "pair_id": "sf033",
+      "source_version": "sf033-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "0e5f34b81bba45804e434bc4ed83c1b4d4b61e542adad081b037b36eab815e6f",
+        "private/scoring.json": "21bbea3483de36533631aeb82e8a81b3844897760b1c9188c6076a009ce988d6",
+        "private/workspace-overlays.json": "7626dc2aac7f27bb78633406b313afc70d3e44d20dfc7036949cec410337affd",
+        "config/recipes.json": "b83ebbc1bd602ee10cd564415489ec3e178c8d599777aca0794c7d02fc770232",
+        "runner-config.json": "d7a6e50d6d530ff3d751a7cc237b84f3fec18cb69b820d4742df2ffac63b42db",
+        "MANIFEST.json": "7a0422d15b4ff5f5ad563de0492fc2aceca707a141c28aa25ecfece3530cc30a"
+      }
+    },
+    {
+      "pair_id": "sf034",
+      "source_version": "sf034-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3b370a30454b099f92961520cbbea56659ef04e198da2f222fd6c14f1ea2548e",
+        "private/scoring.json": "69dd20e1e22569bf5a0cc97c69af0ce7e27aab9900eba1c1bc9f02cac0468aeb",
+        "private/workspace-overlays.json": "b2416e3d6419f53c9d1af3f9cc77ad0ee8d44e0d1b15fc5c38aec98f18a6ead9",
+        "config/recipes.json": "9d7e6168c19a43548207303f6d6209cdbfd1dfb5fdc91a9ec77afdc5222a49f4",
+        "runner-config.json": "06ef0a7f60e1d7f8b8ce7bf7ee5b8da87b0a39144ac4e917588765b91de880da",
+        "MANIFEST.json": "de2e9a74971466de9f9b4b47ad7ff1dda191a5b12555d52ccf8bb3adf45e248f"
+      }
+    },
+    {
+      "pair_id": "sf035",
+      "source_version": "sf035-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "356220e9be8254ec9ffe8ace8028c804e74f72769a22c27e5e93fb4016039e07",
+        "private/scoring.json": "06549177f1b949545bf6f993cab6eaf4647b3c7229667f52bd0e01fdf1592221",
+        "private/workspace-overlays.json": "090960efbe1ec3b6c200105619844741e00085eee5209ebf37887c2edbaae996",
+        "config/recipes.json": "58a365d6e17677c975d8106921c693b152345a4591fe0124dde502fde126d5ff",
+        "runner-config.json": "37bf909a072a6c526cd3e93eaa237c21eb1fd04b202fcd6ba461f69e4e631dd6",
+        "MANIFEST.json": "f536f91d952c8945782427ebdf4e82753da606d3dcef5bd35906e2be55e2ffde"
+      }
+    },
+    {
+      "pair_id": "sf036",
+      "source_version": "sf036-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "5f33f0da9fd7161c3b7b0b408545f7fb9f71fdaeb62b42e84d09ec9d415ab525",
+        "private/scoring.json": "0c9322abc46800468cea3f7104cf0926e807a08d2cae3f3ae845a1ad22ea1ab2",
+        "private/workspace-overlays.json": "89ac872afcba4f90ad920e9aabc3bc59191f3762d40ab12e9186adcbe7f86834",
+        "config/recipes.json": "d26c870c4e9471c07d730cefa4af3e39565a0258443d27eb877784342e619968",
+        "runner-config.json": "ea0d926dbc98aa93bb80b3725fb93241af455fcf41d70f0a4374963e9572cb11",
+        "MANIFEST.json": "5d91b1fd5935f8b52dab77254e80235e703d784fea36d845f4d2d44b04fa2739"
+      }
+    },
+    {
+      "pair_id": "sf037",
+      "source_version": "sf037-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "99e0e84ba8316f72a225ee35e03f8e95b1db568d32f29b63ff85e861aec7a8bd",
+        "private/scoring.json": "17eb012a976e18ab929fc43b0350fd6d500d2856ff601db96fb5b26f20186833",
+        "private/workspace-overlays.json": "7ee1eaca40bdf8bbfb8387b1df2e8590925cd38ccb04075b806cfebde0a4179e",
+        "config/recipes.json": "057122bbe114bd58ed5dbe6872a2757b87a07df0edec289b7001ff9f1a8e985a",
+        "runner-config.json": "bec98c39f175e2bbb5d1906fe6f2efe4b8e6f2b3be19188ef7832921a0bda43f",
+        "MANIFEST.json": "95d01fd729427f1ddd0b692101e824dcb078d283cb90ecb6036f476fea1c9fcd"
+      }
+    },
+    {
+      "pair_id": "sf038",
+      "source_version": "sf038-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "49a5c5e1b7976e577d71530437b9433b09ab4c80c5d63a3194e827c02646fe7f",
+        "private/scoring.json": "047d2c3577158f107fcba2ce8d7bd5653e39e790d5538cb601cc427932962998",
+        "private/workspace-overlays.json": "a05949180bf355051854f08781f1cbf9327a6b2f021715b5ca68d746be8ee434",
+        "config/recipes.json": "a6cde314f36513db25f3312447ab6a17e09260257624207589ba04193ee6f91f",
+        "runner-config.json": "36517b63a9cdfd85121fd312d8fd78754fff91e11968661cf1336b8d8d05454e",
+        "MANIFEST.json": "61c68b2bfef4bd0d47b739b409af455689a7727494d419792f1ed0e0152e2b47"
+      }
+    },
+    {
+      "pair_id": "sf039",
+      "source_version": "sf039-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "469b608435ab6bb2a5432791372222e4caba3beffffe3a4d84843e48ce5159ce",
+        "private/scoring.json": "6261d4f0e08d662b47b5c563eb39cabef3b22d979d3b75d8ded815899d5da768",
+        "private/workspace-overlays.json": "7e651e4722a4e33c92afc6bfbbcedd5e31f13f118619c065ed16289fb35f1b3d",
+        "config/recipes.json": "54e184a8a22d3a6d0336ded313e252cec2ef07e3172d6a259c98ce49ee08235c",
+        "runner-config.json": "b21cea92bf86fbdbeccca756de472229dd5b1269e4b862700a530c25c615d5ef",
+        "MANIFEST.json": "c934648d1a9084de6cfeab52bd12a3f9216abd639a4558c9b4080d7541f81e2b"
+      }
+    },
+    {
+      "pair_id": "sf040",
+      "source_version": "sf040-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "7562b67d3ca72e6cf5db46dfa6a777eb3234e8adb904386ff4586f5bcbb0590d",
+        "private/scoring.json": "22e194d64fa8c6cf1ed9e19d3a8ff4f27b0e980295071b2482c6f3490cb33ce5",
+        "private/workspace-overlays.json": "f585303669e3043e0e6adcc5a7efeed8d4e217e86df1cd6589542256c8f97adf",
+        "config/recipes.json": "05d39c4b5d8f644d7037ae47e457d631c61ec10d9d65daf150885ac14ab8a00f",
+        "runner-config.json": "94575eb67420ced41686717946eebaa9658a0e214aed0bc64d202a590fd7b21c",
+        "MANIFEST.json": "8b4f1b64c31b4c9e8c016f4b602e129ffa42fec38718271201f9ec296398bb24"
+      }
+    },
+    {
+      "pair_id": "sf041",
+      "source_version": "sf041-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "8c7e611da69983e867f33e61eb6948c469623f259ef0f5ba4c24dff718bfce10",
+        "private/scoring.json": "2b58eb3b1850da0e2fe47dd8447664f55a99d47db76511799c7515e0d0302d4a",
+        "private/workspace-overlays.json": "54695317fc894486e9d41055d6719b4134c552244e55b7c0941112a8e0978213",
+        "config/recipes.json": "a9c87852b3e1d8249ad9a82d46cbed6cd4b412770301e74f37cece23554c0978",
+        "runner-config.json": "51f3c591524a967646e4e7c86a5b3aa6755f3b80e4afd3afb63f44302baa8933",
+        "MANIFEST.json": "6c453c36ba8047d0aeae55022914e36c966f772610bc6d08fc09e845ecac0109"
+      }
+    },
+    {
+      "pair_id": "sf042",
+      "source_version": "sf042-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "0cd9c2f4358afafa3d16c330373b67c0a456523994bbf7b23fea9fb7cd666ccf",
+        "private/scoring.json": "ee2e923e4ff6386e4e7eae0345241820fd0d7508d00128c6cdf9e88233ddbabf",
+        "private/workspace-overlays.json": "b5c768e3f17dc375557c09e3c1410ead0a4f026c1814b8f476e866da9b931f67",
+        "config/recipes.json": "8e75c62a85a742ed23b7d23fe9f2b99fcc790c13f1afcb89cc0a5cf888685b3e",
+        "runner-config.json": "b8831bdff3ba43de4878e831c6a44d4c0d78d7aa5cc3a0a44e9481da68248b05",
+        "MANIFEST.json": "d53fd6efb02404e881c1b6c728e0d231941838b59634cfb64cdae3ac06f63bdd"
+      }
+    },
+    {
+      "pair_id": "sf043",
+      "source_version": "sf043-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "95d9bea6e9fd82d42c500029e0ef570e02a185dcc52025ee3c5bc859c10140cc",
+        "private/scoring.json": "4ea58b0b98a5bd20e2cd708031e4f9cbaaa096969d37bd34ad144a3bf452b62e",
+        "private/workspace-overlays.json": "33e5c72723067e2f38d31189ef449a40a2e54802f468667d90fb2e215264d90a",
+        "config/recipes.json": "a4f16a4da1aa655b226f36792a5d38f221d1c12c39665fe07b3cd0b65571b923",
+        "runner-config.json": "88ca7110b3224006f79ad35d72f6f2c556bd0a4d43599c89d348c57024f0b592",
+        "MANIFEST.json": "38e2b6058c99870b4e7304fbd46645b937dc4640e9d80e9fadeb497163ed8477"
+      }
+    },
+    {
+      "pair_id": "sf044",
+      "source_version": "sf044-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e0f47823c3426228a9245b80b01699e0ba223e257e9e81fb3e29cf790a1bfdc1",
+        "private/scoring.json": "feeb3b9932737579afe443f02849c8c27d1744c0cbdb789021bc0b3152f81e50",
+        "private/workspace-overlays.json": "bf1c3c7292e9b258278f4d05baafd44b2399f0850ad6d010fe9037e696b1f7ab",
+        "config/recipes.json": "7c0f590de3f39a15c16d1fa012a59417f93c17031c74b803ce789301366d845b",
+        "runner-config.json": "578a8135300ffc40668d9bd5e923e29dc6e586c9c7476c3fc15c1b172c44681a",
+        "MANIFEST.json": "f8b3f4c7691edaa78c96dc37f5111e03ff3673355abc846a03bc1c305a01be51"
+      }
+    },
+    {
+      "pair_id": "sf045",
+      "source_version": "sf045-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "7ace93e1e92dc51229ad8babb47cfd10367830caeec4a0517232f93cc22d88e0",
+        "private/scoring.json": "827e3d23fdbb73cabea875731feb7ee988932d02f9f6709b8f41356e22cab1d5",
+        "private/workspace-overlays.json": "e02ebf2f4a78bca97918e33ab496915eef5bf3e2a04a865cea4e2816f5ec4b2e",
+        "config/recipes.json": "5173d66fd536a201eacf06a956fbce69496026252bf8177e0309f0122ac2db50",
+        "runner-config.json": "f18a6cc6ce70f7113b2f8c862396ba4d9720cb59f142f55a47cf7986b2b4ed58",
+        "MANIFEST.json": "08b9adf956910a6fc46623628e702410efa41ae7edbf96e57af53e772d10a073"
+      }
+    },
+    {
+      "pair_id": "sf046",
+      "source_version": "sf046-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "4c228d566d13fef917bc6bd026778f3e13746ad24af419b502bc96d8f8999e66",
+        "private/scoring.json": "92b89799f371a57119b17f70954fa9eb6d1134b55f25ce4c09d4b59c310729bc",
+        "private/workspace-overlays.json": "a6364921e6121c6bd463f98f4b7752f3661faed50cc6f620f682484fa23ccbb9",
+        "config/recipes.json": "3216e62ed2a78afd2b91319de3eef4fda6364ac5d15aa75987ceb76a94c8647b",
+        "runner-config.json": "25dc3fbfd1293e5de81dd71cef983859e5b9214c1a065e833bcbcec20ce2ac1e",
+        "MANIFEST.json": "e0a98ba7d548e6e64c50f9f5d21d5ce2765725e61803f343bb60ad63f5c2c2ba"
+      }
+    },
+    {
+      "pair_id": "sf047",
+      "source_version": "sf047-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "686a5635cdba2636ffea69c0eda6b0d1c83c1d65c2e2564d8fd703f04e1f6b5d",
+        "private/scoring.json": "1d2dcb19333ae3660b6eeee11af09213b9fc856e6e6d115d81866f39dec613c5",
+        "private/workspace-overlays.json": "c562a6df6856f96894e29604cadf6e5bc074e2c8483ab69d1c8de01ce99e3f6f",
+        "config/recipes.json": "0703003808717411a360f4eedcf979511a49620a647126e076538853aa20434b",
+        "runner-config.json": "68cc2af83e41838aff2622fa0ffbd35e92e77896c998f66cf5c461900df75711",
+        "MANIFEST.json": "def32d044d167081642e46069e0d99d0b1a9ae5639f199900fe090de1d7d109c"
+      }
+    },
+    {
+      "pair_id": "sf048",
+      "source_version": "sf048-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "c772897a3b1c8cf1d424814b13a72536e87c44be31543c2856bd768c18923b21",
+        "private/scoring.json": "f2168f01afaf26f238770a4f8a584b78c82da85f4a2fb5b1973d5344081d03f0",
+        "private/workspace-overlays.json": "d05b2ab83d438087227cce2d6c06905085cb4cc03c9a6a33e356a39635155ec4",
+        "config/recipes.json": "3ed84642dfed3c710b9cd0a2458c5fcee98013a6bdb66e27d51fe05fec722cee",
+        "runner-config.json": "8c07f69d7307195924f7d3e73ef565b7113774013f8a018188b2fbcbdc0d2510",
+        "MANIFEST.json": "cc345836b73568209477a309274b485eea920328bebb0762d133163b4bbd639c"
+      }
+    },
+    {
+      "pair_id": "sf049",
+      "source_version": "sf049-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "49e0b31b0e75d6970c0db8105355c4659d1f2049071f60469a4bd5a65e3e87bc",
+        "private/scoring.json": "1acdb7b2c61e903212bbc5a1af1dd810ba432cbf697cd7b64561de84749f6f2b",
+        "private/workspace-overlays.json": "e0c2edf1f231baef600e296a4ec093a787be59f96bfcdd977dcac6e24ca72b25",
+        "config/recipes.json": "bebda1bc824c5ee0396cddd9460813e23e11d12b59078bc2bbce6673a9d1d467",
+        "runner-config.json": "b1dd5613ff98a47e39c4d309e4e76420e0d53f3b5d08ff1e9bb27170af99ef7b",
+        "MANIFEST.json": "2bf8201e834276bb782558865ecef7557e3310dc860e0bec2ba6217e7c657f9e"
+      }
+    },
+    {
+      "pair_id": "sf050",
+      "source_version": "sf050-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "86c88a83a69274d70da5927de912dc365db5bd5bf1738860a4680013ddd6324a",
+        "private/scoring.json": "a25ecda04cd9d87ccedff7006a668fa7514a91150a8f603f568cf6160fca99ec",
+        "private/workspace-overlays.json": "82c82ea3ef5c969205c452cec3c52090fc61150f53b233248b76b0adc5ce64d7",
+        "config/recipes.json": "968a8546ac5e9c3239e15bf2b9f74e127e1fdc84fe5b7a8698a2b9f8b1d21c1c",
+        "runner-config.json": "9bbdee359bce5673a419204c30dd9960b27472f0806c6c29aba0efeef898e7f2",
+        "MANIFEST.json": "64dab506f1fe9061a00ff95a577320411f57edce04f1de3e0be5b84f33a02da3"
+      }
+    },
+    {
+      "pair_id": "sf051",
+      "source_version": "sf051-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "507ff51fd72e6f635a7079c1228607514efb969cef9b71fef658dcc6f03e1f4a",
+        "private/scoring.json": "8116dc7411ef8ad360ff4e391897bdb946e8e88c272218f7026e51c8f847cab7",
+        "private/workspace-overlays.json": "9ed28a622950089b53ed37dfce6852b0e91bd6d6daec9addb26502da76caa749",
+        "config/recipes.json": "9295fb4cb2553db369454bd47f7c40498cbf052c3c39dad15ea3f4f1238c0dae",
+        "runner-config.json": "6d32159cac833de63e02818ed063bf493489bcfb2bfaccd1e2c05c07b0fe8ddb",
+        "MANIFEST.json": "f1c47d0d3b749a5f18d901fd26ccf987393db18423c59f3d5205d672c9fdf263"
+      }
+    },
+    {
+      "pair_id": "sf052",
+      "source_version": "sf052-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "74b08a15b445c610da8230d898e7e05b64c49d808bc9418057a8fa069b7f4bb2",
+        "private/scoring.json": "a5d726c01649de57ede70369292898395eac2b076509263107861f5824df7421",
+        "private/workspace-overlays.json": "6ac751566fd0a5a7343bd8634a709a910c73157b7ccec2c5082bd8a14386d7ef",
+        "config/recipes.json": "4985618525052804fab08288aa936ff94db127752b5b3f7d9d3ae78ac68d6b31",
+        "runner-config.json": "9bf464dd4953a91b9b5e9bdee96f3990c444d83c6faaaead12b711433d1ee21c",
+        "MANIFEST.json": "cb61c2ff16b7ab725d36af437754002df609e0e3b8aae63978882142c0ce1bce"
+      }
+    },
+    {
+      "pair_id": "sf053",
+      "source_version": "sf053-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "9012b10ce3a4cf2bcf7be14fca3c2d4a1cdb239ae07b7d906e923034e7f86085",
+        "private/scoring.json": "74cf4dec593033fcc1fd791625c9faa1f6de7d73ad4bcdaca985902c4d1ee52c",
+        "private/workspace-overlays.json": "177445e76a5af44a98a0403e77eebc710661941f1e4b486b67540d628a80eb28",
+        "config/recipes.json": "02ee5ea7617c5a5db99dafd711a5e8abca21b5730a3e97bd53b56ccd320a85cc",
+        "runner-config.json": "ed813a09b04aa64ff8c476b1ba25b235c369033c35293537c96689cc60bea88d",
+        "MANIFEST.json": "3256233866b574cb00a20023237732238f0321e3f4b15695945f3138615329d4"
+      }
+    },
+    {
+      "pair_id": "sf054",
+      "source_version": "sf054-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "aea1b71bc10b45c899e3cdbb212906d6a93a55f79fad81626dd27c4a060042f1",
+        "private/scoring.json": "939759e2becb1b8f29c8a914309ee2a8e6e655efb08265be7a0314c92d3b94a1",
+        "private/workspace-overlays.json": "6dceaeb9941963d70591e141e17f8c81a58fa761aa5aba87002a36e6c21b86bd",
+        "config/recipes.json": "b9b54f13705fd12801e4d22ac7334bc1b12aba175a54bd90db175a2feb082830",
+        "runner-config.json": "d7f507fc11390b45d0e088b85a3df693b983981b4c0132b4281fd80442a445bd",
+        "MANIFEST.json": "119977f522beee49e2d29934d3f857b9edc6ccab93045549d9ab08fd589c0521"
+      }
+    },
+    {
+      "pair_id": "sf055",
+      "source_version": "sf055-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "f579ef9ffc32cbf4ec63720e3ee2be48d06a965bcec34eda1172f951c863a1b6",
+        "private/scoring.json": "09b79bd34b5c6ca93f15f07fb9ced30fa31b61ff74b3c566649c76d28f091f2f",
+        "private/workspace-overlays.json": "6ea31b200f3d8ea937b7d589883a13b51197eb58f98451541670aba6bb349cbe",
+        "config/recipes.json": "ba7ae6d4bca906c977d49861ab0a2654d1a5af2bd33c827f26e61e440c72bef6",
+        "runner-config.json": "05d32af0b008b8726f2e568391f6ae47f00a2e735f3132f2e2e91c638c802d13",
+        "MANIFEST.json": "47ec6a6c96d297d9f9fbe1ddb93657c3e94df30e509729c2555edf16f7b28fdf"
+      }
+    },
+    {
+      "pair_id": "sf056",
+      "source_version": "sf056-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "b997ad8a3203d64dbc9b05ab62e88e4a7043c334cb170a1e4013640f954e7515",
+        "private/scoring.json": "45b49f75d728b44d61a3d38ed434697839d7f06a536d6a383a4a189613897394",
+        "private/workspace-overlays.json": "85a42602ea13e16fb81efd221bf5440a2b4320e987c5d2f24092e47414fd42a3",
+        "config/recipes.json": "70876c421367887b63047aafb639aaef43a975a003d3c214e6229e0ab2c87315",
+        "runner-config.json": "04cec5af724f6a22a5841248270a4060ebd1b4f900fa705a68c1b799d25d0d03",
+        "MANIFEST.json": "57bd991ef6487a212ca4430309eab96bdd80fcb172854d58fa4b6f205f17987d"
+      }
+    },
+    {
+      "pair_id": "sf057",
+      "source_version": "sf057-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "4c359fa8575c3a2e5f89b3877ef8ddf2df3139d938aefefd78d92bda8a235183",
+        "private/scoring.json": "e6751e98c28157f0d536ed51715eed9f716cadd149d8e58071ace34113539f14",
+        "private/workspace-overlays.json": "d60e80d6deae98559454e780c83094b7b0c93626357ddde71824eaad665fa797",
+        "config/recipes.json": "52b7ab7f519e849fb3caf7f4e954ec20fc74f5861b299c450469e025a05ebf0c",
+        "runner-config.json": "6f543d0b4fa5830bbfd711c6bcd20915e0160c7cdc526a6570d0ea88727cc016",
+        "MANIFEST.json": "00260a383b4ca3276096323596ae51feed5f3383d9aa16b2d7ea2fbac4adffe8"
+      }
+    },
+    {
+      "pair_id": "sf058",
+      "source_version": "sf058-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "60c8c03912cf2a26c9d4d565f945983a240639e9f7bb5de283951ea69ca71531",
+        "private/scoring.json": "ec329850614ab3d2718bd41828a896647950d10f055f3d8ebe03f563e3d60aff",
+        "private/workspace-overlays.json": "fc0f504e46ee730064f61471cd13f5a0fde033fbd89c63251ff7b174ceecba1e",
+        "config/recipes.json": "ccccaa7a91b60695d8a4feddd39ea719592b005ee53e0f1e31c3e5290c78adc3",
+        "runner-config.json": "8649cd7d4df85ddf9cb58a283e8971eba4e9ab385dcec400ef660763efc0c5aa",
+        "MANIFEST.json": "f725f252e48e3d393691d8a972fdc875b79d57f90120540d8937b80d7fd00a5c"
+      }
+    },
+    {
+      "pair_id": "sf059",
+      "source_version": "sf059-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "dda31b9899f5bdceab60fc270907b4b5b0b3da8a26bb46f399768af9c4c90a8f",
+        "private/scoring.json": "2c9f5a7ca6fb62f2c94770ff3713e5790b7a9c567a00cc74c96a5617e4b8d53c",
+        "private/workspace-overlays.json": "04bd97c20fedfe91bbdb7ba14f8f0def4a1ed35b2805588afcfccc2ca6aa8af4",
+        "config/recipes.json": "0816a41b1e69b96c0ca35f0d1074b1a6304ece43f90aee9d6d06ce12ba5c1bc6",
+        "runner-config.json": "207ff5076453d0aaf656af285ed3c39374fba9e88d9b0f87a4f81110ee4379a4",
+        "MANIFEST.json": "7f68876c886350730ea8593db1166a62d6593de7d6420453f94e5f8204f2f7e9"
+      }
+    },
+    {
+      "pair_id": "sf060",
+      "source_version": "sf060-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "25005fbb7e2731a8f9689f77ce676cfc08b4e277eba4f7d6896c47ae3cda4719",
+        "private/scoring.json": "f6bda2f72cbba98b540c2d9ed40ec151c7e4316d0fba15b24638a452e0ddf9d0",
+        "private/workspace-overlays.json": "b7fc52d934c565a57c78c1da676f67819e75b151d8ee80fb336cec94f766b7be",
+        "config/recipes.json": "da6d85bf94652ef12465b2b7bc3d8adacda6149ef3e31a7b9e707291698afc4c",
+        "runner-config.json": "95820d9a9ebad7fc1ed5533d3e1a21de9a8bb8eac4deddf90337a3dcc96026ac",
+        "MANIFEST.json": "f0fde14afddd2b0c8064e5d459225041f9f7eaeb4a8e6527a0b438eb7f36d24d"
+      }
+    },
+    {
+      "pair_id": "sf061",
+      "source_version": "sf061-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ee91021a4df3a6b66cecb2fcc44fe1d659fbbc2715ef6f424b9334b78bfadba7",
+        "private/scoring.json": "614bfe4acf264698ea104256b3ae362fc977fab80adf422da02a2f1763cab7b6",
+        "private/workspace-overlays.json": "cb934fe7aa7ffaa249d0ef4b5b84fdd8572d011ac73b8a100ebde127306e988a",
+        "config/recipes.json": "eb3d1ecd85cb3561b110a8106830ffe55b81d24dd44c126f692cd669f5378b36",
+        "runner-config.json": "1984d79c1fa095d2459e4a3950cb13539352042079fe6fdc5cf172c222c89f3b",
+        "MANIFEST.json": "6aafe55b4e1acce7f15b534f00575b4ba25eecd3e6f75e6b28a5c036244e0a6c"
+      }
+    },
+    {
+      "pair_id": "sf062",
+      "source_version": "sf062-opaque-env-v7",
+      "source_bindings": {
+        "data/cases.json": "9c984fe4a6cf622c0e7a70df27f452413c197496521c5b80db5c965ff2793417",
+        "private/scoring.json": "d43e984aca1b9aa2282c58d018f62b5862eb2555dbbaa4af3a274fae8bf37c6a",
+        "private/workspace-overlays.json": "a82c9919969153ae7d034cdc21336a4fd5284a5caf80da0f2a325d0b4eba961c",
+        "config/recipes.json": "122f05d1ec51d299ec75be1aa0967229813562f004d13bd631637ea8ed21a756",
+        "runner-config.json": "cc748e40561bd6886b9dd6fc343b2fbb59aace07d1c7308a308affcee78376c2",
+        "MANIFEST.json": "b730e3828f6ce94acaf2085ea5977f8f6665c9388679f01b7cdcb22a931215f5"
+      }
+    },
+    {
+      "pair_id": "sf063",
+      "source_version": "sf063-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "94edaa6303cd69e9b57194ab9dc1f519f0ddc11607476156f25dfc318ee82205",
+        "private/scoring.json": "79dac81ca621f18db5c25d7fa52574ac9b7403dafd652558a273269ac9a4ea7f",
+        "private/workspace-overlays.json": "d39b8c5ce385f4cb7f30b27f81f9fe9c903ca7be74b3918966ea01f38c37a081",
+        "config/recipes.json": "f014fc7730f3fe4c4566575c4764158a992242b28300569f416f9fce5a21e5da",
+        "runner-config.json": "f397f5972d4972f05db2e8e01108931631635e66b7eb9a969fad250bc4bcc37b",
+        "MANIFEST.json": "4c96ced56ba2b716da57e3968b7fe2bd2135f03194aff34ce032cbf4ea448f63"
+      }
+    },
+    {
+      "pair_id": "sf064",
+      "source_version": "sf064-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "0c8d1f7a492fdec682ac1f7a3e5eb63e9d5434b61ccd2e1317304ce7c9d34e36",
+        "private/scoring.json": "973e8d90dd38ebd1587624349a668caebefdc607cd35b95365fb34d52a1f77fd",
+        "private/workspace-overlays.json": "61c308b0152714821e0f07bd4e2a8e8d1c0109db2e8d81a2f843f3043322ff9a",
+        "config/recipes.json": "e6490df016d50c332e2198c67540b95a1eb17deca406ccd977f652df033107d5",
+        "runner-config.json": "8ffeb7902524c80e43f3ed19f7f1a76ca8a5e2217c79b06e7b02694ad9b64dab",
+        "MANIFEST.json": "57b64d521dbd6fd72b2c309c4d18efd342c403b6363dfd56b1c1a29e9181bab8"
+      }
+    },
+    {
+      "pair_id": "sf065",
+      "source_version": "sf065-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "f782d60087261be8b0e6c914507d48b1400ab3a77403ecc2e9345f14748c54e4",
+        "private/scoring.json": "a4eb772826713203ccab7748c66b710913409656773b348a1ce93a4243c953c7",
+        "private/workspace-overlays.json": "3f576665cc075a6bd8e0306eb1e7f2de05e96ec15bd8ddbe4bd8254e049e75c9",
+        "config/recipes.json": "5c408e00533b5680aa74f37a81c66ff20eba4e108c2a34a10fe6c7f5823d1ff9",
+        "runner-config.json": "7f49297e34258b46b611c6bdda7026d90ca1e670973e7b76c756bfa4f3e02ae7",
+        "MANIFEST.json": "098d5a595d4080a79e99e0a5b73d24eb11b2b0f69a8ea06cc5149936dd814c66"
+      }
+    },
+    {
+      "pair_id": "sf066",
+      "source_version": "sf066-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a56ea538d68157e2f363c910ff79bc6bb3667d1e1478b5d1b5a0f226bf83cda2",
+        "private/scoring.json": "86bbfcbe59b26006c5b29748c5b7c84278b02398f6b79a020c6853693eb8e3ea",
+        "private/workspace-overlays.json": "6aa716ea7c2fb9d18815413a754afc8fb8a5e06b35993ddae84c21ae16851789",
+        "config/recipes.json": "e72f6494181b86d43ca9be032c520b325824b879a1a8a258be55eec922390e85",
+        "runner-config.json": "40249fb695ac78b802a8cfc350f3e71b180856cd85f52401045aa9e64cd47f39",
+        "MANIFEST.json": "71c6ae8ce68e5a5de6cfb3b014f034764e8f9daf04d39ca0536fbb01a148594a"
+      }
+    },
+    {
+      "pair_id": "sf067",
+      "source_version": "sf067-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e1d1d86aa6cf3ee69a43eec83ecf70544013ba8ede0649688d24fd711d5cece1",
+        "private/scoring.json": "6c40f51aebe8fb5c554dba7d93cb1fe3daf00cddf202c08dae77b51c9bd75775",
+        "private/workspace-overlays.json": "55bf7964418585295ce2f42603008deab8b765b08df6875b82f33af068a6c7ff",
+        "config/recipes.json": "be0a6769923781b543ed878eb22d53bd25b8012176229c4b54d061d3adbc3b75",
+        "runner-config.json": "b64c07c4c82fbd3e927bc9cebf3cd8411f1e72e2bafba5245c1942fa72ca45f5",
+        "MANIFEST.json": "b04abdb9db5c0941b5986ba8f4d3ad994a88d07ac2b487d40a3bc20764a9cbb0"
+      }
+    },
+    {
+      "pair_id": "sf068",
+      "source_version": "sf068-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "c61056945587ba97ac7fb862dbac0dd1e4c43595809d3b1077c373e2d3146e18",
+        "private/scoring.json": "f3f769ccaa4afaf4512ac369b1e251b10c6b1cf08d087968ce882762ee7af94d",
+        "private/workspace-overlays.json": "73fa615960ac8c4ee9eb6bbb906c4bd12af3526aab407cd5a86b6407a74e6a78",
+        "config/recipes.json": "5c98e1cbac6c5767e50089bcd2b3caec8efac6d4c798b72126fcf9623def7945",
+        "runner-config.json": "f40d0c0c3a55715fdcb6978b896ddb621af292f4cc2a865376f97f0296a5bf26",
+        "MANIFEST.json": "f00e70176a212ef2ffe2f80d94cd0960b9cd834777208b87ab927587814bbce0"
+      }
+    },
+    {
+      "pair_id": "sf069",
+      "source_version": "sf069-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "18964c3792f5d193292cbe4b75bc194306c836f4867e87769444d9cc1e95d5a2",
+        "private/scoring.json": "c23284ae652a4f7f27213cd412b9e06c2030e115f214719766c21c4951a669c5",
+        "private/workspace-overlays.json": "bda93fd403d8db1553dc16d5251df34d5cc99fbd7280dc253dfd373c13eff9c0",
+        "config/recipes.json": "9ca4beb8cf8c62657a60d8a1d3d2a7a85546645c7b7030cee0560d29100b7d5c",
+        "runner-config.json": "ebf89a70e80d1487f1a4f9d89d651cd230f184a2ba1144418b698e22601d243c",
+        "MANIFEST.json": "ef5e5c7cdd98d5f4cf010f2dfb769d5ff9c5d273cbdaf6f02459f5fd2501ba45"
+      }
+    },
+    {
+      "pair_id": "sf070",
+      "source_version": "sf070-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d7271a201d1112b262529fe34bc8b264ff6eaeea9cc92223093238c10984136a",
+        "private/scoring.json": "3f7a145b3403dedf0eecc1301941d7327c9becbeb1064616d7b6b68ac737d10e",
+        "private/workspace-overlays.json": "7cfa1586a8d32c3f57617eb721389f0f89a10688595c8efbc60995fb2ecd14e4",
+        "config/recipes.json": "55b82c97422f0d21d8bd5eb175a81f6675d2b034f46d2775d1cf7c7473d05b73",
+        "runner-config.json": "d533f3017a2e17b452ad0463c9a559103968a85e1aa5d08c0906b6214fa72c4e",
+        "MANIFEST.json": "5e10a3e3825b2dea485f3ea7b28a286c634b3e18071706eed815ead482184581"
+      }
+    },
+    {
+      "pair_id": "sf071",
+      "source_version": "sf071-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "7af183f4d79619b77fbe9c6a61270e0721944536147e4452c91921f98f551a8a",
+        "private/scoring.json": "ef03ffa3464a1cd6e1e00def0b21e588f594f30a5bf4d46154f0cdc9defeefa0",
+        "private/workspace-overlays.json": "ba6ad69e2061e058258b7ea4ddd225f1f0e685584e34f907f1d9950ba7fc595f",
+        "config/recipes.json": "7c7067f64ac6c899836d31dc8b17ca1cc83f436d70a7bbec62b79f8c933ef06b",
+        "runner-config.json": "efd31cb4072a842e9624c0814f5913debedd9468c432dc74f1417aabdbcfe1f7",
+        "MANIFEST.json": "36400b849c26a127d19b397a905e8720d653a555817e1264051dfe407d918e43"
+      }
+    },
+    {
+      "pair_id": "sf072",
+      "source_version": "sf072-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "6b54d6ce0a241b8a2c911a7d5823d772c00dc81a152504375d97f054787b85d8",
+        "private/scoring.json": "f844f1800eaaa27828cd1b96c58f2347cc24b14efdf44913cb43c425cbc86ef3",
+        "private/workspace-overlays.json": "659c392f2db4a2b932d39f91d5e7a94f9530f03e061a1715b922631c357384b9",
+        "config/recipes.json": "5df3554a3effaa8a45e6201b556ce12625616598aae0f615ff964a1e428a368c",
+        "runner-config.json": "bab924a67f06fe2e1657695730b09c720483ca4e784a8af07b9ee2556f10a6c8",
+        "MANIFEST.json": "914bacdfe1e3c7c6ed915705f2abc719f2d0df0ef33b771f9d61b436a4e1bcb6"
+      }
+    },
+    {
+      "pair_id": "sf073",
+      "source_version": "sf073-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a90f34b853a74d304c8678400b9f906db98730071aac4c88beac1ab2b03a6a1f",
+        "private/scoring.json": "a9ae4a244b40628cb7155c18b4d14f910804579661e9414a828d10253cb87f02",
+        "private/workspace-overlays.json": "d4a25bf3ee9b3bf1fff9dc86e8c5bb22e15340939f19e671cc2371c5570afd49",
+        "config/recipes.json": "c2487dadfe5b1c6847951b717b8ece2349d30273041c8a13edc0b6d74178685e",
+        "runner-config.json": "0d713cf49034f901e74c81bfdaca094dd96191dbe34471926516c6a973c1d5a2",
+        "MANIFEST.json": "80e19b8ed68cc05d2166acb77c58a589ec80a72f7ef82b6dde19133a16f6ac4d"
+      }
+    },
+    {
+      "pair_id": "sf074",
+      "source_version": "sf074-opaque-v1-env-py39-r1",
+      "source_bindings": {
+        "data/cases.json": "a598ade08bb073bf0bf93673916bad64bf1f0e091e4f716b5c817801e9f37f75",
+        "private/scoring.json": "a884bb2557556f6c37d008d5026c574d90b4bd3d9523ee5553a4097e40bd239e",
+        "private/workspace-overlays.json": "0b9907dedf604ba407afe2e898b5bedd85a5fda9f769d138e88fc7d557411a57",
+        "config/recipes.json": "6de60d7000cc657fedb93edfe91e969d30ada43fccb5ef0430f2bc582e55b122",
+        "runner-config.json": "37ee6d7dd295ec85839e72a004b9dd8df4d4253641405a25be9a6e494e3fd045",
+        "MANIFEST.json": "43909772e0eeb0a15d6c88e21ff0c830bdc6b028e787b60312171c0a40022bb9"
+      }
+    },
+    {
+      "pair_id": "sf075",
+      "source_version": "sf075-opaque-v1-env-py39-r2",
+      "source_bindings": {
+        "data/cases.json": "7d2305bf5c71f1a24fc4d52e9be26d39fcc43384590587844e32895a1e28650a",
+        "private/scoring.json": "0dc851202369906eb826350b023383937ed8253f8de92170719021f9b7d44144",
+        "private/workspace-overlays.json": "dcf5b8ec698a45dc59b406865c5e6a9007e3f5219f79fa7103ccf95f1e3c55eb",
+        "config/recipes.json": "dd8538eb9f073c410658a001b4b820bd5bca6a5106af36d1807f8eb413682ae2",
+        "runner-config.json": "03576f0120a404e976e14dd6b9e203003b26ee718d974edee76338aacce71c61",
+        "MANIFEST.json": "57c1779bfc712268f4f4680fdb65bc69d651eef7ffd0351cd38ebb56338de627"
+      }
+    },
+    {
+      "pair_id": "sf076",
+      "source_version": "sf076-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "7f24100191711680d486f84eceb0f2154718e45a8affc6ec32cc2baf766af42e",
+        "private/scoring.json": "898c1d9eccb3b748a07a4e491af32f28cd650ce89740c7323b5b9971c6f6cbf9",
+        "private/workspace-overlays.json": "b943cf3c60fd6fad0f83efde124fb8486aec7ec591441e6e00cb801fba2abe06",
+        "config/recipes.json": "c8054167367e0790dea6c262fca036c2e2ae594ab88295d8ebbf0c6a2b51f1b2",
+        "runner-config.json": "a4c9c57612edb5990b573560867b96efa15abfdcf1b981de5fe1618a4c5229c0",
+        "MANIFEST.json": "a5b59d6f81c59cc5fa2d87df8b8c079b50909ea50f5de934d3b404be71e4663b"
+      }
+    },
+    {
+      "pair_id": "sf077",
+      "source_version": "sf077-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "459738f5ca0021ea3bc94bf916e63ab94fc56a4840a56125ede377a621d1a9d1",
+        "private/scoring.json": "07fb099c7d40f9460383e8f34dc95e840788f5a3e090bcba6f6e1d0777f5d6e9",
+        "private/workspace-overlays.json": "40287bdaf17802783c3bb02b72625ca5190956bc51ae940c7b21dfa26d9cfd86",
+        "config/recipes.json": "92f2ce40a3882701c34b7d356a3bc6b4e5b0e530836577c976d1403f8af7c036",
+        "runner-config.json": "d837fee3242f6d930bf1675eec979a5cf14fc5de64b6daf820ee07cdecbdb03d",
+        "MANIFEST.json": "eec2f1ff5bcdba5b01613f524bd24bad0d6f1c9919aa3989a6f378a18ff4bd11"
+      }
+    },
+    {
+      "pair_id": "sf078",
+      "source_version": "sf078-opaque-source-overlay-v2",
+      "source_bindings": {
+        "data/cases.json": "fb42da02a19b5df4b9114ec901dc798f5daeee042360009b4121266d8dd0c060",
+        "private/scoring.json": "36d2a8025f9d38294e4b03b74abf61d9d96679925262cde652a472da91af7c17",
+        "private/workspace-overlays.json": "a76fdd5c97098763d1c83f1b8c70013fa73089512858d56fb341db771fe4fd73",
+        "config/recipes.json": "7707ab4479006df97f294aa63cda53ce54f0197869ce19a30643965f1dc6c263",
+        "runner-config.json": "2a2ffb3b311e6595ea071cb6e946b577f8a76d7d0266601193544d44b5499f6e",
+        "MANIFEST.json": "467b6d49a0845aab176a740e280a71790c442f9bc8c63f0f489ec6132c37a8d7"
+      }
+    },
+    {
+      "pair_id": "sf079",
+      "source_version": "sf079-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3e552506e2407bdae3a62a10e44efe52a676cfd8ea7c710632abdc426e1b16cf",
+        "private/scoring.json": "142cea24676886a79d1dc0682df937a59f6eb93af9469a680fdf8e4f5e154ec3",
+        "private/workspace-overlays.json": "46331f4e3f555900e87f357e9db45ad3cf5a281d5e29bb2cd6665d73aa00b020",
+        "config/recipes.json": "4a14855fe9b6bf7c3dbab1bbc6e72fa8f8d39bf6e859719307b2329121cb97ef",
+        "runner-config.json": "43b826dae82199cc2f9ccb7f5e393849cae87fb009b25cc78ee309a259b2d046",
+        "MANIFEST.json": "ee371f35c501cf9b2f478351e31d2e90634a693b4cedad2e3850472acc56d700"
+      }
+    },
+    {
+      "pair_id": "sf080",
+      "source_version": "sf080-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "816870506830e856b02f09cfeea79d73c7d4b5f1d96d0d1beb03f7f4b4c29b7f",
+        "private/scoring.json": "39f67d26276bbdc4abaf82002d8bb8ca7f85e277cd340a0954477a031d8642ce",
+        "private/workspace-overlays.json": "aa2ad6a21e1fc484c4ab1e6e6c6cb82c02d955b196a3f87fd1234b291a8c3efa",
+        "config/recipes.json": "9c39d674885047398daf380cfed4845ea9bd161f7d6af0ef63812442794e7e4c",
+        "runner-config.json": "4e8da6e02f98f1b5e96f2ca37b831669afeec9b882c0926779bf0d506dfe9330",
+        "MANIFEST.json": "7524b4d2d536a75fcf90359166ab5d61214a19c1b1155297c90fe0b678fc0add"
+      }
+    },
+    {
+      "pair_id": "sf081",
+      "source_version": "sf081-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "57fd5dbf4dbf0da42ed9ccce56c1ce64200e913ad0e90749c1d3379047d03f3c",
+        "private/scoring.json": "7109b9822c04151c3c79ae0812a7bae09aa0c69391425c123d0be74b200648be",
+        "private/workspace-overlays.json": "46edf81cc32bb82a46b641a7666bcef479dcbc0dc1ea3f56feabb7bbd9cf0c0f",
+        "config/recipes.json": "f3e94f85a072c859627b30ab635a4b71b90292bd7406a1a1171bdbe4ff076101",
+        "runner-config.json": "2fedb1e4b0ceb7a8cdd0aca983dbcb4a2524045d6d374bc34c917c230a9c0667",
+        "MANIFEST.json": "f0631dfe0ec9e08a3474db56cb6a7cf82210fd3fe5e0ba3c906f32a57f16723b"
+      }
+    },
+    {
+      "pair_id": "sf082",
+      "source_version": "sf082-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ba586f401c43a5e43a5bd9c1af23623ea43681b2816e8ca2a7998713f00e98d0",
+        "private/scoring.json": "b2a1636365eddfa3f47ee354d210efae4b35f3e257cb9fbda3fd711193bece1f",
+        "private/workspace-overlays.json": "6d4b29f5594048673d4e06fce4b645614cfd1e51fd2af2001352a619857dc9c6",
+        "config/recipes.json": "479759eae5b7ede19801fb7c5d3448009dde03825eee49b58e1fadc73068a972",
+        "runner-config.json": "15dc236fde5725445c94ff1e7103694db2ee4e0a340dbf758332fd45c422147b",
+        "MANIFEST.json": "f0e3d46c62d49ec9effeb691b560775bd31468935eeb393fe162aeb3d6e00210"
+      }
+    },
+    {
+      "pair_id": "sf083",
+      "source_version": "sf083-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "5887a7870ee1a3ad3724e6da36a54ab8d57b4930d39bd8d0e2d27520de828807",
+        "private/scoring.json": "a90372f911bfe76117f49ff15030c96adaf749686cbcccb87952ad681e9b11d3",
+        "private/workspace-overlays.json": "f4f5680a3e36d236d762b12856cf1e765cae0df6ed5a11d898edee281e534d53",
+        "config/recipes.json": "d7e2e51ca7fb4487860fa66053e8850cecf4965652175b3a0bd02e1d586f48cd",
+        "runner-config.json": "a88791624c0bb70b0ced06d6c94bfc08244a2c9306741f3a9e47f0a0860b49aa",
+        "MANIFEST.json": "fb484095ff953093af6d730f653078f19e49891d2a9d9962cb9544bea9ccf079"
+      }
+    },
+    {
+      "pair_id": "sf084",
+      "source_version": "sf084-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "778606e73f12a8961b5119774c0fef186edfdc5e8bdc5ffe7bc562be003e6559",
+        "private/scoring.json": "7e77bd5592adb3844d6743e55cda58c9f9d1110d82b8e16feed7bb0e04d1ed3a",
+        "private/workspace-overlays.json": "1e4247501c5cf49da64c8791770021eae67a4063e410c8b0a681073619d2ab52",
+        "config/recipes.json": "e601abf239e4b8cf36b8ac37968ddbf5ef5d6b43f9d0d802185a16a9bd06795f",
+        "runner-config.json": "99bdd5025450bf8b5715ba29b975dd7871d229eee5b64ff9f7abd17f6da6a15c",
+        "MANIFEST.json": "390c60811905f63c321707d1dec85f70cc03710729a60e36dcf4e87ee1d6ae37"
+      }
+    },
+    {
+      "pair_id": "sf085",
+      "source_version": "sf085-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e5ee1d0e8396177ad21a4e149f160a37ee97893ebde182ffec228c45f798b2bd",
+        "private/scoring.json": "e162bc41f9526085220f9499412d5b8fd18bbf59c8802b1909b74a12414f97bb",
+        "private/workspace-overlays.json": "f515d862d3806992b5f7c3c43c48f635c4c9bc6f800d5882f8921f3057e9bf07",
+        "config/recipes.json": "c2c0b9ce7afae4438b9aef523766b346a57c61f69898382e9d6e7105d5bb728b",
+        "runner-config.json": "d7e70ef0855220c287eaf2fa67ffe5379c3623587cb16b0fb43c5d38a8293801",
+        "MANIFEST.json": "6f8c46865ddfd6c6aa9101fe4011c2e84525a58ecc294628e5050c910ebd7a07"
+      }
+    },
+    {
+      "pair_id": "sf086",
+      "source_version": "sf086-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "866207385f297f5c4426eacfba26191e19788a113453b5ef7293bc810591dbdf",
+        "private/scoring.json": "c02b4181b6ab673e7e8275767f0249897a657720d3a857e99281956e559d34a3",
+        "private/workspace-overlays.json": "8b03db2176ecf6e8f4d54572e354b88218c7ae465bb0f4874f0abf3c86b559b7",
+        "config/recipes.json": "c2519371d52abc291dfd5f446430d981c3a7c1bef0e0d582928bf5c23b8605f4",
+        "runner-config.json": "7e16d7b63c8defc2d87be96d472f0d1f279caee3c8b15eec027c490ef66c63a5",
+        "MANIFEST.json": "116d7fc14364e470e153a3dcbea1b6bb405e1770faf538c4ff68ac756e259cf0"
+      }
+    },
+    {
+      "pair_id": "sf087",
+      "source_version": "sf087-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "c4d1df286e774d32314a257d417354e218e709763b97a381dc21c515d3d53d1b",
+        "private/scoring.json": "04504edd750d4d9aef82e0ec3e1572d8d667899b0c6ce751b59d43cfd019fc88",
+        "private/workspace-overlays.json": "db7bc37a644f112d41ee657952f8d0c994ae5125e80927e9074a248eb3f3fc95",
+        "config/recipes.json": "c05f10cfbb1137b969816287c17596a861fea4b91c93ca57274631551040a165",
+        "runner-config.json": "d5abbfd2f6732c0c22132c6c6e05cb1caa3981722b3d63c8f7bec48308c7d718",
+        "MANIFEST.json": "6c8f3ac4c666c13c54553e16c4815d04c2f03e1cf1f9d7eaeeb8b4e04317ae82"
+      }
+    },
+    {
+      "pair_id": "sf088",
+      "source_version": "sf088-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "01cedfe6f19bdc056544cd6fbb102b2741432e5cb9f53041e6a6e838858afab9",
+        "private/scoring.json": "a932a0578f0f844b340ae95cc7b4ac93d7181b8ed47de9516204119b98365213",
+        "private/workspace-overlays.json": "0a396e17cc2f21bb4452a6d932ffac3e8420196dafb54cc8db77292f99fd6eb8",
+        "config/recipes.json": "5308c05724416f00f2afdfc67fdd003efdcdf8dbc165a13573dade6a61f34206",
+        "runner-config.json": "8a2b86422c4563a21ec5e416e8d39b54c23df2b160973bd55e7fde49855d1893",
+        "MANIFEST.json": "296e860f1dbfb87bb8fb341d21cee96ff82e0018a529f89c70897c891b2d4d58"
+      }
+    },
+    {
+      "pair_id": "sf089",
+      "source_version": "sf089-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "bc073994ef8fc1111919498aa1a92badf4abff8ffad539eefcbbb55a1e2158d9",
+        "private/scoring.json": "e186da0dc5c48cff2d1de23b1606fb654cdea8dca59acb751758bc34fe776143",
+        "private/workspace-overlays.json": "2251481708b1af97905bf26cffa36125510d6b3157ccbaf8901feeb6a5b0b1ab",
+        "config/recipes.json": "0f976572b4c4691253e3e0f4288c5773924b9986a79fa83cb396f8d3abdb84ae",
+        "runner-config.json": "d4aba58bd96e3affa19f70efcc991c1988cd1e6be407c2913bec19796b70e606",
+        "MANIFEST.json": "f876f2cf01771485e4e54f2775f6ca62abc6dc6621e5d40eba35730375f9e709"
+      }
+    },
+    {
+      "pair_id": "sf090",
+      "source_version": "sf090-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a62a1216d26ef923713165ef9ea19764dde37ac549811128c7bf08386b2ed5dc",
+        "private/scoring.json": "919747afb89c573eef0f1dc96bd97462762f99e51b4a41e6adc7c9897bf2ef9f",
+        "private/workspace-overlays.json": "cf9817f64d1ec76af9e9f276b3368d0b0ad875f12193e4201fe9ac74f579f523",
+        "config/recipes.json": "b31acaabc05c271db953d0915e277bf337f71cca2dcd92692e45295cea60f915",
+        "runner-config.json": "27174d6b2fabfd2d7da0be1c709da634b2c066ea9c90c140c808c77d792d7294",
+        "MANIFEST.json": "62b153b88020aad818ab77223ecc663d26d263d81a26f27ccf1f2c7cf9ab0d3d"
+      }
+    },
+    {
+      "pair_id": "sf091",
+      "source_version": "sf091-opaque-source-overlay-v2",
+      "source_bindings": {
+        "data/cases.json": "642baf912646ae0260fc33c41726e7e2112728c07b3c2fbcfec8a22dac8efd88",
+        "private/scoring.json": "81401e9172bb7f054bb61f7707544f44778b13e7f572c00ffe20428e2a466f64",
+        "private/workspace-overlays.json": "b46a231641607b1f7646b4b02d8c4be373658552bd6711f0b00f75579c82aac3",
+        "config/recipes.json": "eb1dd65f63cdb329efecdb419947e5da5a81341aecfaaafce846fcc1598b6b93",
+        "runner-config.json": "0583e3f19499fa9d93d15e315546524e4b6b3bbe25b88a47e5b973f823a6a04b",
+        "MANIFEST.json": "8c0df852b1aa9d2066ecb72d91152364d75272e4e167531b3449b06328915c28"
+      }
+    },
+    {
+      "pair_id": "sf092",
+      "source_version": "sf092-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "1817e12d19786e9fd36725355ab5057fb23403cb59ea23ae90a820a486ec5c33",
+        "private/scoring.json": "4bf2886b4a9c33dca843297fc686c2793361ec04945d1b7f5d21d1b5c1c320b5",
+        "private/workspace-overlays.json": "50f10618714ffc7b288ad5866db3761385a92fd843f7bbdafb3e2881f1f4cb1c",
+        "config/recipes.json": "ddfc8e2698000e71dfe9d0029bc22486a97f2d6a2fb6dfbd18c08cc2e5c309e0",
+        "runner-config.json": "81030de2ba0891dda3018b69da7fc47524d874c2363f6b6a66836339cd6a03cc",
+        "MANIFEST.json": "91564afa5cf079f9746e26ab172f4ee5aaad1816d7be449635818b2dcaea8eb7"
+      }
+    },
+    {
+      "pair_id": "sf093",
+      "source_version": "sf093-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "c5479cd9f503dcbe5f765927440b9ac3f606135d6d3c1931214f3fae87fdc707",
+        "private/scoring.json": "aa903f5188a085368dc760ae3d4fe16db7940252b0a56fb2a59d1d8acf468ffe",
+        "private/workspace-overlays.json": "b9ea82fef77366a7408f85b8a629da90c7725454a6d96d94f25d56133089cab5",
+        "config/recipes.json": "f2d93edfc941573b57b4a7bc79aac060c00ce79a9d7bd9852e8f136294e8c4cd",
+        "runner-config.json": "7a30fcc8659188c0458dfea0d2ec70d83aeebe612ee6d0ed2b4265ff7c9a6172",
+        "MANIFEST.json": "432e3445e1e44732dc21b1957edd823d7a1241d894a27d434a4edf0a60acc5ec"
+      }
+    },
+    {
+      "pair_id": "sf094",
+      "source_version": "sf094-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "b9419c636ff427d4f8a3b24e039786d969cc2b80fa15fcf3c22daeb4cc50a259",
+        "private/scoring.json": "fdf256b40d83988b9a426b50c503ea3602b2b156bc9b128005cba9a696dd4d64",
+        "private/workspace-overlays.json": "50a52186124b3c7336b507f41a6db0e20f1823cf347a63a250e824bb375af169",
+        "config/recipes.json": "2ec7a2c32a536c00dc71e40a2a0b52816c51dedc93acfba312a037cefc38b474",
+        "runner-config.json": "ee8f6c38dcea67b0863053d868ceb50b9617703fcccc5db8bd7f58e597d52f8b",
+        "MANIFEST.json": "bd298ff3b879b16016eabb71adfb8e4befea19c6ba8e0995ad8fd06450d3bf00"
+      }
+    },
+    {
+      "pair_id": "sf095",
+      "source_version": "sf095-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "c4946858e56ded680f91e1b912a57b57d94169dc72fb39dbe36504dd451c7f7c",
+        "private/scoring.json": "c03f194bef82ad6003fcf3a39ea18ca8f5ae0b385aac2b24d87ea676e1e905e3",
+        "private/workspace-overlays.json": "b7fccb0460aab617dbb14e224345e797272a446dd9176e1dd684644ae9a6cad8",
+        "config/recipes.json": "8a1c4c996941670fdf81c9dab9d3d5627fdf8bad2734eea89bc2a6dcd5817d37",
+        "runner-config.json": "dadafea1a06e228a6930cea6b7b495e6947e9d5a54c162d6fb2a21a9b163f9c8",
+        "MANIFEST.json": "17849d8d786fb83ba742cc03f606526ff654ae0159b21d59dabdf30986fefd38"
+      }
+    },
+    {
+      "pair_id": "sf096",
+      "source_version": "sf096-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e5f52c73d6cad21b86f42fe853af5acae7d1ccf3cc7ae49abb40a38c3a4a6d40",
+        "private/scoring.json": "b3cc6c640cb3eba89c73c46b016b6302bd25e71255b0916b753a37cf42c855b0",
+        "private/workspace-overlays.json": "eccdba462f6a09b94f2a8011d2956624b1c2e07729425b3abfa705bbfb519f7d",
+        "config/recipes.json": "e5a9dedef9b6982ccd4113f967d0b5d8a71c499f44cc5b461e772d79fd3c754c",
+        "runner-config.json": "48017c0b5230d7e8a3752062cb552d224c2231e1d9acb566e31577dc2b5de03a",
+        "MANIFEST.json": "f52955f1784b3c54f86d1f767c7b3d5a2cb5ee01207b77ceb3d4d5171d01feb6"
+      }
+    },
+    {
+      "pair_id": "sf097",
+      "source_version": "sf097-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "2737bec5991c7b1482a465047b33f5ab5932a11aacb40c3ea0634be2e649f25e",
+        "private/scoring.json": "d14ef5a0116994a3c36f92d0e142d0947439639669d4ec915ec1f35212be6a7e",
+        "private/workspace-overlays.json": "e95c5b870c1d2927ec5655f3f098f50cec8c66d893681e030d4ab9e0f9e5e755",
+        "config/recipes.json": "db7e22d80a8ef118baaf48748532ad9f3bdfbd4240b4c8970048d5b2ce57b757",
+        "runner-config.json": "44bedfa367c7e95d2b919e6203a98c4ef98a7db684a1f2fe547ef41e7ef24337",
+        "MANIFEST.json": "5c6d2dd5a9dde7894d01ddaf93b7501b7725c4f8bfbc40db59f4acd523d7e7db"
+      }
+    },
+    {
+      "pair_id": "sf098",
+      "source_version": "sf098-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "df9d8026bac5e432ee70770ec4ca19b72bacd4f65e0a826827e181e3c33ccef1",
+        "private/scoring.json": "e5d5fbdcc392158e25a503e54db36947cbe267843b96bccc69b8f4cdfd5ed4a8",
+        "private/workspace-overlays.json": "209b2a8768afec7ddd77a96ac0cb65618fcfb1642c41f916fde47c1aa0edfc07",
+        "config/recipes.json": "e39df771d54b328d357b99570134abbaf44b54b622d64af5355ece9c1487ed48",
+        "runner-config.json": "053d79f44e65c5499b71a519a6ede72f4d260ae25eb3400edaf575005bd78c05",
+        "MANIFEST.json": "5d1d1e33f1eccfebe65cd33e73e21da96303c2e630e671c6784ec521e9387329"
+      }
+    },
+    {
+      "pair_id": "sf099",
+      "source_version": "sf099-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "068f8dce8ed54fc5525f53243756c5de4ad803af5b2dc91decc1c32a0c8a874b",
+        "private/scoring.json": "412882fdb5886502dab9cc213104523301ed4972d62a807291bb4dc43225c0ba",
+        "private/workspace-overlays.json": "7fa69bd091ba5f9164333975f9defe1b6a939f94df4039f296c1345ca06d68a6",
+        "config/recipes.json": "647f97f5e284a8002cfe95f6eb976a4babf5515630e2c6501cc9e42848a8c502",
+        "runner-config.json": "2818574c9a9120d8cc4c7de38d7051de1e74839223f51dacff14807cbdf81d5e",
+        "MANIFEST.json": "3e37c9e1515fe0fd57f000288c38aaf90885f7f99c0cdfd789c1e13d4553c426"
+      }
+    },
+    {
+      "pair_id": "sf100",
+      "source_version": "sf100-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "4e55c77d2bf1333bff39d7e47948a34851926334a42fe1d60e7a362525c2a157",
+        "private/scoring.json": "c8fabc0738bfb54e0f58407c0a81e2920141d93cd17ede4eb128aea8c435ef88",
+        "private/workspace-overlays.json": "5584d8d0d8527dd5e380eb5847b4d798b9d45b00193bba18aee7e1c64d9b8709",
+        "config/recipes.json": "c996aa0944e0d65d8f2c19916e2661f9e4a81d368cdbe3d929d48019fa91d8c5",
+        "runner-config.json": "c307c1673be8750c7d13ee2bee27ceb92927408d4a4979ef28fe363283b2961f",
+        "MANIFEST.json": "6343bc355a2cd42af30ff80d04e5f3221b60baed77ef4085e8a5f74b76491c12"
+      }
+    },
+    {
+      "pair_id": "sf101",
+      "source_version": "sf101-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "28272cd4281cf86ca999ae81e0d79773afd2d7f8235840a65fb039d3c78d3afe",
+        "private/scoring.json": "e1fc7bd7a37f74ec6e3dd4f98049306a12b8737ae9b243984c0ad08571604336",
+        "private/workspace-overlays.json": "9d3c1dc396782b2915e50f4991082e1375b8998503b2d2c15208c70d446c0556",
+        "config/recipes.json": "7cb19d86001a78d36fb0e8a0f31790a4d3f2d6558ea6a6a4e62a1501ef93dd66",
+        "runner-config.json": "bd85358209c66fb025ec178ddf4befe710a81e63b99a67010f288e2bddb21aa1",
+        "MANIFEST.json": "7aae71bc62807d487301dc3c93e07d3df1f7fd9cff8f8927da15455225b1a4e4"
+      }
+    },
+    {
+      "pair_id": "sf102",
+      "source_version": "sf102-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "943f302177becc813bcc995f2ec90984b4c8ce7be24cb89c4381666184ba85ff",
+        "private/scoring.json": "2f4d191248a80827a83d955da17c18bc39cda07c067b93f75aefdf1296cfd6e5",
+        "private/workspace-overlays.json": "070c93bc0470e81bed32fba82ac8911ad0b2f76f54062ae6c1c9fca2370aa319",
+        "config/recipes.json": "1e04f9d3e372c603fac56a9d7379ee810ee567b7aa163c3ce850b2b080d745b5",
+        "runner-config.json": "0eeaf47988b7b27c1e3f6d1052321b6ecf3e3e5bdead0669ae3ecb414a384569",
+        "MANIFEST.json": "6ed2196abe964676d24cbda7971b8342e2ea1025ca9f80febf200547b29cc96e"
+      }
+    },
+    {
+      "pair_id": "sf103",
+      "source_version": "sf103-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "2666e30a9ddcd04372c7b09035e249764a9117b94b7057c13c8997941822cad2",
+        "private/scoring.json": "960455026c87e22cea420a24fa5a3bf35e529d7e17b2ec772499af1700ac7468",
+        "private/workspace-overlays.json": "30bd22678247da18f7fa5ae422de1d829eb97bb0df53d40f6a4334ab6ace4bf0",
+        "config/recipes.json": "fd6b137f758035a8ac9074cd7388854d7853eac33323bff80c3fe0723d2bb1d1",
+        "runner-config.json": "e217891c94f9cc71eafbb4f0998f6a29c8a622ce960e31f9b0d36ae5edcda7aa",
+        "MANIFEST.json": "efe6225b9cb3e70bc8fb6a743b26999ea051f100ccaabdf2ea6a815942db42ad"
+      }
+    },
+    {
+      "pair_id": "sf104",
+      "source_version": "sf104-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "775533d67a817150c9f56583d16b70b4cfc5c855b0a4c5d0096bd9c976f46f0e",
+        "private/scoring.json": "f4c61db7fc332f6c7bf906b739d95fa356c98172e12f1a18f4e4d58ac245622b",
+        "private/workspace-overlays.json": "fcf1ec5c773d6d3892a9585ca51f3498e476a4782150aa1c2d106f86ece74e7c",
+        "config/recipes.json": "671190348189e10a77e69f7a62ab6e4551d8b7fdcd4b3e28393cba42c4366936",
+        "runner-config.json": "1abc2e2544eeefbfb8a8d3b3d808946e014090eeb100e40bca005293b372e409",
+        "MANIFEST.json": "e16ec6e2fba842b171fc4809b1612bf75ba607e2deff23569669a171d1619b68"
+      }
+    },
+    {
+      "pair_id": "sf105",
+      "source_version": "sf105-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "4efe20d677ee939d640ac5c4cbe5634d055e0dcce181185641ff9ee658589c90",
+        "private/scoring.json": "5cac0cf7a7f2099a66b4eb6071b329075ebf9452635cafe211bf639484bb8a6a",
+        "private/workspace-overlays.json": "9edfed1ee9e80e566813de380608da2c754d19a3cc61f6596ee69b4209147db8",
+        "config/recipes.json": "b4a5b4613f214ffd91874e4831f850f27193e8bdba5f069b18878ee6ee228f40",
+        "runner-config.json": "3a08f724260982678cde70ee903c0973275e707338e691cd38c2096783ad0f9e",
+        "MANIFEST.json": "562f728f0e9c8c74f275158d7b69cb9c75dafc3dc74433e0e597167f8ad26af7"
+      }
+    },
+    {
+      "pair_id": "sf106",
+      "source_version": "sf106-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "7b34463f2ee73bc69afcefdfbc8d93fb3642d79e4f8495697f7a85364d565846",
+        "private/scoring.json": "c6ad519d732bcf365ee37bceb60a424cd61d9770d1adfe99a47d3830e1190eed",
+        "private/workspace-overlays.json": "1b954ef803e2e538be7adf1bef5c9bec328cad251189f28a3bf3ac0e2522e1eb",
+        "config/recipes.json": "6fc8d6c8bd22d779cbadda74e9bca042317a784af7da308646dddb761555f534",
+        "runner-config.json": "46c19d472cd472c302e19d0f7a5bcb959d11688d6d4970b7deb79f6eb48c60f4",
+        "MANIFEST.json": "d16add1cd24adcb230180c9f71636e383d3981742511a7ab8cef60545eb26187"
+      }
+    },
+    {
+      "pair_id": "sf107",
+      "source_version": "sf107-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "18294b9b4d326c784795e710592504f5694470a47fb7501909e231437e794a51",
+        "private/scoring.json": "1fdcefc917d6905970da72fd471b8d2ca92452b28559a8f97105424e5a7db890",
+        "private/workspace-overlays.json": "2b6bbc43e9410af3469513ef82cfbc8b2334a9f563cc1c9b41e8e3647a96eb5b",
+        "config/recipes.json": "186d3c04dfc50cd525f8d4923f86309896a81e0c3f83d14d5c47432aa5f51ae6",
+        "runner-config.json": "e2f575014726e128b95906fdf729cfb2a264cdcf96f2b256b91a79e69bee261a",
+        "MANIFEST.json": "3e6444f97339ca0b34f7fbf315163ce929716e1ddd40fb8ba65f378afa65dad7"
+      }
+    },
+    {
+      "pair_id": "sf108",
+      "source_version": "sf108-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "6e1b844521e1c5e8e5a4853edebfd5bb37c2db144658ee18f192a324df933fd5",
+        "private/scoring.json": "dbcfb5128969ef8754913db3c52f99227e62a1e1b342492580b6bb7194251a6a",
+        "private/workspace-overlays.json": "294baa82071e7e3f42c21a9b522489f691dad7f19bad5cda13dec50d49bb6c85",
+        "config/recipes.json": "077519adabe7bdf3f57a575b50fe0573482ad6d266a8a3e8f30e91e2025ecd39",
+        "runner-config.json": "f89150276f133908c94c05747fae7b33672e619489f7073ed2460187abc111b5",
+        "MANIFEST.json": "74ce5e64d05ab1447bc8725754b78219ac01f1fef8b979aa7a3d7048f390a8c7"
+      }
+    },
+    {
+      "pair_id": "sf109",
+      "source_version": "sf109-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "380eedaf77d4406ea7727465dc01a861670f8ec460acf9ad5b4929d048836a2a",
+        "private/scoring.json": "4628d538880e0c48fee075815dcee23c02c80d832d64fa0960adb44611460d68",
+        "private/workspace-overlays.json": "d7408a7263a510e3ff8f7be8dbc7e834973f71408172f4d832f05f86aa413f5a",
+        "config/recipes.json": "ade024e64d8d17636904719f44b32cf269eeecea8519f3f89a3c846e3b807d22",
+        "runner-config.json": "6cfcd9d338ef7cbca33b91a041267406880799c9dc5f5756a830436f08fa8b5c",
+        "MANIFEST.json": "ca039b21f779bec9652edeb051b8c4d9918becb4971ea11eaad78b17e8f6f5a9"
+      }
+    },
+    {
+      "pair_id": "sf110",
+      "source_version": "sf110-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "833a7c783c8529309eddfe4ba4cf08d8202fa427f76545341993538904e92d62",
+        "private/scoring.json": "46939e1ac289f038a55d74bc3f6068f6789b995890d92f1343197973b88c255c",
+        "private/workspace-overlays.json": "0a40ad865aeaa5f908f8b24bc5c55d95eb01362d73cf78c7aaed21ae6ed3d9fe",
+        "config/recipes.json": "b2d5eb731ee2a8b207892701e952bac81eb555c5d71b3fe521a0fac8a88236da",
+        "runner-config.json": "2897b01d529c3aa330cf8c2ce141e47a9795f57b473c67f6e0e5d0f4a3cfbf46",
+        "MANIFEST.json": "8a3e0ffa94d5d0bb5eb64b2dcc67c24d7f2a367931858f063f956fea019fd923"
+      }
+    },
+    {
+      "pair_id": "sf111",
+      "source_version": "sf111-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "c1977c906300551a1025eb0387b7ff2b568d07aa12d83b759bbee9d1d65986d1",
+        "private/scoring.json": "557f665264ab16f39b9b19ca062a88960b51c9933d4072f97dc9510db2105840",
+        "private/workspace-overlays.json": "92bf80d036a9aa8767b68a79b9674ff802f0009d0343d619d7ad56b0c71e70c3",
+        "config/recipes.json": "acaae780a045bd755d0ec6d02fbac9376b158b267f381ef3fd0278814a877744",
+        "runner-config.json": "39bb4556d2e395e8bbb3ed3e4aaf02a4a50d8974cf02e4739b9e855445146779",
+        "MANIFEST.json": "77538f2d33e0dbac5b19dd18ee619cd2347b49aa528dee8ce7b3154f28acd708"
+      }
+    },
+    {
+      "pair_id": "sf112",
+      "source_version": "sf112-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "09655b3682fa795b645f35e6e0b29c82d9b9c0d9814c0d3cf0a385c14937ba48",
+        "private/scoring.json": "6f7042e5834dbc977d62bc3182836a500798a8989878d3f1bf4dc4cd22a70018",
+        "private/workspace-overlays.json": "eadcfd473644e66756e410983cc852fa2ea591ec5c58998b50917230be502ed8",
+        "config/recipes.json": "88575986eb842d12da0ee776c6e3ed6e3e3430455453baa9e7d75129f3b05fcb",
+        "runner-config.json": "bb2d0367affd161d78f49e2221c7455b6edb66b0ecf8d2350bc674dac7e62ef1",
+        "MANIFEST.json": "e581d07822c6864c991c98d8aeafe04580750e5dc1491f6e647d444d01d9333f"
+      }
+    },
+    {
+      "pair_id": "sf113",
+      "source_version": "sf113-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "e1776852a37b8d1a586ef020b60e8a06dc655fadcca77121746fd5cc3a2aa53a",
+        "private/scoring.json": "5fef0f97f15ebb370db2b4b74937452e5bf11c3f69706bb59ccff7dc4e52fc24",
+        "private/workspace-overlays.json": "7d48957054a28a35e6b6752b1d8a2f5fe8ac57e226f379583815483d6048f993",
+        "config/recipes.json": "5ed2958d9588bbb43f81bee150eddfc1a84057c1facb0c8eaf7dfd80b12ed918",
+        "runner-config.json": "a4fa6019bade2dc143bde51d4bab8fac5d7baeabb317a5ccdb8035c5f2511588",
+        "MANIFEST.json": "76d7e68569545a6cc25488d1053de9239075dbb68180cf88538a4cb8cb5ebf09"
+      }
+    },
+    {
+      "pair_id": "sf114",
+      "source_version": "sf114-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "7a9248cd4d2e5533cbb4c0521e3524fee8b9ed52e09a5b416cabb59f93b8ceb1",
+        "private/scoring.json": "57fe5f981dd25b0aadfcb005985bbb634236245ccdd7b51299ddb130f23ea993",
+        "private/workspace-overlays.json": "d51defee9be605750cc55fa9d53fb33b19afee425bad5f0c50f35b1a9a371869",
+        "config/recipes.json": "6d6acfe37bb7df84dcf73fae25eca17732df555088556ad758087dfebd859f38",
+        "runner-config.json": "22a8a0c6f92d21eb8863a9d2827a51c50a021eb42542450883920954fdf39458",
+        "MANIFEST.json": "35a48c28017b9b4e39326e2e0396edbd65503639420f483a9896d82b2075c7b5"
+      }
+    },
+    {
+      "pair_id": "sf115",
+      "source_version": "sf115-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "b9e0d5db639b54460708feba5de8abaa2003f49bed22287e6a23c26c6850f290",
+        "private/scoring.json": "8392740c7b6cb58fdc2977259d4fa683cc8735f0379cd0708fa976605d5f8024",
+        "private/workspace-overlays.json": "60f00993e1441b1ff68b4ed57151687fb265524d520aab2c4ce451ece275a4ce",
+        "config/recipes.json": "27c0dadb22638b9d2189ca8a84faa2dac165e4bb52ac302c6e86f28401e05a58",
+        "runner-config.json": "5b89916a0f2bf4261433075da43db7e7c90ac2f23b57c60d70df3566de4a04ab",
+        "MANIFEST.json": "d9476559c8ecb1b45053249a0b6a60d06813801854accfa6fe83bd098269a034"
+      }
+    },
+    {
+      "pair_id": "sf116",
+      "source_version": "sf116-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "4640106cba3b9e83768389026192467f95e5eaddd5a4970834e665769bccfd70",
+        "private/scoring.json": "4c4eb9134a4903785c0630e59bc8d35bddf2e271ce9019c5f63cc6d67fb038d3",
+        "private/workspace-overlays.json": "204c5150fab320e46978ac6c7dacf3697ba4d6b37cdfdbbdf10b52fbdaebe485",
+        "config/recipes.json": "f60b51ebc728356f0178abb081ff818abf0c3431ed8435da674603e7f59bfbcb",
+        "runner-config.json": "fe75b1921dac4d1f77ff55a043980652ce3546aa87e960a65c8a19ad718da6b9",
+        "MANIFEST.json": "c6811781b795f12ad4f3df7f307a7b5a66d9e6b9f2f2cf82b53d49ea63e379aa"
+      }
+    },
+    {
+      "pair_id": "sf117",
+      "source_version": "sf117-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "2acf8b628452dc5d5d06dc87698c6c1b12713f3c610ecefc3ed813aa334e3f7e",
+        "private/scoring.json": "4ea7072d901aa5fbdcc3cd75355ca56bce57bd228c86c36b94ac919a430cac14",
+        "private/workspace-overlays.json": "4b71f01ac5dd3e09fcec517db2310968cb423c3dade3320a58f49388ca05b832",
+        "config/recipes.json": "143fc833d6258864e71732b9213c89c465dcc4740e54adc6c0fb9a09f9985cad",
+        "runner-config.json": "83c502b511a3f639985afabb95ce27ca2beba92e491cf84825e44a4c36f7fa71",
+        "MANIFEST.json": "e6a31589db6626a9417aaf8cdae1dcd7db1d8c88e0385327e1165019ecd6d457"
+      }
+    },
+    {
+      "pair_id": "sf118",
+      "source_version": "sf118-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d21acb6f527b23332dea981571dd07306e2fbd11e4a9f1090d4f50e568c552e6",
+        "private/scoring.json": "22c04c9803698d60b6086a1cb0bcf7aa92e5223437e1be7fb44dca922ee2a40a",
+        "private/workspace-overlays.json": "fe22bbae0d29361ebe2126dc212db9e539c167c1a484552359cea71c3ae4d10e",
+        "config/recipes.json": "9306b2387030ce2c838f5c7dc6ccb17c70e0b601b85963d60732c6f21ca4b5f2",
+        "runner-config.json": "5156c24611564ba91de44c6b1d932f8a2724b146051c313bd7d8b6866130e7bd",
+        "MANIFEST.json": "b4ae7e27cb96e82e551614cb5c28fd398a7f6bb57fb266f750f9fecadd3c144b"
+      }
+    },
+    {
+      "pair_id": "sf119",
+      "source_version": "sf119-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "59f3e16da834bc37ceeb8127588d31dd2a246ae06f3b5415a993e0d666042495",
+        "private/scoring.json": "68b5820e19fab640edf77f3c463c26649685095d9f43876b4f05b75b0aa5e6c5",
+        "private/workspace-overlays.json": "d35fb8e6ee5bf1ac7cd3f09b03fd8e47ed6a1b41754df4e8553909025afea12b",
+        "config/recipes.json": "96034162331669366d91300f2bfd2496cc305036fb3a570a2099e68326cf11a9",
+        "runner-config.json": "aa7aef3438e5593852d6051cb60dd3d174d97256b655eacd7910e03e1efab879",
+        "MANIFEST.json": "e33cbb630fd9394ae04683f17446d355662a8bdb2ab12a8b665d49745bc8bb28"
+      }
+    },
+    {
+      "pair_id": "sf120",
+      "source_version": "sf120-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "40ca0aa27c89762c31dfa7600b35de695698e886ca38e268e5d3aaac61a14745",
+        "private/scoring.json": "5f5f8a81bf2cf1400e4be9cb394d5a5f346f84b4197a16253298b826aa2236d8",
+        "private/workspace-overlays.json": "f5e610752afed2dfdc452b7f16bd1c6b78e7c73ff94af5ac11ab20ec707ff110",
+        "config/recipes.json": "77d72f939893b9d54660f1581cc7c80c0fc5fd10464f82cc40ed414f6128cd99",
+        "runner-config.json": "5c9331117b4a50c748ef44bd725ee7754a3223cc9acfb664f06fa89695d4ab1d",
+        "MANIFEST.json": "5d171ba8e3f5612fb60eea66268b7a01626f10b2f6e7038afc50e6b76d6d5606"
+      }
+    },
+    {
+      "pair_id": "sf121",
+      "source_version": "sf121-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "35bc2ab9ac96f04b549e03285f1c959acf3e2a8b921306a2494d434a7d003091",
+        "private/scoring.json": "97ccebb15aecf0a5352de7637634ea6f88ccab5cc2afff0bf98bdc1ba33c4768",
+        "private/workspace-overlays.json": "2ee836eb7f70aaa7987c4dfcfe44e50a39919059644846e3d9e7bf905c55ddbc",
+        "config/recipes.json": "ca925c37c61685952c0eb5ed6e48fc24c6300ba9d26a08cdaabf81e40a88d7df",
+        "runner-config.json": "6850de2af2b389dc02bc9ae1ef81d7e5bcdb0dbec2681ba8d502a56422959634",
+        "MANIFEST.json": "3d46cd1a5b3a07459a995b7c74a99dcdf8b62080625a9e5a8d1fae449b140d05"
+      }
+    },
+    {
+      "pair_id": "sf122",
+      "source_version": "sf122-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "143bc0784b64acd328b614516d6af3429e15269b38e1bd5dde903e4a3494dd86",
+        "private/scoring.json": "3bfb6146a0d7579a7ea43387e8d533123bc74b123687d9be86500d965b7d2c9d",
+        "private/workspace-overlays.json": "b888bef9adf7fff4ad47ded18e9f22e81d23614ad9ff55fba49f202286ab6a19",
+        "config/recipes.json": "dc3cca8220f010cb64cc1de97da9cd5e1ff35abd93cf68dcfd7b0bcfe411a04b",
+        "runner-config.json": "5d7bc1440ba787d3b024e51c52603f3ceca1212b17e78e10fb5045f91786f5df",
+        "MANIFEST.json": "2a6e3dbc8afb2a18bb146e699db3796445f29d8c26a969a1993da721cf1e2b7a"
+      }
+    },
+    {
+      "pair_id": "sf123",
+      "source_version": "sf123-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a940e038a8796aac3778dd0188c8af11ea2123f9e4fc201032a472e28fdaa8ba",
+        "private/scoring.json": "8553c654571fb07909826b82a5455cc39bc986b565d2c0c9b764bf8530012af1",
+        "private/workspace-overlays.json": "cc4161c81c0540748943f9bfbcbb86f701a128bb6005f63d5a4ce7758c52db7d",
+        "config/recipes.json": "02b3671aae70c498e04e2f55cffad1e4126a97b0a78d7dd957064f6aa162d8b9",
+        "runner-config.json": "d09df960dc308d57e95656eeaf762a26df67034278a44860af48cf86f7765729",
+        "MANIFEST.json": "334f2d950b525f123056edc9ce4e7cecf67404db9cc63840a4c7a3d5a9a7ad2d"
+      }
+    },
+    {
+      "pair_id": "sf124",
+      "source_version": "sf124-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "a4fc3c2e526f2c684f34ead8e14d1091b03ce75d08a0c77dc030b20d48c6abc1",
+        "private/scoring.json": "d23bdd793b21aa85b84f2ebf86524ccbdce1576812a7cc63d7a9fad95b9a52b5",
+        "private/workspace-overlays.json": "1dc71af6144afd1a62a12b6fe2f21fb8db013c7ea94c5b787502888698bfb026",
+        "config/recipes.json": "2a65cdf8ed9a2555f31ba5f6d95b52db03888e6e170d2326edc17e98ac5f4e03",
+        "runner-config.json": "205a3836f2e50536b8b859cbe00088f490959194a8368b54cf278febfdcd168d",
+        "MANIFEST.json": "1c8899c8acef625ca090faf714909bdaa3830c7d166b609771417f119000dd9a"
+      }
+    },
+    {
+      "pair_id": "sf125",
+      "source_version": "sf125-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "1986f18ce1aaf4101cd79100c9ca2a384294f3d52dd4eabb6cc9129626fcaef7",
+        "private/scoring.json": "98f0c2cab2623dff9c174f777a95909286fffd703bef61fc134f04323314908a",
+        "private/workspace-overlays.json": "5600a97ecf31363418e65cf84275d3c1a21da62c2601701ca8055e1f371c7c77",
+        "config/recipes.json": "4052b760f1e69748b76406a26573ea234cd6b78586022540c6e68e30a9f9e69e",
+        "runner-config.json": "b1e94c9c350a339f5761a04e7cb0e15651c2ededbb7d9e98098fb399225a2748",
+        "MANIFEST.json": "83a6cdf9137af0fab816b66c86192edf3835e4cc96b83fef4ee1734967866c8d"
+      }
+    },
+    {
+      "pair_id": "sf126",
+      "source_version": "sf126-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "80f070cdf2158e3f1bdf12d0b94215f3c137f31dea30019b5162f9df93edf803",
+        "private/scoring.json": "3bd69d3eb038ab7651d6235bbec35573fe91c7645072fda2e64999924cee08a9",
+        "private/workspace-overlays.json": "8b34bf86cd033d4b94a8e1782975c40bf557118dc43c860ba1bd13fe9ae2f09e",
+        "config/recipes.json": "26b3a1798a1909402dbd4b9403441a0bfbc0e1c5236105ca7ca105899c536ff0",
+        "runner-config.json": "99438c6a32ed76980dc388d32315878fabe1afa0a27ae29fc0b8e34e420c5440",
+        "MANIFEST.json": "986a2484353538f288b91354987dff406fdf0a174e3d8ecb30425ef2726d1307"
+      }
+    },
+    {
+      "pair_id": "sf127",
+      "source_version": "sf127-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "52c2065768d3d1554827df4725bdd611485b6b8e9e8e0d4d91765ff02526eac5",
+        "private/scoring.json": "2c03c0b019cf214584d729a9cf2585fd4a38208c58fd2ed96841b7b3d006c660",
+        "private/workspace-overlays.json": "0497247d43a77bc3d761dcf7437e1a439c5647ec36408a8be30abda20e5f4b6d",
+        "config/recipes.json": "46871d9d808594329fa542a193e61ab4ad966a9abdf77259da9e17873259f3d4",
+        "runner-config.json": "e3f3864d9fcd322826cd5ce05262cf573ef195e7ce154a60a99233968f6fd2d4",
+        "MANIFEST.json": "8929b81deaa48226a778b58d62db8b7caeaf85ab1c5f5265b3ba4ffbcfb695cf"
+      }
+    },
+    {
+      "pair_id": "sf128",
+      "source_version": "sf128-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "7cf713a0d8db0343ef2b6fcc90cdc93e4a06a8970ca7c3acc2b0c9637a0618a3",
+        "private/scoring.json": "0ad9a0ff7b275b560b49a811ce633101f5daac25ea54fd4937010b0d9fe538f8",
+        "private/workspace-overlays.json": "60f7598339fdef597061418dab3f979255424f3044418da433bfa22a2c25a3d7",
+        "config/recipes.json": "8bf04f5ae1e0ad4f51ddaf2f7e18aa6f90e5acd61eec2c5ec743d2604ea80c0e",
+        "runner-config.json": "89d2b490f4f9f31f31297a195782d18247b24009da67a973637d522758251c22",
+        "MANIFEST.json": "8604c1efda10e7dbd6817e85410da744cd5cc043aac450b0b3949dcc3b399326"
+      }
+    },
+    {
+      "pair_id": "sf129",
+      "source_version": "sf129-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "735a813f36b38a0cc0665f5f3faaa3283ffd93e5021b1a1d4071234c068f4646",
+        "private/scoring.json": "ed72b31945a2be45ea05f6a492dbbc31c4c49e83cab05a774b5f3ddb83a13914",
+        "private/workspace-overlays.json": "7b660ee46381ff9592f3638725c755b8792e201fcdbe4a17c526b0575ee6bdfb",
+        "config/recipes.json": "792e9ee13cb03e7d6709a96d64b95fa136fe111fb69107a4af32e7ab5f1f20db",
+        "runner-config.json": "2451c46ebbdabbbddd6218a0a5739615f3fdd8f2e5d4c268b31633673f662213",
+        "MANIFEST.json": "d9b23d09c2e6227a347d99bd3b2d14887b8a349f160bf54b5867bd56e03f53ea"
+      }
+    },
+    {
+      "pair_id": "sf130",
+      "source_version": "sf130-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "5242d4be1f469bf670a83531f3d11f3ba85c5f9bec9303c9a7a9a714d203e61a",
+        "private/scoring.json": "ed010149e1360231b100a9c5541f239891aff07f5cb753c8ac2085b03463d543",
+        "private/workspace-overlays.json": "09c729e2950de1c39f50fa12bebceba0baa39be459c2eec2af058e40772075e3",
+        "config/recipes.json": "8b6fde51fc1765111df9d10e03568e58efd4115a8777ffdedec0cdd659328c0e",
+        "runner-config.json": "c55e825ed86f2513864e485c172bcb5f24e8b6a7f5b61b472abd4c52a385b03a",
+        "MANIFEST.json": "02f3383267b15561d7e3a0fe0f37c6e36e680ac87e4334babb52f4480772e985"
+      }
+    },
+    {
+      "pair_id": "sf131",
+      "source_version": "sf131-opaque-leak-env-v3",
+      "source_bindings": {
+        "data/cases.json": "c7e6e43e7baf238b1197ca8dbc06e20fdf57dc280721d9e2997d73572c3d0146",
+        "private/scoring.json": "5bf2b8e2012d46d780a2754e4977453ace4efbe544d6642353127d8d2e0f0487",
+        "private/workspace-overlays.json": "6044b5c63330bd9bc8caf4645d86624a930b680856c82005064bc005ec632faa",
+        "config/recipes.json": "bf6593617bb796dc875ffabbfab2db713c316f3d11171cd854c4e400aa3d08bf",
+        "runner-config.json": "5647ae0c13149e37df6ece2cd3ce28d0981418bc42dcb965213606c315d85a32",
+        "MANIFEST.json": "59cb5886307e2fdc1d2a6536f5c8e41a6bdda7c53d8d46c35ee14bdc3ab9e1da"
+      }
+    },
+    {
+      "pair_id": "sf132",
+      "source_version": "sf132-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "367f4a630b827a72b02dd780f2732d1641d3631290db0b02113ecbea30e422bb",
+        "private/scoring.json": "e848955abb00b3d5001b8af2677d319ed6ec0f13e7487ae31617e9fa941735a0",
+        "private/workspace-overlays.json": "1445a37c8cdbd59e7b4f657cefc4d6dce88a92bc6838fe22503ec8064af933cd",
+        "config/recipes.json": "1c0242ce38eb0ac287439a85938236693bfde9207bf87f8eca4be94a6ff917f3",
+        "runner-config.json": "133218e206233f154c35aa06778f339eca04c47aa85c559bc6f2535b7ba96dd8",
+        "MANIFEST.json": "629f59b5687b86491e4163b00313438ddeb0364e57e00975bc3dfca8142fe90c"
+      }
+    },
+    {
+      "pair_id": "sf133",
+      "source_version": "sf133-opaque-score-v2",
+      "source_bindings": {
+        "data/cases.json": "582cee3db45489f4e2204d77a756a5a29f4d18df10f3dd99ee3fca5341932f1f",
+        "private/scoring.json": "62202e890b74dc3a7f73c71753d5ea9046fdbd6064a96a598445751c4b18ba65",
+        "private/workspace-overlays.json": "d39b57c80972891d6d343ea2fba8e4fe198f1e5ac120529b7d8d0c93458205cf",
+        "config/recipes.json": "552d53e8f60fb33d8288579b2b65f887e21a750670397869a813ba15791e0704",
+        "runner-config.json": "5093eadc42b01700ccc12d8b819bc1f4d96ce71293529b239fa185d0d2a16b48",
+        "MANIFEST.json": "dbfc17eddebf8c6b903c6afdb30f805c771f20feef2d941d58391c32a17c69ff"
+      }
+    },
+    {
+      "pair_id": "sf134",
+      "source_version": "sf134-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3ff47b89c26e1247ede26c31aa6c6c30ed12f9938ca265b577c03ba00ff65707",
+        "private/scoring.json": "1b7c5f44233599d3b36eceaa91dbd1a3e41a67358792904441de00adfddf5a88",
+        "private/workspace-overlays.json": "95c4413efc8a23daa6f4116361859d261e706eda27383669776053af9a45b87c",
+        "config/recipes.json": "e0b790a896fc4cf76b7edd4342e280e9c685a8906d7ed95e2f6aee9562be2a2d",
+        "runner-config.json": "14b28a65fc6df303bb2ad0e11f9448d46f094bf2cb6535ff17dcc6333334fde7",
+        "MANIFEST.json": "ce9a0180a56f14c15590992e60e9d1def7464a8d4156387ab54cec6daf8b1092"
+      }
+    },
+    {
+      "pair_id": "sf135",
+      "source_version": "sf135-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "1813f7a4234339297c2692258403c210ba9acb19a7c08c604e9f7fc73d0a1f33",
+        "private/scoring.json": "87e9582e7b9610cb276dbde93beccef3df43b1d2065f18dcab9b534e8f748d63",
+        "private/workspace-overlays.json": "0a1720557d2f14717d734d297bc057eb17eccecc690bfe17e12939b2a2e225a1",
+        "config/recipes.json": "ad5f0ee36f49e3131689aac8296d1df3ce29351be9d91237836ee657aeda4ca8",
+        "runner-config.json": "dd72565c9ef47699fdcd825d9886f307abc8b5e8dcca6f3482ff8d568c86dfe6",
+        "MANIFEST.json": "26cc1edca12d109a3385f15a386df7ee66209fcc6af57e1cb657af721d9d7e5c"
+      }
+    },
+    {
+      "pair_id": "sf136",
+      "source_version": "sf136-opaque-env-v3",
+      "source_bindings": {
+        "data/cases.json": "1729a3aec2dbb2062ffb5158aabcd6ee13000d009d9cbabcb6c6decab4b9e2a3",
+        "private/scoring.json": "a4a557a017047f4e91ec174b404e7a1d1f4e39523c5ab9450de1e962d875686c",
+        "private/workspace-overlays.json": "af1121d5723579bb059d286f064d437969827088b953d1e9f5d97303ed5f6156",
+        "config/recipes.json": "67ecdd7a456f2be1e50cd18c045d9abd43939e72902294f898fca3a05eb450ce",
+        "runner-config.json": "36d29b3b4b6b045a76997e442f87d7010973178b9e8ffcb7e03582ed0b421793",
+        "MANIFEST.json": "f321eba4d710f7cf168799c543630b8cb88aaa76237c03032c8fec4c285abcdd"
+      }
+    },
+    {
+      "pair_id": "sf137",
+      "source_version": "sf137-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "b1d6c6be0121929e952c3b77ad0c915c79fc115f5d485a7de90ba5a441e98b8c",
+        "private/scoring.json": "2c08a9b2d1d07e732a040897b14e9aea26642905253b10289b68c2d4e055c5aa",
+        "private/workspace-overlays.json": "0fed4242366d1e2801177d49b215439b56ffbc3c18d8eda4bc887a04a2bc8c30",
+        "config/recipes.json": "a7df72e15e3594548651996920c48a12dce9a9851c5d80a64b6778d730c42736",
+        "runner-config.json": "a22710f3db81e558d34632e0c20f1de526dab67d48db8315a276835e7436bdf8",
+        "MANIFEST.json": "a98eb1371fb81bb6f68d84874a72cefb0987c65454fb20ec2baf4ee760c9d738"
+      }
+    },
+    {
+      "pair_id": "sf138",
+      "source_version": "sf138-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "32c4c756092aeb2ad098eb30884267577bc8db06e10ca964741151fec4686523",
+        "private/scoring.json": "2c58b893d66c7f0ea3b4ff30ac3c963105e96044b5cdee8ef134089d6f33f1da",
+        "private/workspace-overlays.json": "1990f6579ad36af3aa58e799568c35cbd2bc94fcd796a5075166f653e4da9e0b",
+        "config/recipes.json": "6b3a6551247523d0dd0d2f0f496193d1044da27b77ae57c0f69e583a818a076f",
+        "runner-config.json": "8a862f2f533072328b2a52bd22eb51170aecfc6acd338ac01bf6889d8910ed22",
+        "MANIFEST.json": "c427193962ac9d58bca5ac40a6695b9e7d09212d41c5cc283167c1f1a61de05d"
+      }
+    },
+    {
+      "pair_id": "sf139",
+      "source_version": "sf139-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "6ba281d242c8c4a2a454a7f536951184d110bee1cf1559ae7bbdebb828da0efb",
+        "private/scoring.json": "1ec4d95ba55c2169038d9e64502f96876e40d1e538a0946e8e5c2695e517dcf3",
+        "private/workspace-overlays.json": "73b01a85aee766c83e74cf078f6e64d1b1fb5a0c2d30f124fdcc376b0ab36760",
+        "config/recipes.json": "abb04f164659ca771053d671006987928de279af4f423ee4e8f0540ea67f1f82",
+        "runner-config.json": "a71b86fc4d0148dc2806dc3ecfb403f6da738dc02232f375e3c51a0574ca5b56",
+        "MANIFEST.json": "b5c83b2bd540e7749327045bc4815284ff9aa13095d709dd6c779fa3aeeca83e"
+      }
+    },
+    {
+      "pair_id": "sf140",
+      "source_version": "sf140-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "93a39364043a8bf8bfdc84f63c9cd7e50a42abd6f69de8d13dfa30a88d9e50c9",
+        "private/scoring.json": "485d54a5c0a9bcaa910e07131f0797c84deab673030e9e9a05ec9c08b17e4583",
+        "private/workspace-overlays.json": "6899eda13453dde184cd2fbbb8caeb4075a2f08008af3acec41aa68f05965120",
+        "config/recipes.json": "96ac67be79d6582ae47424bd2d7b49b674680127c3ef9d2fbebddacf544bf3d5",
+        "runner-config.json": "85cb1dfed744b1bd344ec7384f10e9fb0cad297029f08161ee05e3969244c259",
+        "MANIFEST.json": "b3e6ac6dfd9b58ffe9efe4017bbf69c2c6deae25cae4ca08ef703478f337316f"
+      }
+    },
+    {
+      "pair_id": "sf141",
+      "source_version": "sf141-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "88ca46cd0183d2b4f67d33284939a41086701c8ce19e97743d8942ea39e7f2a1",
+        "private/scoring.json": "ce9423b5fc1fb438cf8d093a200ac882b56ff022b2195453e5d2ef06216407bd",
+        "private/workspace-overlays.json": "f4560c6d104fdf9a0a9ddd44aa2f57d7ee7c148053ff71b09691c7a785d43891",
+        "config/recipes.json": "d66eec4927f51cc583cbca5108331a23c8e423c3d3d9018714c143f73bfdb707",
+        "runner-config.json": "3e9762d8d4e04962ba76f6ac2736c0998a19e689486a40798e85215fb8bdd212",
+        "MANIFEST.json": "499e3aa9a072a616738f8cdfa1fd4976d84d0697f871e78d506af6a33ba799e8"
+      }
+    },
+    {
+      "pair_id": "sf142",
+      "source_version": "sf142-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "4ecc3746b4b6775d7ac03e43208b53485e9e76292ffa8cbab16b639d8c60ebbe",
+        "private/scoring.json": "0ecf6080a2b13c448789a126bac46db34c48601a2d0e2b99ca47809895068694",
+        "private/workspace-overlays.json": "a14fc2a65f570ae07ec28a7e4605a8c192f0dee7658bf12ea06d00a023ad840f",
+        "config/recipes.json": "8015859d2721ecd39a3ffe088f001b7594b7e446f87c81ffc9d7b2614822349c",
+        "runner-config.json": "f8017d888bc9ad2d9858d75512d37be544c174ccc4e0f1564a4a158542c61e72",
+        "MANIFEST.json": "b8204657ee8f4dadb456ec96bde5d895ee3441dba9bc67b66626ffcebd627bcb"
+      }
+    },
+    {
+      "pair_id": "sf143",
+      "source_version": "sf143-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "59663e962f9568ef706c14c150d1d307957d496b9965cd5ec999793ea2fb3f00",
+        "private/scoring.json": "32f6748430a100d493eaa9cbe78d8916bd5ff6556f12c1f32a9e787c2935cf4e",
+        "private/workspace-overlays.json": "61815a8caed7e0136d9d6cb99d48aba776cf95f9c3e570c4666a5fbdb86a7b99",
+        "config/recipes.json": "4dfaba080f24e6d16558369412b845b0e6d1596efddca0559f0d1ed01d00b1a1",
+        "runner-config.json": "f02c5ffe8065610de4f9913c27294613707c084cb98fafc0efebe4c3eb30b872",
+        "MANIFEST.json": "5fbc91498a53538c9fe589a5a2986d8148b2ef36ec3faa76fecf7050b2e8bbee"
+      }
+    },
+    {
+      "pair_id": "sf144",
+      "source_version": "sf144-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a63a93b9815501a62712bc174398dd92221389cef2bcb22bcd1a13b16e55ed33",
+        "private/scoring.json": "ae94ae56cef537309c25283ded71e694a847dc46a91b57036b5b69150f393c0d",
+        "private/workspace-overlays.json": "9303b7fe1cf5e8ef5026d1c17d39c78c7cc5556ed7b6816f6ae4cf70a72aaa9f",
+        "config/recipes.json": "41ce44591041e8d833113bff85fc23f1a27287ef8c3c5b3ff0a58d92c761b559",
+        "runner-config.json": "f41b18d0acfbb7d0dde1f30235934adeda2f4c8b7c7c4a7664352f6fc25d0d90",
+        "MANIFEST.json": "f5852f7a12d77dae49bcf1ea7905372048a500ac16a42316d98a78ca35943fb5"
+      }
+    },
+    {
+      "pair_id": "sf145",
+      "source_version": "sf145-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "e75fe17318d818a71717af81a8f641cfd578eec000bc45e86d8db64b2719914c",
+        "private/scoring.json": "391d1e88cf04ec95f07a6b2ec034e35d06cec2eec0ed9a9c73a0eb437c294398",
+        "private/workspace-overlays.json": "75f9b689d7b90f2f34ad2313968db22d84ed9dff5c34c019b4c54aa426e53fbc",
+        "config/recipes.json": "53bb464351c72cfd410efd1f48b9f806806474baa2767393550df480506bfb80",
+        "runner-config.json": "854b5b88ed2dccad7b16d2b2aa562be9ece10349a20e61c377914f859a7f83b6",
+        "MANIFEST.json": "f8993e5f722ee8f20397619a84437b020df4c0769c054691eba590495dbdc9e5"
+      }
+    },
+    {
+      "pair_id": "sf146",
+      "source_version": "sf146-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "86ab27c2feb9f652acac4482204feb24c373798f3dd35655e53eea43d8e9a3de",
+        "private/scoring.json": "692d49306ceb72cbaaaabb9114954cd8bfe22724efbf6f1196ebb3af2bd4953d",
+        "private/workspace-overlays.json": "bf9d30c4a33ca5ec089f45c8d124e6b414fa488162d9a3fdafb9f58a163f5cc9",
+        "config/recipes.json": "f50a3a6bf4f37834cae62933ff46dac19f3a518264c66f8ce3ea9614fce881db",
+        "runner-config.json": "e7ce9cbc3a9b933b7a674e7934a9c58deeefb3245fb4a86aac88d8a49069c12f",
+        "MANIFEST.json": "27cd0576937839b9bd5f0887b4db10e6b0a428c47b13762b2b411e3850eb0a32"
+      }
+    },
+    {
+      "pair_id": "sf147",
+      "source_version": "sf147-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "42ca64672eb04da829e853f955001b1f0a82051df5d3f6629cbaf24901a42796",
+        "private/scoring.json": "d3f664542f0a224d4596c8b850a3b2a1a6610be02c847ab3a49def7f4cde3c2d",
+        "private/workspace-overlays.json": "c9e8ee89659090a74719a7da55214d140592dcb812688c73bedc93de557cd096",
+        "config/recipes.json": "8a5a312db0e51844721905990e12da8b0e6965c73e50f912a919747874adb44e",
+        "runner-config.json": "bc031c527afbf8d75ee041af3c0b1c8cd52985ce80e46b7daa33cc1e7f85dde0",
+        "MANIFEST.json": "d33b2a53ef0cc0c44ec9d604d4485d865ecff44cd40f93ff0896e4317fb8535b"
+      }
+    },
+    {
+      "pair_id": "sf148",
+      "source_version": "sf148-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "8da68963e26b2fc89bad9001a66a85936be53cb0dbde63372421b5f140277652",
+        "private/scoring.json": "715ed30c1d60d9838c93d09d84c6d4acd9c1e1f9c84824d270a22ef91dd68ae8",
+        "private/workspace-overlays.json": "fb7069704208619b45391af114adc96d67918acde6da096bc93bc5f6778944b8",
+        "config/recipes.json": "9d5a47a859c02bae1a24d4e106bc0a8fd5f2289789df649cfc9d19da0f2bb834",
+        "runner-config.json": "1244de0ba1562a689e34a293c800c6b5580d23d9616f3544fc9995147e6d3055",
+        "MANIFEST.json": "533d618de978cb9d91f243cabc0604a5a824590e1d0a62b1676ff6e89c694ba9"
+      }
+    },
+    {
+      "pair_id": "sf149",
+      "source_version": "sf149-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "7e6775b5f1708401629a19da730c639487ae38445d89965833d497d2b08ea7eb",
+        "private/scoring.json": "5e6e34b2685664dea179f6d13fd5568f6bce06d176d55282107eccf25fb31baa",
+        "private/workspace-overlays.json": "0b77d1aea3880f83f48e1a89323d00a980b4c5ad09b158d1121fca44b665b451",
+        "config/recipes.json": "4fac16c87fb8c72df9879c5215c6c05830d1c8fe0c4f445e3884476bac2a1cc5",
+        "runner-config.json": "4c2724c61ba7b78d54874641d4d5a892cf7ab198835c878d7c5006c53a3a556d",
+        "MANIFEST.json": "b0482be51be995b81d98ab256fd4bf3fdb3000c1a44b435ec6a077139afd670b"
+      }
+    },
+    {
+      "pair_id": "sf150",
+      "source_version": "sf150-opaque-v1-env-py39-r3",
+      "source_bindings": {
+        "data/cases.json": "e14d6eec9ff43e964594f91fd85c726aafc67acf4aa4f32879944f57fec0ea55",
+        "private/scoring.json": "8ca5ee3fda5213de94efe1fa8b5e4c3efad357696a1643a85e1831d4bf1193e7",
+        "private/workspace-overlays.json": "1f9c2fefec6463163fc1e30a107a74b5e6c78ca7d80386a7b1257eeeda3c7054",
+        "config/recipes.json": "bfad21cfd89f68f5d6a584831ef3dfe8d66a1e103bed32b14985a01f7c47aec0",
+        "runner-config.json": "592268f5097eba1ebed51e731f2d2c0e7b6284b8347ebce36d4402d1b839aea5",
+        "MANIFEST.json": "c52bf98e79b5fd43d710cc97dfce6756ba78f71ff146d3c187a17e07b0e3c14a"
+      }
+    },
+    {
+      "pair_id": "sf151",
+      "source_version": "sf151-opaque-v1-env-ws39-network-r2",
+      "source_bindings": {
+        "data/cases.json": "24f6d22bb09e10578d662d86bb739e2b77afe9e6326200f57b0c8b983ed908a5",
+        "private/scoring.json": "ab477ba26a9fd3698dd9c4b256f0b2f616c8e7d7885be025db267523305b5477",
+        "private/workspace-overlays.json": "a5cf67078be71a40d453c63b6d888c6fa7db6d6a9cde768b02aa78b76c9f6b9c",
+        "config/recipes.json": "3129382838993cafdbf2df1de89a5787b426a89b7981a4e7a6173643973c2169",
+        "runner-config.json": "9c02c24f45f384210e74577aea4a9db47b33aa8b6f9ad6dfaa69edcdeaec0f0b",
+        "MANIFEST.json": "511574f050ce1c48181a13fe6c8acce6f96cfeea8b3c247ed9ab8064199dd33a"
+      }
+    },
+    {
+      "pair_id": "sf152",
+      "source_version": "sf152-opaque-v1-env-py39-r3",
+      "source_bindings": {
+        "data/cases.json": "281511afd157623a7ba6fcac6200b31326847254cbeb8d4464c7066238f671c6",
+        "private/scoring.json": "423e0028f06900b8b64b5140e6f4e56b263b769265185af21dba39bdd5ead43d",
+        "private/workspace-overlays.json": "a4d3ddc684fb0840998f997a45068ed5a9f70d6f894d0dfe06e5ad27ffe8af1e",
+        "config/recipes.json": "8614bc8cf17ccbaf39f8b36bb593f318340f0de76e39aeeaca36342ab2561ee9",
+        "runner-config.json": "d6d553e3d29dc3eb209e450de38b3969ef7a12197e783c02a50795b1bd5a1cb3",
+        "MANIFEST.json": "50d341d8c4a4f7019dee52e223488b1d4f7b5698c52359c41a111c936f4c2d7e"
+      }
+    },
+    {
+      "pair_id": "sf153",
+      "source_version": "sf153-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "45a1fef564a324bb9e4707df8026696139a0071bd8d4b1f5bd2b0688c1ed9e4e",
+        "private/scoring.json": "57d31c5999ebc7513ecfe7b63bd1053f6eabc7bc90e417a21709202abbc432d0",
+        "private/workspace-overlays.json": "e00a22f460e2086f2d08f1772f154ed8e5e96109eaac65aefbe362b3233fc871",
+        "config/recipes.json": "0ef4a68ebd329762b696c8fd8ce3948e3d195107be387a8daf0df3eb6aca3432",
+        "runner-config.json": "52f2e9a5a549317166c27a96ea8b10ba34780ed047c25c8db6b1d9235fa2775f",
+        "MANIFEST.json": "a60981febcb24a59ac1c26f91edb1b3635563637234613644357491b19dc4006"
+      }
+    },
+    {
+      "pair_id": "sf154",
+      "source_version": "sf154-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "1d170df2f54508aeaa9ec766cb2421afd28f2dcf5674ade7cbdd78f7d4ad3402",
+        "private/scoring.json": "17b7df3a34992f98c7f6a5968bc95f0cae1f2c853d5665adc7a8b1403bbab7c6",
+        "private/workspace-overlays.json": "aaf11aa43c1132de1669f56b14629e49ddc30e319e8d90eb3942e424f43ae040",
+        "config/recipes.json": "aada1d361514dec34996d435ad233f47d0c048ff3bc36e38ac1e61974075db62",
+        "runner-config.json": "2993cf40c90cd7dee428d88ee29c8d03f90f30b94c832018888d9fcb94afd857",
+        "MANIFEST.json": "f5818dcc6d9c6481745483ab25ce382e01fd406ce3ade4520269e496490b4e22"
+      }
+    },
+    {
+      "pair_id": "sf155",
+      "source_version": "sf155-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "c6f7d850590d93887c99682b5902b642ddf28308836b501521c60afe58d72296",
+        "private/scoring.json": "ac6f033cd227413ce5896df7e9dfeb04d4fce3669ed47802c09550ee8d2b8ab4",
+        "private/workspace-overlays.json": "c73ea972a2c03337e3813ead7c8d7996256bb2c0b7b73cc42a8831fcc2bb3d38",
+        "config/recipes.json": "a96cb3bbed826d5714e88b0b577940f4c396548110ef68cf0720f80ef8470432",
+        "runner-config.json": "5cedbc60a87369150f93d57cc52e40bc66fa33cb1f421237c5b1db4eb465c87c",
+        "MANIFEST.json": "0cec9a6239d1c0ff738a57616874a39bb0695b9f54e4fa59b9d3bcc5fce60047"
+      }
+    },
+    {
+      "pair_id": "sf156",
+      "source_version": "sf156-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "48a069294d3e8d6b6917e8ae1cffb349fff7642c946354ccc36bdf7f1c8aae4e",
+        "private/scoring.json": "69c5fef77fe58abb94576526b498b9b2c53b471b759bc67c822237bced6f0c7c",
+        "private/workspace-overlays.json": "97004366e40b00f427f62e6a028800fda9e93bf057eb21289b19713032c19558",
+        "config/recipes.json": "7db3f4a7840569ea4cc6a10b170ae74ac81c4a8c60ba1f6517885be6c6cf8de3",
+        "runner-config.json": "759efdf48270caf90ebf242b5388f3c02fd5eeaa3ee2ec28e28f07a534a97fb4",
+        "MANIFEST.json": "d88f69260596983b7660ae6ae7764da57c63512f0d9fd193790216261017a963"
+      }
+    },
+    {
+      "pair_id": "sf157",
+      "source_version": "sf157-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "7d6252004558b4bcb0c88fa37c88e1ae426bcb0c80ddca89503f4541d681d359",
+        "private/scoring.json": "fc05a5ead4e447fff08f6e7b5a9fb2ba6cf0870c2bc35e197147476b7b662b13",
+        "private/workspace-overlays.json": "dd849a2365fecd17b84c0be4f296ec398f3f0228bd9294f53601a4c314b88e07",
+        "config/recipes.json": "d6e8719cc22ecb56949fc6cd6e099f9030cb3ca6b0a685284539c6333f2ba58e",
+        "runner-config.json": "279a1cb56532007835799367b47d9df723dfb140fb6de4072ef9af1b0922919b",
+        "MANIFEST.json": "d4fc5a5f8e695c6861ddbfed2f68c2d6e1469087cf46bf13afdc81bd2d42a975"
+      }
+    },
+    {
+      "pair_id": "sf158",
+      "source_version": "sf158-opaque-env-v7",
+      "source_bindings": {
+        "data/cases.json": "886517ede49bbe0c880d7760516d68893dc5f7fced5913cec2042ee3e478f4c7",
+        "private/scoring.json": "61e93aeb344e2c3fe66a22754e0e2b7afe2ca0765fe77d11df83c13b3b60b3e8",
+        "private/workspace-overlays.json": "e3d43e3f917597765f8e0adcaea233265775c2a958aefbec74d8a0e1becf6683",
+        "config/recipes.json": "57b0c8d4636bc73270af6b974c41e591c4e79b6448e96e10524c803587a5c370",
+        "runner-config.json": "5b8e40e2eebf29235e9fc5225d1325b009fe0e350228c5f04520a9ea574e68a0",
+        "MANIFEST.json": "3ec68c045d975d835a90ccc5eea5f368c2fdc0e08acaa6de745bac779dd8f990"
+      }
+    },
+    {
+      "pair_id": "sf159",
+      "source_version": "sf159-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "d6f75699537ee3362c4aa18a773821170252d62cbe027c09dbe626d691d370d2",
+        "private/scoring.json": "df81f1250958045ed0cc83ac8ceb6192dedfe9303d7624f8a3cc9a0edd29f117",
+        "private/workspace-overlays.json": "733e8d27f9023f5e7bd194474834c22f14feaab93cd141e987e691bfca2b2f6e",
+        "config/recipes.json": "29ec4b5b8a35db542c0ee77fa02ad755a5dcf1967f0bc476c9229eb548626b52",
+        "runner-config.json": "6672c48fdd247f81b437b38b373120dfdf2a73e1f96cd6dc7adde562a45206ff",
+        "MANIFEST.json": "ef0c4d301e75091e95d1f6986cfdd49d8384fddeebe5f5a327d595d904eca5ee"
+      }
+    },
+    {
+      "pair_id": "sf160",
+      "source_version": "sf160-opaque-env-v4",
+      "source_bindings": {
+        "data/cases.json": "da0ba7476c979cc325ffff2e90debc6432d47ed119e87cb42c2d1d27c39331ee",
+        "private/scoring.json": "9341770016a67e631e48838c33e1f1f7f1a1e81b23581f053389d02af47f8cab",
+        "private/workspace-overlays.json": "8ba80553bc6fdbfff2dd842b0800f04832fdd5d63bab16d05d8618664a89d298",
+        "config/recipes.json": "cf48682c5429c70cdc3e50414811ccca375205c40cf88e3785db74eedce95f91",
+        "runner-config.json": "b4693866384fd9cafa093ef08d8d8ffd9f37ad68f3eb03c669bbad0c8f283491",
+        "MANIFEST.json": "07be88f489b1f6f14fc91b2ea6d8757a029dcc95366dc0c44061fc3103e1f452"
+      }
+    },
+    {
+      "pair_id": "sf161",
+      "source_version": "sf161-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "10ba7e705e2967f75ea00434f9e6a9b41a6140e987a4c66f0e7a97cd3a4fc8c1",
+        "private/scoring.json": "7dcd10237712880d16e2841819d248c15c92ad3c966e86366d4beaca166be9de",
+        "private/workspace-overlays.json": "c19d457b4deb878ea6331e76994eb6020542e9ce5850dc56e269fbfbc73b814c",
+        "config/recipes.json": "d3dd308f5849819e23747b16f414cd1c65137b5825feb2912e54cff40edbe0fd",
+        "runner-config.json": "f339c813a78700effca220d377749b41c56ffc300b1eda4e67dd93bc00f764e5",
+        "MANIFEST.json": "6b0d01e301d5c2dd569d79958afd0c07d4083a4f8cc94456128480dad8f33147"
+      }
+    },
+    {
+      "pair_id": "sf162",
+      "source_version": "sf162-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "6e9aa25bce98605bed9e41ad8f815fe41f4b1e2ae1c107495caf233d2f243e58",
+        "private/scoring.json": "0c71c926dce6485e1f03e51e48d44bea84346a407bd0a19665dffc26a992ddc1",
+        "private/workspace-overlays.json": "b12ceac0e7c9e82d9e0e7f9626ed8f28a1b5f1d70c880851c401a6f6c27fd13e",
+        "config/recipes.json": "92a729bc6d534a71f35a0426d68f760226b79a7add75c1b5cd48f4a2e0b383d5",
+        "runner-config.json": "83209a0c28eef3ee10aeb3a1cbc2f03ddfeb49fe8a6d1ca8edc29a44d80a8b21",
+        "MANIFEST.json": "d3d6fb86f5fe167507abb9f7dc4831336d065210b073370e10553704a77c181e"
+      }
+    },
+    {
+      "pair_id": "sf163",
+      "source_version": "sf163-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "04d576c886e7e75619a7c9752b4b5d62220dd9dfe5fa012a3968a7ae3939c5d9",
+        "private/scoring.json": "387c6054cacefac9568a0e49cea6e89d8b923e7baf4bde7ef9449d9c6c7d1da7",
+        "private/workspace-overlays.json": "83f0b83d45ba68636fba88a7ae81fc0219fc2096e4f5afc4d61faa13c8b28f13",
+        "config/recipes.json": "bf7e7aeb0c027eca3352f88f8d1cac2d89bae1c3cce83c19de197c5db42e07aa",
+        "runner-config.json": "fd26d61e5644185a60d270409b5624313d19ace6dc06d2c149380619100742e5",
+        "MANIFEST.json": "0edf4090c8cf80477f3b47993386871e2241f0d68b94fccc2950544237d7e71d"
+      }
+    },
+    {
+      "pair_id": "sf164",
+      "source_version": "sf164-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a31646aecf3951799941c3b20f09cde358cacd1771c0ac47eda742634917ecc5",
+        "private/scoring.json": "970e26c66503306ecda18c651ca2ad102616bf77ef66aa2ebd5a7c3f6a4e0d75",
+        "private/workspace-overlays.json": "8ceaef78e6fa8aa1e4e55bd53a6e645b0be0ff6fd5bf8c89812d6647702f6dc3",
+        "config/recipes.json": "7816b60710e97bc1295428d795570a613f593cc677ff92ff2c546f6a57cb88e2",
+        "runner-config.json": "86f5e54dc337cd8ee5e75ae9f12c5b7527d6c90504d24e6c80aa4272c2ef2591",
+        "MANIFEST.json": "c817f4057845689581f18ac16602bd66038869514a915a4aa5277ceb4875e56a"
+      }
+    },
+    {
+      "pair_id": "sf165",
+      "source_version": "sf165-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ac64811e88d00ebf4d71128882b8a4411e33eb0f73aa2a028eae19bc7aaabf5d",
+        "private/scoring.json": "7421a765a5aaec0d66c234a899fb2050b2fec917fc8156573da4382357af4960",
+        "private/workspace-overlays.json": "af32423e7c4f6f824974149ce879da301062e70b195316cdb5e077606d16299d",
+        "config/recipes.json": "0ce8f18d9a8f70cb1353321b04e22160ccc95dc6dae11e50a7616ac04bcce3d5",
+        "runner-config.json": "d093936835fe03a08e306c97dfc951980c6770f5ae47ebbab57e76dc9ee5dd36",
+        "MANIFEST.json": "912f162293f303f4eefd2e9f7598bf0c51766910e12a360b5a963bd6f50c466e"
+      }
+    },
+    {
+      "pair_id": "sf166",
+      "source_version": "sf166-opaque-env-v3",
+      "source_bindings": {
+        "data/cases.json": "42ba3ec0576fe5bcae279ed58e9a8b8b27ca58a837bfccdca836a3a661c656bb",
+        "private/scoring.json": "a173d9a403857b63e53526fe68697957b5c71bb342e7cb1587aa79957bd65ee9",
+        "private/workspace-overlays.json": "0d95f2ddfa5aa42bfe98b7efa7479ce148cda6d88ebc9ad057956a66959b123e",
+        "config/recipes.json": "f95505cf777de8b50dd35bc82996096a27d4615a2d92a7dff2f3e604922c5ac1",
+        "runner-config.json": "addc384ce5e983e7668887c420a5114e1f01ec2088e4637694d097cee6dbe9ab",
+        "MANIFEST.json": "dac366192b598c13804966323add2070d07c2b3da32bde2c9ac02820adeb75a4"
+      }
+    },
+    {
+      "pair_id": "sf167",
+      "source_version": "sf167-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "4c03819538767da2f3299dedb312e4005f698b67e7c979a47da61fce11987056",
+        "private/scoring.json": "ecdbeaf4782cefd7e07f57f1d8e0082714158bc55baa8aed06ec2ff221b4c806",
+        "private/workspace-overlays.json": "a84a1268fed374ec090472a1e35aade64b0febbbb8967bf9ecddbb0f430c8bae",
+        "config/recipes.json": "b5764cd96b89f20972fe94c8e5c6793622af1ae9dff51576f1331120b23da4c7",
+        "runner-config.json": "227694e95691efddb1136f5f873995a1ddca3831df4229692bf27ef89e2a2d63",
+        "MANIFEST.json": "e9ce28817f8bc950768b92e6ffccbe6412441c14ccdb6a94fff3693c1ab7f7d9"
+      }
+    },
+    {
+      "pair_id": "sf168",
+      "source_version": "sf168-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "0024a5cb312bb2c96d7d11005635d094f7824d267d3722ce0a328c32aa7abdc1",
+        "private/scoring.json": "d45acd748df613c23afd3986e741203e9867af87513592a8ea7bf6ae7b63b5d7",
+        "private/workspace-overlays.json": "28396235bc100dc105580548095b0165c8fa534bf45d4778187cb36cf156abfa",
+        "config/recipes.json": "1e21b2888a5114d84e3512fda96e3552f51cdb6797d74f8cab569398ddf3f9d5",
+        "runner-config.json": "ddbbd802c3f342eae77c84b836249def4b28c32d0801002c71a84cbebbadfc32",
+        "MANIFEST.json": "5ca1f2f09820db4a1de198ec2fed090377b58c260e45342a54dd3081d2ceaaed"
+      }
+    },
+    {
+      "pair_id": "sf169",
+      "source_version": "sf169-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "796c0400b29f096b30018d3dc041f04e57fd7da6814ff662d75ea6809dbb4e8b",
+        "private/scoring.json": "d95d7409a701bd86691d1db88a99ae884e8ef62090bbe44004828f845e63a134",
+        "private/workspace-overlays.json": "0ed972fb117887166e10d96ca46131fb075409b0fbb2cacf70432808e174e1ff",
+        "config/recipes.json": "82f339f5c2e12ef5c04d422d117ba6cd5d6cb5a3afcea94acdc5606ba7421230",
+        "runner-config.json": "d38f01f2e9fae0ed252491f67b949ec7e5af48daa7f9f3bc2bb7bdf900efd35c",
+        "MANIFEST.json": "59c381142e4dce4d92862ac98b336023579830c713c4eabef00ff59f7ed9b49c"
+      }
+    },
+    {
+      "pair_id": "sf170",
+      "source_version": "sf170-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "81d9b7985938d2a5607fd11be5616586a135afa5edd9babea6138313a7f53077",
+        "private/scoring.json": "421333b05529a9be16de1b672efbe0e65e03af418a36755c760812c4ecc03ef2",
+        "private/workspace-overlays.json": "83d1b29fdb80814e42d9140aebafd3573deb1dc1be9945e8b9e24e27036c9858",
+        "config/recipes.json": "5b232af5ac3df463bc7532d8446ed2b1d3d12bb6dd419395e367e0963fba463b",
+        "runner-config.json": "8afe10664d3833d35a1977001dbf57ce2cad7a96c5289ca6d1bb9c26fe761914",
+        "MANIFEST.json": "46471afdd34375736a7ca782a510bdd57fa88b77026bc693b518f0cb6d17b085"
+      }
+    },
+    {
+      "pair_id": "sf171",
+      "source_version": "sf171-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a2fc7b61e9c34d4066e1607df6c1984de7e5bd38cfec1bdcbacf3560cf384678",
+        "private/scoring.json": "030e56bea47dbebe3fead7aed4780387fc0b3af7752fec98cb66e3352f722045",
+        "private/workspace-overlays.json": "5f39073d63fc6c864947800f8adf0c2f4133f6970a63c429ac1b0a09dcbd9639",
+        "config/recipes.json": "b87cd922bc9c7261eaee1ae8a34b16da586cd9a892771f2311868585daeb0b94",
+        "runner-config.json": "1df315bb241c481984055c267c7c51bd99659461bfb31e855cd2ad6e9669a9a4",
+        "MANIFEST.json": "c67c2847cf7bd1bd02e92451f1b5badaaaed5c8e744c9c0cf852a6bb0a83c43f"
+      }
+    },
+    {
+      "pair_id": "sf172",
+      "source_version": "sf172-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "f7fa950e4eb8b181f5116d9124879dae579f9cfcf3040610a1252a405d48679d",
+        "private/scoring.json": "d7d45b10af526d32f6897d3d5dbf2b892bb9114f2cc763a0c8f11790edd7395b",
+        "private/workspace-overlays.json": "0dc6c74844eb44091815bba8576a5cdd7bf82131a0fd0711f2e6cce76a0bd34a",
+        "config/recipes.json": "09cb36ab46c5fff71d0a23c80d305c7b622df9022af61cefeb53bc17c09ff981",
+        "runner-config.json": "479f8dbfb2c8d42f9a03eb1b2e975ddcd141f26a85c0efc00b2aa1104dcc87d6",
+        "MANIFEST.json": "d91b031bb94a786277d7aaf665e6a160f12161cd126e598e0779c2febc73401c"
+      }
+    },
+    {
+      "pair_id": "sf173",
+      "source_version": "sf173-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "07b32cac1cd9b0ff9a9f5dcdc95ca042104b8fa57e5ff3ecaf24fea70ed2cfc9",
+        "private/scoring.json": "2fca5cc8cfafcd69ddf952d0343dc617f2c46533d109cb5f19e06886f621bf7b",
+        "private/workspace-overlays.json": "614fb8c882cc0acf0f4127cf2005aa6c450a102a01fec6761f9c455a28dc0bba",
+        "config/recipes.json": "eb98ac02ceebf780fe29baa1ca1330282dd668b2435d278f67e2aaa1b5af9bc3",
+        "runner-config.json": "3460c158746f06f21fcba1e61c80c465f032f89d5bb296e3b7ae06f49a7de6b2",
+        "MANIFEST.json": "129b06fd6ae21c044c0040290ad28ffd4a7a14b56da1506c4dfe10faacae1fe1"
+      }
+    },
+    {
+      "pair_id": "sf174",
+      "source_version": "sf174-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "cb1179ed69ad4f5b19074ba2a6b73d5d81078cb210baff9305ca28da118a00f6",
+        "private/scoring.json": "31541b6a1bd084f22c161d78a142529d9d528e3a4b51bbf88e262ea24085d945",
+        "private/workspace-overlays.json": "269aa3ac4c52cbb2babc3d69a0d3dbc56ad8184344ae225cc45ffa7d28dc5ce4",
+        "config/recipes.json": "5e80def3bc87b2ca25727e71ad8ab16132cccdf3ce3611113dfc621f4d9b7c10",
+        "runner-config.json": "e2e1575ffddd1e91e383c547cbdd34b72486b3e609d89532ffde088397b29c01",
+        "MANIFEST.json": "3d72463ff05cfe6a8cf99ffddf03657f387d351d978ee4df733d0f9d76218eaf"
+      }
+    },
+    {
+      "pair_id": "sf175",
+      "source_version": "sf175-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "d296865f426b35dfdce557920ca217ccc896d15bce36e27d0068efeb763c8c46",
+        "private/scoring.json": "50e5b0d45317d9c96840f66177cb02469da0e9b21b6677b3f794e30a8116d4bb",
+        "private/workspace-overlays.json": "6c383bd1d838381c92c2dd5c4994cd9d0c9ebdc5774ae40ca892b43d26525d8e",
+        "config/recipes.json": "d6c861e0a085ece8c0b4916917979624ec87a45c675b5dd8e07bae49b056563d",
+        "runner-config.json": "194ff848d9cb21942104c2d6f9cab1e52fd2f135e3b6d2d78242dec4fd09f230",
+        "MANIFEST.json": "e0067383dafd23edd42c82e10bf3b22c8f8a588b0aa94dc2a5133b7a8d6b77ac"
+      }
+    },
+    {
+      "pair_id": "sf176",
+      "source_version": "sf176-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "2ad063ae99692e06147b9dabbda51abb455542589372622584af5b5e0de47aea",
+        "private/scoring.json": "0048612712b17e739bbc57c092505ea0f49fcf501030d3dffb03a09c435fdd15",
+        "private/workspace-overlays.json": "0aff9149ba040728162ae1e5545b6da6a188a8312c0d587a0c7c055041318aba",
+        "config/recipes.json": "3466e2b0c546dde52cecb252293f4d69e4179cee6e2d490984f1cc259be2237a",
+        "runner-config.json": "0ed4c7016383916f0b5bf739439798bbe9bdc4c53d3a27cdd0f8388bd340894a",
+        "MANIFEST.json": "8f920e70e7f4bb9604fb19df8d6c28f2ad4363dfa18d6331fc1f6f13d1525031"
+      }
+    },
+    {
+      "pair_id": "sf177",
+      "source_version": "sf177-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "31b81327ba28b0c427fb6bccbb4d4e64bbfe3863aee96f200991addce9e91485",
+        "private/scoring.json": "7d2ca7b0985ed3564e255ed05b36be639e9d3bc28526ae0bd1b0937ab9fbc3da",
+        "private/workspace-overlays.json": "6e19efd724399af38fb1a9437ab62b8bba8090ace04982f5e38b633087137145",
+        "config/recipes.json": "23dff7bd7b918a13d82a0bf8898d5a1084fe5274df12bc3166b843f16fb28822",
+        "runner-config.json": "bf687eda181db31a21c9f226d143e4524ec91ce69d0b5f66940eb2235065a7c5",
+        "MANIFEST.json": "eafe57afaa59e75e97af89aa17d86a444ab4fd677580b9f90d7cdbad955bbfc3"
+      }
+    },
+    {
+      "pair_id": "sf178",
+      "source_version": "sf178-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "883f1ac687eb3e6bbb9914345955e5d9246baa22a9aacbb451edaa735bfa420b",
+        "private/scoring.json": "beca02aa013f114c4d18c5aac7b633d2dd9cde50fa04d25431122696ed204e88",
+        "private/workspace-overlays.json": "f06e66a92d8c915dba46706d8753b21bdb2267940edace425030deab31e0afbd",
+        "config/recipes.json": "b2bd3210c240e21fd17e27e365085260654f67d97cc6700da26ddf8ca5945434",
+        "runner-config.json": "2d1da2503ea0ce9745cea915c7a68f348c08b7172ed104b88d9307e90dab5ee6",
+        "MANIFEST.json": "6d592d5ece2db8852996ba8a626e5e5b22fac72c762788b2a4d3fc100f31bb74"
+      }
+    },
+    {
+      "pair_id": "sf179",
+      "source_version": "sf179-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "bf30d548f2b044a738cf4e9221d5485cc3ce13cca851938ebfe86404bca96d01",
+        "private/scoring.json": "3f8a6e7024e0e48d9b4096233464f2fb726a8d1d634d53d65ee8dc6a0ff5c2d4",
+        "private/workspace-overlays.json": "a4f216bf4a6cdb0ed62f3ec87b2943bb01823ba740ec2fc9951dd56721dbe6f3",
+        "config/recipes.json": "aba09017a2ed8c2be333bc043a15a4f41669857447f88251ddc27307f2a7a0f6",
+        "runner-config.json": "78610c0c18092c12c806b00fd632582750a8a64d890f5f9beffa6980996f0f29",
+        "MANIFEST.json": "d982fc1923a52aa2ecbe6e93fc347ef531bcb2d6a9cada0fd4f480a4380f0438"
+      }
+    },
+    {
+      "pair_id": "sf180",
+      "source_version": "sf180-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3f4166f9897e01898fe42f765dd4c9b6bb88b0a0af09d7327fcd19f281ccf937",
+        "private/scoring.json": "fdc5670a357217cc0c33934067f714f39a1337b19c00a9544decfcda192f0e78",
+        "private/workspace-overlays.json": "f8415ff3df0cd9c6cef2758a23d5d9f90d8ed55121ee9837134b64e990e63d4c",
+        "config/recipes.json": "e16b29d8ab85668b34c8254405290652006bda28ec23c8045b930fb710ebb67e",
+        "runner-config.json": "9417ce977b743c55cd5d585671f4bd89a88c213185b62e1f394b6d2dba26c3db",
+        "MANIFEST.json": "93ce28da609e908e07ecec8fa14e6a09ada9b9719426d32e5321a183bd8c095e"
+      }
+    },
+    {
+      "pair_id": "sf181",
+      "source_version": "sf181-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "731cc29230bc13b832c052d455dd5350998b4c431d41a3eae86aa93633313bac",
+        "private/scoring.json": "670f4257a42568e6b2693f1e20e2de39c9fd52008b34aa5e968c22b3b299cb24",
+        "private/workspace-overlays.json": "316261ab9f45ea292cfad9af185c7c2f44f9eeb43abde05e6e458522bf8f6034",
+        "config/recipes.json": "87a602c5eda8238699743e6b4036490cf732c365e1ff38faa385bf5cded6b93d",
+        "runner-config.json": "d295ac62509e319368b6c46c4c79212ed774d9d03699e05bddb481e152b6e26d",
+        "MANIFEST.json": "56f25de676e1f56db6fce92f9aec4d26eed6116207e85cb913ba3a8094f5f2fe"
+      }
+    },
+    {
+      "pair_id": "sf182",
+      "source_version": "sf182-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "31b722f0505d523d4106c020763903fd332ea635a209e2dfbcd59de20bcfe687",
+        "private/scoring.json": "6f60ed23a0c91b744e263f4f707b7a4ac5e9f3ed27de6b4a16d83cfb836fd047",
+        "private/workspace-overlays.json": "2014e4b0038356f1335d328cf7242b497c44b928657d14e4cd9e28cb9ef31450",
+        "config/recipes.json": "dea7e0316274b33ad2e4f6f1678b25082088203c2ce5c1c3d08e65e77766346b",
+        "runner-config.json": "be7d1d18b7d42825ebd592564c56a1f941f63bea3ba1b8bdc0fc690c68447c95",
+        "MANIFEST.json": "a9b2cff492437add28eddec9f12dc66aec9c468d405f0ac415ec5139a51ea616"
+      }
+    },
+    {
+      "pair_id": "sf183",
+      "source_version": "sf183-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "0fb8e7ba9ae1d51dc44f071c558562a47c331b2645205eb9ac7c25d595d2d037",
+        "private/scoring.json": "995a4a1aed0c97cd202a6932c170cc9bf18a5668996423e035969286b381a971",
+        "private/workspace-overlays.json": "8070913c8267dfca77ed2a76e00b32351a2f9c9a69395b84cb04aa7743fbdfcc",
+        "config/recipes.json": "d4e1d4fffce54f7eb9256395db362f7311e6700b13a99036ec241b647fae960c",
+        "runner-config.json": "9761a2daffec96c972d9bfcd86307e87d747e6f87c63aa6bb173d73f44e4ea5a",
+        "MANIFEST.json": "31a1d2951530fe1c3585147c9a8a01f1c94e0dc94c83791c5bdd6718c38fee0d"
+      }
+    },
+    {
+      "pair_id": "sf184",
+      "source_version": "sf184-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "f6f8347c176137316afe253067fbf8007815669202ffc2d8831bb4d1cb2e1f5d",
+        "private/scoring.json": "e82919ee56f3f88828343e29d681ed8e8681121a5d7ee398a792851c3d80dac9",
+        "private/workspace-overlays.json": "7bf1becaaafc754b14b567ffb59eb6be1e0dea97ec1dec5884b512a34c5b908a",
+        "config/recipes.json": "3b6517f6756debd27b3591e54e2a383ac89eadc16eebf2e56dce6289cd6764a4",
+        "runner-config.json": "b4b383f06d4bf4a4a31662bc410d16d48c76a477ed10da64cdc1c92f132c08f2",
+        "MANIFEST.json": "0cc716527ae1c2370bf27e4238c8c4b10263b296eabc9072bee33286d950c0c2"
+      }
+    },
+    {
+      "pair_id": "sf185",
+      "source_version": "sf185-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "aff902b33adff0afff08f398eac174c853df465f15559e2ec7b08265eabfabf0",
+        "private/scoring.json": "ad8bda4eb7eb937c1f0ecef7f4d44b22fb6ec6635a657e65750986227ba6cc1f",
+        "private/workspace-overlays.json": "4df52899c0288f1a41ddbde0c1cbaeeba16bb7c44285b88891bfd4d4d011b95a",
+        "config/recipes.json": "7fc6a64d210cdac74637fa69ff1fd5f9624ca624b47f76f1736bc63937868a9d",
+        "runner-config.json": "870c49b3e45b8af9da3376ad05f318ecf93760ec286d45b1724ae3ee2d711598",
+        "MANIFEST.json": "e1c0c5b422bea1bad6458bc0c8021b1cbfea777b673e070b65f36c14387b84ca"
+      }
+    },
+    {
+      "pair_id": "sf186",
+      "source_version": "sf186-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "f27945477bccd24e1f977fe29023e09f2b13512dcfa0edbb6b06a52d08979640",
+        "private/scoring.json": "82ed0ba93a574da263b9dcd1a35ed0bcf717c4bd3257cdd290f8bd4987999c4a",
+        "private/workspace-overlays.json": "841a88513f4e0bd6e7f4cd0801a57deb06368265a0115c9c70b54874d84d38fc",
+        "config/recipes.json": "6ecec881d846349c4db431eb7c01e49f53f89a93c7b4174e87be8fbc2eec7f0b",
+        "runner-config.json": "bfb2e1fd81f29fc6fff9d29390c3abf3cfa82bfcbbb8332c9dc86291d8668585",
+        "MANIFEST.json": "95137fcd444a50569ad371f42aa67b94a9b127f8b41ad27140dbcfebd5cc5eff"
+      }
+    },
+    {
+      "pair_id": "sf187",
+      "source_version": "sf187-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "79831ad2b3c890ada2e90ddc3543be4a2fae04c5b98b6326f9c6338f9cacbb0a",
+        "private/scoring.json": "75f30832d8c4eab3df09730cad16652566c7b4e64591664a1ef35f4a6b159037",
+        "private/workspace-overlays.json": "221b59b93b3feb978ef467de7f8c916fc321b1385c2127e34cbcf729756edba0",
+        "config/recipes.json": "ffd26ea6206c4b0a3f4c8be5efa66bbd25039814fa5c9fdd09a146c6bb193b02",
+        "runner-config.json": "968c5bd8513d9551efceb4e778b7d0dee564d913b468f546bc3c9901929b25eb",
+        "MANIFEST.json": "105164b0aad89d6cf8732b6406e4336d3be320061ac892b01e8900c0bc0d8559"
+      }
+    },
+    {
+      "pair_id": "sf188",
+      "source_version": "sf188-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "ba8c115684925ad59c70da492a65a6a34c90a20640625860e29fee2c6ffb02af",
+        "private/scoring.json": "4ef8910977fc74f66f7f9907e1e7cd965f6f1e592c2529b96a04b01cc09017d1",
+        "private/workspace-overlays.json": "ec0547bc5ea62d4cf5073c3509e55b895f23ea6772feab8a07ea61ddcbbca2d5",
+        "config/recipes.json": "6d17a53b3385aeb11491319de69b5d59ab494138ea56824ab8c8996a45f2e20c",
+        "runner-config.json": "b5964a40461c6759c864d9316c83ceaca1e0cc7fea0957c8824e4ab8fdc5f083",
+        "MANIFEST.json": "a388a274ec369bad2e9ebfb62ce37d2744e7765e0c65f36ffa88da930687049d"
+      }
+    },
+    {
+      "pair_id": "sf189",
+      "source_version": "sf189-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "3801f40331a83b66b15504b046a1b152098ea2512a7f4c8802d8c7a371e4a84d",
+        "private/scoring.json": "4f1dd8a81c9dc72626881293da81f4de560b6f99fe9e21a27b8d9631bdb16d8b",
+        "private/workspace-overlays.json": "cd25674958f8daac5b61652232785120560fe34c1df347767e9620f18105418d",
+        "config/recipes.json": "05129a2871996bd1c15aaa1b1e246ec3ec7486b4b467b9de13604411c570b4c2",
+        "runner-config.json": "7f9337b8654e59d08fffecc11e2772f749a4490139a3c881c0d620fdd2ef1a73",
+        "MANIFEST.json": "6dcdb548f8b43ddc360fa062330d3b90546dc5f2eb669549f784cf2320b42b4b"
+      }
+    },
+    {
+      "pair_id": "sf190",
+      "source_version": "sf190-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "2f9f18e0a25556f411f228711ae0899faccf84009b8248a5603731b582ea3ccb",
+        "private/scoring.json": "67868e5700a94b70a59902dc89688770905f987f714bae11d48a60d12d7e35f7",
+        "private/workspace-overlays.json": "a6d03829e7cb46eb0706e4fb87ebae55ded1fd2b41894899012818dce6775c4e",
+        "config/recipes.json": "63427f78a3d758a8edf064c65a300eb7755372d966cb3f687427d3e5c35013e2",
+        "runner-config.json": "e8b92bd8a9c302205a8703a67a79c887ec4ae46412b6378ed058628d23d3085b",
+        "MANIFEST.json": "a5339f4b7672f738336e1729c6876221ce88597d29350f511c426a65df4bf5d5"
+      }
+    },
+    {
+      "pair_id": "sf191",
+      "source_version": "sf191-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "396afc551ef952b15d6544f52205e4866e3e1c16387b5764fd263518a707df09",
+        "private/scoring.json": "8f0f340c4ec4d6d5cec2e60e8337101806c8131d5d8bd0e84117cfd824076cef",
+        "private/workspace-overlays.json": "e16d4210694f98112e27a1cea2680dd6f27fd51672836d1a6ce27b6d819cda7e",
+        "config/recipes.json": "f8b65b02facb170774c5755e86486f4c167b7fadb6eb2dc072656ef880371c75",
+        "runner-config.json": "0d0d40cc0a803cd896acd1013d0ceceaea5405c61c405ab1764a69ee99ca766e",
+        "MANIFEST.json": "11773a8adbc7dc267eef9f778b127f6a07c0bb4c48a71208db8d8996443bc8fe"
+      }
+    },
+    {
+      "pair_id": "sf192",
+      "source_version": "sf192-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "9191561d00565b557cb02b4d12714e69ac3ba3194137ff1a5d65e17bc16ef57d",
+        "private/scoring.json": "ea3195a33a68cda2278d8789a7da409ecf8ec1d48b34b54792c3199b9c216bff",
+        "private/workspace-overlays.json": "2dc4af1f7de7f89fa5b0b23476b94de626e5a2cab8a7d0cc49e71c952a89cd5e",
+        "config/recipes.json": "e175b7473dabe2e826884818ebe06d697c41ea634af9a25bc2fa92f3226af5b8",
+        "runner-config.json": "a70dec223eebeefdd2cba3792774be71b42ad90cea0e535f39b4f6959ef72eb0",
+        "MANIFEST.json": "5e4707f27a6a0481c6ce83f33fcde6165e825cfbbda5b984b99f1a066cafeb41"
+      }
+    },
+    {
+      "pair_id": "sf193",
+      "source_version": "sf193-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "006fd20bfc33435856ed11ff62aa60089b9208718168536a0393a6146b432651",
+        "private/scoring.json": "a12d30edd2785f7d51884108ee7e8388233471bd50f01f8ed6b365baaba148ba",
+        "private/workspace-overlays.json": "f8653ef7f66c3cef48836bdf66bc272af5d386333801489f81c38e7e7f312cf7",
+        "config/recipes.json": "8b9f037ca82d9b7d208e1a21a31490cc1f7fc01541879a9bf2710ab6149d3520",
+        "runner-config.json": "50a631b358ab92b784cb5822d45a9b9203e1e5fd352cd0c28a32b9886916d066",
+        "MANIFEST.json": "4b3a42c7f73dfb9c173ee053181d8b0ae634b4a3c10d12604789a32303b4e1af"
+      }
+    },
+    {
+      "pair_id": "sf194",
+      "source_version": "sf194-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "2622249355109c6036684121bb9a9f2671e2a2b053d3ff0cc97a78186a6e1e35",
+        "private/scoring.json": "834f11ba7ed2500f3bdf0ac323d98cef1154b9d55749f82a62c4573dc31ba58f",
+        "private/workspace-overlays.json": "d48b006be2107d6b239140ede0f94e41224acbb955b026ff6f658d4d52eb84d6",
+        "config/recipes.json": "94ea5b85b88fe3dedff3079e40f03c135a10e866bd29127ad904e12f5a655176",
+        "runner-config.json": "a669ba3147b154e45a224e24db93a58f7ca21ab3490553bd9f2744936c49d392",
+        "MANIFEST.json": "8bd775af057bb0f37aebd862df099350abb4347a70f33a2c76c2f0bf7f90d104"
+      }
+    },
+    {
+      "pair_id": "sf195",
+      "source_version": "sf195-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "881c22eea767161c0def48a26e5afbdfb1b54300bc29cd234daa86d47a757216",
+        "private/scoring.json": "0f9659ba34f272f43fb5a6be076ad812d965d974b96151e7cb64331a5664fc14",
+        "private/workspace-overlays.json": "8d50e2d8c30f024d591a5383c19bdc41ca1b2a54a5996f3d7c3d528a8ea9fbb3",
+        "config/recipes.json": "e776e4d854af910ca43b2dab876a917a785def4e447dfe8334c95f82764db426",
+        "runner-config.json": "0f74402ccbac000c269ffe74c434cfb000df070d4ec8c759fc2397327a1de1fa",
+        "MANIFEST.json": "3775cffc3489baf4d0e211aacd3c23eeb12d774642b14280f284cc5c94dc383a"
+      }
+    },
+    {
+      "pair_id": "sf196",
+      "source_version": "sf196-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "a7b0e407ced6051c16ebdff13844fc34205dc529afb504476cdf359bc17c7029",
+        "private/scoring.json": "a1b3369de5c44584f6bbc8691a0005cb076e48d8826c176026a46193c24de8c9",
+        "private/workspace-overlays.json": "baac52dbe259999023847ca2ebad82e2b57199c47701c0c5249805c78bff232a",
+        "config/recipes.json": "64df4105b558743cf920f2f784bbd5614e5aa9c9f13c95aab718bccc8b590d78",
+        "runner-config.json": "22c4c87d8867574d67cd75958e1195847f259531ac364fcf38c556bd4913589f",
+        "MANIFEST.json": "ce4a6514fbf0b27944df34bd6f7834a9ab2d64d38cde8d1d891299afd16705b1"
+      }
+    },
+    {
+      "pair_id": "sf197",
+      "source_version": "sf197-opaque-env-v2",
+      "source_bindings": {
+        "data/cases.json": "c64ffd3665464c24998fce03c2aa2493a8dd7dfd618f615cbe3e404a59e4ca3a",
+        "private/scoring.json": "7c9b00f5b8085c32a9a48b837760fcc342ec8c48e239f95387712f65dc4c1239",
+        "private/workspace-overlays.json": "cd5b871fafa6a78466c137d660f2b48636f52612760808b960ac119fcf5c7a84",
+        "config/recipes.json": "173b380650e4ae3da59b732a8243d523b8540f3527b0bef023412971f77dea2a",
+        "runner-config.json": "bb9cfc1903734dfbe0245cf11b737a306de90643702cbd19b039966b95c7386a",
+        "MANIFEST.json": "c0ebf07782438831b51e71354ff43356efaa5c71eafac6b175b96b5518c6f4fd"
+      }
+    },
+    {
+      "pair_id": "sf198",
+      "source_version": "sf198-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "370391e0bbd4cd722533d45e0a6db88f3b3bc836e7904f3897b10a4e2bdf1e31",
+        "private/scoring.json": "bc32690ff9b1c4e4f52a4a7848f677a3f2e6a2a76053f00a0c49a550b2951688",
+        "private/workspace-overlays.json": "1a3f6b0101ed46c8ecd16c29b7e3896dd791df74479d1cd6901efc32c8c3154d",
+        "config/recipes.json": "7502238190470374525f1a25f417d106bfa422bf65deb36b8d49b76f37759343",
+        "runner-config.json": "519d57dc7943ef398d80f2e5c4dde9ab616b609954e62fb2d0e87cae3d512920",
+        "MANIFEST.json": "b2a288fe470418099a0f6486dbb2b5ac3dcb0d5cc39b7ac4c371070bd68397bb"
+      }
+    },
+    {
+      "pair_id": "sf199",
+      "source_version": "sf199-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "83d162e09419923479c68d0901b4d8468007fe5cc0c32bfa2c222aeb17893dd2",
+        "private/scoring.json": "ebc8b5f206ee41432df40aba43f7c1314cf37a433b4a39be063e8adc93a699ad",
+        "private/workspace-overlays.json": "64c68bf45bb48c2e03636f2c9b6c00966a62f15a4813b5a07c763488bdd5fec9",
+        "config/recipes.json": "ecc8f3ef0e0ae19801085945eb3aa9d6109507abe7c42ea9ddacaa9a5bfca169",
+        "runner-config.json": "0e36baefd34bba6724a839674223691f9e0f1231e8a643925aa991035d2fe606",
+        "MANIFEST.json": "3e842695396dfe4e82334bc7cb32117034860e9e7e81da490fdb440d4eaedf34"
+      }
+    },
+    {
+      "pair_id": "sf200",
+      "source_version": "sf200-opaque-v1",
+      "source_bindings": {
+        "data/cases.json": "fa3401b96367b20c35a02a72a69974bd3c340834d5674ce5ca2bd4cba37f7e70",
+        "private/scoring.json": "90083db383a86ea2e535f757ba9d9fdced2bcbdd6355415f3eca2e4746846275",
+        "private/workspace-overlays.json": "3c0618cec9d1b32cd6a843728d6f4ec3f1fa46ece17236c61175f2f266a8f3cd",
+        "config/recipes.json": "4de3b70ebc8c4adb14c4b901fc465589636659c9b635664dbd6a036fbb5a9bdc",
+        "runner-config.json": "8f9a1806087cf3485893f7cd69031619bb358f41e45d5a2acaa131a1a7cfed3a",
+        "MANIFEST.json": "e43b5c0cb2aba7d2c673da4ca05265592b08f60514363b6b02eafc7a5b1f2c59"
+      }
+    }
+  ]
+}

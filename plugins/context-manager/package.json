@@ -1,0 +1,35 @@
+{
+  "name": "switch-swe-opencode-context-manager",
+  "version": "0.0.0-v003",
+  "private": true,
+  "description": "Standalone packaging of the measured v003 context manager for OpenCode 1.18.2",
+  "type": "module",
+  "main": "./plugin.mjs",
+  "exports": {
+    ".": "./plugin.mjs"
+  },
+  "bin": {
+    "opencode_plus": "./opencode_plus"
+  },
+  "files": [
+    "analyzer.mjs",
+    "manager.mjs",
+    "plugin.mjs",
+    "opencode_plus",
+    "test/",
+    "README.md",
+    "PROVENANCE.json",
+    "VALIDATION.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs && python3 -B test/wrapper_test.py",
+    "test:integration:a": "python3 -B test/integration.py --mode a",
+    "test:integration:x": "python3 -B test/integration.py --mode x",
+    "test:integration:off": "python3 -B test/integration.py --mode off"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "MIT"
+}
