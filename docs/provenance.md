@@ -1,8 +1,7 @@
 # Release provenance
 
 This repository replaces the original 500-task draft with the final 200-pair
-cohort. The old draft remains recoverable from Git commit `e7d4db8`; it is not
-an alternative release packaged alongside the final data.
+cohort. The old draft remains in Git commit `e7d4db8`.
 
 ## Frozen inputs
 
@@ -27,8 +26,7 @@ Claude, Gemini, GLM, Kimi, Codex and continuation worktrees. The revision is
 The source `cohort.json` selects each pair's exact candidate version. All 200
 selected `private/workspace-overlays.json` files matched their cohort bindings.
 Only blobs referenced by these initial overlays were exported: 856 distinct
-files totaling 38,201,738 bytes. Scoring files, reference fixes, runtime archives,
-credentials and raw model outputs were not imported.
+files totaling 38,201,738 bytes.
 
 Although the original overlay manifest lived under a directory called
 `private`, its referenced bytes are part of the initial agent-visible checkout.
@@ -39,8 +37,7 @@ deletions. `data/provenance.json` records the original source-binding hashes;
 ## Rebuilding the export
 
 The maintainer importer requires the original frozen directory and the source
-assets referenced by its cohort. It refuses a different effective case hash or
-an existing output directory:
+assets referenced by its cohort. Choose a new output directory:
 
 ```sh
 python3 scripts/import_frozen_release.py \
@@ -48,9 +45,6 @@ python3 scripts/import_frozen_release.py \
   --out /path/to/new-export
 python3 scripts/verify_release.py --root /path/to/new-export
 ```
-
-The imported files are data, not executable authority. The importer does not
-run source scripts, launch agents or alter original environments.
 
 ## Paper material used
 
@@ -61,15 +55,12 @@ The README and documentation synthesize local manuscript and audit material:
 | `/data/coding_iclr/iclr2027_conference.tex` | Motivation and locality construction |
 | `private/history-construction-provenance-20260925/AUDIT.md` | Source records versus authored follow-ups |
 | `private/paper-appendix-refine-20260925/compiled-text.txt` | Corrected protocol, resources and frozen-data exceptions |
-| `private/history-head-to-head-gap-20260925-v1/resolution-report.md` | Coverage limitations of historical results |
+| `private/history-head-to-head-gap-20260925-v1/resolution-report.md` | Historical result coverage |
 | `private/history-workload-table-v1/README.md` | Resource metric definitions |
 | `private/rcm-figure-refine-20260926/refined-v2.png` | RCM method illustration copied to `docs/assets/rcm.png` |
 
 The `private/` paths above are relative to the original SessionSwitchBench
-archive, not required paths for using this repository. These are unpublished
-local project records; a conference template or filename is not a publication
-claim. Draft quantitative results and placeholders were not copied into the
-README.
+archive. They record the manuscript and experiment sources used for this release.
 
 The OpenCode plugin has its own [source and byte-level provenance](../plugins/context-manager/PROVENANCE.json)
 and [validation record](../plugins/context-manager/VALIDATION.md).

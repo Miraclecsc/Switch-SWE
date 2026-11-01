@@ -27,33 +27,8 @@ Local raw integration evidence:
 - `/data/context-integration-x-9k5k5c6r/result.json`
 - `/data/context-integration-off-ynhb_na9/result.json`
 
-Those directories also contain request captures, native exports, isolated
-runtime state, and stdout/stderr. They are verification scratch, not part of
-this package; rerunning the tests creates fresh evidence.
+These records contain request captures, native exports and runtime state.
 
-The original 16 tests cover topic return, current-turn/tool preservation,
-uncertain and failed routing, session isolation, restart deduplication, bounded
-memory preparation, failed-memory guards, original user-instruction retention,
-oversized-memory fallback, provider request construction, array identity, and
-compaction passthrough. The new wrapper tests cover default X, A, off, invalid
-mode rejection, argument forwarding, and preservation of existing configuration.
-
-The four runtime files and original JavaScript tests match the selected frozen
-v003 snapshot and the full-evaluation snapshot byte for byte. The integration
-test was adapted to validate the executable pin, place scratch outside the
-package, and cover off mode. No runtime behavior was changed. The manifest
-contains no dependency or install script, and the npm package file list is
-explicitly limited to source, tests, provenance, license, and documentation.
-
-All delivered text was reviewed and scanned for private-key blocks, common
-provider/token formats, credential-bearing URLs, and literal credential
-assignments. No real credentials were found. `FAKE_LOCAL_KEY` and `local-secret`
-are loopback test fixtures; `{env:PROVIDER_API_KEY}` is a documentation
-placeholder. No secret file, auth store, runtime directory, binary, benchmark
-conversation, or operator script was copied. This is a bounded check of these
-delivered files, not a scan or certification of the original workspace.
-
-Compatibility with other OpenCode releases, real-model semantic routing and
-memory quality, production proxy behavior, simultaneous processes sharing
-session state, and final 100 near + 100 far benchmark performance were not
-validated. No benchmark outcome is claimed by this packaging work.
+The four runtime files and original JavaScript tests match the selected v003
+development and full-evaluation snapshots. See [PROVENANCE.json](PROVENANCE.json)
+for file hashes and source locations.

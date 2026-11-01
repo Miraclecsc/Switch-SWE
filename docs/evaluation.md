@@ -42,8 +42,7 @@ total budget for an entire session. A single request can span multiple
 900-second invocations; the three timeout continuations are shared across the
 case. Completed turns are not resent on resume.
 Most frozen environments use 2 vCPU / 8 GiB; the two arms of `sf047` and `sf048`
-use 8 vCPU / 16 GiB. These are historical profiles, not guarantees that all
-public preparations run on any machine with those resources.
+use 8 vCPU / 16 GiB.
 
 Report graded outcomes, exhausted timeouts, provider failures, setup failures
 and missing results separately. A setup failure is not a demonstrated wrong

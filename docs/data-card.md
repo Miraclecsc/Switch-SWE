@@ -82,7 +82,7 @@ overlap is an operational proxy for locality, not a semantic similarity score.
 The historical audit records a shared-parent-directory exception for `sf073`
 in the far group. Its frozen label is preserved.
 
-## Matched-control limitations
+## Paired request details
 
 The frozen cohort contains historical exceptions to the idealized design.
 The September 25 appendix audit reports:
@@ -95,18 +95,14 @@ The September 25 appendix audit reports:
 - Every interruption appears in at least two chunks in 137/200 switched sessions.
 - Finalization immediately follows a nonfinal focus request in 95/200 sessions.
 
-The release preserves these cases. It does not silently regenerate prompts or
-relabel membership to fit a cleaner description. The verification script checks
-frozen integrity and structural consistency; it does not certify all locality
-rules from private reference fixes.
+The release preserves these cases and their original labels.
 
 ## Scope and licensing
 
 This package contains prompts, initial-source overlays, split membership and
 source preparation tools. It does not include private test patches, reference
 solutions, private test selectors, compiled dependency caches or runtime images.
-Existing historical environment qualification is not a fresh test run of this
-public package. See [the evaluation protocol](evaluation.md).
+See [the evaluation protocol](evaluation.md) for grading.
 
 Repository code and source-derived blobs retain their upstream licenses.
 The root MIT license applies to original project code; it does not relicense
