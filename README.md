@@ -1,8 +1,31 @@
-# Switch-SWE
+<p align="center">
+  <a href="https://mqleet.github.io/Switch-Swe/">
+    <img src="assets/logo.svg" alt="Switch-SWE crossed-arrow logo" width="96" height="96">
+  </a>
+</p>
 
-**Do Coding Agents Hold Focus When Switching Between Unfinished Tasks?**
+<h1 align="center">Switch-SWE</h1>
 
-[Paper](assets/paper.pdf) · [Harbor](https://github.com/harbor-framework/harbor) · [RCM plugin](plugins/context-manager)
+<p align="center">
+  <strong>Do Coding Agents Hold Focus When Switching Between Unfinished Tasks?</strong>
+</p>
+
+<p align="center">
+  <a href="https://mqleet.github.io/Switch-Swe/">
+    <img src="https://img.shields.io/badge/Project-Page-b65334?style=flat&amp;logo=githubpages&amp;logoColor=white" alt="Project Page">
+  </a>
+  <a href="https://arxiv.org/abs/2611.02017">
+    <img src="https://img.shields.io/badge/arXiv-2611.02017-B31B1B?style=flat&amp;logo=arxiv&amp;logoColor=white" alt="arXiv Paper">
+  </a>
+  <a href="https://huggingface.co/papers/2611.02017">
+    <img src="https://img.shields.io/badge/HF-Daily%20Paper-FFD21E?style=flat&amp;logo=huggingface&amp;logoColor=FFD21E" alt="Hugging Face Daily Paper">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/harbor-framework/harbor">Harbor</a> ·
+  <a href="plugins/context-manager">RCM plugin</a>
+</p>
 
 Switch-SWE evaluates how coding agents resume unfinished work after handling other tasks in the same repository. This release contains **200 switched sessions from 19 Python repositories**: **100 near** and **100 far**.
 
@@ -39,3 +62,19 @@ Each task contains `task.toml`, an `environment/` build, ordered `steps/` with t
 [RCM](plugins/context-manager) contains the paper's OpenCode context-management plugin. [tools/](tools/) contains the dataset exporter and Harbor task checks.
 
 Original code: [MIT](LICENSE). Included upstream source retains its original license notices.
+
+## Citation
+
+If you find Switch-SWE userful, please kindly cite our paper:
+
+```bibtex
+@misc{chang2026switchswe,
+  title = {{Switch-SWE}: Do Coding Agents Hold Focus When Switching Between Unfinished Tasks?},
+  author = {Shuochen Chang and Qianli Ma and Yibo Miao and Qingyang Liu and Bingjie Gao and Haonan Zhao and Siyu Sun and Yulin Sun and Han Zhao and Jiangtong Li},
+  year = {2026},
+  eprint = {2611.02017},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CL},
+  url = {https://arxiv.org/abs/2611.02017}
+}
+```

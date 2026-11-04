@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <title>Switch-SWE crossed-arrow logo</title>
+  <rect width="40" height="40" rx="9" fill="#fffdf8"/>
+  <g stroke="#b65334" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 12h6c8 0 6 16 14 16h6M7 28h6c8 0 6-16 14-16h6"/>
+    <path d="m29 8 4 4-4 4m0 8 4 4-4 4"/>
+  </g>
+</svg>
